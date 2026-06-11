@@ -908,7 +908,7 @@ export default function App() {
   // 🎙️ 사파리용 음성 인식 엔진 실행
   const handleVoiceCommand = () => {
     const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert(
         "아이폰 설정 > 사파리에서 마이크 권한을 허용하거나 최신 iOS로 업데이트 해주세요."
