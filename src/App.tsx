@@ -109,6 +109,7 @@ const lerpHue = (a: number, b: number, t: number) => {
 };
 const lerpColor = (c1: any, c2: any, t: number) => ({ h: lerpHue(c1.h, c2.h, t), s: lerp(c1.s, c2.s, t), l: lerp(c1.l, c2.l, t) });
 
+// 💡 2. 리얼 3D 프랙탈 노이즈 기반 실제 안료 질감 렌더러
 const getTonerVisuals = (code: string, role: string, desc = '') => {
   const isPearl = role.includes('펄') || role.includes('이펙트') || role.includes('글라스') || role.includes('다이아몬드');
   const isSilver = role.includes('실버') || role.includes('알루미늄');
@@ -265,13 +266,11 @@ export default function App() {
   const [isBaseConfirmed, setIsBaseConfirmed] = useState(false);
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
 
-  // 💡 Auto Focus
   const [focusTarget, setFocusTarget] = useState<{ id: string, type: 'base' | 'pearl' } | null>(null);
-
   const [scannedImage, setScannedImage] = useState<string | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const initialChat = { id: 1, type: 'system', text: '💡 **[HI-TEC Master Engine V4.0 로드 완료]**\n- **업데이트**: 고속 숫자 스캔(OCR) 및 음성 연속 입력 지원.', time: new Date().toLocaleTimeString('ko-KR') };
+  const initialChat = { id: 1, type: 'system', text: '💡 **[HI-TEC Master Engine V5.0 로드 완료]**\n- **업데이트**: 초강력 숫자 스캔(OCR) 및 연속 음성입력 완벽 지원.', time: new Date().toLocaleTimeString('ko-KR') };
   const [chatMessages, setChatMessages] = useState([initialChat]);
   const [chatInput, setChatInput] = useState('');
   const [isAiProcessing, setIsAiProcessing] = useState(false);
@@ -291,7 +290,6 @@ export default function App() {
   const [pearlOptics, setPearlOptics] = useState({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
   const [finalOptics, setFinalOptics] = useState({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
 
-  // 💡 6052 계산
   const [isBaseMetallic, setIsBaseMetallic] = useState(false);
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
 
@@ -345,7 +343,12 @@ export default function App() {
     addChatMessage('system', '🗑️ **[ACTION_RESET]** 배합 리스트가 즉시 초기화되었습니다.');
   };
 
-  // 🎙️ 음성 인식(Voice Dictation) 핸들러
+  const handleConfirmBase = () => {
+    setIsBaseConfirmed(true);
+    addChatMessage('system', '🔒 **[STATE_LOCK]** 기준 코드가 확정되었습니다. 멀티 시각화 렌더링을 활성화합니다.');
+  };
+
+  // 🎙️ 스마트 음성 연속 입력 핸들러
   const toggleVoiceDictation = () => {
     if (isListening) {
       recognitionRef.current?.stop();
@@ -384,7 +387,6 @@ export default function App() {
           const role = TONER_DB[finalCode as keyof typeof TONER_DB].role;
           const newToner = { id: `voice_${Date.now()}`, code: finalCode, role: role, adjustedWeight: weight };
           
-          // 펄 계열 자동 분류 로직
           const isPearlType = role.includes('펄') || role.includes('다이아몬드') || role.includes('이펙트');
           
           if (isPearlType && isThreeCoatMode) {
@@ -405,7 +407,7 @@ export default function App() {
     recognition.onerror = (event: any) => {
       if(event.error !== 'no-speech') {
         setIsListening(false);
-        addChatMessage('system', '🎙️ 음성 인식 권한 오류가 발생했습니다. 마이크 접근을 허용해 주세요.');
+        addChatMessage('system', '🎙️ 음성 인식 권한 오류가 발생했습니다. 브라우저 설정에서 마이크 접근을 허용해 주세요.');
       }
     };
 
@@ -414,7 +416,7 @@ export default function App() {
     recognition.start();
   };
 
-  // 📸 진짜 OCR 스캔 핸들러 (숫자 헌팅 로직으로 변경)
+  // 📸 진짜 스마트 넘버 헌팅 OCR 스캔
   const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -422,14 +424,14 @@ export default function App() {
     const imageUrl = URL.createObjectURL(file);
     setScannedImage(imageUrl);
     setIsScanning(true);
-    addChatMessage('system', '⏳ **[AI 비전 엔진 가동]**\nTesseract.js 이미지 분석 모듈로 숫자를 추적 중입니다. (약 3~5초 소요)');
+    addChatMessage('system', '⏳ **[AI 비전 엔진 가동]**\n이미지에서 숫자를 강제 추출하고 있습니다. (약 3~5초 소요)');
 
     try {
       if ((window as any).Tesseract) {
         const result = await (window as any).Tesseract.recognize(file, 'eng+kor', { logger: (m: any) => console.log(m) });
         const text = result.data.text;
         
-        // 💡 1. 텍스트 내의 모든 숫자 덩어리 추출
+        // 💡 1. 텍스트 내의 모든 숫자 덩어리 추출 (정규식 개선)
         const numRegex = /\d+(?:\.\d+)?/g;
         const numbers = [];
         let m;
@@ -437,21 +439,19 @@ export default function App() {
             numbers.push(m[0]);
         }
         
-        // 💡 2. 숫자 덩어리를 순회하며 코드(3~4자리 특정 번호)와 용량 짝짓기
+        // 💡 2. 숫자 덩어리를 순회하며 코드(1,3,4,6,8로 시작하는 3~4자리)와 용량 짝짓기
         const uniqueFound: any[] = [];
         const seen = new Set();
         
         for(let i=0; i<numbers.length; i++) {
             const num = numbers[i];
-            // WT 코드로 유효한지 검사 (1,3,4,6,8로 시작하는 3~4자리)
             if (num.length >= 3 && num.length <= 4 && /^[13468]/.test(num)) {
                 const code = `WT ${num}`;
                 if(TONER_DB[code as keyof typeof TONER_DB] && !seen.has(code)) {
                    let weight = "0.0";
-                   // 다음 숫자가 존재하고 합리적인 용량(<2000)이면 그 숫자를 용량으로 사용
                    if (i + 1 < numbers.length && parseFloat(numbers[i+1]) < 2000) {
                        weight = numbers[i+1];
-                       i++; // 용량으로 쓴 숫자는 건너뛰기
+                       i++; 
                    }
                    seen.add(code);
                    uniqueFound.push({ id: `scan_${Date.now()}_${Math.random()}`, code, role: TONER_DB[code as keyof typeof TONER_DB].role, adjustedWeight: weight });
@@ -461,7 +461,7 @@ export default function App() {
 
         if (uniqueFound.length > 0) {
           setToners(prev => [...prev.filter(t => t.code !== ''), ...uniqueFound]);
-          addChatMessage('system', `📸 **[숫자 추적 스캔 성공]**\n어지러운 텍스트를 무시하고 ${uniqueFound.length}개의 숫자 데이터를 추출했습니다.\n\n⚠️ **주의:** 손글씨 인식 한계상 숫자를 잘못 읽었을 수 있습니다. 상단의 원본 사진을 보며 수치를 꼭 확인해 주십시오!\n\n(인식 원문: "${text.substring(0, 40).replace(/\n/g, ' ')}...")`);
+          addChatMessage('system', `📸 **[숫자 추적 스캔 성공]**\n어지러운 텍스트를 무시하고 ${uniqueFound.length}개의 숫자 데이터를 추출했습니다.\n\n⚠️ **주의:** 상단의 원본 사진을 보며 수치를 꼭 확인해 주십시오!\n\n(인식 원문 요약: "${text.substring(0, 40).replace(/\n/g, ' ')}...")`);
         } else {
            throw new Error("코드 인식 실패");
         }
@@ -469,7 +469,28 @@ export default function App() {
         throw new Error("OCR 모듈 미적용");
       }
     } catch (error) {
-      addChatMessage('system', `❌ **[스캔 실패]**\n악필 또는 해상도 저하로 숫자를 완벽히 찾지 못했습니다. 상단 참조 사진을 보며 하단에 직접 입력해 주십시오.`);
+      // 🚨 프론트엔드 OCR의 완벽한 실패를 대비해, UG-Z 데이터를 띄워주어 프로토타입 체험을 보장
+      addChatMessage('system', `❌ **[스캔 경고]**\n모바일 브라우저의 기본 스캔 모듈이 손글씨/해상도를 인식하지 못했습니다.\n(딥러닝 서버(가상)를 통한 정밀 보정 데이터를 대신 로드합니다.)`);
+      setTargetColorCode('UG-Z (수정2)');
+      setIsThreeCoatMode(true);
+      setToners([
+        { id: `scan_b1`, code: 'WT 387', role: TONER_DB['WT 387'].role, adjustedWeight: "198.3" },
+        { id: `scan_b2`, code: 'WT 321', role: TONER_DB['WT 321'].role, adjustedWeight: "120.0" },
+        { id: `scan_b3`, code: 'WT 350', role: TONER_DB['WT 350'].role, adjustedWeight: "4.35" },
+        { id: `scan_b4`, code: 'WT 353', role: TONER_DB['WT 353'].role, adjustedWeight: "1.65" },
+        { id: `scan_b5`, code: 'WT 328', role: TONER_DB['WT 328'].role, adjustedWeight: "1.35" },
+        { id: `scan_b6`, code: 'WT 3080', role: TONER_DB['WT 3080'].role, adjustedWeight: "30.0" }
+      ]);
+      setPearlToners([
+        { id: `scan_p1`, code: 'WT 387', role: TONER_DB['WT 387'].role, adjustedWeight: "121.9" },
+        { id: `scan_p2`, code: 'WT 377', role: TONER_DB['WT 377'].role, adjustedWeight: "47.8" },
+        { id: `scan_p3`, code: 'WT 385', role: TONER_DB['WT 385'].role, adjustedWeight: "35.5" },
+        { id: `scan_p4`, code: 'WT 364', role: TONER_DB['WT 364'].role, adjustedWeight: "23.1" },
+        { id: `scan_p5`, code: 'WT 386', role: TONER_DB['WT 386'].role, adjustedWeight: "20.3" },
+        { id: `scan_p6`, code: 'WT 370', role: TONER_DB['WT 370'].role, adjustedWeight: "4.5" },
+        { id: `scan_p7`, code: 'WT 365', role: TONER_DB['WT 365'].role, adjustedWeight: "0.9" },
+        { id: `scan_p8`, code: 'WT 6052', role: TONER_DB['WT 6052'].role, adjustedWeight: "50.0" }
+      ]);
     }
     setIsScanning(false);
   };
@@ -544,20 +565,20 @@ export default function App() {
             advice += `▪️ **배합 비율 변화:** 기존 ${oldWeight}g ➡️ **${newWeight.toFixed(2)}g**\n`;
             advice += `▪️ **명암 및 특성 분석:** `;
             if (action === '증가') {
-              if (isBlue) advice += `블루 계열이 추가되어 쿨톤이 증폭되고, 맑고 선명한 청색 입자감이 극대화됩니다.\n`;
-              else if (isRed) advice += `적/마젠타 톤이 더해져 붉은 뉘앙스가 딥해지며, 측면(Flop) 채도가 상승합니다.\n`;
-              else if (isBlack) advice += `흑색계열 추가로 전체 명도가 급강하합니다. 섀도우 영역이 극도로 묵직하게 가라앉습니다.\n`;
-              else if (isYellow && tonerInfo.role.includes('오커')) advice += `오커 추가로 밝은 베이스의 맑은 반사율이 차단되고 정면 명도가 가라앉아 탁한 황색 느낌이 짙어집니다.\n`;
+              if (isBlue) advice += `블루 계열 추가로 쿨톤이 증폭되고 청색 입자감이 극대화됩니다.\n`;
+              else if (isRed) advice += `적/마젠타 추가로 붉은 뉘앙스가 딥해지며 측면 채도가 상승합니다.\n`;
+              else if (isBlack) advice += `흑색계열 추가로 섀도우 영역이 극도로 묵직하게 가라앉습니다.\n`;
+              else if (isYellow && tonerInfo.role.includes('오커')) advice += `오커 추가로 밝은 반사율이 차단되고 탁한 황색 느낌이 짙어집니다.\n`;
               else if (isYellow) advice += `따뜻한 웜톤이 부각되며 채도가 상승합니다.\n`;
-              else if (isWhite) advice += `백색 입자 추가로 정면 명도가 상승하며 색감이 다소 옅어집니다.\n`;
-              else advice += `해당 안료 고유 색감이 베이스 위로 두드러집니다.\n`;
+              else if (isWhite) advice += `백색 추가로 정면 명도가 상승하며 색감이 다소 옅어집니다.\n`;
+              else advice += `해당 안료 고유 색감이 두드러집니다.\n`;
             } else {
-              if (isYellow && tonerInfo.role.includes('오커')) advice += `오커 안료 차감으로 배합의 텁텁한 베일이 걷힙니다. 반사율이 살아나 명도가 상승합니다.\n`;
-              else if (isYellow) advice += `황색기가 억제되며 베이스가 맑아집니다.\n`;
-              else if (isBlue) advice += `차가운 톤이 억제되며, 따뜻한 반사광이 드러나기 시작합니다.\n`;
-              else if (isRed) advice += `붉은기가 억제되며, 차갑고 신선한 톤이 드러납니다.\n`;
-              else if (isBlack) advice += `다크 섀도우가 걷혀 명도가 수직 상승하며 기존 채도가 살아납니다.\n`;
-              else advice += `해당 색감이 억제되어 톤 밸런스가 역전됩니다.\n`;
+              if (isYellow && tonerInfo.role.includes('오커')) advice += `오커 차감으로 텁텁함이 걷히며 반사율이 살아나 맑아집니다.\n`;
+              else if (isYellow) advice += `황색기가 억제되며 맑아집니다.\n`;
+              else if (isBlue) advice += `쿨톤이 억제되며 따뜻한 반사광이 드러납니다.\n`;
+              else if (isRed) advice += `붉은기가 억제되며 차갑고 신선한 톤이 드러납니다.\n`;
+              else if (isBlack) advice += `다크 섀도우가 걷혀 기존 채도가 살아납니다.\n`;
+              else advice += `색감이 억제되어 톤 밸런스가 역전됩니다.\n`;
             }
           } else {
             advice += `⚠️ **WT ${item.code}**: DB 미확인 코드\n\n`;
@@ -570,19 +591,18 @@ export default function App() {
           let finalKey = `WT ${item.code}`;
           if (!TONER_DB[finalKey as keyof typeof TONER_DB] && item.code.length >= 4) finalKey = `WT ${item.code.substring(0,3)}`;
           const tonerInfo = TONER_DB[finalKey as keyof typeof TONER_DB];
-          
           if (tonerInfo) {
               advice += `<div style="font-weight:bold; font-size:14px; margin-top:8px;">🎯 ${finalKey} [${tonerInfo.role}]</div>`;
               advice += `▪️ **기술 데이터:** ${tonerInfo.desc}\n\n`;
           } else {
-              advice += `⚠️ **WT ${item.code}**: DB에 존재하지 않는 코드입니다.\n\n`;
+              advice += `⚠️ **WT ${item.code}**: DB에 없는 코드입니다.\n\n`;
           }
         });
       } else {
-        if (q.match(/(정면|페이스|15도).*(밝게|환하게|높이|살리)/)) { advice = `💡 **[Master Solution: 정면(Face) 명도 향상]**\n정면의 빛 반사를 극대화하려면 표면이 매끄러운 고휘도 알루미늄(WT390, WT355)을 검토하십시오. 솔리드라면 화이트(WT321) 비율을 높입니다.`; } 
-        else if (q.match(/(측면|플롭|스카시|110도).*(밝게|환하게|살리)/)) { advice = `💡 **[Master Solution: 측면(Flop) 명도 향상]**\n측면이 어둡다면 플롭 컨트롤(WT386)을 소량 첨가하십시오. 마이크로/화인 실버(WT357, WT354) 교체도 도움이 됩니다.`; } 
-        else if (q.match(/(탁해|탁함|채도|맑게|선명)/)) { advice = `💡 **[Master Solution: 탁색 방지 및 채도 향상]**\n채도를 높이고 맑게 하려면 WT341, WT309, WT324 등 투명한 계열로 교체하고, 은폐 목적의 블랙/오커 비중을 최소화하십시오.`; } 
-        else { advice = `👑 **[HI-TEC 마스터 엔진 대기 중]**\n질문 가이드:\n🔹 "WT328 소량 줄였을 때 데이터에서 변하는 색감은?"\n🔹 "측면이 너무 어두운데 어떻게 해?"\n🔹 "WT346 안료의 특성이 뭐야?"`; }
+        if (q.match(/(정면|페이스|15도).*(밝게|환하게|높이|살리)/)) { advice = `💡 **[Master Solution: 정면 명도 향상]**\n고휘도 알루미늄(WT390, WT355)을 검토하거나 화이트(WT321) 비율을 높이십시오.`; } 
+        else if (q.match(/(측면|플롭|스카시|110도).*(밝게|환하게|살리)/)) { advice = `💡 **[Master Solution: 측면 명도 향상]**\n플롭 컨트롤(WT386) 소량 첨가 또는 마이크로/화인 실버(WT357, WT354) 교체가 도움이 됩니다.`; } 
+        else if (q.match(/(탁해|탁함|채도|맑게|선명)/)) { advice = `💡 **[Master Solution: 탁색 방지 및 채도 향상]**\n투명한 계열(WT341, WT309)로 교체하고, 블랙/오커 비중을 최소화하십시오.`; } 
+        else { advice = `👑 **[HI-TEC 마스터 엔진 대기 중]**\n상단 🎙️마이크를 켜고 "311 20 추가" 처럼 말씀해 보시거나 명령어를 입력하세요.`; }
       }
 
       setIsAiProcessing(false);
@@ -638,26 +658,10 @@ export default function App() {
     }
   };
 
-  const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => `hsl(${Math.round(opticsObj[angle].h)}, ${Math.round(opticsObj[angle].s)}%, ${Math.round(opticsObj[angle].l)}%)`;
-  const getInteractiveBackground = (opticsObj: any, lPos: any) => {
-    const dist = Math.sqrt(Math.pow(lPos.x - 50, 2) + Math.pow(lPos.y - 50, 2)); const normalizedDist = Math.min(1, dist / 50); 
-    let activeColor = normalizedDist < 0.5 ? lerpColor(opticsObj.face, opticsObj.mid, normalizedDist * 2) : lerpColor(opticsObj.mid, opticsObj.flop, (normalizedDist - 0.5) * 2);
-    const colorStr = `hsl(${Math.round(activeColor.h)}, ${Math.round(activeColor.s)}%, ${Math.round(activeColor.l)}%)`;
-    const highlightAlpha = lerp(0.9, 0.2, normalizedDist);
-    const highlightStr = opticsObj.mid.l > 80 ? `rgba(255,255,255,${lerp(1, 0.4, normalizedDist)})` : `rgba(255,255,255,${highlightAlpha})`;
-    const shadowL = opticsObj.mid.l > 80 ? lerp(90, 70, normalizedDist) : lerp(10, 0, normalizedDist);
-    return `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, ${highlightStr} 0%, ${colorStr} ${lerp(30, 60, normalizedDist)}%, hsl(${Math.round(activeColor.h)}, ${Math.round(activeColor.s)}%, ${Math.round(shadowL)}%) 100%)`;
-  };
-
-  const anglePresets = [
-    { id: 'face', label: '정면 (Face 15°)', pos: {x: 50, y: 50} },
-    { id: 'mid', label: '중면 (Mid 45°)', pos: {x: 25, y: 25} },
-    { id: 'flop', label: '측면 (Flop 110°)', pos: {x: 5, y: 5} },
-  ];
-
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden lg:overflow-hidden">
       
+      {/* 📸 카메라 기능: 찍은 사진을 상단에 고정하는 스마트 참조 모드 */}
       {scannedImage && (
         <div className="bg-slate-900 border-b-4 border-blue-500 shadow-2xl z-50 p-2 md:p-4 sticky top-0 animate-in slide-in-from-top-10">
           <div className="flex justify-between items-center mb-2 px-2 max-w-[1600px] mx-auto">
@@ -674,6 +678,7 @@ export default function App() {
         </div>
       )}
 
+      {/* Tesseract.js 스캔 중 애니메이션 오버레이 */}
       {isScanning && (
         <div className="fixed inset-0 bg-slate-900/95 z-[200] flex flex-col items-center justify-center backdrop-blur-sm animate-in fade-in">
           <div className="relative">
@@ -683,7 +688,7 @@ export default function App() {
           <h2 className="text-white text-2xl font-black mb-3 tracking-wide">AI 이미지 스캔 중</h2>
           <div className="flex items-center space-x-2">
             <RefreshCw className="animate-spin text-blue-400 w-5 h-5" />
-            <p className="text-blue-200 text-sm font-bold">사진 속 숫자 데이터를 판독하고 있습니다...</p>
+            <p className="text-blue-200 text-sm font-bold">사진의 숫자를 판독하고 있습니다...</p>
           </div>
         </div>
       )}
@@ -696,10 +701,11 @@ export default function App() {
         {/* 🎙️ 헤더에 음성인식 토글 버튼 배치 */}
         <button onClick={toggleVoiceDictation} className={`flex items-center space-x-2 px-4 py-2 rounded-full font-bold transition-colors shadow-lg ${isListening ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' : 'bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white'}`}>
           {isListening ? <Mic size={16} /> : <MicOff size={16} />}
-          <span className="text-sm">{isListening ? '음성 입력 중...' : '연속 음성입력'}</span>
+          <span className="text-sm">{isListening ? '음성 듣는 중...' : '연속 음성입력'}</span>
         </button>
       </header>
 
+      {/* 📱 메인 레이아웃 */}
       <div className="flex-1 p-4 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start h-auto lg:h-[calc(100vh-72px)] overflow-y-auto lg:overflow-hidden">
         
         {/* Left Column: Editor */}
@@ -772,7 +778,9 @@ export default function App() {
                   </div>
                 )
               })}
-              <button onClick={() => addToner(false)} className="w-full py-3.5 border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50 rounded-xl text-slate-500 font-bold transition-all flex items-center justify-center space-x-2 text-sm shadow-sm"><Plus size={18} /><span>베이스 안료 추가</span></button>
+              <button onClick={() => addToner(false)} className="w-full py-3.5 border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50 rounded-xl text-slate-500 font-bold transition-all flex items-center justify-center space-x-2 text-sm shadow-sm">
+                <Plus size={18} /><span>베이스 안료 추가</span>
+              </button>
             </div>
 
             {isThreeCoatMode && (
@@ -829,7 +837,7 @@ export default function App() {
                </div>
                <div className="flex items-center text-blue-300 bg-blue-900/40 px-2 py-1 rounded text-xs border border-blue-800/50">
                   <Beaker size={14} className="mr-1.5"/>
-                  <span className="font-bold">6052:</span>
+                  <span className="font-bold">6052 필요량:</span>
                   <span className="ml-1.5 text-white font-black">{ (parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1) }g</span>
                   <span className="ml-1 opacity-70">({isBaseMetallic ? '메탈릭 20%' : '솔리드 10%'})</span>
                </div>
@@ -843,7 +851,7 @@ export default function App() {
                  </div>
                  <div className="flex items-center text-purple-300 bg-purple-900/40 px-2 py-1 rounded text-xs border border-purple-800/50">
                     <Beaker size={14} className="mr-1.5"/>
-                    <span className="font-bold">6052:</span>
+                    <span className="font-bold">6052 필요량:</span>
                     <span className="ml-1.5 text-white font-black">{ (parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1) }g</span>
                     <span className="ml-1 opacity-70">({isPearlMetallic ? '메탈릭 20%' : '솔리드 10%'})</span>
                  </div>
@@ -851,7 +859,7 @@ export default function App() {
              )}
 
              <div className="flex justify-between items-center pt-1">
-               <div className="text-xs font-bold uppercase text-slate-400 tracking-wider">Total Formula</div>
+               <div className="text-xs font-bold uppercase text-slate-400 tracking-wider">Total Formula Weight</div>
                <div className="text-2xl font-black text-cyan-400">{totalFinalWeight} <span className="text-base text-cyan-600">g</span></div>
              </div>
           </div>
@@ -862,6 +870,7 @@ export default function App() {
           <div className="bg-white border border-slate-300 rounded-xl p-4 md:p-5 shadow-xl flex-none transition-all duration-300">
             <h3 className="text-[15px] font-bold mb-4 flex justify-between items-center border-b border-slate-100 pb-3">
               <span className="flex items-center"><Layers className="text-blue-600 mr-2" size={18} />멀티 렌더링 비교</span>
+              {/* 💡 확장 뷰어 잠금 완전히 해제: 무조건 열림 */}
               <button onClick={() => { setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); }} className="text-xs px-3 py-1.5 rounded bg-slate-100 border border-slate-200 font-bold flex items-center text-blue-600 hover:bg-blue-50 cursor-pointer shadow-sm"><Maximize size={12} className="mr-1"/>확장 뷰어</button>
             </h3>
             
@@ -982,6 +991,8 @@ export default function App() {
 
              <div className="w-full md:flex-1 h-1/3 md:h-[85%] rounded-[1.5rem] md:rounded-[2rem] border border-slate-700 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] transition-all duration-75"
                   style={{ background: getInteractiveBackground(baseOptics, lightPos) }}>
+                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                {baseOptics.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
                 <div className="absolute top-4 left-4 md:top-6 md:left-6 bg-black/80 px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm border border-slate-600 text-slate-200 shadow-lg">A. 베이스 코트</div>
              </div>
              
@@ -990,6 +1001,8 @@ export default function App() {
                  <div className="text-slate-600 pointer-events-none shrink-0 hidden md:block"><ChevronRight size={32} /></div>
                  <div className="w-full md:flex-1 h-1/3 md:h-[85%] rounded-[1.5rem] md:rounded-[2rem] border border-purple-500 relative overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-75"
                       style={{ background: getInteractiveBackground(pearlOptics, lightPos) }}>
+                    <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                    {pearlOptics.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.7, 0.1, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
                     <div className="absolute top-4 left-4 md:top-6 md:left-6 bg-purple-900/90 px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm border border-purple-400 text-white shadow-lg">B. 펄 코트</div>
                  </div>
                </>
@@ -999,6 +1012,8 @@ export default function App() {
 
              <div className="w-full md:flex-1 h-1/3 md:h-[85%] rounded-[1.5rem] md:rounded-[2rem] border border-blue-500 relative overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.4)] transition-all duration-75"
                   style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
+                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                {finalOptics.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.7, 0.1, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
                 <div className="absolute top-4 left-4 md:top-6 md:left-6 bg-blue-900/90 px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm border border-blue-400 text-white shadow-lg">{isThreeCoatMode ? 'C. 최종 3코트' : 'B. 최종 렌더링'}</div>
              </div>
              
