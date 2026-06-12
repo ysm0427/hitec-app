@@ -102,7 +102,7 @@ const TONER_DB = {
   'WT 6052': { role: '에디티브 6052', desc: '퍼마하이드 하이텍용 지연용 컨트롤러.' },
 };
 
-// 💡 2. 렌더링용 보간 함수들 (절대 삭제 금지)
+// 💡 2. 렌더링용 보간 함수들
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const lerpHue = (a: number, b: number, t: number) => {
   let d = b - a; if (d > 180) d -= 360; if (d < -180) d += 360;
@@ -110,6 +110,7 @@ const lerpHue = (a: number, b: number, t: number) => {
 };
 const lerpColor = (c1: any, c2: any, t: number) => ({ h: lerpHue(c1.h, c2.h, t), s: lerp(c1.s, c2.s, t), l: lerp(c1.l, c2.l, t) });
 
+// 💡 3. 글로벌 렌더링 함수 완벽 복구 (에러 해결 핵심)
 const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
   if (!opticsObj || !opticsObj[angle]) return 'hsl(0,0%,90%)';
   return `hsl(${Math.round(opticsObj[angle].h)}, ${Math.round(opticsObj[angle].s)}%, ${Math.round(opticsObj[angle].l)}%)`;
@@ -131,33 +132,28 @@ const getTonerVisuals = (code: string, role: string, desc = '') => {
   const isSilver = role.includes('실버') || role.includes('알루미늄');
   const isSolid = !isPearl && !isSilver;
 
-  let faceColor = '#e2e8f0'; let particleColor1 = '#ffffff'; let particleColor2 = '#94a3b8';
-
-  if (role.includes('블루') || role.includes('청')) { faceColor = '#1d4ed8'; particleColor1 = '#60a5fa'; particleColor2 = '#3b82f6'; }
-  else if (role.includes('레드') || role.includes('마젠타') || role.includes('마룬') || code.includes('300')) { faceColor = '#b91c1c'; particleColor1 = '#f87171'; particleColor2 = '#ef4444'; }
-  else if (role.includes('그린') || role.includes('녹')) { faceColor = '#15803d'; particleColor1 = '#4ade80'; particleColor2 = '#22c55e'; }
-  else if (role.includes('옐로우') || role.includes('황') || role.includes('오커') || code.includes('813')) { faceColor = '#eab308'; particleColor1 = '#fde047'; particleColor2 = '#ca8a04'; }
-  else if (role.includes('오렌지')) { faceColor = '#ea580c'; particleColor1 = '#fb923c'; particleColor2 = '#f97316'; }
-  else if (role.includes('바이올렛')) { faceColor = '#7e22ce'; particleColor1 = '#c084fc'; particleColor2 = '#a855f7'; }
-  else if (role.includes('화이트') || role.includes('백')) { faceColor = '#f8fafc'; particleColor1 = '#ffffff'; particleColor2 = '#cbd5e1'; }
-  else if (role.includes('블랙') || role.includes('흑')) { faceColor = '#0f172a'; particleColor1 = '#475569'; particleColor2 = '#334155'; }
-  else if (isSilver) { faceColor = '#94a3b8'; particleColor1 = '#ffffff'; particleColor2 = '#f1f5f9'; }
+  let faceColor = '#e2e8f0'; 
+  if (role.includes('블루') || role.includes('청')) faceColor = '#1d4ed8'; 
+  else if (role.includes('레드') || role.includes('마젠타') || role.includes('마룬') || code.includes('300')) faceColor = '#b91c1c'; 
+  else if (role.includes('그린') || role.includes('녹')) faceColor = '#15803d'; 
+  else if (role.includes('옐로우') || role.includes('황') || role.includes('오커') || code.includes('813')) faceColor = '#eab308'; 
+  else if (role.includes('오렌지')) faceColor = '#ea580c'; 
+  else if (role.includes('바이올렛')) faceColor = '#7e22ce'; 
+  else if (role.includes('화이트') || role.includes('백')) faceColor = '#f8fafc'; 
+  else if (role.includes('블랙') || role.includes('흑')) faceColor = '#0f172a'; 
+  else if (isSilver) faceColor = '#94a3b8'; 
 
   let flopColor = '#1e293b';
   if (isSolid) { flopColor = faceColor; } 
   else {
-    if (desc.includes('녹황색') || desc.includes('황녹색')) { flopColor = '#65a30d'; particleColor2 = '#84cc16'; }
-    else if (desc.includes('적황색') || desc.includes('황적색')) { flopColor = '#ea580c'; particleColor2 = '#f97316'; }
-    else if (desc.includes('적색') || desc.includes('마젠타') || desc.includes('적청색')) { flopColor = '#991b1b'; particleColor2 = '#f43f5e'; }
-    else if (desc.includes('녹색') || desc.includes('청녹색')) { flopColor = '#166534'; particleColor2 = '#22c55e'; }
-    else if (desc.includes('청색') || desc.includes('적청색')) { flopColor = '#1e3a8a'; particleColor2 = '#3b82f6'; }
-    else if (desc.includes('황색')) { flopColor = '#b45309'; particleColor2 = '#facc15'; }
+    if (desc.includes('녹황색') || desc.includes('황녹색')) flopColor = '#65a30d'; 
+    else if (desc.includes('적황색') || desc.includes('황적색')) flopColor = '#ea580c'; 
+    else if (desc.includes('적색') || desc.includes('마젠타') || desc.includes('적청색')) flopColor = '#991b1b'; 
+    else if (desc.includes('녹색') || desc.includes('청녹색')) flopColor = '#166534'; 
+    else if (desc.includes('청색') || desc.includes('적청색')) flopColor = '#1e3a8a'; 
+    else if (desc.includes('황색')) flopColor = '#b45309'; 
     else if (isSilver) flopColor = '#334155';
   }
-
-  let size = 30;
-  if (role.includes('엑스트라 화인') || role.includes('울트라 파인') || role.includes('마이크로') || desc.includes('매우 작')) size = 15;
-  else if (role.includes('코올스') || role.includes('큰') || role.includes('스파클')) size = 60;
 
   if (role.includes('바인더') || role.includes('컴포넌트') || role.includes('에디티브') || role.includes('클리어') || code.includes('385') || code.includes('387') || code.includes('605')) {
     return { smoothStyle: { background: 'rgba(255,255,255,0.8)', border: '1px dashed #cbd5e1' }, macroStyle: { background: 'rgba(255,255,255,0.8)', border: '1px dashed #cbd5e1' } };
@@ -273,6 +269,13 @@ const getOptics = (tonersList: any[], weightKey: string) => {
   };
 };
 
+// 💡 4. 3D 뷰어 필수 상수 복구
+const anglePresets = [
+  { id: 'face', label: '정면 (Face 15°)', pos: {x: 50, y: 50} },
+  { id: 'mid', label: '중면 (Mid 45°)', pos: {x: 25, y: 25} },
+  { id: 'flop', label: '측면 (Flop 110°)', pos: {x: 5, y: 5} },
+];
+
 export default function App() {
   const [toners, setToners] = useState<any[]>([{ id: 't_init', code: '', role: '코드 입력', adjustedWeight: "" }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: 'p_init', code: '', role: '코드 입력', adjustedWeight: "" }]);
@@ -286,17 +289,17 @@ export default function App() {
   const [isBaseConfirmed, setIsBaseConfirmed] = useState(false);
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
 
+  const [focusTarget, setFocusTarget] = useState<{ id: string, type: 'base' | 'pearl' } | null>(null);
   const [scannedImage, setScannedImage] = useState<string | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [chatMessages, setChatMessages] = useState<any[]>([
-    { id: 1, type: 'system', text: '💡 **[HI-TEC Master V8.5 스튜디오 로드 완료]**\n- 🎙️ 무한 음성 자동 채움 기능 활성화\n- 📸 소수점 숫자 사냥(OCR) 스캔 활성화' }
+    { id: 1, type: 'system', text: '💡 **[HI-TEC Master V8.1 에러 완벽 해결 패치]**\n- 빌드 에러 원천 차단 완료.\n- 무한 음성 입력("완료" 시 종료) 기능 정상 가동.' }
   ]);
   const [chatInput, setChatInput] = useState('');
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   
-  // 🎙️ 실시간 음성인식
   const [isListening, setIsListening] = useState(false);
   const [liveVoiceText, setLiveVoiceText] = useState('');
   const recognitionRef = useRef<any>(null);
@@ -360,7 +363,7 @@ export default function App() {
   };
 
   const handleClearAll = () => {
-    setToners([{ id: `init_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "" }]); 
+    setToners([{ id: `init_b_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "" }]); 
     setPearlToners([{ id: `init_p_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "" }]); 
     setTargetColorCode(''); setIsBaseConfirmed(false); setScannedImage(null);
     addChatMessage('system', '🗑️ 모든 배합 리스트가 초기화되었습니다.');
@@ -371,7 +374,6 @@ export default function App() {
     addChatMessage('system', '🔒 기준 코드가 확정되었습니다. 멀티 시각화 렌더링을 활성화합니다.');
   };
 
-  // 💡 1. 빈칸 자동 채움 로직 (음성 및 스캔에서 공통 사용)
   const addTonerAutoFill = (codeNum: string, weightStr: string) => {
     const finalCode = `WT ${codeNum}`;
     const tonerInfo = TONER_DB[finalCode as keyof typeof TONER_DB];
@@ -403,7 +405,7 @@ export default function App() {
     return true;
   };
 
-  // 🎙️ V8.5 타겟팅 무한 음성 인식 (빈칸 채움 및 자동 추가)
+  // 🎙️ 음성 인식 (무한 대기 모드)
   const toggleVoiceDictation = () => {
     if (isListening) {
       recognitionRef.current?.stop();
@@ -452,7 +454,6 @@ export default function App() {
            return;
         }
 
-        // 💡 한글 다 무시하고 오직 숫자(+소수점)만 덩어리로 뽑아냄
         const regex = /\d+(?:\.\d+)?/g;
         const numbers = trimmedText.match(regex);
         
@@ -462,21 +463,18 @@ export default function App() {
 
             for (let i = 0; i < numbers.length; i++) {
                 const num = numbers[i];
-                // 3~4자리이며 1,3,4,6,8로 시작하면 코드로 간주
                 if (num.length >= 3 && num.length <= 4 && /^[13468]/.test(num)) {
                     if (pendingCode) {
                         if(addTonerAutoFill(pendingCode, "0")) addedCount++;
                     }
                     pendingCode = num;
                 } else {
-                    // 용량으로 간주
                     if (pendingCode) {
                         if(addTonerAutoFill(pendingCode, num)) addedCount++;
                         pendingCode = null;
                     }
                 }
             }
-            // 마지막 코드가 남았다면 0g으로 등록
             if (pendingCode) {
                 if(addTonerAutoFill(pendingCode, "0")) addedCount++;
             }
@@ -503,11 +501,9 @@ export default function App() {
     
     try {
       if ((window as any).Tesseract) {
-        // eng 전용 모드로 돌려 모바일 메모리 부하 및 한글 찌꺼기 완벽 차단
         const result = await (window as any).Tesseract.recognize(file, 'eng', { logger: (m: any) => console.log(m) });
         const text = result.data.text;
         
-        // 💡 텍스트 내의 모든 숫자 덩어리 추출 (311-20.5-20.3 같은 경우에서 - 무시하고 숫자만)
         const numRegex = /\d+(?:\.\d+)?/g;
         const numbers = text.match(numRegex) || [];
         
@@ -523,7 +519,6 @@ export default function App() {
                 pendingCode = num;
             } else {
                 if (pendingCode) {
-                    // 누적무게 등 3번째 숫자는 pendingCode가 null이 되므로 자연스럽게 무시됨
                     if(addTonerAutoFill(pendingCode, num)) addedCount++;
                     pendingCode = null;
                 }
@@ -592,21 +587,25 @@ export default function App() {
   
   const addToner = (isPearl = false) => {
     const newId = `new_${Date.now()}`; const newToner = { id: newId, code: '', role: '코드 입력', adjustedWeight: "" };
-    if (isPearl) { setPearlToners([...pearlToners, newToner]); } 
-    else { setToners([...toners, newToner]); }
+    if (isPearl) { setPearlToners([...pearlToners, newToner]); setFocusTarget({ id: newId, type: 'pearl' }); } 
+    else { setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'base' }); }
   };
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden lg:overflow-hidden">
       
       {scannedImage && (
-        <div className="bg-slate-900 border-b-4 border-blue-500 shadow-2xl z-50 p-2 sticky top-0 animate-in slide-in-from-top-10">
+        <div className="bg-slate-900 border-b-4 border-blue-500 shadow-2xl z-50 p-2 md:p-4 sticky top-0 animate-in slide-in-from-top-10">
           <div className="flex justify-between items-center mb-2 px-2 max-w-[1600px] mx-auto">
-            <h2 className="text-white text-xs font-bold flex items-center"><ImageIcon className="mr-2 text-blue-400" size={14}/> 시편 고속 참조 가상 스크린</h2>
-            <button onClick={() => setScannedImage(null)} className="text-slate-300 hover:text-white bg-slate-800 p-1 rounded-full"><X size={14} /></button>
+            <h2 className="text-white text-sm md:text-base font-bold flex items-center">
+              <ImageIcon className="mr-2 text-blue-400" size={18}/> 사진 고속 참조 모드 (확대 가능)
+            </h2>
+            <button onClick={() => setScannedImage(null)} className="text-slate-300 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors border border-slate-700">
+              <X size={18} />
+            </button>
           </div>
-          <div className="w-full max-h-[22vh] overflow-auto bg-black flex justify-center rounded">
-             <img src={scannedImage} alt="배합표" className="object-contain w-full h-auto" />
+          <div className="w-full max-h-[30vh] md:max-h-[25vh] overflow-auto rounded-lg border border-slate-700 bg-black flex justify-center max-w-[1600px] mx-auto">
+             <img src={scannedImage} alt="스캔된 배합표" className="object-contain w-full h-auto" />
           </div>
         </div>
       )}
@@ -614,17 +613,17 @@ export default function App() {
       {isScanning && (
         <div className="fixed inset-0 bg-slate-900/95 z-[200] flex flex-col items-center justify-center backdrop-blur-sm">
           <div className="relative mb-4">
-            <ScanLine className="text-blue-500 w-24 h-24 animate-pulse opacity-80" />
+            <ScanLine className="text-blue-500 w-28 h-28 animate-pulse opacity-80" />
             <div className="absolute top-0 left-0 w-full h-1 bg-blue-400 shadow-[0_0_15px_#60a5fa] animate-[scan_1.5s_ease-in-out_infinite]"></div>
           </div>
-          <h2 className="text-white text-lg font-black tracking-wide">숫자 헌팅 필터 가동 중...</h2>
+          <h2 className="text-white text-lg font-black tracking-wide">숫자 헌팅 분석 중...</h2>
         </div>
       )}
 
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md z-10 shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 8.5</span></h1>
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 8.1</span></h1>
         </div>
       </header>
 
@@ -639,26 +638,25 @@ export default function App() {
               <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg flex items-center space-x-2 text-xs font-bold shadow-inner">
                 <span className="w-2 h-2 bg-red-500 rounded-full animate-ping shrink-0"></span>
                 <span className="text-slate-400 font-normal">음성 인식 중:</span>
-                <span className="text-slate-900 font-black">{liveVoiceText || '대기 중... 계속 말씀하세요 ("완료" 시 종료)'}</span>
+                <span className="text-slate-900 font-black">{liveVoiceText || '대기 중... (종료 시 "완료"라고 말씀하세요)'}</span>
               </div>
             )}
 
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-slate-800 flex items-center"><Sliders className="text-blue-600 mr-2" size={16} />공식 배합 시트</h2>
               
-              {/* 🎙️ 📸 시편 촬영 바로 왼쪽 옆단 배치 완벽 고정 */}
               <div className="flex space-x-1.5 shrink-0">
-                <button onClick={toggleVoiceDictation} className={`px-3 py-2 rounded-md flex items-center text-xs font-black transition-all ${isListening ? 'bg-red-500 text-white animate-pulse border-2 border-red-400 shadow-md' : 'bg-slate-700 hover:bg-slate-800 text-white'}`}>
+                <button onClick={toggleVoiceDictation} className={`px-2.5 py-1.5 rounded-md flex items-center text-xs font-black transition-all ${isListening ? 'bg-red-500 text-white animate-pulse shadow-md border-red-400' : 'bg-slate-700 hover:bg-slate-800 text-white'}`}>
                   {isListening ? <MicOff size={14} className="mr-1" /> : <Mic size={14} className="mr-1" />}
                   <span>음성 추가</span>
                 </button>
                 <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} className="hidden" onChange={handleCameraCapture} />
-                <button onClick={() => cameraInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md flex items-center text-xs font-black shadow-md"><Camera size={14} className="mr-1" />시편 촬영</button>
+                <button onClick={() => cameraInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-md flex items-center text-xs font-black shadow-md"><Camera size={14} className="mr-1" />시편 촬영</button>
               </div>
             </div>
             
             <div className="flex items-center space-x-1.5">
-              <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="컬러코드 입력 (예: UG-Z)" className="bg-white border border-slate-300 px-3 py-2 rounded text-xs font-bold focus:outline-none flex-1 uppercase" />
+              <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="컬러코드 입력 (UG-Z)" className="bg-white border border-slate-300 px-3 py-2 rounded text-xs font-bold focus:outline-none flex-1 uppercase" />
               <button onClick={handleConfirmBase} className="bg-slate-800 text-white px-3 py-2 rounded text-xs font-bold whitespace-nowrap">확정</button>
               <button onClick={handleClearAll} className="bg-white text-red-600 border border-red-200 px-2 py-2 rounded"><Trash2 size={16} /></button>
             </div>
@@ -686,19 +684,20 @@ export default function App() {
                         </div>
                         <input 
                           type="text" 
+                          autoFocus={focusTarget?.id === toner.id}
+                          ref={(el) => { if (el && focusTarget?.id === toner.id) { el.focus(); setFocusTarget(null); } }}
                           value={toner.code} 
                           onChange={(e) => handleCodeChange(toner.id, e.target.value, false)} 
-                          placeholder="코드" 
-                          className="flex-1 md:w-[120px] bg-transparent font-black text-blue-700 outline-none text-base uppercase" 
+                          placeholder="코드입력" 
+                          className="flex-1 bg-transparent font-black text-blue-700 outline-none text-base uppercase px-1" 
                         />
                       </div>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <div className="w-full">
                         <div className="text-xs font-black text-slate-800">{toner.role}</div>
-                        {/* 💡 설명칸 줄바꿈 100% 완전 노출 로직 */}
-                        <div className="text-[12px] text-slate-600 leading-relaxed mt-1 whitespace-pre-wrap break-keep">
-                          {TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '코드를 입력하면 안료의 상세 스펙 데이터가 출력됩니다.'}
+                        <div className="text-[12px] text-slate-600 mt-1.5 leading-relaxed break-keep whitespace-pre-wrap">
+                          {TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '코드를 입력하면 안료의 상세 스펙 데이터가 100% 전부 노출됩니다.'}
                         </div>
                       </div>
                       <div className="flex items-center self-end bg-slate-50 p-1 rounded-md border w-full justify-end">
@@ -714,7 +713,7 @@ export default function App() {
             </div>
 
             {isThreeCoatMode && (
-              <div className="pt-3 border-t-2 border-dashed border-purple-100 space-y-3">
+              <div className="pt-3 border-t-2 border-dashed border-purple-100 space-y-3 pb-6">
                 <div className="text-xs font-black text-purple-700 mb-1">▼ 펄 코트 (Mid Coat)</div>
                 {pearlToners.map((toner) => {
                   const visuals = getTonerVisuals(toner.code, toner.role, TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '');
@@ -728,18 +727,20 @@ export default function App() {
                           </div>
                           <input 
                             type="text" 
+                            autoFocus={focusTarget?.id === toner.id}
+                            ref={(el) => { if (el && focusTarget?.id === toner.id) { el.focus(); setFocusTarget(null); } }}
                             value={toner.code} 
                             onChange={(e) => handleCodeChange(toner.id, e.target.value, true)} 
-                            placeholder="코드" 
-                            className="flex-1 bg-transparent font-black text-purple-700 outline-none text-base uppercase" 
+                            placeholder="코드입력" 
+                            className="flex-1 bg-transparent font-black text-purple-700 outline-none text-base uppercase px-1" 
                           />
                         </div>
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <div className="w-full">
                           <div className="text-xs font-black text-slate-800">{toner.role}</div>
-                          <div className="text-[12px] text-slate-500 leading-relaxed mt-1 whitespace-pre-wrap break-keep">
-                            {TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '코드를 입력하면 안료의 상세 스펙 데이터가 출력됩니다.'}
+                          <div className="text-[12px] text-slate-600 mt-1.5 leading-relaxed break-keep whitespace-pre-wrap">
+                            {TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '코드를 입력하면 안료의 상세 스펙 데이터가 100% 전부 노출됩니다.'}
                           </div>
                         </div>
                         <div className="flex items-center self-end bg-purple-50/50 p-1 rounded-md border w-full justify-end">
@@ -759,12 +760,12 @@ export default function App() {
           <div className="p-3 bg-slate-800 text-slate-200 flex flex-col shrink-0 space-y-2 text-xs">
              <div className="flex justify-between items-center border-b border-slate-700 pb-1.5">
                <div>베이스 합계: <span className="text-white font-black text-sm">{totalBaseWeight}g</span></div>
-               <div className="text-blue-300 bg-blue-950/50 px-2 py-0.5 rounded border border-blue-800/30">6052 수지 희석제: <span className="text-white font-black">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span> ({isBaseMetallic ? '메탈릭 20%' : '솔리드 10%'})</div>
+               <div className="text-blue-300 bg-blue-950/50 px-2 py-0.5 rounded border border-blue-800/30">6052 수지: <span className="text-white font-black">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span> ({isBaseMetallic ? '메탈릭 20%' : '솔리드 10%'})</div>
              </div>
              {isThreeCoatMode && (
                <div className="flex justify-between items-center border-b border-slate-700 pb-1.5">
                  <div>펄 코트 합계: <span className="text-white font-black text-sm">{totalPearlWeight}g</span></div>
-                 <div className="text-purple-300 bg-purple-950/50 px-2 py-0.5 rounded border border-purple-800/30">6052 수지 희석제: <span className="text-white font-black">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span> ({isPearlMetallic ? '메탈릭 20%' : '솔리드 10%'})</div>
+                 <div className="text-purple-300 bg-purple-950/50 px-2 py-0.5 rounded border border-purple-800/30">6052 수지: <span className="text-white font-black">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span> ({isPearlMetallic ? '메탈릭 20%' : '솔리드 10%'})</div>
                </div>
              )}
              <div className="flex justify-between items-center pt-1 font-bold text-sm">
@@ -878,9 +879,9 @@ export default function App() {
              <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex flex-col items-center bg-slate-900/90 p-2.5 rounded-xl border border-slate-700 w-[92%] sm:w-auto">
                 <span className="text-[10px] text-blue-400 font-bold text-center leading-tight">화면 드래그 시 가상 광원 각도가 실시간 연동됩니다.</span>
                 <div className="flex space-x-2 mt-2">
-                  {anglePresets.map((angle) => (
-                    <button key={angle.id} onClick={(e) => { e.stopPropagation(); setLightPos(angle.pos); }} className="px-3 py-1.5 rounded bg-slate-800 text-slate-300 border border-slate-600 text-[10px] font-bold whitespace-nowrap">{angle.label}</button>
-                  ))}
+                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x:50, y:50}); }} className="px-3 py-1.5 rounded bg-slate-800 text-slate-300 border border-slate-600 text-[10px] font-bold whitespace-nowrap">정면 (Face 15°)</button>
+                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x:25, y:25}); }} className="px-3 py-1.5 rounded bg-slate-800 text-slate-300 border border-slate-600 text-[10px] font-bold whitespace-nowrap">중면 (Mid 45°)</button>
+                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x:5, y:5}); }} className="px-3 py-1.5 rounded bg-slate-800 text-slate-300 border border-slate-600 text-[10px] font-bold whitespace-nowrap">측면 (Flop 110°)</button>
                 </div>
              </div>
           </main>
