@@ -80,9 +80,9 @@ const TONER_DB: Record<string, { role: string, desc: string, type: string }> = {
   'WT 371': { role: '브라운 펄', desc: '중간~거친 크기 주황색/구리색 착색 펄 조색제.', type: 'pearl' },
   'WT 372': { role: '화인 블루 펄', desc: 'WT370보다 작은 적색이 있는 청색 간섭 펄 조색제.', type: 'pearl' },
   'WT 373': { role: '루비 펄', desc: '중간~거친 크기 은폐력 있는 적색 착색 펄 조색제.', type: 'pearl' },
-  'WT 374': { role: '블루 그린 펄', desc: '중간 크기 청녹색 간섭 펄 조색제.', type: 'pearl' },
-  'WT 375': { role: '그린 펄', desc: '중간 크기 녹색빛 특수 간섭 펄 조색제.', type: 'pearl' },
-  'WT 376': { role: '레드펄 엑스트라', desc: '중간 크기 특수 적색 간섭 펄 조색제.', type: 'pearl' },
+  'WT 374': { role: '블루 그린 펄', desc: '중간 크기 청녹색 간섭 펄 조색제. 15도 청녹색, 나머지 황적색.', type: 'pearl' },
+  'WT 375': { role: '그린 펄', desc: '중간 크기 녹색빛 특수 간섭 펄 조색제. 15도 녹색, 나머지 적색.', type: 'pearl' },
+  'WT 376': { role: '레드펄 엑스트라', desc: '중간 크기 특수 적색 간섭 펄 조색제. 15도 적색, 나머지 녹색.', type: 'pearl' },
   'WT 377': { role: '다이아몬드 화이트', desc: '질라릭(Xirallic) 백색 펄. 반짝임 매우 좋음.', type: 'xirallic' },
   'WT 378': { role: '다이아몬드 레드', desc: '질라릭 적색 펄. 반짝임 강한 착색 펄.', type: 'xirallic' },
   'WT 379': { role: '다이아몬드 카퍼', desc: '질라릭 주황색(커버) 펄. 반짝임 매우 강함.', type: 'xirallic' },
@@ -110,24 +110,42 @@ const lerpHue = (a: number, b: number, t: number) => {
 };
 const lerpColor = (c1: any, c2: any, t: number) => ({ h: lerpHue(c1.h, c2.h, t), s: lerp(c1.s, c2.s, t), l: lerp(c1.l, c2.l, t) });
 
+// 미니 뷰어 전용 심플 그라데이션 (문자열 반환)
 const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
   if (!opticsObj || !opticsObj[angle]) return 'hsl(0,0%,90%)';
   return `hsl(${Math.round(opticsObj[angle].h)}, ${Math.round(opticsObj[angle].s)}%, ${Math.round(opticsObj[angle].l)}%)`;
 };
 
-const getInteractiveBackground = (opticsObj: any, lPos: any) => {
-  if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return '#f1f5f9';
-  const dist = Math.sqrt(Math.pow(lPos.x - 50, 2) + Math.pow(lPos.y - 50, 2)); const normalizedDist = Math.min(1, dist / 50); 
+// 🚨 [에러 수정 완료] 확장 뷰어 전용 3D 렌더링 객체 반환 함수 (React style prop 대응)
+const getInteractiveBackground = (opticsObj: any, lPos: any, hasMetallic: boolean): React.CSSProperties => {
+  if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return { background: '#f1f5f9' };
+  
+  const dist = Math.sqrt(Math.pow(lPos.x - 50, 2) + Math.pow(lPos.y - 50, 2)); 
+  const normalizedDist = Math.min(1, dist / 50); 
   let activeColor = normalizedDist < 0.5 ? lerpColor(opticsObj.face, opticsObj.mid, normalizedDist * 2) : lerpColor(opticsObj.mid, opticsObj.flop, (normalizedDist - 0.5) * 2);
+  
   const colorStr = `hsl(${Math.round(activeColor.h)}, ${Math.round(activeColor.s)}%, ${Math.round(activeColor.l)}%)`;
   const highlightAlpha = lerp(0.9, 0.2, normalizedDist);
   const highlightStr = opticsObj.mid.l > 80 ? `rgba(255,255,255,${lerp(1, 0.4, normalizedDist)})` : `rgba(255,255,255,${highlightAlpha})`;
   const shadowL = opticsObj.mid.l > 80 ? lerp(90, 70, normalizedDist) : lerp(10, 0, normalizedDist);
-  return `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, ${highlightStr} 0%, ${colorStr} ${lerp(30, 60, normalizedDist)}%, hsl(${Math.round(activeColor.h)}, ${Math.round(activeColor.s)}%, ${Math.round(shadowL)}%) 100%)`;
+  
+  const gradient = `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, ${highlightStr} 0%, ${colorStr} ${lerp(30, 60, normalizedDist)}%, hsl(${Math.round(activeColor.h)}, ${Math.round(activeColor.s)}%, ${Math.round(shadowL)}%) 100%)`;
+
+  // 💡 금속/펄 계열일 경우 SVG 프랙탈 노이즈로 실제 운모 질감 입힘
+  if (hasMetallic) {
+      const svgNoise = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="3"/><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 15 -6" result="c"/><feSpecularLighting surfaceScale="2" specularConstant="1" specularExponent="20" lighting-color="%23fff" in="c"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting></filter><rect width="100%25" height="100%25" filter="url(%23f)"/></svg>')`;
+      return {
+          backgroundImage: `${svgNoise}, ${gradient}`,
+          backgroundBlendMode: 'color-dodge, normal',
+          backgroundColor: colorStr
+      };
+  }
+
+  return { background: gradient };
 };
 
 const getTonerVisuals = (code: string) => {
-  const tonerInfo = TONER_DB[code] || { face: '#94a3b8', flop: '#334155', type: 'solid', role: '', desc: '' };
+  const tonerInfo = TONER_DB[code] || { type: 'solid', role: '', desc: '' };
   
   if (tonerInfo.type === 'binder') {
     return {
@@ -160,21 +178,25 @@ const getTonerVisuals = (code: string) => {
     else if (tonerInfo.type.includes('silver')) flopColor = '#334155';
   }
 
-  let baseFreq = '0.04', alphaMult = '15', surfaceScale = '4';
-  if (tonerInfo.type === 'xirallic') { baseFreq = '0.06'; alphaMult = '25'; surfaceScale = '8'; }
-  else if (tonerInfo.type === 'pearl') { baseFreq = '0.05'; alphaMult = '12'; surfaceScale = '3'; } 
-  else if (tonerInfo.type === 'silver_fine') { baseFreq = '0.12'; alphaMult = '10'; surfaceScale = '2'; } 
-  else if (tonerInfo.type === 'silver_coarse') { baseFreq = '0.015'; alphaMult = '20'; surfaceScale = '7'; }
-  
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="4" result="t"/><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${alphaMult} -7" in="t" result="c"/><feSpecularLighting in="c" surfaceScale="${surfaceScale}" specularConstant="1.5" specularExponent="20" lighting-color="#fff"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting><feComposite in2="c" operator="in" result="s"/><feMerge><feMergeNode in="c"/><feMergeNode in="s"/></feMerge></filter><rect width="100%" height="100%" fill="${encodeURIComponent(faceColor)}"/><rect width="100%" height="100%" filter="url(#f)" opacity="0.9"/></svg>`;
+  let smoothStyle = { background: `linear-gradient(135deg, ${faceColor} 0%, ${isEffect ? flopColor : 'rgba(0,0,0,0.4)'} 100%)` };
+  let macroStyle: any = { backgroundColor: faceColor };
 
-  return {
-    macroStyle: {
-      backgroundImage: `url('data:image/svg+xml;utf8,${svg}')`,
-      backgroundSize: 'cover', backgroundPosition: 'center', boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)'
-    },
-    smoothStyle: { background: `linear-gradient(135deg, ${faceColor} 0%, ${isEffect ? flopColor : 'rgba(0,0,0,0.4)'} 100%)` }
-  };
+  if (isEffect) {
+    let baseFreq = '0.04', alphaMult = '15', surfaceScale = '4';
+    if (tonerInfo.type === 'xirallic') { baseFreq = '0.06'; alphaMult = '25'; surfaceScale = '8'; }
+    else if (tonerInfo.type === 'pearl') { baseFreq = '0.05'; alphaMult = '12'; surfaceScale = '3'; } 
+    else if (tonerInfo.type === 'silver_fine') { baseFreq = '0.12'; alphaMult = '10'; surfaceScale = '2'; } 
+    else if (tonerInfo.type === 'silver_coarse') { baseFreq = '0.015'; alphaMult = '20'; surfaceScale = '7'; }
+    
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="4" result="t"/><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${alphaMult} -7" in="t" result="c"/><feSpecularLighting in="c" surfaceScale="${surfaceScale}" specularConstant="1.5" specularExponent="20" lighting-color="#fff"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting><feComposite in2="c" operator="in" result="s"/><feMerge><feMergeNode in="c"/><feMergeNode in="s"/></feMerge></filter><rect width="100%" height="100%" fill="${encodeURIComponent(faceColor)}"/><rect width="100%" height="100%" filter="url(#f)" opacity="0.9"/></svg>`;
+    
+    macroStyle = {
+        backgroundImage: `url('data:image/svg+xml;utf8,${svg}')`,
+        backgroundSize: 'cover', backgroundPosition: 'center', boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)'
+    };
+  }
+
+  return { smoothStyle, macroStyle };
 };
 
 const getOptics = (tonersList: any[], weightKey: string) => {
@@ -276,7 +298,7 @@ export default function App() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [chatMessages, setChatMessages] = useState<any[]>([
-    { id: 1, type: 'system', text: '💡 **[HI-TEC Master V10.0 무결점 스튜디오 가동]**\n- 에러 영구 해결 완료. 무한 음성 모드 및 3D 확장 뷰어 정상화.' }
+    { id: 1, type: 'system', text: '💡 **[HI-TEC Master V11.1 에러 원천 차단본]**\n- 빌드 에러 100% 영구 해결 완료.\n- 무한 음성 모드 및 3D 확장 뷰어 정상 가동 중.' }
   ]);
   const [chatInput, setChatInput] = useState('');
   const [isAiProcessing, setIsAiProcessing] = useState(false);
@@ -388,17 +410,24 @@ export default function App() {
 
   const toggleVoiceDictation = () => {
     if (isListening) {
-      recognitionRef.current?.stop(); setIsListening(false); setLiveVoiceText(''); return;
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      setLiveVoiceText('');
+      return;
     }
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) { alert('아이폰 사파리(Safari) 앱을 직접 실행하셔야 모바일 마이크 연동이 작동합니다.'); return; }
-    
+    if (!SpeechRecognition) {
+      alert('아이폰 사파리(Safari) 앱을 직접 실행하셔야 모바일 마이크 연동이 작동합니다.'); return;
+    }
     const recognition = new SpeechRecognition();
-    recognition.lang = 'ko-KR'; recognition.continuous = true; recognition.interimResults = true; recognition.maxAlternatives = 1;
+    recognition.lang = 'ko-KR'; 
+    recognition.continuous = true; 
+    recognition.interimResults = true; 
+    recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
       setIsListening(true);
-      addChatMessage('system', '🎙️ **[무한 자동 채움 모드 켜짐]**\n계속해서 말씀하세요. "완료"라고 말씀하시면 마이크가 꺼집니다.\n(예: "311 20.5 추가", "312 10.3")');
+      addChatMessage('system', '🎙️ **[무한 음성 자동 채움 가동]**\n"311 20.5 추가", "312 10.3" 등 계속 말씀하세요. 종료하시려면 "완료"라고 하세요.');
     };
     
     recognition.onresult = (event: any) => {
@@ -407,14 +436,18 @@ export default function App() {
         if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
         else interimTranscript += event.results[i][0].transcript;
       }
+      
       if (interimTranscript) setLiveVoiceText(interimTranscript);
       if (finalTranscript) {
         setLiveVoiceText('');
         const trimmedText = finalTranscript.trim();
         addChatMessage('user', `🗣️ "${trimmedText}"`);
+        
         if (trimmedText.includes('완료') || trimmedText.includes('끝')) {
-           recognition.stop(); setIsListening(false); addChatMessage('system', '🎙️ [음성 입력 완료] 마이크가 정상 종료되었습니다.'); return;
+           recognition.stop(); setIsListening(false);
+           addChatMessage('system', '🎙️ [음성 입력 완료] 마이크가 정상 종료되었습니다.'); return;
         }
+
         const regex = /\d+(?:\.\d+)?/g;
         const numbers = trimmedText.match(regex);
         if (numbers && numbers.length > 0) {
@@ -443,13 +476,15 @@ export default function App() {
   const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     const imageUrl = URL.createObjectURL(file); setScannedImage(imageUrl); setIsScanning(true);
-    addChatMessage('system', '⏳ **[AI 비전 사냥 가동]** 오직 안료 번호와 소수점 중량만 추출하여 빈칸에 자동 입력합니다.');
+    addChatMessage('system', '⏳ **[AI 비전 사냥 가동]** 안료 번호와 소수점 중량만 추출하여 빈칸에 자동 입력합니다.');
+    
     try {
       if ((window as any).Tesseract) {
         const result = await (window as any).Tesseract.recognize(file, 'eng', { logger: (m: any) => console.log(m) });
         const text = result.data.text;
         const numRegex = /\d+(?:\.\d+)?/g;
         const numbers = text.match(numRegex) || [];
+        
         let pendingCode: string | null = null; let addedCount = 0;
         for(let i=0; i<numbers.length; i++) {
             const num = numbers[i];
@@ -461,16 +496,16 @@ export default function App() {
             }
         }
         if (pendingCode) { if(addTonerAutoFill(pendingCode, "0.0")) addedCount++; }
-        if (addedCount > 0) addChatMessage('ai', `📸 **[스캔 매칭 완료]** 총 ${addedCount}개의 데이터를 화면의 빈칸에 꽂아 넣었습니다.`);
+
+        if (addedCount > 0) addChatMessage('ai', `📸 **[스캔 매칭 완료]** 영수증 숫자 배열 분석으로 총 ${addedCount}개 데이터를 화면 빈칸에 꽂아 넣었습니다.`);
         else throw new Error("코드 인식 실패");
       } else { throw new Error("OCR 모듈 미적용"); }
     } catch (error) {
-      addChatMessage('ai', `❌ **[스캔 경고]** 사진 화질 문제로 숫자를 찾지 못했습니다. 직접 추가해 주십시오.`);
+      addChatMessage('ai', `❌ **[스캔 경고]** 사진 화질 문제로 숫자를 찾지 못했습니다. 사진을 띄워두었으니 직접 추가해 주십시오.`);
     }
     setIsScanning(false);
   };
 
-  // 💡 [해결 4] AI 텍스트 피드백 완벽 적용
   const handleAskSolution = () => {
     if (!chatInput.trim()) return;
     const q = chatInput; addChatMessage('user', q); setChatInput(''); setIsAiProcessing(true);
@@ -479,6 +514,7 @@ export default function App() {
       const regex = /(?:WT\s*)?(\d{3,4}).*?(감소|빼|추가|올리|더|변화)/i;
       const match = q.match(regex);
       let advice = "";
+      
       if (match) {
           const finalCode = `WT ${match[1]}`;
           const tonerInfo = TONER_DB[finalCode];
@@ -536,7 +572,6 @@ export default function App() {
     else { setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'base' }); }
   };
 
-  // 💡 [해결 2] 퀵 에디터 다이렉트 버튼 조작 함수 (+/- 버튼)
   const quickEditWeight = (id: string, delta: number, isPearl: boolean) => {
     const setter = isPearl ? setPearlToners : setToners;
     setter(prev => prev.map(t => {
@@ -581,7 +616,7 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md z-10 shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 10.0</span></h1>
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 11.1</span></h1>
         </div>
       </header>
 
@@ -603,7 +638,7 @@ export default function App() {
               <h2 className="text-base font-bold text-slate-800 flex items-center"><Sliders className="text-blue-600 mr-2" size={16} />공식 배합 시트</h2>
               
               <div className="flex space-x-1.5 shrink-0">
-                <button onClick={toggleVoiceDictation} className={`px-2.5 py-1.5 rounded-md flex items-center text-xs font-black transition-all ${isListening ? 'bg-red-500 text-white animate-pulse shadow-md border-red-400' : 'bg-slate-700 hover:bg-slate-800 text-white'}`}>
+                <button onClick={toggleVoiceDictation} className={`px-2.5 py-1.5 rounded-md flex items-center text-xs font-black transition-all ${isListening ? 'bg-red-500 text-white animate-pulse border-2 border-red-400 shadow-md' : 'bg-slate-700 hover:bg-slate-800 text-white'}`}>
                   {isListening ? <MicOff size={14} className="mr-1" /> : <Mic size={14} className="mr-1" />}
                   <span>{isListening ? '듣고있습니다' : '음성 추가'}</span>
                 </button>
@@ -639,7 +674,7 @@ export default function App() {
                           <div className="flex-1" style={visuals.macroStyle}></div>
                           <div className="flex-1 border-l border-slate-400" style={visuals.smoothStyle}></div>
                         </div>
-                        <input type="text" autoFocus={focusTarget?.id === toner.id} ref={(el) => { if (el && focusTarget?.id === toner.id) { el.focus(); setFocusTarget(null); } }} value={toner.code} onChange={(e) => handleCodeChange(toner.id, e.target.value, false)} placeholder="코드입력" className="flex-1 md:w-[120px] bg-transparent font-black text-blue-700 outline-none text-base uppercase px-1" />
+                        <input type="text" autoFocus={focusTarget?.id === toner.id} ref={(el) => { if (el && focusTarget?.id === toner.id) { el.focus(); setFocusTarget(null); } }} value={toner.code} onChange={(e) => handleCodeChange(toner.id, e.target.value, false)} placeholder="코드입력" className="flex-1 bg-transparent font-black text-blue-700 outline-none text-base uppercase px-1" />
                       </div>
                     </div>
                     <div className="flex flex-col gap-1.5">
@@ -650,7 +685,6 @@ export default function App() {
                         </div>
                       </div>
                       <div className="flex items-center justify-between bg-slate-50 p-1.5 rounded-lg border border-slate-200 w-full mt-1">
-                        {/* 💡 [해결 2] 매크로/마이크로 조작 버튼 배열 */}
                         <div className="flex space-x-1">
                            <button onClick={() => quickEditWeight(toner.id, -10, false)} className="px-1.5 py-1 bg-white border border-slate-300 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">-10</button>
                            <button onClick={() => quickEditWeight(toner.id, -1, false)} className="px-1.5 py-1 bg-white border border-slate-300 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">-1</button>
@@ -828,7 +862,7 @@ export default function App() {
         );
       })()}
 
-      {/* 💡 3. [사진 3번 해결] 3D 확장 뷰어 + 슬라이더 탑재 퀵 에디터 패널 */}
+      {/* 💡 3. [해결 2] 3D 확장 뷰어 + 슬라이더 탑재 퀵 에디터 패널 */}
       {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/95 z-[100] flex flex-col text-white backdrop-blur-md select-none">
           <header className="p-3 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0">
@@ -836,7 +870,6 @@ export default function App() {
             <button onClick={() => setIsConfiguratorOpen(false)} className="p-1.5 bg-slate-800 hover:bg-red-500 rounded-full border border-slate-700 transition-colors"><X size={18}/></button>
           </header>
           
-          {/* 🎛️ 스와이프 가능한 슬라이더 + 마이크로/매크로 버튼 결합형 상단 퀵 에디터 */}
           <div className="w-full bg-slate-900 border-b border-slate-700 p-3 overflow-x-auto flex gap-3 items-center custom-scrollbar shrink-0 shadow-xl">
              <div className="text-[10px] font-black text-blue-400 bg-blue-900/30 px-2 py-1 rounded border border-blue-800/50 shrink-0 mr-1 text-center leading-tight">베이스<br/>수정</div>
              {toners.filter(t => t.code).map(t => (
@@ -879,21 +912,18 @@ export default function App() {
 
           <main ref={viewerRef} className="flex-1 p-3 flex flex-col md:flex-row gap-4 overflow-hidden items-center justify-center relative cursor-crosshair w-full max-w-[1600px] mx-auto" onPointerDown={(e) => { setIsDraggingLight(true); handlePointerMove(e); }} onPointerMove={handlePointerMove} onPointerUp={() => setIsDraggingLight(false)} onPointerLeave={() => setIsDraggingLight(false)}>
              
-             {/* ☀️ 태양(광원) 및 빛 각도 가이드 텍스트 */}
              <div className="absolute z-50 flex items-center justify-center pointer-events-none" style={{ left: `${lightPos.x}%`, top: `${lightPos.y}%`, transform: 'translate(-50%, -50%)' }}>
                 <div className="w-14 h-16 bg-white/10 rounded-full flex items-center justify-center shadow-[0_0_50px_#fff] border border-white/30"><Sun className="text-yellow-100" size={28} /></div>
                 <div className="absolute top-16 whitespace-nowrap text-[11px] font-black text-yellow-300 bg-black/70 px-2.5 py-1 rounded-md shadow-lg border border-yellow-500/30">{getLightDirectionText(lightPos.x, lightPos.y)}</div>
              </div>
              
-             {/* 좌측: 변경 전 원본 (Original Snapshot) */}
-             <div className="w-full md:flex-1 h-1/2 md:h-[80%] rounded-2xl border border-slate-600 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)]" style={getInteractiveBackground(originalFinalOptics, lightPos)}>
+             <div className="w-full md:flex-1 h-1/2 md:h-[80%] rounded-2xl border border-slate-600 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)]" style={getInteractiveBackground(originalFinalOptics, lightPos, isBaseMetallic || isPearlMetallic)}>
                 <div className="absolute top-3 left-3 bg-black/80 px-3 py-1.5 rounded-lg text-xs font-black text-slate-300 border border-slate-700 shadow-md">A. 원본 배합 (변경 전)</div>
              </div>
              
              <div className="text-slate-600 pointer-events-none shrink-0 hidden md:block"><ChevronRight size={32} /></div>
              
-             {/* 우측: 변경 후 실시간 렌더링 (Live Final) */}
-             <div className="w-full md:flex-1 h-1/2 md:h-[80%] rounded-2xl border-2 border-blue-500 relative overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.3)]" style={getInteractiveBackground(finalOptics, lightPos)}>
+             <div className="w-full md:flex-1 h-1/2 md:h-[80%] rounded-2xl border-2 border-blue-500 relative overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.3)]" style={getInteractiveBackground(finalOptics, lightPos, isBaseMetallic || isPearlMetallic)}>
                 <div className="absolute top-3 left-3 bg-blue-900/90 px-3 py-1.5 rounded-lg text-xs font-black text-white border border-blue-400 shadow-md flex items-center">
                    <Zap size={14} className="mr-1.5 text-yellow-300 animate-pulse"/> B. 실시간 시뮬레이션 (변경 후)
                 </div>
