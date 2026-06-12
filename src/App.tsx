@@ -292,11 +292,15 @@ export default function App() {
   const [isBaseMetallic, setIsBaseMetallic] = useState(false);
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
 
+  // 💡 Tesseract.js (진짜 OCR 라이브러리) 동적 로드
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-    script.async = true;
-    document.body.appendChild(script);
+    if (!document.getElementById('tesseract-script')) {
+      const script = document.createElement('script');
+      script.id = 'tesseract-script';
+      script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
   }, []);
 
   useEffect(() => {
@@ -346,6 +350,7 @@ export default function App() {
     addChatMessage('system', '🔒 **[STATE_LOCK]** 기준 코드가 확정되었습니다. 멀티 시각화 렌더링을 활성화합니다.');
   };
 
+  // 📸 진짜 OCR 스캔 핸들러 (Tesseract.js 연동 & 정규식 고도화)
   const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -357,10 +362,12 @@ export default function App() {
 
     try {
       if ((window as any).Tesseract) {
-        const result = await (window as any).Tesseract.recognize(file, 'eng', { logger: (m: any) => console.log(m) });
-        const text = result.data.text;
+        // eng+kor 다국어 인식 적용
+        const result = await (window as any).Tesseract.recognize(file, 'eng+kor', { logger: (m: any) => console.log(m) });
+        const text = result.data.text.replace(/\s+/g, ' '); // 공백 정규화
         
-        const regex = /(?:WT)?\s*([1346]\d{2,3})\s*[-:=]?\s*([0-9.]+)?/gi;
+        // 정규식 개선: WT 유무 상관없이 3자리/4자리 안료 번호와 수치를 유연하게 헌팅
+        const regex = /(?:WT)?\s*([13468]\d{2,3})[^\d]*?(\d{1,4}(?:\.\d{1,2})?)/gi;
         let match; const found = [];
         while ((match = regex.exec(text)) !== null) {
           const code = `WT ${match[1]}`; const weight = match[2] || "0.0";
@@ -369,6 +376,7 @@ export default function App() {
           }
         }
 
+        // 중복 제거
         const uniqueFound: any[] = []; const seen = new Set();
         for(let item of found) {
            if(!seen.has(item.code)) { seen.add(item.code); uniqueFound.push(item); }
@@ -376,7 +384,7 @@ export default function App() {
 
         if (uniqueFound.length > 0) {
           setToners(prev => [...prev.filter(t => t.code !== ''), ...uniqueFound]);
-          addChatMessage('system', `📸 **[스캔 분석 완료]**\n사진에서 총 ${uniqueFound.length}개의 안료 데이터를 읽어왔습니다. 수기로 작성된 경우 오차가 있을 수 있으니, 상단에 고정된 사진 원본을 보며 수치를 꼭 확인해 주세요!\n(인식 텍스트: "${text.substring(0, 30).replace(/\n/g, ' ')}...")`);
+          addChatMessage('system', `📸 **[스캔 매칭 성공]**\n사진에서 총 ${uniqueFound.length}개의 안료 데이터를 읽어왔습니다.\n\n⚠️ **주의:** 손글씨 인식(프론트엔드 한계)으로 인해 오타가 섞일 수 있으니, 상단에 고정된 원본 사진을 보며 수치를 꼭 한 번씩 수정/확인해 주십시오!\n\n(인식 원문: "${text.substring(0, 30)}...")`);
         } else {
            throw new Error("코드 인식 실패");
         }
@@ -384,16 +392,7 @@ export default function App() {
         throw new Error("OCR 모듈 미적용");
       }
     } catch (error) {
-      const seed = file.size;
-      const keys = Object.keys(TONER_DB).filter(k => k.startsWith('WT '));
-      const randomToners = [];
-      for(let i=0; i<4; i++) {
-          const code = keys[(seed + i * 17) % keys.length];
-          const weight = ((seed % 100) / 10 + i * 2.5).toFixed(1);
-          randomToners.push({ id: `scan_fb_${Date.now()}_${i}`, code, role: TONER_DB[code as keyof typeof TONER_DB].role, adjustedWeight: String(weight) });
-      }
-      setToners(prev => [...prev.filter(t => t.code !== ''), ...randomToners]);
-      addChatMessage('system', `⚠️ **[스캔 경고]**\n악필 또는 해상도 문제로 텍스트를 완벽히 추출하지 못해, 유사 코드를 우선 배치했습니다. 상단 참조 사진을 보며 수치를 직접 수정해 주십시오.`);
+      addChatMessage('system', `❌ **[스캔 실패]**\n현재 브라우저의 무료 AI 모듈로는 현장 수기(손글씨)를 읽어내는 데 한계가 있습니다. 상단 참조 사진을 띄워두었으니 화면을 보시면서 하단에 빠르게 타이핑해 주십시오.`);
     }
     setIsScanning(false);
   };
@@ -610,7 +609,7 @@ export default function App() {
           <h2 className="text-white text-2xl font-black mb-3 tracking-wide">AI 이미지 스캔 중</h2>
           <div className="flex items-center space-x-2">
             <RefreshCw className="animate-spin text-blue-400 w-5 h-5" />
-            <p className="text-blue-200 text-sm font-bold">사진의 글씨를 Tesseract.js가 판독하고 있습니다...</p>
+            <p className="text-blue-200 text-sm font-bold">사진의 글씨를 판독하고 있습니다...</p>
           </div>
         </div>
       )}
@@ -632,6 +631,7 @@ export default function App() {
               <h2 className="text-lg font-bold text-slate-800 flex items-center">
                 <Sliders className="text-blue-600 mr-2" size={20} /> 공식 배합 시트
               </h2>
+              {/* 📸 카메라 기능 버튼 */}
               <div className="flex space-x-2">
                 <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} className="hidden" onChange={handleCameraCapture} />
                 <button onClick={() => cameraInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded flex items-center text-[13px] font-bold transition-colors shadow-md">
@@ -797,7 +797,8 @@ export default function App() {
           <div className="bg-white border border-slate-300 rounded-xl p-4 md:p-5 shadow-xl flex-none transition-all duration-300">
             <h3 className="text-[15px] font-bold mb-4 flex justify-between items-center border-b border-slate-100 pb-3">
               <span className="flex items-center"><Layers className="text-blue-600 mr-2" size={18} />멀티 렌더링 비교</span>
-              <button onClick={() => { if(isBaseConfirmed){ setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); } }} className="text-xs px-3 py-1.5 rounded bg-slate-100 border border-slate-200 font-bold flex items-center text-blue-600"><Maximize size={12} className="mr-1"/>확장 뷰어</button>
+              {/* 💡 확장 뷰어 잠금 완전 해제: onClick 속성 내 if 조건문 삭제 */}
+              <button onClick={() => { setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); }} className="text-xs px-3 py-1.5 rounded bg-slate-100 border border-slate-200 font-bold flex items-center text-blue-600 hover:bg-blue-50 cursor-pointer shadow-sm"><Maximize size={12} className="mr-1"/>확장 뷰어</button>
             </h3>
             
             <div className="flex flex-col space-y-4">
@@ -889,6 +890,76 @@ export default function App() {
           </div>
         );
       })()}
+
+      {/* 💡 3. [확장 뷰어] 3-Coat 지원 및 유기적 조명 (Interactive Sun) */}
+      {isConfiguratorOpen && (
+        <div className="fixed inset-0 bg-slate-950/95 z-[100] flex flex-col text-white font-sans animate-in fade-in duration-300 backdrop-blur-xl select-none">
+          <header className="p-4 md:p-6 flex justify-between items-center bg-black/50 border-b border-slate-800 shrink-0">
+            <h2 className="text-lg md:text-xl font-bold tracking-widest text-slate-300 uppercase flex items-center"><Camera className="mr-2 md:mr-3 text-blue-500" size={20}/> MULTI 3D VIEW</h2>
+            <button onClick={() => setIsConfiguratorOpen(false)} className="p-2 bg-slate-800 hover:bg-red-500 rounded-full transition-colors border border-slate-700"><X size={24}/></button>
+          </header>
+
+          <main 
+            ref={viewerRef}
+            className="flex-1 p-4 md:p-6 flex flex-col md:flex-row gap-4 overflow-hidden items-center justify-center relative cursor-crosshair w-full max-w-[1600px] mx-auto"
+            onPointerDown={(e) => { setIsDraggingLight(true); handlePointerMove(e); }}
+            onPointerMove={handlePointerMove}
+            onPointerUp={() => setIsDraggingLight(false)}
+            onPointerLeave={() => setIsDraggingLight(false)}
+          >
+             {/* ☀️ 드래그 가능한 가상 태양 (광원) UI */}
+             <div 
+               className="absolute z-50 flex items-center justify-center transition-transform duration-75 pointer-events-none"
+               style={{ left: `${lightPos.x}%`, top: `${lightPos.y}%`, transform: 'translate(-50%, -50%)' }}
+             >
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-white/10 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(255,255,255,0.8)] backdrop-blur-sm border border-white/40 animate-pulse">
+                    <Sun className="text-yellow-100 drop-shadow-[0_0_15px_rgba(255,255,255,1)]" size={32} />
+                </div>
+             </div>
+
+             {/* A. 베이스 렌더링 */}
+             <div className="w-full md:flex-1 h-1/3 md:h-[85%] rounded-[1.5rem] md:rounded-[2rem] border border-slate-700 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] transition-all duration-75"
+                  style={{ background: getInteractiveBackground(baseOptics, lightPos) }}>
+                <div className="absolute top-4 left-4 md:top-6 md:left-6 bg-black/80 px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm border border-slate-600 text-slate-200 shadow-lg">A. 베이스 코트</div>
+             </div>
+             
+             {isThreeCoatMode && (
+               <>
+                 <div className="text-slate-600 pointer-events-none shrink-0 hidden md:block"><ChevronRight size={32} /></div>
+
+                 {/* B. 펄 렌더링 */}
+                 <div className="w-full md:flex-1 h-1/3 md:h-[85%] rounded-[1.5rem] md:rounded-[2rem] border border-purple-500 relative overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-75"
+                      style={{ background: getInteractiveBackground(pearlOptics, lightPos) }}>
+                    <div className="absolute top-4 left-4 md:top-6 md:left-6 bg-purple-900/90 px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm border border-purple-400 text-white shadow-lg">B. 펄 코트</div>
+                 </div>
+               </>
+             )}
+
+             <div className="text-slate-600 pointer-events-none shrink-0 hidden md:block"><ChevronRight size={32} /></div>
+
+             {/* C. 최종 렌더링 */}
+             <div className="w-full md:flex-1 h-1/3 md:h-[85%] rounded-[1.5rem] md:rounded-[2rem] border border-blue-500 relative overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.4)] transition-all duration-75"
+                  style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
+                <div className="absolute top-4 left-4 md:top-6 md:left-6 bg-blue-900/90 px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm border border-blue-400 text-white shadow-lg">{isThreeCoatMode ? 'C. 최종 3코트' : 'B. 최종 렌더링'}</div>
+             </div>
+             
+             {/* 조명 퀵 컨트롤 UI */}
+             <div className="absolute bottom-4 md:bottom-6 left-1/2 transform -translate-x-1/2 flex flex-col items-center bg-slate-900/90 p-3 md:p-4 rounded-2xl border border-slate-700 backdrop-blur-md z-50 shadow-2xl w-[90%] md:w-auto">
+                <span className="text-[10px] md:text-xs text-blue-400 font-bold mb-2 md:mb-3 uppercase tracking-wider animate-pulse flex items-center text-center leading-tight"><Sun size={14} className="mr-1 shrink-0"/>빈 공간을 드래그하여 광원을 유기적으로 움직여 보세요</span>
+                <div className="flex space-x-2 md:space-x-3 w-full md:w-auto justify-center">
+                  {anglePresets.map((angle) => (
+                    <button 
+                      key={angle.id} onClick={(e) => { e.stopPropagation(); setLightPos(angle.pos); }}
+                      className="px-3 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl font-bold uppercase transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-600 hover:border-blue-400 text-[10px] md:text-sm flex-1 md:flex-none whitespace-nowrap"
+                    >
+                      {angle.label}
+                    </button>
+                  ))}
+                </div>
+             </div>
+          </main>
+        </div>
+      )}
 
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes scan { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
