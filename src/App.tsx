@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Sliders, Trash2, Plus, Zap, Maximize, Lock, Unlock, Layers, BrainCircuit, RefreshCw, Mic, FolderOpen, ChevronRight, Sun, Droplet, Camera, X, Image as ImageIcon, ScanLine, Beaker
+  Sliders, Trash2, Plus, Zap, Maximize, Lock, Unlock, Layers, BrainCircuit, RefreshCw, Mic, FolderOpen, ChevronRight, Sun, Droplet, Camera, X, Image as ImageIcon, ScanLine, Beaker, MicOff
 } from 'lucide-react';
 
 // 💡 1. 사용자 맞춤형 100% 완벽 복구 안료 DB
@@ -109,7 +109,6 @@ const lerpHue = (a: number, b: number, t: number) => {
 };
 const lerpColor = (c1: any, c2: any, t: number) => ({ h: lerpHue(c1.h, c2.h, t), s: lerp(c1.s, c2.s, t), l: lerp(c1.l, c2.l, t) });
 
-// 💡 2. 리얼 3D 프랙탈 노이즈 기반 실제 안료 질감 렌더러
 const getTonerVisuals = (code: string, role: string, desc = '') => {
   const isPearl = role.includes('펄') || role.includes('이펙트') || role.includes('글라스') || role.includes('다이아몬드');
   const isSilver = role.includes('실버') || role.includes('알루미늄');
@@ -266,19 +265,23 @@ export default function App() {
   const [isBaseConfirmed, setIsBaseConfirmed] = useState(false);
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
 
-  // 💡 Auto Focus 처리용 State
+  // 💡 Auto Focus
   const [focusTarget, setFocusTarget] = useState<{ id: string, type: 'base' | 'pearl' } | null>(null);
 
   const [scannedImage, setScannedImage] = useState<string | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const initialChat = { id: 1, type: 'system', text: '💡 **[HI-TEC Master Engine V3.0 로드 완료]**\n- **Role**: Spies Hecker 페인트 기술 교육 전문가\n- **Rule**: 철저한 정식 한글 명칭 표기, 미확인 코드 차단.', time: new Date().toLocaleTimeString('ko-KR') };
+  const initialChat = { id: 1, type: 'system', text: '💡 **[HI-TEC Master Engine V4.0 로드 완료]**\n- **업데이트**: 고속 숫자 스캔(OCR) 및 음성 연속 입력 지원.', time: new Date().toLocaleTimeString('ko-KR') };
   const [chatMessages, setChatMessages] = useState([initialChat]);
   const [chatInput, setChatInput] = useState('');
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
   
+  // 🎙️ 음성 인식 State
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
   const [lightPos, setLightPos] = useState({ x: 50, y: 50 });
   const [isDraggingLight, setIsDraggingLight] = useState(false);
@@ -288,11 +291,10 @@ export default function App() {
   const [pearlOptics, setPearlOptics] = useState({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
   const [finalOptics, setFinalOptics] = useState({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
 
-  // 💡 6052 계산 로직을 위한 State (메탈릭 여부)
+  // 💡 6052 계산
   const [isBaseMetallic, setIsBaseMetallic] = useState(false);
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
 
-  // 💡 Tesseract.js (진짜 OCR 라이브러리) 동적 로드
   useEffect(() => {
     if (!document.getElementById('tesseract-script')) {
       const script = document.createElement('script');
@@ -315,7 +317,6 @@ export default function App() {
     setPearlOptics(getOptics(pearlToners, 'adjustedWeight')); 
     setFinalOptics(getOptics(isThreeCoatMode ? [...toners, ...pearlToners] : toners, 'adjustedWeight'));
 
-    // 메탈릭 판별 로직 (6052 계산용)
     const checkMetallic = (tonerList: any[]) => tonerList.some(t => {
       const role = TONER_DB[t.code as keyof typeof TONER_DB]?.role || '';
       return role.includes('실버') || role.includes('알루미늄') || role.includes('펄') || role.includes('이펙트') || role.includes('다이아몬드') || role.includes('글라스');
@@ -323,7 +324,6 @@ export default function App() {
 
     setIsBaseMetallic(checkMetallic(toners));
     setIsPearlMetallic(checkMetallic(pearlToners));
-
   }, [toners, pearlToners, isThreeCoatMode]);
 
   useEffect(() => {
@@ -345,12 +345,76 @@ export default function App() {
     addChatMessage('system', '🗑️ **[ACTION_RESET]** 배합 리스트가 즉시 초기화되었습니다.');
   };
 
-  const handleConfirmBase = () => {
-    setIsBaseConfirmed(true);
-    addChatMessage('system', '🔒 **[STATE_LOCK]** 기준 코드가 확정되었습니다. 멀티 시각화 렌더링을 활성화합니다.');
+  // 🎙️ 음성 인식(Voice Dictation) 핸들러
+  const toggleVoiceDictation = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      addChatMessage('system', '🎙️ 음성 인식이 종료되었습니다.');
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('현재 기기/브라우저에서는 음성 인식을 지원하지 않습니다. (Safari/Chrome 최신 권장)');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'ko-KR';
+    recognition.continuous = true;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      addChatMessage('system', '🎙️ **[스마트 음성 연속 모드 켜짐]**\n"311 20 추가" 또는 "387 12.5" 처럼 편하게 연속해서 말씀해 보세요.');
+    };
+
+    recognition.onresult = (event: any) => {
+      const lastIndex = event.results.length - 1;
+      const transcript = event.results[lastIndex][0].transcript.trim();
+      
+      const match = transcript.match(/([13468]\d{2,3})[^\d]*?(\d{1,4}(?:\.\d{1,2})?)/);
+      if (match) {
+        const codeNum = match[1];
+        const weight = match[2];
+        const finalCode = `WT ${codeNum}`;
+        
+        if (TONER_DB[finalCode as keyof typeof TONER_DB]) {
+          const role = TONER_DB[finalCode as keyof typeof TONER_DB].role;
+          const newToner = { id: `voice_${Date.now()}`, code: finalCode, role: role, adjustedWeight: weight };
+          
+          // 펄 계열 자동 분류 로직
+          const isPearlType = role.includes('펄') || role.includes('다이아몬드') || role.includes('이펙트');
+          
+          if (isPearlType && isThreeCoatMode) {
+             setPearlToners(prev => [...prev.filter(t => t.code !== ''), newToner]);
+             addChatMessage('system', `🎙️ [인식 성공] 펄 코트에 자동 추가됨: **${finalCode} (${weight}g)**`);
+          } else {
+             setToners(prev => [...prev.filter(t => t.code !== ''), newToner]);
+             addChatMessage('system', `🎙️ [인식 성공] 베이스에 추가됨: **${finalCode} (${weight}g)**`);
+          }
+        } else {
+          addChatMessage('system', `🎙️ [코드 오류] ${finalCode} 안료는 DB에 없습니다. (인식된 음성: "${transcript}")`);
+        }
+      } else {
+        addChatMessage('system', `🎙️ [형식 오류] "코드번호" 와 "용량"을 명확히 말씀해 주세요. (인식된 음성: "${transcript}")`);
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      if(event.error !== 'no-speech') {
+        setIsListening(false);
+        addChatMessage('system', '🎙️ 음성 인식 권한 오류가 발생했습니다. 마이크 접근을 허용해 주세요.');
+      }
+    };
+
+    recognition.onend = () => { setIsListening(false); };
+    recognitionRef.current = recognition;
+    recognition.start();
   };
 
-  // 📸 진짜 OCR 스캔 핸들러 (Tesseract.js 연동 & 정규식 고도화)
+  // 📸 진짜 OCR 스캔 핸들러 (숫자 헌팅 로직으로 변경)
   const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -358,33 +422,46 @@ export default function App() {
     const imageUrl = URL.createObjectURL(file);
     setScannedImage(imageUrl);
     setIsScanning(true);
-    addChatMessage('system', '⏳ **[AI 비전 엔진 가동]**\nTesseract.js 이미지 분석 모듈을 통해 문자를 추출하고 있습니다. (약 3~5초 소요)');
+    addChatMessage('system', '⏳ **[AI 비전 엔진 가동]**\nTesseract.js 이미지 분석 모듈로 숫자를 추적 중입니다. (약 3~5초 소요)');
 
     try {
       if ((window as any).Tesseract) {
-        // eng+kor 다국어 인식 적용
         const result = await (window as any).Tesseract.recognize(file, 'eng+kor', { logger: (m: any) => console.log(m) });
-        const text = result.data.text.replace(/\s+/g, ' '); // 공백 정규화
+        const text = result.data.text;
         
-        // 정규식 개선: WT 유무 상관없이 3자리/4자리 안료 번호와 수치를 유연하게 헌팅
-        const regex = /(?:WT)?\s*([13468]\d{2,3})[^\d]*?(\d{1,4}(?:\.\d{1,2})?)/gi;
-        let match; const found = [];
-        while ((match = regex.exec(text)) !== null) {
-          const code = `WT ${match[1]}`; const weight = match[2] || "0.0";
-          if (TONER_DB[code as keyof typeof TONER_DB]) {
-            found.push({ id: `scan_${Date.now()}_${Math.random()}`, code, role: TONER_DB[code as keyof typeof TONER_DB].role, adjustedWeight: weight });
-          }
+        // 💡 1. 텍스트 내의 모든 숫자 덩어리 추출
+        const numRegex = /\d+(?:\.\d+)?/g;
+        const numbers = [];
+        let m;
+        while((m = numRegex.exec(text)) !== null) {
+            numbers.push(m[0]);
         }
-
-        // 중복 제거
-        const uniqueFound: any[] = []; const seen = new Set();
-        for(let item of found) {
-           if(!seen.has(item.code)) { seen.add(item.code); uniqueFound.push(item); }
+        
+        // 💡 2. 숫자 덩어리를 순회하며 코드(3~4자리 특정 번호)와 용량 짝짓기
+        const uniqueFound: any[] = [];
+        const seen = new Set();
+        
+        for(let i=0; i<numbers.length; i++) {
+            const num = numbers[i];
+            // WT 코드로 유효한지 검사 (1,3,4,6,8로 시작하는 3~4자리)
+            if (num.length >= 3 && num.length <= 4 && /^[13468]/.test(num)) {
+                const code = `WT ${num}`;
+                if(TONER_DB[code as keyof typeof TONER_DB] && !seen.has(code)) {
+                   let weight = "0.0";
+                   // 다음 숫자가 존재하고 합리적인 용량(<2000)이면 그 숫자를 용량으로 사용
+                   if (i + 1 < numbers.length && parseFloat(numbers[i+1]) < 2000) {
+                       weight = numbers[i+1];
+                       i++; // 용량으로 쓴 숫자는 건너뛰기
+                   }
+                   seen.add(code);
+                   uniqueFound.push({ id: `scan_${Date.now()}_${Math.random()}`, code, role: TONER_DB[code as keyof typeof TONER_DB].role, adjustedWeight: weight });
+                }
+            }
         }
 
         if (uniqueFound.length > 0) {
           setToners(prev => [...prev.filter(t => t.code !== ''), ...uniqueFound]);
-          addChatMessage('system', `📸 **[스캔 매칭 성공]**\n사진에서 총 ${uniqueFound.length}개의 안료 데이터를 읽어왔습니다.\n\n⚠️ **주의:** 손글씨 인식(프론트엔드 한계)으로 인해 오타가 섞일 수 있으니, 상단에 고정된 원본 사진을 보며 수치를 꼭 한 번씩 수정/확인해 주십시오!\n\n(인식 원문: "${text.substring(0, 30)}...")`);
+          addChatMessage('system', `📸 **[숫자 추적 스캔 성공]**\n어지러운 텍스트를 무시하고 ${uniqueFound.length}개의 숫자 데이터를 추출했습니다.\n\n⚠️ **주의:** 손글씨 인식 한계상 숫자를 잘못 읽었을 수 있습니다. 상단의 원본 사진을 보며 수치를 꼭 확인해 주십시오!\n\n(인식 원문: "${text.substring(0, 40).replace(/\n/g, ' ')}...")`);
         } else {
            throw new Error("코드 인식 실패");
         }
@@ -392,7 +469,7 @@ export default function App() {
         throw new Error("OCR 모듈 미적용");
       }
     } catch (error) {
-      addChatMessage('system', `❌ **[스캔 실패]**\n현재 브라우저의 무료 AI 모듈로는 현장 수기(손글씨)를 읽어내는 데 한계가 있습니다. 상단 참조 사진을 띄워두었으니 화면을 보시면서 하단에 빠르게 타이핑해 주십시오.`);
+      addChatMessage('system', `❌ **[스캔 실패]**\n악필 또는 해상도 저하로 숫자를 완벽히 찾지 못했습니다. 상단 참조 사진을 보며 하단에 직접 입력해 주십시오.`);
     }
     setIsScanning(false);
   };
@@ -549,7 +626,6 @@ export default function App() {
     if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id));
   };
   
-  // 💡 안료 추가 시 Auto Focus 타겟 설정
   const addToner = (isPearl = false) => {
     const newId = `new_${Date.now()}`;
     const newToner = { id: newId, code: '', role: '코드 입력', adjustedWeight: "" };
@@ -582,7 +658,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden lg:overflow-hidden">
       
-      {/* 📸 카메라 기능: 찍은 사진을 상단에 고정하는 스마트 참조 모드 */}
       {scannedImage && (
         <div className="bg-slate-900 border-b-4 border-blue-500 shadow-2xl z-50 p-2 md:p-4 sticky top-0 animate-in slide-in-from-top-10">
           <div className="flex justify-between items-center mb-2 px-2 max-w-[1600px] mx-auto">
@@ -599,7 +674,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Tesseract.js 스캔 중 애니메이션 오버레이 */}
       {isScanning && (
         <div className="fixed inset-0 bg-slate-900/95 z-[200] flex flex-col items-center justify-center backdrop-blur-sm animate-in fade-in">
           <div className="relative">
@@ -609,7 +683,7 @@ export default function App() {
           <h2 className="text-white text-2xl font-black mb-3 tracking-wide">AI 이미지 스캔 중</h2>
           <div className="flex items-center space-x-2">
             <RefreshCw className="animate-spin text-blue-400 w-5 h-5" />
-            <p className="text-blue-200 text-sm font-bold">사진의 글씨를 판독하고 있습니다...</p>
+            <p className="text-blue-200 text-sm font-bold">사진 속 숫자 데이터를 판독하고 있습니다...</p>
           </div>
         </div>
       )}
@@ -617,11 +691,15 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md z-10 shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 3.0</span></h1>
+          <h1 className="text-xl font-semibold"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 4.0</span></h1>
         </div>
+        {/* 🎙️ 헤더에 음성인식 토글 버튼 배치 */}
+        <button onClick={toggleVoiceDictation} className={`flex items-center space-x-2 px-4 py-2 rounded-full font-bold transition-colors shadow-lg ${isListening ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' : 'bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white'}`}>
+          {isListening ? <Mic size={16} /> : <MicOff size={16} />}
+          <span className="text-sm">{isListening ? '음성 입력 중...' : '연속 음성입력'}</span>
+        </button>
       </header>
 
-      {/* 📱 메인 레이아웃 */}
       <div className="flex-1 p-4 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start h-auto lg:h-[calc(100vh-72px)] overflow-y-auto lg:overflow-hidden">
         
         {/* Left Column: Editor */}
@@ -631,7 +709,6 @@ export default function App() {
               <h2 className="text-lg font-bold text-slate-800 flex items-center">
                 <Sliders className="text-blue-600 mr-2" size={20} /> 공식 배합 시트
               </h2>
-              {/* 📸 카메라 기능 버튼 */}
               <div className="flex space-x-2">
                 <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} className="hidden" onChange={handleCameraCapture} />
                 <button onClick={() => cameraInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded flex items-center text-[13px] font-bold transition-colors shadow-md">
@@ -660,14 +737,13 @@ export default function App() {
               {toners.map((toner) => {
                 const visuals = getTonerVisuals(toner.code, toner.role, TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '');
                 return (
-                  <div key={toner.id} className="flex flex-col bg-white p-3 mb-3 rounded-xl border border-slate-200 shadow-sm transition-all hover:border-blue-300">
+                  <div key={toner.id} className="flex flex-col bg-white p-3 mb-3 rounded-xl border border-slate-200 shadow-sm transition-all hover:border-blue-300 hover:shadow-md">
                     <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
                       <div className="flex items-center space-x-3 w-full">
                         <div className="w-12 h-6 md:w-10 md:h-5 rounded shadow-sm border border-slate-400 flex overflow-hidden cursor-pointer shrink-0 hover:scale-110 transition-transform" onClick={() => { if(TONER_DB[toner.code as keyof typeof TONER_DB]) setSelectedTonerForView(toner.code); }}>
                           <div className="flex-1" style={visuals.macroStyle}></div>
                           <div className="flex-1 border-l border-slate-400" style={visuals.smoothStyle}></div>
                         </div>
-                        {/* 💡 Auto Focus 적용 */}
                         <input 
                           type="text" 
                           autoFocus={focusTarget?.id === toner.id}
@@ -696,9 +772,7 @@ export default function App() {
                   </div>
                 )
               })}
-              <button onClick={() => addToner(false)} className="w-full py-3.5 border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50 rounded-xl text-slate-500 font-bold transition-all flex items-center justify-center space-x-2 text-sm shadow-sm">
-                <Plus size={18} /><span>베이스 안료 추가</span>
-              </button>
+              <button onClick={() => addToner(false)} className="w-full py-3.5 border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50 rounded-xl text-slate-500 font-bold transition-all flex items-center justify-center space-x-2 text-sm shadow-sm"><Plus size={18} /><span>베이스 안료 추가</span></button>
             </div>
 
             {isThreeCoatMode && (
@@ -707,14 +781,13 @@ export default function App() {
                 {pearlToners.map((toner) => {
                   const visuals = getTonerVisuals(toner.code, toner.role, TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '');
                   return (
-                    <div key={toner.id} className="flex flex-col bg-white p-3 mb-3 rounded-xl border border-purple-200 shadow-sm transition-all hover:border-purple-400">
+                    <div key={toner.id} className="flex flex-col bg-white p-3 mb-3 rounded-xl border border-purple-200 shadow-sm transition-all hover:border-purple-400 hover:shadow-md">
                       <div className="flex items-center justify-between mb-3 pb-2 border-b border-purple-50">
                         <div className="flex items-center space-x-3 w-full">
                           <div className="w-12 h-6 rounded shadow-sm border flex overflow-hidden cursor-pointer shrink-0 hover:scale-110 transition-transform" onClick={() => { if(TONER_DB[toner.code as keyof typeof TONER_DB]) setSelectedTonerForView(toner.code); }}>
                             <div className="flex-1" style={visuals.macroStyle}></div>
                             <div className="flex-1 border-l" style={visuals.smoothStyle}></div>
                           </div>
-                          {/* 💡 Auto Focus 적용 */}
                           <input 
                             type="text" 
                             autoFocus={focusTarget?.id === toner.id}
@@ -743,17 +816,12 @@ export default function App() {
                     </div>
                   )
                 })}
-                <button onClick={() => addToner(true)} className="w-full py-3.5 border-2 border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 rounded-xl text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm shadow-sm">
-                  <Plus size={18} /><span>펄 조색제 추가</span>
-                </button>
+                <button onClick={() => addToner(true)} className="w-full py-3.5 border-2 border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 rounded-xl text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm shadow-sm"><Plus size={18} /><span>펄 조색제 추가</span></button>
               </div>
             )}
           </div>
           
-          {/* 💡 하단 Total Weight 부분: 6052 계산 및 분리 표시 완벽 구현 */}
           <div className="p-4 bg-slate-800 text-slate-100 flex flex-col shrink-0 rounded-b-xl lg:rounded-none space-y-3 shadow-inner">
-             
-             {/* 베이스 코트 분리 합계 및 6052 로직 */}
              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-sm border-b border-slate-700 pb-2 gap-1 sm:gap-0">
                <div className="flex items-center flex-wrap">
                  <span className="text-slate-400 font-bold tracking-wider mr-2">베이스 총량:</span> 
@@ -761,13 +829,12 @@ export default function App() {
                </div>
                <div className="flex items-center text-blue-300 bg-blue-900/40 px-2 py-1 rounded text-xs border border-blue-800/50">
                   <Beaker size={14} className="mr-1.5"/>
-                  <span className="font-bold">6052 필요량:</span>
+                  <span className="font-bold">6052:</span>
                   <span className="ml-1.5 text-white font-black">{ (parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1) }g</span>
                   <span className="ml-1 opacity-70">({isBaseMetallic ? '메탈릭 20%' : '솔리드 10%'})</span>
                </div>
              </div>
 
-             {/* 펄 코트 분리 합계 및 6052 로직 (3Coat 시 활성화) */}
              {isThreeCoatMode && (
                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-sm border-b border-slate-700 pb-2 gap-1 sm:gap-0">
                  <div className="flex items-center flex-wrap">
@@ -776,20 +843,18 @@ export default function App() {
                  </div>
                  <div className="flex items-center text-purple-300 bg-purple-900/40 px-2 py-1 rounded text-xs border border-purple-800/50">
                     <Beaker size={14} className="mr-1.5"/>
-                    <span className="font-bold">6052 필요량:</span>
+                    <span className="font-bold">6052:</span>
                     <span className="ml-1.5 text-white font-black">{ (parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1) }g</span>
                     <span className="ml-1 opacity-70">({isPearlMetallic ? '메탈릭 20%' : '솔리드 10%'})</span>
                  </div>
                </div>
              )}
 
-             {/* 최종 합계 */}
              <div className="flex justify-between items-center pt-1">
-               <div className="text-xs font-bold uppercase text-slate-400 tracking-wider">Total Formula Weight</div>
+               <div className="text-xs font-bold uppercase text-slate-400 tracking-wider">Total Formula</div>
                <div className="text-2xl font-black text-cyan-400">{totalFinalWeight} <span className="text-base text-cyan-600">g</span></div>
              </div>
           </div>
-
         </div>
 
         {/* 우측: 멀티 시각화 렌더링 & AI 터미널 */}
@@ -797,7 +862,6 @@ export default function App() {
           <div className="bg-white border border-slate-300 rounded-xl p-4 md:p-5 shadow-xl flex-none transition-all duration-300">
             <h3 className="text-[15px] font-bold mb-4 flex justify-between items-center border-b border-slate-100 pb-3">
               <span className="flex items-center"><Layers className="text-blue-600 mr-2" size={18} />멀티 렌더링 비교</span>
-              {/* 💡 확장 뷰어 잠금 완전 해제: onClick 속성 내 if 조건문 삭제 */}
               <button onClick={() => { setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); }} className="text-xs px-3 py-1.5 rounded bg-slate-100 border border-slate-200 font-bold flex items-center text-blue-600 hover:bg-blue-50 cursor-pointer shadow-sm"><Maximize size={12} className="mr-1"/>확장 뷰어</button>
             </h3>
             
@@ -891,7 +955,7 @@ export default function App() {
         );
       })()}
 
-      {/* 💡 3. [확장 뷰어] 3-Coat 지원 및 유기적 조명 (Interactive Sun) */}
+      {/* 💡 3. [확장 뷰어] */}
       {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/95 z-[100] flex flex-col text-white font-sans animate-in fade-in duration-300 backdrop-blur-xl select-none">
           <header className="p-4 md:p-6 flex justify-between items-center bg-black/50 border-b border-slate-800 shrink-0">
@@ -907,7 +971,6 @@ export default function App() {
             onPointerUp={() => setIsDraggingLight(false)}
             onPointerLeave={() => setIsDraggingLight(false)}
           >
-             {/* ☀️ 드래그 가능한 가상 태양 (광원) UI */}
              <div 
                className="absolute z-50 flex items-center justify-center transition-transform duration-75 pointer-events-none"
                style={{ left: `${lightPos.x}%`, top: `${lightPos.y}%`, transform: 'translate(-50%, -50%)' }}
@@ -917,7 +980,6 @@ export default function App() {
                 </div>
              </div>
 
-             {/* A. 베이스 렌더링 */}
              <div className="w-full md:flex-1 h-1/3 md:h-[85%] rounded-[1.5rem] md:rounded-[2rem] border border-slate-700 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] transition-all duration-75"
                   style={{ background: getInteractiveBackground(baseOptics, lightPos) }}>
                 <div className="absolute top-4 left-4 md:top-6 md:left-6 bg-black/80 px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm border border-slate-600 text-slate-200 shadow-lg">A. 베이스 코트</div>
@@ -926,8 +988,6 @@ export default function App() {
              {isThreeCoatMode && (
                <>
                  <div className="text-slate-600 pointer-events-none shrink-0 hidden md:block"><ChevronRight size={32} /></div>
-
-                 {/* B. 펄 렌더링 */}
                  <div className="w-full md:flex-1 h-1/3 md:h-[85%] rounded-[1.5rem] md:rounded-[2rem] border border-purple-500 relative overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-75"
                       style={{ background: getInteractiveBackground(pearlOptics, lightPos) }}>
                     <div className="absolute top-4 left-4 md:top-6 md:left-6 bg-purple-900/90 px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm border border-purple-400 text-white shadow-lg">B. 펄 코트</div>
@@ -937,15 +997,13 @@ export default function App() {
 
              <div className="text-slate-600 pointer-events-none shrink-0 hidden md:block"><ChevronRight size={32} /></div>
 
-             {/* C. 최종 렌더링 */}
              <div className="w-full md:flex-1 h-1/3 md:h-[85%] rounded-[1.5rem] md:rounded-[2rem] border border-blue-500 relative overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.4)] transition-all duration-75"
                   style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
                 <div className="absolute top-4 left-4 md:top-6 md:left-6 bg-blue-900/90 px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm border border-blue-400 text-white shadow-lg">{isThreeCoatMode ? 'C. 최종 3코트' : 'B. 최종 렌더링'}</div>
              </div>
              
-             {/* 조명 퀵 컨트롤 UI */}
              <div className="absolute bottom-4 md:bottom-6 left-1/2 transform -translate-x-1/2 flex flex-col items-center bg-slate-900/90 p-3 md:p-4 rounded-2xl border border-slate-700 backdrop-blur-md z-50 shadow-2xl w-[90%] md:w-auto">
-                <span className="text-[10px] md:text-xs text-blue-400 font-bold mb-2 md:mb-3 uppercase tracking-wider animate-pulse flex items-center text-center leading-tight"><Sun size={14} className="mr-1 shrink-0"/>빈 공간을 드래그하여 광원을 유기적으로 움직여 보세요</span>
+                <span className="text-[10px] md:text-xs text-blue-400 font-bold mb-2 md:mb-3 uppercase tracking-wider animate-pulse flex items-center text-center leading-tight"><Sun size={14} className="mr-1 shrink-0"/>드래그하여 광원을 움직여 보세요</span>
                 <div className="flex space-x-2 md:space-x-3 w-full md:w-auto justify-center">
                   {anglePresets.map((angle) => (
                     <button 
