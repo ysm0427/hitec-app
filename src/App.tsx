@@ -109,7 +109,6 @@ const lerpHue = (a: number, b: number, t: number) => {
 };
 const lerpColor = (c1: any, c2: any, t: number) => ({ h: lerpHue(c1.h, c2.h, t), s: lerp(c1.s, c2.s, t), l: lerp(c1.l, c2.l, t) });
 
-// 💡 2. 리얼 3D 프랙탈 노이즈 기반 안료 질감 렌더러
 const getTonerVisuals = (code: string, role: string, desc = '') => {
   const isPearl = role.includes('펄') || role.includes('이펙트') || role.includes('글라스') || role.includes('다이아몬드');
   const isSilver = role.includes('실버') || role.includes('알루미늄');
@@ -269,9 +268,8 @@ export default function App() {
   const [scannedImage, setScannedImage] = useState<string | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const [chatMessages, setChatMessages] = useState<any[]>([
-    { id: 1, type: 'system', text: '💡 **[HI-TEC Master V7.0 마스터 로드]**\n- 무한 음성 인식, 소수점 스캔, 모바일 화면 완벽 최적화 완료.' }
-  ]);
+  const initialChat = { id: 1, type: 'system', text: '💡 **[HI-TEC Master V7.1 빌드 에러 패치 완료]**\n- 에러 발생 요소를 완벽히 제거했습니다.\n- 무한 음성 인식, 소수점 스캔, 모바일 화면 완벽 최적화 완료.' };
+  const [chatMessages, setChatMessages] = useState([initialChat]);
   const [chatInput, setChatInput] = useState('');
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
@@ -539,6 +537,25 @@ export default function App() {
     else { setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'base' }); }
   };
 
+  // Vercel 에러 해결용: 컴포넌트 내부에 렌더러 함수들 위치
+  const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => `hsl(${Math.round(opticsObj[angle].h)}, ${Math.round(opticsObj[angle].s)}%, ${Math.round(opticsObj[angle].l)}%)`;
+  
+  const getInteractiveBackground = (opticsObj: any, lPos: any) => {
+    const dist = Math.sqrt(Math.pow(lPos.x - 50, 2) + Math.pow(lPos.y - 50, 2)); const normalizedDist = Math.min(1, dist / 50); 
+    let activeColor = normalizedDist < 0.5 ? lerpColor(opticsObj.face, opticsObj.mid, normalizedDist * 2) : lerpColor(opticsObj.mid, opticsObj.flop, (normalizedDist - 0.5) * 2);
+    const colorStr = `hsl(${Math.round(activeColor.h)}, ${Math.round(activeColor.s)}%, ${Math.round(activeColor.l)}%)`;
+    const highlightAlpha = lerp(0.9, 0.2, normalizedDist);
+    const highlightStr = opticsObj.mid.l > 80 ? `rgba(255,255,255,${lerp(1, 0.4, normalizedDist)})` : `rgba(255,255,255,${highlightAlpha})`;
+    const shadowL = opticsObj.mid.l > 80 ? lerp(90, 70, normalizedDist) : lerp(10, 0, normalizedDist);
+    return `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, ${highlightStr} 0%, ${colorStr} ${lerp(30, 60, normalizedDist)}%, hsl(${Math.round(activeColor.h)}, ${Math.round(activeColor.s)}%, ${Math.round(shadowL)}%) 100%)`;
+  };
+
+  const anglePresets = [
+    { id: 'face', label: '정면 (Face 15°)', pos: {x: 50, y: 50} },
+    { id: 'mid', label: '중면 (Mid 45°)', pos: {x: 25, y: 25} },
+    { id: 'flop', label: '측면 (Flop 110°)', pos: {x: 5, y: 5} },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden lg:overflow-hidden">
       
@@ -567,7 +584,7 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md z-10 shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 7.0</span></h1>
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 7.1</span></h1>
         </div>
       </header>
 
@@ -589,11 +606,11 @@ export default function App() {
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-slate-800 flex items-center"><Sliders className="text-blue-600 mr-2" size={16} />공식 배합 시트</h2>
               
-              {/* 🎙️ 📸 버튼 배치 */}
+              {/* 🎙️ 📸 시편 촬영 바로 왼쪽 옆단 배치 완벽 고정 */}
               <div className="flex space-x-1.5 shrink-0">
                 <button onClick={toggleVoiceDictation} className={`px-3 py-2 rounded-md flex items-center text-xs font-black transition-all ${isListening ? 'bg-red-500 text-white animate-pulse border-2 border-red-400 shadow-md' : 'bg-slate-700 hover:bg-slate-800 text-white'}`}>
                   {isListening ? <MicOff size={14} className="mr-1" /> : <Mic size={14} className="mr-1" />}
-                  <span>음성 추가</span>
+                  <span>{isListening ? '말씀하세요' : '음성 추가'}</span>
                 </button>
                 <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} className="hidden" onChange={handleCameraCapture} />
                 <button onClick={() => cameraInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md flex items-center text-xs font-black shadow-md"><Camera size={14} className="mr-1" />시편 촬영</button>
@@ -601,7 +618,7 @@ export default function App() {
             </div>
             
             <div className="flex items-center space-x-1.5">
-              <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="컬러코드 입력 (UG-Z)" className="bg-white border border-slate-300 px-3 py-2 rounded text-xs font-bold focus:outline-none flex-1 uppercase" />
+              <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="컬러코드 입력 (예: UG-Z)" className="bg-white border border-slate-300 px-3 py-2 rounded text-xs font-bold focus:outline-none flex-1 uppercase" />
               <button onClick={handleConfirmBase} className="bg-slate-800 text-white px-3 py-2 rounded text-xs font-bold whitespace-nowrap">확정</button>
               <button onClick={handleClearAll} className="bg-white text-red-600 border border-red-200 px-2 py-2 rounded"><Trash2 size={16} /></button>
             </div>
@@ -634,14 +651,15 @@ export default function App() {
                           value={toner.code} 
                           onChange={(e) => handleCodeChange(toner.id, e.target.value, false)} 
                           placeholder="코드" 
-                          className="flex-1 bg-transparent font-black text-blue-700 outline-none text-base uppercase" 
+                          className="flex-1 md:w-[120px] bg-transparent font-black text-blue-700 outline-none text-base uppercase" 
                         />
                       </div>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <div className="w-full">
                         <div className="text-xs font-black text-slate-800">{toner.role}</div>
-                        <div className="text-[12px] text-slate-600 leading-relaxed mt-1 whitespace-pre-wrap break-keep">
+                        {/* 설명칸 수평 100% 개방 보장 처리 */}
+                        <div className="text-[11px] text-slate-500 leading-normal mt-1 whitespace-pre-wrap break-keep">
                           {TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '정확한 코드를 입력하면 안료의 상세 스펙 데이터가 백퍼센트 출력됩니다.'}
                         </div>
                       </div>
@@ -684,7 +702,7 @@ export default function App() {
                       <div className="flex flex-col gap-1.5">
                         <div className="w-full">
                           <div className="text-xs font-black text-slate-800">{toner.role}</div>
-                          <div className="text-[12px] text-slate-500 leading-relaxed mt-1 whitespace-pre-wrap break-keep">
+                          <div className="text-[11px] text-slate-500 leading-normal mt-1 whitespace-pre-wrap break-keep">
                             {TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '정확한 코드를 입력하면 안료의 상세 스펙 데이터가 백퍼센트 출력됩니다.'}
                           </div>
                         </div>
@@ -725,7 +743,7 @@ export default function App() {
           <div className="bg-white border border-slate-300 rounded-xl p-3 shadow-xl">
             <h3 className="text-sm font-bold mb-3 flex justify-between items-center border-b pb-2">
               <span className="flex items-center"><Layers className="text-blue-600 mr-2" size={16} />멀티 렌더링 비교</span>
-              <button onClick={() => { setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); }} className="text-xs px-2 py-1 bg-slate-100 border rounded font-bold text-blue-600 shadow-sm cursor-pointer">확장 뷰어</button>
+              <button onClick={() => { setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); }} className="text-xs px-2 py-1 bg-slate-100 border rounded font-bold text-blue-600">확장 뷰어</button>
             </h3>
             <div className="space-y-3">
               <div>
@@ -822,7 +840,7 @@ export default function App() {
                 <div className="absolute top-3 left-3 bg-blue-900/90 px-2 py-1 rounded text-[10px] font-bold text-white">C. 최종 결합 컬러</div>
              </div>
              <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex flex-col items-center bg-slate-900/90 p-2.5 rounded-xl border border-slate-700 w-[92%] sm:w-auto">
-                <span className="text-[10px] text-blue-400 font-bold text-center leading-tight">화면 드래그 시 가상 광원 태양계 각도가 연동 보정됩니다.</span>
+                <span className="text-[10px] text-blue-400 font-bold text-center leading-tight">화면 드래그 시 가상 광원 각도가 연동 보정됩니다.</span>
                 <div className="flex space-x-2 mt-2">
                   {anglePresets.map((angle) => (
                     <button key={angle.id} onClick={(e) => { e.stopPropagation(); setLightPos(angle.pos); }} className="px-3 py-1.5 rounded bg-slate-800 text-slate-300 border border-slate-600 text-[10px] font-bold whitespace-nowrap">{angle.label}</button>
