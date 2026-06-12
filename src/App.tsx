@@ -3,7 +3,7 @@ import {
   Sliders, Trash2, Plus, Zap, Maximize, Lock, Unlock, Layers, BrainCircuit, RefreshCw, Mic, MicOff, FolderOpen, ChevronRight, Sun, Droplet, Camera, X, Image as ImageIcon, ScanLine, Beaker
 } from 'lucide-react';
 
-// 💡 1. 사용자 맞춤형 안료 DB (설명글 100% 완전 노출 보장)
+// 💡 1. 사용자 맞춤형 안료 DB
 const TONER_DB = {
   'WT 144': { role: '그리니쉬 블루', desc: '녹색을 띠는 청색 조색제. WT346 대체 안료임. (배합비율 WT346 : WT144 = 1 : 0.9)' },
   'WT 154': { role: '블루 이펙트', desc: '청색으로 착색된 광휘형 알루미늄 조색제. 입자의 반짝임이 좋으며, 채도가 높고 입자감이 좋은 청색 계열 컬러에 사용.' },
@@ -102,7 +102,7 @@ const TONER_DB = {
   'WT 6052': { role: '에디티브 6052', desc: '퍼마하이드 하이텍용 지연용 컨트롤러.' },
 };
 
-// 💡 2. 렌더링용 보간 함수들
+// 💡 2. 수학 및 광학 함수
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const lerpHue = (a: number, b: number, t: number) => {
   let d = b - a; if (d > 180) d -= 360; if (d < -180) d += 360;
@@ -110,7 +110,6 @@ const lerpHue = (a: number, b: number, t: number) => {
 };
 const lerpColor = (c1: any, c2: any, t: number) => ({ h: lerpHue(c1.h, c2.h, t), s: lerp(c1.s, c2.s, t), l: lerp(c1.l, c2.l, t) });
 
-// 💡 3. 글로벌 렌더링 함수 완벽 복구 (에러 해결 핵심)
 const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
   if (!opticsObj || !opticsObj[angle]) return 'hsl(0,0%,90%)';
   return `hsl(${Math.round(opticsObj[angle].h)}, ${Math.round(opticsObj[angle].s)}%, ${Math.round(opticsObj[angle].l)}%)`;
@@ -127,6 +126,7 @@ const getInteractiveBackground = (opticsObj: any, lPos: any) => {
   return `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, ${highlightStr} 0%, ${colorStr} ${lerp(30, 60, normalizedDist)}%, hsl(${Math.round(activeColor.h)}, ${Math.round(activeColor.s)}%, ${Math.round(shadowL)}%) 100%)`;
 };
 
+// 💡 3. 리얼 3D 프랙탈 노이즈 기반 실제 안료 질감 렌더러 (만화효과 완벽 제거)
 const getTonerVisuals = (code: string, role: string, desc = '') => {
   const isPearl = role.includes('펄') || role.includes('이펙트') || role.includes('글라스') || role.includes('다이아몬드');
   const isSilver = role.includes('실버') || role.includes('알루미늄');
@@ -169,13 +169,14 @@ const getTonerVisuals = (code: string, role: string, desc = '') => {
     else if (role.includes('엑스트라 화인') || role.includes('울트라 파인') || role.includes('마이크로') || desc.includes('매우 작')) type = 'silver_fine';
     else if (role.includes('코올스') || role.includes('큰') || role.includes('스파클') || desc.includes('거친')) type = 'silver_coarse';
     
-    let baseFreq = '0.5', alphaMult = '5', surfaceScale = '3';
-    if (type === 'xirallic') { baseFreq = '0.7'; alphaMult = '12'; surfaceScale = '8'; }
-    else if (type === 'pearl') { baseFreq = '0.35'; alphaMult = '7'; surfaceScale = '4'; } 
-    else if (type === 'silver_fine') { baseFreq = '0.9'; alphaMult = '4'; surfaceScale = '2'; } 
-    else if (type === 'silver_coarse') { baseFreq = '0.15'; alphaMult = '9'; surfaceScale = '6'; }
+    let baseFreq = '0.04', alphaMult = '15', surfaceScale = '4';
+    if (type === 'xirallic') { baseFreq = '0.06'; alphaMult = '25'; surfaceScale = '8'; }
+    else if (type === 'pearl') { baseFreq = '0.05'; alphaMult = '12'; surfaceScale = '3'; } 
+    else if (type === 'silver_fine') { baseFreq = '0.12'; alphaMult = '10'; surfaceScale = '2'; } 
+    else if (type === 'silver_coarse') { baseFreq = '0.015'; alphaMult = '20'; surfaceScale = '7'; }
     
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="3" result="t"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${alphaMult} -2" in="t" result="c"/><feSpecularLighting in="t" surfaceScale="${surfaceScale}" specularConstant="1.5" specularExponent="30" lighting-color="#fff"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting><feComposite in2="c" operator="in" result="s"/><feMerge><feMergeNode in="c"/><feMergeNode in="s"/></feMerge></filter><rect width="100%" height="100%" fill="${encodeURIComponent(faceColor)}"/><rect width="100%" height="100%" filter="url(#f)" opacity="0.8"/></svg>`;
+    // 💡 만화 같은 radial-gradient를 버리고 100% SVG 프랙탈 노이즈로 거친 질감(조각 형태) 리얼 구현
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="4" result="t"/><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${alphaMult} -7" in="t" result="c"/><feSpecularLighting in="c" surfaceScale="${surfaceScale}" specularConstant="1.5" specularExponent="20" lighting-color="#fff"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting><feComposite in2="c" operator="in" result="s"/><feMerge><feMergeNode in="c"/><feMergeNode in="s"/></feMerge></filter><rect width="100%" height="100%" fill="${encodeURIComponent(faceColor)}"/><rect width="100%" height="100%" filter="url(#f)" opacity="0.9"/></svg>`;
     
     macroStyle = {
         backgroundImage: `url('data:image/svg+xml;utf8,${svg}')`,
@@ -269,13 +270,6 @@ const getOptics = (tonersList: any[], weightKey: string) => {
   };
 };
 
-// 💡 4. 3D 뷰어 필수 상수 복구
-const anglePresets = [
-  { id: 'face', label: '정면 (Face 15°)', pos: {x: 50, y: 50} },
-  { id: 'mid', label: '중면 (Mid 45°)', pos: {x: 25, y: 25} },
-  { id: 'flop', label: '측면 (Flop 110°)', pos: {x: 5, y: 5} },
-];
-
 export default function App() {
   const [toners, setToners] = useState<any[]>([{ id: 't_init', code: '', role: '코드 입력', adjustedWeight: "" }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: 'p_init', code: '', role: '코드 입력', adjustedWeight: "" }]);
@@ -294,7 +288,7 @@ export default function App() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [chatMessages, setChatMessages] = useState<any[]>([
-    { id: 1, type: 'system', text: '💡 **[HI-TEC Master V8.1 에러 완벽 해결 패치]**\n- 빌드 에러 원천 차단 완료.\n- 무한 음성 입력("완료" 시 종료) 기능 정상 가동.' }
+    { id: 1, type: 'system', text: '💡 **[HI-TEC Master V9.0 마스터 로드]**\n- 빈칸 우선 인식 기반 무한 음성 입력 가동 중.\n- 질라릭/펄/실버 입자 리얼 3D 렌더링 적용 완료.' }
   ]);
   const [chatInput, setChatInput] = useState('');
   const [isAiProcessing, setIsAiProcessing] = useState(false);
@@ -374,6 +368,7 @@ export default function App() {
     addChatMessage('system', '🔒 기준 코드가 확정되었습니다. 멀티 시각화 렌더링을 활성화합니다.');
   };
 
+  // 💡 빈칸(code === '')을 먼저 채우고, 없으면 새로 추가하는 로직 (음성 및 스캔 공용)
   const addTonerAutoFill = (codeNum: string, weightStr: string) => {
     const finalCode = `WT ${codeNum}`;
     const tonerInfo = TONER_DB[finalCode as keyof typeof TONER_DB];
@@ -405,7 +400,7 @@ export default function App() {
     return true;
   };
 
-  // 🎙️ 음성 인식 (무한 대기 모드)
+  // 🎙️ V9 무한 연속 음성 인식 (빈칸 우선 채움 로직 적용 완료)
   const toggleVoiceDictation = () => {
     if (isListening) {
       recognitionRef.current?.stop();
@@ -425,7 +420,7 @@ export default function App() {
 
     recognition.onstart = () => {
       setIsListening(true);
-      addChatMessage('system', '🎙️ **[무한 음성 입력 켜짐]**\n"311 20.5 추가", "312 10.3" 등 계속 말씀하세요. 화면의 빈칸에 즉시 채워집니다. 종료하시려면 "완료"라고 말씀하세요.');
+      addChatMessage('system', '🎙️ **[무한 음성 입력 켜짐]**\n계속해서 말씀하세요. "완료"라고 말씀하시면 마이크가 꺼집니다.\n(예: "311 20.5 추가", "312 10.3")');
     };
     
     recognition.onresult = (event: any) => {
@@ -447,6 +442,7 @@ export default function App() {
         const trimmedText = finalTranscript.trim();
         addChatMessage('user', `🗣️ "${trimmedText}"`);
         
+        // "완료" 명령 인식 시 마이크 종료
         if (trimmedText.includes('완료') || trimmedText.includes('끝')) {
            recognition.stop();
            setIsListening(false);
@@ -454,6 +450,7 @@ export default function App() {
            return;
         }
 
+        // 연속된 소수점 포함 숫자 사냥 (예: 311 20.5) - 한글은 전부 무시
         const regex = /\d+(?:\.\d+)?/g;
         const numbers = trimmedText.match(regex);
         
@@ -463,18 +460,21 @@ export default function App() {
 
             for (let i = 0; i < numbers.length; i++) {
                 const num = numbers[i];
+                // 3~4자리이며 1,3,4,6,8로 시작하면 코드로 간주
                 if (num.length >= 3 && num.length <= 4 && /^[13468]/.test(num)) {
                     if (pendingCode) {
                         if(addTonerAutoFill(pendingCode, "0")) addedCount++;
                     }
                     pendingCode = num;
                 } else {
+                    // 용량으로 간주
                     if (pendingCode) {
                         if(addTonerAutoFill(pendingCode, num)) addedCount++;
                         pendingCode = null;
                     }
                 }
             }
+            // 마지막 코드가 남았다면 0g으로 등록
             if (pendingCode) {
                 if(addTonerAutoFill(pendingCode, "0")) addedCount++;
             }
@@ -493,17 +493,19 @@ export default function App() {
     recognition.start();
   };
 
-  // 📸 진짜 소수점 헌팅 스캔 (빈칸 자동 채움)
+  // 📸 진짜 소수점 추출 OCR 스캔 (숫자 사냥 알고리즘 & 빈칸 우선 채움)
   const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     const imageUrl = URL.createObjectURL(file); setScannedImage(imageUrl); setIsScanning(true);
-    addChatMessage('system', '⏳ **[AI 비전 사냥 가동]** 오직 안료 번호와 소수점 중량만 추출하여 빈칸에 자동 입력합니다.');
+    addChatMessage('system', '⏳ **[AI 비전 사냥 가동]** 오직 안료 번호와 소수점 중량만 추출합니다.');
     
     try {
       if ((window as any).Tesseract) {
+        // 모바일 메모리 한계를 감안하여 영문자/숫자만 판독하는 eng 모드 강제 실행
         const result = await (window as any).Tesseract.recognize(file, 'eng', { logger: (m: any) => console.log(m) });
         const text = result.data.text;
         
+        // 텍스트 내의 모든 숫자 덩어리 추출 (소수점 완벽 인식)
         const numRegex = /\d+(?:\.\d+)?/g;
         const numbers = text.match(numRegex) || [];
         
@@ -512,12 +514,14 @@ export default function App() {
         
         for(let i=0; i<numbers.length; i++) {
             const num = numbers[i];
+            // WT 코드로 유효한지 검사
             if (num.length >= 3 && num.length <= 4 && /^[13468]/.test(num)) {
                 if (pendingCode) {
                     if(addTonerAutoFill(pendingCode, "0")) addedCount++;
                 }
                 pendingCode = num;
             } else {
+                // 용량
                 if (pendingCode) {
                     if(addTonerAutoFill(pendingCode, num)) addedCount++;
                     pendingCode = null;
@@ -527,7 +531,7 @@ export default function App() {
         if (pendingCode) { if(addTonerAutoFill(pendingCode, "0")) addedCount++; }
 
         if (addedCount > 0) {
-          addChatMessage('ai', `📸 **[스캔 매칭 완료]** 영수증의 숫자 배열을 분석하여 총 ${addedCount}개의 데이터를 화면의 빈칸에 꽂아 넣었습니다.`);
+          addChatMessage('ai', `📸 **[스캔 매칭 완료]** 영수증의 숫자 배열을 분석하여 총 ${addedCount}개의 데이터를 빈칸에 추가했습니다. 상단 참조 사진을 보며 최종 확인하세요.`);
         } else {
            throw new Error("코드 인식 실패");
         }
@@ -535,7 +539,7 @@ export default function App() {
         throw new Error("OCR 모듈 미적용");
       }
     } catch (error) {
-      addChatMessage('ai', `❌ **[스캔 경고]** 사진 화질 문제로 숫자를 찾지 못했습니다. 사진을 상단에 띄워두었으니 마이크로 직접 추가해 주십시오.`);
+      addChatMessage('ai', `❌ **[스캔 경고]** 사진 화질이나 악필로 인해 숫자를 찾지 못했습니다. 사진을 상단에 고정해 둘 테니 직접 입력해 주십시오.`);
     }
     setIsScanning(false);
   };
@@ -591,21 +595,24 @@ export default function App() {
     else { setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'base' }); }
   };
 
+  const anglePresets = [
+    { id: 'face', label: '정면 (Face 15°)', pos: {x: 50, y: 50} },
+    { id: 'mid', label: '중면 (Mid 45°)', pos: {x: 25, y: 25} },
+    { id: 'flop', label: '측면 (Flop 110°)', pos: {x: 5, y: 5} },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden lg:overflow-hidden">
       
+      {/* 📸 카메라 기능: 찍은 사진을 상단에 고정하는 스마트 참조 모드 */}
       {scannedImage && (
-        <div className="bg-slate-900 border-b-4 border-blue-500 shadow-2xl z-50 p-2 md:p-4 sticky top-0 animate-in slide-in-from-top-10">
+        <div className="bg-slate-900 border-b-4 border-blue-500 shadow-2xl z-50 p-2 sticky top-0 animate-in slide-in-from-top-10">
           <div className="flex justify-between items-center mb-2 px-2 max-w-[1600px] mx-auto">
-            <h2 className="text-white text-sm md:text-base font-bold flex items-center">
-              <ImageIcon className="mr-2 text-blue-400" size={18}/> 사진 고속 참조 모드 (확대 가능)
-            </h2>
-            <button onClick={() => setScannedImage(null)} className="text-slate-300 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors border border-slate-700">
-              <X size={18} />
-            </button>
+            <h2 className="text-white text-xs font-bold flex items-center"><ImageIcon className="mr-2 text-blue-400" size={14}/> 시편 고속 참조 가상 스크린</h2>
+            <button onClick={() => setScannedImage(null)} className="text-slate-300 hover:text-white bg-slate-800 p-1 rounded-full"><X size={14} /></button>
           </div>
-          <div className="w-full max-h-[30vh] md:max-h-[25vh] overflow-auto rounded-lg border border-slate-700 bg-black flex justify-center max-w-[1600px] mx-auto">
-             <img src={scannedImage} alt="스캔된 배합표" className="object-contain w-full h-auto" />
+          <div className="w-full max-h-[22vh] overflow-auto bg-black flex justify-center rounded">
+             <img src={scannedImage} alt="배합표" className="object-contain w-full h-auto" />
           </div>
         </div>
       )}
@@ -613,17 +620,17 @@ export default function App() {
       {isScanning && (
         <div className="fixed inset-0 bg-slate-900/95 z-[200] flex flex-col items-center justify-center backdrop-blur-sm">
           <div className="relative mb-4">
-            <ScanLine className="text-blue-500 w-28 h-28 animate-pulse opacity-80" />
+            <ScanLine className="text-blue-500 w-24 h-24 animate-pulse opacity-80" />
             <div className="absolute top-0 left-0 w-full h-1 bg-blue-400 shadow-[0_0_15px_#60a5fa] animate-[scan_1.5s_ease-in-out_infinite]"></div>
           </div>
-          <h2 className="text-white text-lg font-black tracking-wide">숫자 헌팅 분석 중...</h2>
+          <h2 className="text-white text-lg font-black tracking-wide">숫자 헌팅 필터 가동 중...</h2>
         </div>
       )}
 
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md z-10 shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 8.1</span></h1>
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 9.0</span></h1>
         </div>
       </header>
 
@@ -638,7 +645,7 @@ export default function App() {
               <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg flex items-center space-x-2 text-xs font-bold shadow-inner">
                 <span className="w-2 h-2 bg-red-500 rounded-full animate-ping shrink-0"></span>
                 <span className="text-slate-400 font-normal">음성 인식 중:</span>
-                <span className="text-slate-900 font-black">{liveVoiceText || '대기 중... (종료 시 "완료"라고 말씀하세요)'}</span>
+                <span className="text-slate-900 font-black">{liveVoiceText || '대기 중... 계속 말씀하세요 ("완료" 시 종료)'}</span>
               </div>
             )}
 
@@ -646,17 +653,17 @@ export default function App() {
               <h2 className="text-base font-bold text-slate-800 flex items-center"><Sliders className="text-blue-600 mr-2" size={16} />공식 배합 시트</h2>
               
               <div className="flex space-x-1.5 shrink-0">
-                <button onClick={toggleVoiceDictation} className={`px-2.5 py-1.5 rounded-md flex items-center text-xs font-black transition-all ${isListening ? 'bg-red-500 text-white animate-pulse shadow-md border-red-400' : 'bg-slate-700 hover:bg-slate-800 text-white'}`}>
+                <button onClick={toggleVoiceDictation} className={`px-3 py-2 rounded-md flex items-center text-xs font-black transition-all ${isListening ? 'bg-red-500 text-white animate-pulse border-2 border-red-400 shadow-md' : 'bg-slate-700 hover:bg-slate-800 text-white'}`}>
                   {isListening ? <MicOff size={14} className="mr-1" /> : <Mic size={14} className="mr-1" />}
-                  <span>음성 추가</span>
+                  <span>{isListening ? '말씀하세요' : '음성 추가'}</span>
                 </button>
                 <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} className="hidden" onChange={handleCameraCapture} />
-                <button onClick={() => cameraInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-md flex items-center text-xs font-black shadow-md"><Camera size={14} className="mr-1" />시편 촬영</button>
+                <button onClick={() => cameraInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md flex items-center text-xs font-black shadow-md"><Camera size={14} className="mr-1" />시편 촬영</button>
               </div>
             </div>
             
             <div className="flex items-center space-x-1.5">
-              <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="컬러코드 입력 (UG-Z)" className="bg-white border border-slate-300 px-3 py-2 rounded text-xs font-bold focus:outline-none flex-1 uppercase" />
+              <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="컬러코드 입력 (예: UG-Z)" className="bg-white border border-slate-300 px-3 py-2 rounded text-xs font-bold focus:outline-none flex-1 uppercase" />
               <button onClick={handleConfirmBase} className="bg-slate-800 text-white px-3 py-2 rounded text-xs font-bold whitespace-nowrap">확정</button>
               <button onClick={handleClearAll} className="bg-white text-red-600 border border-red-200 px-2 py-2 rounded"><Trash2 size={16} /></button>
             </div>
@@ -680,7 +687,7 @@ export default function App() {
                       <div className="flex items-center space-x-2 w-full">
                         <div className="w-10 h-5 rounded shadow-xs border flex overflow-hidden cursor-pointer shrink-0" onClick={() => { if(TONER_DB[toner.code as keyof typeof TONER_DB]) setSelectedTonerForView(toner.code); }}>
                           <div className="flex-1" style={visuals.macroStyle}></div>
-                          <div className="flex-1 border-l" style={visuals.smoothStyle}></div>
+                          <div className="flex-1 border-l border-slate-400" style={visuals.smoothStyle}></div>
                         </div>
                         <input 
                           type="text" 
@@ -689,15 +696,16 @@ export default function App() {
                           value={toner.code} 
                           onChange={(e) => handleCodeChange(toner.id, e.target.value, false)} 
                           placeholder="코드입력" 
-                          className="flex-1 bg-transparent font-black text-blue-700 outline-none text-base uppercase px-1" 
+                          className="flex-1 md:w-[120px] bg-transparent font-black text-blue-700 outline-none text-lg uppercase px-1" 
                         />
                       </div>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <div className="w-full">
                         <div className="text-xs font-black text-slate-800">{toner.role}</div>
-                        <div className="text-[12px] text-slate-600 mt-1.5 leading-relaxed break-keep whitespace-pre-wrap">
-                          {TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '코드를 입력하면 안료의 상세 스펙 데이터가 100% 전부 노출됩니다.'}
+                        {/* 💡 설명칸 줄바꿈 전체 노출 완벽 보장 (말줄임표 제거) */}
+                        <div className="text-[12px] text-slate-600 leading-relaxed mt-1 whitespace-pre-wrap break-keep">
+                          {TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '코드를 입력하면 안료의 상세 스펙 데이터가 출력됩니다.'}
                         </div>
                       </div>
                       <div className="flex items-center self-end bg-slate-50 p-1 rounded-md border w-full justify-end">
@@ -732,15 +740,15 @@ export default function App() {
                             value={toner.code} 
                             onChange={(e) => handleCodeChange(toner.id, e.target.value, true)} 
                             placeholder="코드입력" 
-                            className="flex-1 bg-transparent font-black text-purple-700 outline-none text-base uppercase px-1" 
+                            className="flex-1 bg-transparent font-black text-purple-700 outline-none text-lg uppercase px-1" 
                           />
                         </div>
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <div className="w-full">
                           <div className="text-xs font-black text-slate-800">{toner.role}</div>
-                          <div className="text-[12px] text-slate-600 mt-1.5 leading-relaxed break-keep whitespace-pre-wrap">
-                            {TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '코드를 입력하면 안료의 상세 스펙 데이터가 100% 전부 노출됩니다.'}
+                          <div className="text-[12px] text-slate-600 leading-relaxed mt-1 whitespace-pre-wrap break-keep">
+                            {TONER_DB[toner.code as keyof typeof TONER_DB] ? TONER_DB[toner.code as keyof typeof TONER_DB].desc : '코드를 입력하면 안료의 상세 스펙 데이터가 출력됩니다.'}
                           </div>
                         </div>
                         <div className="flex items-center self-end bg-purple-50/50 p-1 rounded-md border w-full justify-end">
