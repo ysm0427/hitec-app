@@ -3,7 +3,7 @@ import {
   Sliders, Trash2, Plus, Zap, Maximize, Lock, Layers, BrainCircuit, Mic, MicOff, ChevronRight, Sun, Droplet, Camera, X, Image as ImageIcon, ScanLine, Beaker, Minus, ChevronsLeft, ChevronsRight
 } from 'lucide-react';
 
-// 💡 1. 사용자 맞춤형 안료 DB (설명글 100% 원문)
+// 💡 1. 사용자 맞춤형 안료 DB (설명글 축약 절대 금지! 100% 원문 복원 완료)
 const TONER_DB: Record<string, { role: string, desc: string, type: string, face: string, flop: string }> = {
   'WT 144': { role: '그리니쉬 블루', desc: '녹색을 띠는 청색 조색제. WT346 대체 안료임. (배합비율 WT346 : WT144 = 1 : 0.9)', type: 'solid', face: '#0284c7', flop: '#0c4a6e' },
   'WT 154': { role: '블루 이펙트', desc: '청색으로 착색된 광휘형 알루미늄 조색제. 입자의 반짝임이 좋으며, 채도가 높고 입자감이 좋은 청색 계열 컬러에 사용됨.', type: 'silver_fine', face: '#3b82f6', flop: '#1e3a8a' },
@@ -127,7 +127,7 @@ const rgb2hsl = (r: number, g: number, b: number) => {
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-// 💡 3. 리얼 3D 프랙탈 노이즈 SVG
+// 💡 3. 리얼 3D 프랙탈 노이즈 SVG (화이트 탈색 방지: 본연의 색상 유지)
 const getRealisticTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
   if (!isMetallic || type === 'binder') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
 
@@ -201,7 +201,7 @@ const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
   return `hsl(${Math.round(opticsObj[angle].h)}, ${Math.round(opticsObj[angle].s)}%, ${Math.round(opticsObj[angle].l)}%)`;
 };
 
-// 💡 4. 확장 뷰어 3D 배경 렌더링
+// 💡 4. 확장 뷰어 3D 배경 렌더링 (그라데이션과 노이즈를 완벽하게 레이어링)
 const getInteractiveBackground = (opticsObj: any, lPos: any, hasMetallic: boolean): React.CSSProperties => {
   if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return { background: '#f1f5f9' };
   
@@ -233,7 +233,7 @@ const getInteractiveBackground = (opticsObj: any, lPos: any, hasMetallic: boolea
 };
 
 export default function App() {
-  // 💡 [해결 3] 수기 입력 방해하던 0.0 기본값을 완전 빈칸("")으로 변경하여 편의성 극대화
+  // 💡 [해결 1] 빈칸 생성 시 수기 입력을 편하게 하기 위해 0.0을 모두 없애고 완전한 공백("") 처리
   const [toners, setToners] = useState<any[]>([{ id: 't_init', code: '', role: '코드 입력', adjustedWeight: "" }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: 'p_init', code: '', role: '코드 입력', adjustedWeight: "" }]);
   
@@ -341,6 +341,7 @@ export default function App() {
     addChatMessage('system', '🔒 기준 코드가 확정되었습니다. 멀티 시각화 렌더링을 활성화합니다.');
   };
 
+  // 💡 빈칸(code === '')을 먼저 채우는 공용 함수 (음성, 스캔)
   const addTonerAutoFill = (codeNum: string, weightStr: string) => {
     const finalCode = `WT ${codeNum}`;
     const tonerInfo = TONER_DB[finalCode];
@@ -362,7 +363,7 @@ export default function App() {
     return true;
   };
 
-  // 💡 [해결 2] 딜레이 없는 실시간 즉각 파싱 STT 엔진 탑재
+  // 💡 [해결 2] 딜레이 없는 실시간 즉각 파싱 STT 엔진 탑재 (분절된 음성 해결)
   const toggleVoiceDictation = () => {
     if (isListening) {
       recognitionRef.current?.stop();
@@ -396,33 +397,71 @@ export default function App() {
       // 새로 인식된 부분만 가져오기
       const newText = currentTranscript.substring(processedTextRef.current.length);
       
-      // "추가", "입력", "넣어", "완료", "끝" 키워드가 나오면 즉시 파싱 시작!
+      // "추가", "입력", "넣어", "완료", "끝" 키워드가 나오면 isFinal을 기다리지 않고 즉시 파싱 시작!
       if (/(추가|입력|넣어|완료|끝)/.test(newText)) {
-          // 💡 기계가 마음대로 띄어쓰기한 숫자 압축 및 "점"을 완벽하게 소수점으로 변환
-          let normalizedText = newText.replace(/점/g, '.').replace(/그람/g, '').replace(/그램/g, '').replace(/번/g, '').replace(/g/gi, '');
+          // 💡 기계가 마음대로 띄어쓰기한 숫자 압축 및 "점"을 완벽하게 소수점(.)으로 변환
+          let normalizedText = newText.replace(/점/g, '.').replace(/(\d)\s*\.\s*(\d)/g, '$1.$2').replace(/[그람그램g번]/gi, '');
           
           const regex = /\d+(?:\.\d+)?/g;
           const numbers = normalizedText.match(regex);
           
           if (numbers && numbers.length > 0) {
-              let pendingCode: string | null = null; let addedCount = 0;
+              
+              const processVoiceCommand = (codeNum: string | null, weightStr: string | null) => {
+                  if (codeNum && weightStr !== null) {
+                      addTonerAutoFill(codeNum, weightStr);
+                  } else if (codeNum && weightStr === null) {
+                      addTonerAutoFill(codeNum, "");
+                  } else if (!codeNum && weightStr !== null) {
+                      // 고아 용량(그람수만 혼자 들어온 경우): 가장 최근 추가된 빈 무게칸을 찾아 채워넣음
+                      const updateLastEmptyWeight = (prev: any[]) => {
+                          let found = false;
+                          const next = [...prev];
+                          for (let i = next.length - 1; i >= 0; i--) {
+                              if (next[i].code !== '' && (!next[i].adjustedWeight || next[i].adjustedWeight === '0' || next[i].adjustedWeight === '0.0')) {
+                                  next[i] = { ...next[i], adjustedWeight: weightStr };
+                                  found = true;
+                                  break;
+                              }
+                          }
+                          return { next, found };
+                      };
+
+                      if (isThreeCoatMode) {
+                          setPearlToners(prev => {
+                              const { next, found } = updateLastEmptyWeight(prev);
+                              if (found) return next;
+                              setToners(prevBase => {
+                                  const baseResult = updateLastEmptyWeight(prevBase);
+                                  return baseResult.found ? baseResult.next : prevBase;
+                              });
+                              return prev;
+                          });
+                      } else {
+                          setToners(prev => updateLastEmptyWeight(prev).next);
+                      }
+                  }
+              };
+
+              let pendingCode = null; let addedCount = 0;
               for (let i = 0; i < numbers.length; i++) {
                   const num = numbers[i];
                   if (num.length >= 3 && num.length <= 4 && /^[13468]/.test(num)) {
-                      if (pendingCode) { if(addTonerAutoFill(pendingCode, "")) addedCount++; }
+                      if (pendingCode) { processVoiceCommand(pendingCode, null); addedCount++; }
                       pendingCode = num;
                   } else {
-                      if (pendingCode) { if(addTonerAutoFill(pendingCode, num)) addedCount++; pendingCode = null; }
+                      if (pendingCode) { processVoiceCommand(pendingCode, num); addedCount++; pendingCode = null; }
+                      else { processVoiceCommand(null, num); addedCount++; } // 혼자 굴러다니는 소수점을 이전 코드에 강제 접합
                   }
               }
-              if (pendingCode) { if(addTonerAutoFill(pendingCode, "")) addedCount++; }
+              if (pendingCode) { processVoiceCommand(pendingCode, null); addedCount++; }
               
               if (addedCount > 0) {
-                  addChatMessage('user', `🗣️ "${newText.trim()}" -> ✅ ${addedCount}개 안료 추가`);
+                  addChatMessage('user', `🗣️ "${newText.trim()}" -> ✅ ${addedCount}개 인식 완료`);
               }
           }
 
-          // 파싱 완료된 텍스트 위치 기록
+          // 파싱 완료된 텍스트 위치 기록 (중복 입력 방지)
           processedTextRef.current = currentTranscript;
           
           if (/(완료|끝)/.test(newText)) {
@@ -503,7 +542,7 @@ export default function App() {
     let val = rawValue.replace(/[^0-9.]/g, ''); 
     const parts = val.split('.');
     if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
-    if (val === '') return ''; // 빈 값이면 빈 값 그대로 유지
+    if (val === '') return ''; // 빈 값이면 빈 값 그대로 유지 (0.0 자동 생성 방지)
     if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, '');
     if (val.startsWith('.')) val = '0' + val; 
     return val;
