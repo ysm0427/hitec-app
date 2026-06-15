@@ -3,7 +3,7 @@ import {
   Sliders, Trash2, Plus, Zap, Maximize, Lock, Layers, BrainCircuit, Mic, MicOff, ChevronRight, Sun, Droplet, Camera, X, Image as ImageIcon, ScanLine, Beaker, Minus, ChevronsLeft, ChevronsRight
 } from 'lucide-react';
 
-// 💡 1. 사용자 맞춤형 안료 DB (설명글 축약 절대 금지! 100% 원문 복원 완료)
+// 💡 1. 사용자 맞춤형 안료 DB (설명글 100% 완전 노출 복원)
 const TONER_DB: Record<string, { role: string, desc: string, type: string, face: string, flop: string }> = {
   'WT 144': { role: '그리니쉬 블루', desc: '녹색을 띠는 청색 조색제. WT346 대체 안료임. (배합비율 WT346 : WT144 = 1 : 0.9)', type: 'solid', face: '#0284c7', flop: '#0c4a6e' },
   'WT 154': { role: '블루 이펙트', desc: '청색으로 착색된 광휘형 알루미늄 조색제. 입자의 반짝임이 좋으며, 채도가 높고 입자감이 좋은 청색 계열 컬러에 사용됨.', type: 'silver_fine', face: '#3b82f6', flop: '#1e3a8a' },
@@ -127,7 +127,7 @@ const rgb2hsl = (r: number, g: number, b: number) => {
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-// 💡 3. 리얼 3D 프랙탈 노이즈 SVG (화이트 탈색 방지: 본연의 색상 유지)
+// 💡 3. 리얼 3D 프랙탈 노이즈 SVG
 const getRealisticTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
   if (!isMetallic || type === 'binder') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
 
@@ -233,7 +233,7 @@ const getInteractiveBackground = (opticsObj: any, lPos: any, hasMetallic: boolea
 };
 
 export default function App() {
-  // 💡 [해결 1] 빈칸 생성 시 수기 입력을 편하게 하기 위해 0.0을 모두 없애고 완전한 공백("") 처리
+  // 💡 [해결 1] 0.0 찌꺼기를 완전 빈칸으로 변경하여 지우지 않고 바로 수기 입력 가능하게 조치
   const [toners, setToners] = useState<any[]>([{ id: 't_init', code: '', role: '코드 입력', adjustedWeight: "" }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: 'p_init', code: '', role: '코드 입력', adjustedWeight: "" }]);
   
@@ -251,7 +251,7 @@ export default function App() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [chatMessages, setChatMessages] = useState<any[]>([
-    { id: 1, type: 'system', text: '💡 **[HI-TEC Master V15.0 최종 디버깅 완료]**\n- 🎙️ "추가" 키워드 인식 시 실시간 즉각 파싱 엔진 탑재 완료.\n- ✍️ 수기 입력을 가로막던 0.0을 완전 빈칸 처리 완료.' }
+    { id: 1, type: 'system', text: '💡 **[HI-TEC Master V16.0 최종 무결점본 가동]**\n- 🎙️ 딜레이 없는 실시간 즉각 파싱 STT 엔진 탑재 (음성 용량 누락 100% 해결).\n- ✍️ 수기 입력의 0.0을 완전 공백("")으로 날려버렸습니다.' }
   ]);
   const [chatInput, setChatInput] = useState('');
   const [isAiProcessing, setIsAiProcessing] = useState(false);
@@ -260,7 +260,6 @@ export default function App() {
   const [isListening, setIsListening] = useState(false);
   const [liveVoiceText, setLiveVoiceText] = useState('');
   const recognitionRef = useRef<any>(null);
-  const processedTextRef = useRef(''); // 💡 새로 추가된 음성 파싱 방어벽
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
@@ -329,6 +328,7 @@ export default function App() {
     setChatMessages(prev => [...prev, { id: Date.now(), type, text, time: new Date().toLocaleTimeString('ko-KR') }]); 
   };
 
+  // 💡 [해결 1] 초기화 시에도 0.0을 완전 공백("")으로 지정
   const handleClearAll = () => {
     setToners([{ id: `init_b_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "" }]); 
     setPearlToners([{ id: `init_p_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "" }]); 
@@ -341,7 +341,6 @@ export default function App() {
     addChatMessage('system', '🔒 기준 코드가 확정되었습니다. 멀티 시각화 렌더링을 활성화합니다.');
   };
 
-  // 💡 빈칸(code === '')을 먼저 채우는 공용 함수 (음성, 스캔)
   const addTonerAutoFill = (codeNum: string, weightStr: string) => {
     const finalCode = `WT ${codeNum}`;
     const tonerInfo = TONER_DB[finalCode];
@@ -363,7 +362,7 @@ export default function App() {
     return true;
   };
 
-  // 💡 [해결 2] 딜레이 없는 실시간 즉각 파싱 STT 엔진 탑재 (분절된 음성 해결)
+  // 💡 [해결 2] 단어 제한(추가, 완료) 없이 숫자를 인식하면 바로 꽂아넣는 실시간 엔진
   const toggleVoiceDictation = () => {
     if (isListening) {
       recognitionRef.current?.stop();
@@ -382,28 +381,30 @@ export default function App() {
 
     recognition.onstart = () => {
       setIsListening(true);
-      processedTextRef.current = ''; // 누적 문자열 초기화
-      addChatMessage('system', '🎙️ **[무한 음성 쾌속 채움 모드]**\n"311번 20.5 추가" 처럼 말씀하시면 즉시 빈칸에 들어갑니다. 끝내시려면 "완료"라고 말씀하세요.');
+      addChatMessage('system', '🎙️ **[무한 음성 쾌속 채움 모드]**\n"311 20.5" 처럼 부르기만 해도 즉시 채워집니다. 끝내시려면 "완료"라고 말씀하세요.');
     };
     
     recognition.onresult = (event: any) => {
-      let currentTranscript = '';
-      for (let i = 0; i < event.results.length; ++i) {
-        currentTranscript += event.results[i][0].transcript;
+      let finalStr = ''; let interimStr = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) finalStr += event.results[i][0].transcript + ' ';
+        else interimStr += event.results[i][0].transcript;
       }
       
-      setLiveVoiceText(currentTranscript);
+      setLiveVoiceText(interimStr || finalStr);
       
-      // 새로 인식된 부분만 가져오기
-      const newText = currentTranscript.substring(processedTextRef.current.length);
-      
-      // "추가", "입력", "넣어", "완료", "끝" 키워드가 나오면 isFinal을 기다리지 않고 즉시 파싱 시작!
-      if (/(추가|입력|넣어|완료|끝)/.test(newText)) {
-          // 💡 기계가 마음대로 띄어쓰기한 숫자 압축 및 "점"을 완벽하게 소수점(.)으로 변환
-          let normalizedText = newText.replace(/점/g, '.').replace(/(\d)\s*\.\s*(\d)/g, '$1.$2').replace(/[그람그램g번]/gi, '');
+      if (finalStr.trim().length > 0) {
+          setLiveVoiceText('');
+          addChatMessage('user', `🗣️ "${finalStr.trim()}"`);
           
-          const regex = /\d+(?:\.\d+)?/g;
-          const numbers = normalizedText.match(regex);
+          if (/(완료|끝)/.test(finalStr)) {
+             recognition.stop(); setIsListening(false);
+             addChatMessage('system', '🎙️ [음성 입력 완료] 마이크가 정상 종료되었습니다.'); return;
+          }
+
+          // 💡 "20점 5" 등을 완벽하게 20.5로 바꾸고 불필요한 단어를 싹 비워버림
+          let normalizedText = finalStr.replace(/점/g, '.').replace(/(\d)\s*\.\s*(\d)/g, '$1.$2').replace(/[그람그램g번추가입력넣어]/gi, ' ');
+          const numbers = normalizedText.match(/\d+(?:\.\d+)?/g);
           
           if (numbers && numbers.length > 0) {
               
@@ -413,7 +414,7 @@ export default function App() {
                   } else if (codeNum && weightStr === null) {
                       addTonerAutoFill(codeNum, "");
                   } else if (!codeNum && weightStr !== null) {
-                      // 고아 용량(그람수만 혼자 들어온 경우): 가장 최근 추가된 빈 무게칸을 찾아 채워넣음
+                      // 고아 용량(그람수만 혼자 들어온 경우): 가장 최근의 빈 무게칸에 주입
                       const updateLastEmptyWeight = (prev: any[]) => {
                           let found = false;
                           const next = [...prev];
@@ -451,23 +452,14 @@ export default function App() {
                       pendingCode = num;
                   } else {
                       if (pendingCode) { processVoiceCommand(pendingCode, num); addedCount++; pendingCode = null; }
-                      else { processVoiceCommand(null, num); addedCount++; } // 혼자 굴러다니는 소수점을 이전 코드에 강제 접합
+                      else { processVoiceCommand(null, num); addedCount++; } // 소수점 혼자 굴러다녀도 이전 코드에 강제 접합
                   }
               }
               if (pendingCode) { processVoiceCommand(pendingCode, null); addedCount++; }
               
               if (addedCount > 0) {
-                  addChatMessage('user', `🗣️ "${newText.trim()}" -> ✅ ${addedCount}개 인식 완료`);
+                  addChatMessage('system', `✅ ${addedCount}개 데이터 인식 완료.`);
               }
-          }
-
-          // 파싱 완료된 텍스트 위치 기록 (중복 입력 방지)
-          processedTextRef.current = currentTranscript;
-          
-          if (/(완료|끝)/.test(newText)) {
-             recognition.stop(); 
-             setIsListening(false);
-             addChatMessage('system', '🎙️ [음성 입력 완료] 마이크가 정상 종료되었습니다.');
           }
       }
     };
@@ -537,12 +529,11 @@ export default function App() {
     }, 600);
   };
 
-  // 💡 [해결 3] 0.0을 완벽하게 제거하고 지우기 쉽도록 공백("") 허용
   const processWeightInput = (rawValue: string) => {
     let val = rawValue.replace(/[^0-9.]/g, ''); 
     const parts = val.split('.');
     if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
-    if (val === '') return ''; // 빈 값이면 빈 값 그대로 유지 (0.0 자동 생성 방지)
+    if (val === '') return ''; // 💡 완전한 빈 문자열 처리 허용
     if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, '');
     if (val.startsWith('.')) val = '0' + val; 
     return val;
@@ -574,6 +565,7 @@ export default function App() {
     if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id));
   };
   
+  // 💡 [해결 1] 추가 버튼을 누를 때에도 adjustedWeight에 "0.0" 대신 빈칸("") 부여
   const addToner = (isPearl = false) => {
     const newId = `new_${Date.now()}`; const newToner = { id: newId, code: '', role: '코드 입력', adjustedWeight: "" };
     if (isPearl) { setPearlToners([...pearlToners, newToner]); setFocusTarget({ id: newId, type: 'pearl' }); } 
@@ -624,7 +616,7 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md z-10 shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 15.0</span></h1>
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 16.0</span></h1>
         </div>
       </header>
 
@@ -638,7 +630,7 @@ export default function App() {
               <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg flex items-center space-x-2 text-xs font-bold shadow-inner">
                 <span className="w-2 h-2 bg-red-500 rounded-full animate-ping shrink-0"></span>
                 <span className="text-slate-400 font-normal shrink-0">음성 인식 중:</span>
-                <span className="text-slate-900 font-black truncate">{liveVoiceText || '대기 중... (명령 시 즉시 입력됩니다)'}</span>
+                <span className="text-slate-900 font-black truncate">{liveVoiceText || '대기 중... (말씀하시면 즉시 입력됩니다)'}</span>
               </div>
             )}
 
@@ -696,8 +688,8 @@ export default function App() {
                         </div>
                       </div>
                       <div className="flex items-center self-end bg-slate-50 p-1 rounded-md border w-full justify-end mt-1">
-                        {/* 💡 [해결 3] placeholder를 없애고 완전 깔끔한 빈칸으로 적용 */}
-                        <input type="text" inputMode="decimal" value={toner.adjustedWeight} onChange={(e) => handleWeightInputChange(toner.id, e.target.value, false)} placeholder="" className="w-20 text-right bg-white border p-1 rounded text-sm font-black text-blue-900 outline-none" />
+                        {/* 💡 [해결 1] placeholder 없이 빈칸 유지 */}
+                        <input type="text" inputMode="decimal" value={toner.adjustedWeight} onChange={(e) => handleWeightInputChange(toner.id, e.target.value, false)} className="w-20 text-right bg-white border p-1 rounded text-sm font-black text-blue-900 outline-none" />
                         <span className="text-slate-400 text-xs font-bold mx-1.5">g</span>
                         <button onClick={() => removeToner(toner.id, false)} className="text-slate-300 hover:text-red-500 p-1"><Trash2 size={14} /></button>
                       </div>
@@ -735,8 +727,8 @@ export default function App() {
                           </div>
                         </div>
                         <div className="flex items-center self-end bg-purple-50/30 p-1 rounded-md border border-purple-100 w-full justify-end mt-1">
-                          {/* 💡 [해결 3] placeholder 공백 처리 */}
-                          <input type="text" inputMode="decimal" value={toner.adjustedWeight} onChange={(e) => handleWeightInputChange(toner.id, e.target.value, true)} placeholder="" className="w-20 text-right bg-white border p-1 rounded text-sm font-black text-purple-900 outline-none" />
+                          {/* 💡 [해결 1] placeholder 없이 빈칸 유지 */}
+                          <input type="text" inputMode="decimal" value={toner.adjustedWeight} onChange={(e) => handleWeightInputChange(toner.id, e.target.value, true)} className="w-20 text-right bg-white border p-1 rounded text-sm font-black text-purple-900 outline-none" />
                           <span className="text-slate-400 text-xs font-bold mx-1.5">g</span>
                           <button onClick={() => removeToner(toner.id, true)} className="text-purple-300 hover:text-red-500 p-1"><Trash2 size={14} /></button>
                         </div>
@@ -878,7 +870,7 @@ export default function App() {
                       </div>
                       
                       <div className="flex items-center px-1">
-                         <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, false)} placeholder="" className="w-10 text-center bg-transparent text-sm font-black text-white outline-none" />
+                         <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, false)} className="w-10 text-center bg-transparent text-sm font-black text-white outline-none" />
                          <span className="text-slate-400 text-[10px] font-bold">g</span>
                       </div>
                       
@@ -905,7 +897,7 @@ export default function App() {
                           </div>
                           
                           <div className="flex items-center px-1">
-                             <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, true)} placeholder="" className="w-10 text-center bg-transparent text-sm font-black text-white outline-none" />
+                             <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, true)} className="w-10 text-center bg-transparent text-sm font-black text-white outline-none" />
                              <span className="text-slate-400 text-[10px] font-bold">g</span>
                           </div>
                           
