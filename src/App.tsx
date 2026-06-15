@@ -3,7 +3,7 @@ import {
   Sliders, Trash2, Plus, Zap, Maximize, Lock, Layers, BrainCircuit, Mic, MicOff, ChevronRight, Sun, Droplet, Camera, X, Image as ImageIcon, ScanLine, Beaker, Minus, ChevronsLeft, ChevronsRight
 } from 'lucide-react';
 
-// 💡 1. 사용자 맞춤형 안료 DB (설명글 축약 절대 금지! 100% 원문 복원 완료)
+// 💡 1. 사용자 맞춤형 안료 DB
 const TONER_DB: Record<string, { role: string, desc: string, type: string, face: string, flop: string }> = {
   'WT 144': { role: '그리니쉬 블루', desc: '녹색을 띠는 청색 조색제. WT346 대체 안료임. (배합비율 WT346 : WT144 = 1 : 0.9)', type: 'solid', face: '#0284c7', flop: '#0c4a6e' },
   'WT 154': { role: '블루 이펙트', desc: '청색으로 착색된 광휘형 알루미늄 조색제. 입자의 반짝임이 좋으며, 채도가 높고 입자감이 좋은 청색 계열 컬러에 사용됨.', type: 'silver_fine', face: '#3b82f6', flop: '#1e3a8a' },
@@ -137,7 +137,6 @@ const getRealisticTexture = (type: string, faceColor: string, flopColor: string,
   else if (type === 'silver_fine') { baseFreq = '1.2'; alphaMult = '4'; surfaceScale = '2'; specConst = '1.2'; }
   else if (type === 'silver_coarse') { baseFreq = '0.2'; alphaMult = '9'; surfaceScale = '5'; specConst = '2.2'; }
 
-  // 💡 [해결 1] V7의 검증된 로직 원상 복구: SVG 안에 faceColor를 칠해서 색상 탈색 방지
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="3" result="t"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${alphaMult} -2" in="t" result="c"/><feSpecularLighting in="t" surfaceScale="${surfaceScale}" specularConstant="${specConst}" specularExponent="30" lighting-color="#fff"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting><feComposite in2="c" operator="in" result="s"/><feMerge><feMergeNode in="c"/><feMergeNode in="s"/></feMerge></filter><rect width="100%" height="100%" fill="${encodeURIComponent(faceColor)}"/><rect width="100%" height="100%" filter="url(#f)" opacity="0.8"/></svg>`;
 
   return {
@@ -202,7 +201,7 @@ const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
   return `hsl(${Math.round(opticsObj[angle].h)}, ${Math.round(opticsObj[angle].s)}%, ${Math.round(opticsObj[angle].l)}%)`;
 };
 
-// 💡 확장 뷰어 3D 배경 렌더링 (그라데이션과 노이즈를 완벽하게 레이어링)
+// 💡 4. 확장 뷰어 3D 배경 렌더링 (그라데이션과 노이즈를 완벽하게 레이어링)
 const getInteractiveBackground = (opticsObj: any, lPos: any, hasMetallic: boolean): React.CSSProperties => {
   if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return { background: '#f1f5f9' };
   
@@ -224,7 +223,6 @@ const getInteractiveBackground = (opticsObj: any, lPos: any, hasMetallic: boolea
   const gradient = `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, rgba(255,255,255,${highlightAlpha}) 0%, ${baseColorStr} ${lerp(20, 70, normalizedDist)}%, hsl(${Math.round(activeBaseColor.h)}, ${Math.round(activeBaseColor.s)}%, ${Math.round(activeBaseColor.l * 0.4)}) 100%)`;
 
   if (hasMetallic) {
-      // 투명한 노이즈 레이어를 밑에 깔고, 그라데이션을 위에 덮어 색상 훼손 방지
       const svgNoiseTransparent = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 5 -2" result="c"/><feSpecularLighting surfaceScale="3" specularConstant="1.5" specularExponent="30" lighting-color="%23fff" in="c"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting></filter><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.5"/></svg>')`;
       return {
           backgroundImage: `${gradient}, ${svgNoiseTransparent}`,
@@ -235,8 +233,9 @@ const getInteractiveBackground = (opticsObj: any, lPos: any, hasMetallic: boolea
 };
 
 export default function App() {
-  const [toners, setToners] = useState<any[]>([{ id: 't_init', code: '', role: '코드 입력', adjustedWeight: "0.0" }]);
-  const [pearlToners, setPearlToners] = useState<any[]>([{ id: 'p_init', code: '', role: '코드 입력', adjustedWeight: "0.0" }]);
+  // 💡 [해결 1] 빈칸 생성 시 수기 입력을 편하게 하기 위해 0.0을 모두 없애고 완전한 공백("") 처리
+  const [toners, setToners] = useState<any[]>([{ id: 't_init', code: '', role: '코드 입력', adjustedWeight: "" }]);
+  const [pearlToners, setPearlToners] = useState<any[]>([{ id: 'p_init', code: '', role: '코드 입력', adjustedWeight: "" }]);
   
   const [isThreeCoatMode, setIsThreeCoatMode] = useState(false);
   const [targetColorCode, setTargetColorCode] = useState('');
@@ -252,7 +251,7 @@ export default function App() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [chatMessages, setChatMessages] = useState<any[]>([
-    { id: 1, type: 'system', text: '💡 **[HI-TEC Master V14.1 퍼펙트 픽스본 가동]**\n- 🖥️ TS2304 에러 등 치명적 버그 완전 멸균 완료.\n- ✨ Screen 필터 삭제: 본연의 딥한 주색상 100% 복구.\n- 📝 안료 데이터베이스 원문 100% 복원 완료.' }
+    { id: 1, type: 'system', text: '💡 **[HI-TEC Master V14.2 퍼펙트 픽스 가동]**\n- ✍️ 수기 입력 편의를 위해 빈칸의 기본값(0.0) 완전 제거.\n- 🎙️ 한국어 소수점 전용 사냥 알고리즘 탑재(음성 그람수 누락 완벽 해결).' }
   ]);
   const [chatInput, setChatInput] = useState('');
   const [isAiProcessing, setIsAiProcessing] = useState(false);
@@ -329,10 +328,9 @@ export default function App() {
     setChatMessages(prev => [...prev, { id: Date.now(), type, text, time: new Date().toLocaleTimeString('ko-KR') }]); 
   };
 
-  // 💡 [해결 1] Vercel 배포 에러 원인이었던 함수 완벽 복구
   const handleClearAll = () => {
-    setToners([{ id: `init_b_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "0.0" }]); 
-    setPearlToners([{ id: `init_p_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "0.0" }]); 
+    setToners([{ id: `init_b_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "" }]); 
+    setPearlToners([{ id: `init_p_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "" }]); 
     setTargetColorCode(''); setIsBaseConfirmed(false); setScannedImage(null);
     addChatMessage('system', '🗑️ 모든 배합 리스트가 초기화되었습니다.');
   };
@@ -363,15 +361,23 @@ export default function App() {
     return true;
   };
 
+  // 💡 [해결 2] 음성 인식 시 "20점 5" 등을 완벽하게 20.5로 캐치하는 알고리즘
   const toggleVoiceDictation = () => {
     if (isListening) {
-      recognitionRef.current?.stop(); setIsListening(false); setLiveVoiceText(''); return;
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      setLiveVoiceText('');
+      return;
     }
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) { alert('아이폰 사파리(Safari) 앱을 직접 실행하셔야 모바일 마이크 연동이 작동합니다.'); return; }
-    
+    if (!SpeechRecognition) {
+      alert('아이폰 사파리(Safari) 앱을 직접 실행하셔야 모바일 마이크 연동이 작동합니다.'); return;
+    }
     const recognition = new SpeechRecognition();
-    recognition.lang = 'ko-KR'; recognition.continuous = true; recognition.interimResults = true; recognition.maxAlternatives = 1;
+    recognition.lang = 'ko-KR'; 
+    recognition.continuous = true; 
+    recognition.interimResults = true; 
+    recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
       setIsListening(true);
@@ -396,20 +402,23 @@ export default function App() {
            addChatMessage('system', '🎙️ [음성 입력 완료] 마이크가 정상 종료되었습니다.'); return;
         }
 
+        // 한국어 소수점 파괴 방지 로직 (점 -> ., 띄어쓰기 압축)
+        let normalizedText = trimmedText.replace(/점/g, '.').replace(/(\d)\s*\.\s*(\d)/g, '$1.$2');
         const regex = /\d+(?:\.\d+)?/g;
-        const numbers = trimmedText.match(regex);
+        const numbers = normalizedText.match(regex);
+        
         if (numbers && numbers.length > 0) {
             let pendingCode: string | null = null; let addedCount = 0;
             for (let i = 0; i < numbers.length; i++) {
                 const num = numbers[i];
                 if (num.length >= 3 && num.length <= 4 && /^[13468]/.test(num)) {
-                    if (pendingCode) { if(addTonerAutoFill(pendingCode, "0.0")) addedCount++; }
+                    if (pendingCode) { if(addTonerAutoFill(pendingCode, "")) addedCount++; }
                     pendingCode = num;
                 } else {
                     if (pendingCode) { if(addTonerAutoFill(pendingCode, num)) addedCount++; pendingCode = null; }
                 }
             }
-            if (pendingCode) { if(addTonerAutoFill(pendingCode, "0.0")) addedCount++; }
+            if (pendingCode) { if(addTonerAutoFill(pendingCode, "")) addedCount++; }
             if (addedCount > 0) addChatMessage('system', `✅ ${addedCount}개 안료 추가 완료. 빈칸이 없으면 새 줄이 자동 생성됩니다.`);
             else addChatMessage('system', `❌ 유효한 안료 번호(3~4자리)를 찾지 못했습니다.`);
         }
@@ -437,13 +446,13 @@ export default function App() {
         for(let i=0; i<numbers.length; i++) {
             const num = numbers[i];
             if (num.length >= 3 && num.length <= 4 && /^[13468]/.test(num)) {
-                if (pendingCode) { if(addTonerAutoFill(pendingCode, "0.0")) addedCount++; }
+                if (pendingCode) { if(addTonerAutoFill(pendingCode, "")) addedCount++; }
                 pendingCode = num;
             } else {
                 if (pendingCode) { if(addTonerAutoFill(pendingCode, num)) addedCount++; pendingCode = null; }
             }
         }
-        if (pendingCode) { if(addTonerAutoFill(pendingCode, "0.0")) addedCount++; }
+        if (pendingCode) { if(addTonerAutoFill(pendingCode, "")) addedCount++; }
 
         if (addedCount > 0) addChatMessage('ai', `📸 **[스캔 매칭 완료]** 영수증 숫자 배열 분석으로 총 ${addedCount}개 데이터를 화면 빈칸에 꽂아 넣었습니다.`);
         else throw new Error("코드 인식 실패");
@@ -482,10 +491,13 @@ export default function App() {
   };
 
   const processWeightInput = (rawValue: string) => {
-    let val = rawValue.replace(/[^0-9.]/g, ''); const parts = val.split('.');
+    let val = rawValue.replace(/[^0-9.]/g, ''); 
+    const parts = val.split('.');
     if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
+    if (val === '') return ''; // 빈 값이면 빈 값 그대로 유지 (0.0 자동 생성 방지)
     if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, '');
-    if (val.startsWith('.')) val = '0' + val; return val;
+    if (val.startsWith('.')) val = '0' + val; 
+    return val;
   };
 
   const handleWeightInputChange = (id: string, rawValue: string, isPearl = false) => {
@@ -564,7 +576,7 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md z-10 shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 14.1</span></h1>
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 14.2</span></h1>
         </div>
       </header>
 
@@ -598,7 +610,6 @@ export default function App() {
             <div className="flex items-center space-x-1.5">
               <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="컬러코드 입력 (예: UG-Z)" className="bg-white border border-slate-300 px-3 py-2 rounded text-xs font-bold focus:outline-none flex-1 uppercase" />
               <button onClick={handleConfirmBase} className="bg-slate-800 text-white px-3 py-2 rounded text-xs font-bold whitespace-nowrap">확정</button>
-              {/* 💡 [해결 1] 에러 났던 초기화 버튼(handleClearAll) 완벽 복구 */}
               <button onClick={handleClearAll} className="bg-white text-red-600 border border-red-200 px-2 py-2 rounded"><Trash2 size={16} /></button>
             </div>
           </div>
@@ -632,7 +643,6 @@ export default function App() {
                     <div className="flex flex-col gap-1.5">
                       <div className="w-full">
                         <div className="text-xs font-black text-slate-800">{toner.role}</div>
-                        {/* 💡 [해결 2] 설명글 원본 100% 완전 노출 */}
                         <div className="text-[12px] text-slate-600 leading-relaxed mt-1 break-keep whitespace-pre-wrap">
                           {TONER_DB[toner.code] ? TONER_DB[toner.code].desc : '코드를 입력하면 상세 스펙 데이터가 100% 완전 노출됩니다.'}
                         </div>
@@ -671,7 +681,6 @@ export default function App() {
                       <div className="flex flex-col gap-1.5">
                         <div className="w-full">
                           <div className="text-xs font-black text-slate-800">{toner.role}</div>
-                          {/* 💡 [해결 2] 설명글 원본 100% 완전 노출 */}
                           <div className="text-[12px] text-slate-600 leading-relaxed mt-1 break-keep whitespace-pre-wrap">
                             {TONER_DB[toner.code] ? TONER_DB[toner.code].desc : '코드를 입력하면 상세 스펙 데이터가 100% 완전 노출됩니다.'}
                           </div>
@@ -819,7 +828,7 @@ export default function App() {
                       </div>
                       
                       <div className="flex items-center px-1">
-                         <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, false)} className="w-10 text-center bg-transparent text-sm font-black text-white outline-none" />
+                         <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, false)} placeholder="0.0" className="w-10 text-center bg-transparent text-sm font-black text-white outline-none" />
                          <span className="text-slate-400 text-[10px] font-bold">g</span>
                       </div>
                       
@@ -846,7 +855,7 @@ export default function App() {
                           </div>
                           
                           <div className="flex items-center px-1">
-                             <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, true)} className="w-10 text-center bg-transparent text-sm font-black text-white outline-none" />
+                             <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, true)} placeholder="0.0" className="w-10 text-center bg-transparent text-sm font-black text-white outline-none" />
                              <span className="text-slate-400 text-[10px] font-bold">g</span>
                           </div>
                           
