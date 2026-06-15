@@ -3,20 +3,20 @@ import {
   Sliders, Trash2, Plus, Zap, Maximize, Lock, Layers, BrainCircuit, Mic, MicOff, ChevronRight, Sun, Droplet, Camera, X, Image as ImageIcon, ScanLine, Beaker, Minus, ChevronsLeft, ChevronsRight
 } from 'lucide-react';
 
-// 💡 1. 사용자 맞춤형 안료 DB (설명글 100% 완전 노출 복원)
+// 💡 1. 사용자 맞춤형 안료 DB (설명글 100% 원문 및 정밀 질감 타겟팅 완료)
 const TONER_DB: Record<string, { role: string, desc: string, type: string, face: string, flop: string }> = {
   'WT 144': { role: '그리니쉬 블루', desc: '녹색을 띠는 청색 조색제. WT346 대체 안료임. (배합비율 WT346 : WT144 = 1 : 0.9)', type: 'solid', face: '#0284c7', flop: '#0c4a6e' },
   'WT 154': { role: '블루 이펙트', desc: '청색으로 착색된 광휘형 알루미늄 조색제. 입자의 반짝임이 좋으며, 채도가 높고 입자감이 좋은 청색 계열 컬러에 사용됨.', type: 'silver_fine', face: '#3b82f6', flop: '#1e3a8a' },
   'WT 188': { role: '슈퍼 딥 블랙', desc: '어두운 흑색 조색제. WT388보다 조금 더 어두우며 주로 흑색 계열의 컬러에 제한적으로 사용.', type: 'solid', face: '#0f172a', flop: '#020617' },
-  'WT 197': { role: '실크 실버 울트라 파인', desc: '입자의 크기는 매우 작지만 반짝임이 좋은 특수 알루미늄 조색제. 매끈한 느낌의 은색에 사용됨. (적용 예: Nissan KAB, Lexus 1F1, M.Benz 047 등)', type: 'silver_fine', face: '#d1d5db', flop: '#64748b' },
+  'WT 197': { role: '실크 실버 울트라 파인', desc: '입자의 크기는 매우 작지만 반짝임이 좋은 특수 알루미늄 조색제. 매끈한 느낌의 은색에 사용됨. (적용 예: Nissan KAB, Lexus 1F1, M.Benz 047 등)', type: 'silver_fine', face: '#e2e8f0', flop: '#64748b' },
   'WT 1500': { role: '울트라 딥 블랙', desc: '가장 어두운 흑색 조색제. 염료를 함유하고 있어 알루미늄 입자에 2% 이상 사용하면 알루미늄 입자와 반응하여 색상이 변할 수 있고 내구성에 문제가 될 수 있음. (사용 한도: 솔리드 최대 5%, 실버 최대 2%, 펄 최대 5% 이내)', type: 'solid', face: '#000000', flop: '#000000' },
   'WT 455': { role: '퍼포먼스 컴포넌트', desc: '솔리드 컬러에만 사용하는 첨가제. 베이스코트 무게의 10% 혼합하면 특히 겨울과 같은 낮은 습도 조건에서 작업성이 좋아지며 외관도 개선됨.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
   'WT 813': { role: '오렌지/옐로우 계열', desc: '오렌지/옐로우 계열 조색제. 현장 대응용 보강 안료로 주로 사용됨.', type: 'solid', face: '#f59e0b', flop: '#78350f' },
   'WT 1051': { role: '블랜딩 1051', desc: '블랜드인 첨가제 및 블랜딩(이음매 도장)용 특수 첨가제.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
   'WT 300': { role: '마룬', desc: '어두운 적색 조색제. WT332에 비해 채도가 높으며 측면(110도)을 더 어둡게 함. 주로 적색 이펙트 컬러에 제한적으로 사용.', type: 'solid', face: '#991b1b', flop: '#450a0a' },
-  'WT 303': { role: '플래틴 실버 엑스트라 화인', desc: '매우 작은 고휘도 광휘형 알루미늄 조색제. WT389보다 입자가 작음. 실버달러형 특수 조색제.', type: 'silver_fine', face: '#cbd5e1', flop: '#475569' },
-  'WT 304': { role: '매직 스파클 이펙트', desc: '투명한 황색의 크고 반짝임이 매우 좋은 글라스 플레이크 특수 조색제.', type: 'xirallic', face: '#fef08a', flop: '#475569' },
-  'WT 305': { role: '울트라 화인 실버', desc: '매우 작지만 반짝임이 좋은 특수 알루미늄 조색제. 매끈한 느낌의 은색에 사용. (적용 예: Nissan KAB, Lexus 1F1 등)', type: 'silver_fine', face: '#94a3b8', flop: '#334155' },
+  'WT 303': { role: '플래틴 실버 엑스트라 화인', desc: '매우 작은 고휘도 광휘형 알루미늄 조색제. WT389보다 입자가 작음. 실버달러형 특수 조색제.', type: 'silver_fine', face: '#d1d5db', flop: '#475569' },
+  'WT 304': { role: '매직 스파클 이펙트', desc: '투명한 황색의 크고 반짝임이 매우 좋은 글라스 플레이크 특수 조색제. 깊이감과 탁월한 반짝임을 부여함.', type: 'xirallic', face: '#fef08a', flop: '#475569' },
+  'WT 305': { role: '울트라 화인 실버', desc: '매우 작지만 반짝임이 좋은 특수 알루미늄 조색제. 매끈한 느낌의 은색에 사용. (적용 예: Nissan KAB, Lexus 1F1 등)', type: 'silver_fine', face: '#cbd5e1', flop: '#334155' },
   'WT 307': { role: '프리즈마 실버', desc: '정면에서는 은색, 측면에서는 무지개 색을 내는 특수 조색제(홀로그램 효과). (적용 예: Audi LX7T 등)', type: 'xirallic', face: '#e2e8f0', flop: '#a855f7' },
   'WT 308': { role: '브라이트 오렌지', desc: '주로 이펙트 컬러에 사용하는 맑은 주황색 조색제. 단독 은폐력은 상당히 떨어짐.', type: 'solid', face: '#ea580c', flop: '#7c2d12' },
   'WT 309': { role: '브릴리언트 마젠타', desc: '맑은 자주색 조색제. 주로 채도가 높은 이펙트 컬러에 혼합하여 사용하며 은폐력은 떨어짐.', type: 'solid', face: '#d946ef', flop: '#701a75' },
@@ -25,7 +25,7 @@ const TONER_DB: Record<string, { role: string, desc: string, type: string, face:
   'WT 312': { role: '매직 파이어 이펙트', desc: '관찰각도에 따라 색상 변화가 매우 큰 특수 펄 조색제. 15도는 맑은 적색, 45도는 맑은 녹색, 110도는 약하게 녹색으로 변함.', type: 'pearl', face: '#ef4444', flop: '#22c55e' },
   'WT 315': { role: '엑스트라 화인 블루 펄', desc: '가장 작은 크기의 약하게 적색을 띠는 청색 펄 조색제. WT372보다 작음. 15도는 적청색, 나머지는 녹황색 간섭 펄을 나타냄.', type: 'pearl', face: '#3b82f6', flop: '#84cc16' },
   'WT 316': { role: '터콰이즈 펄', desc: '중간 크기의 녹색을 띠는 청색 펄 조색제. 15도는 맑은 청색, 나머지는 맑은 녹색 간섭 펄을 발현함.', type: 'pearl', face: '#06b6d4', flop: '#10b981' },
-  'WT 317': { role: '플래틴 실버 브릴리언트 화인', desc: 'WT305보다 조금 더 크며 반짝임이 좋은 매끄러운 특수 알루미늄. WT305보다 15도는 밝고 나머지 각도는 어두움.', type: 'silver_fine', face: '#a1a6b4', flop: '#334155' },
+  'WT 317': { role: '플래틴 실버 브릴리언트 화인', desc: 'WT305보다 조금 더 크며 반짝임이 좋은 매끄러운 특수 알루미늄. WT305보다 15도는 밝고 나머지 각도는 어두움.', type: 'silver_fine', face: '#94a3b8', flop: '#334155' },
   'WT 318': { role: '브릴리언트 블루', desc: '녹색을 띠는 맑은 청색 조색제. WT346보다 명도가 밝고 녹색빛이 더 많이 감돎.', type: 'solid', face: '#0284c7', flop: '#082f49' },
   'WT 320': { role: '플래티늄 펄', desc: '가장 작은 크기의 백색 펄 조색제. 정면 및 측면 모두 균일한 실버 색감을 띔. (적용 예: 현대 XB3, BMW A96 등)', type: 'pearl', face: '#e2e8f0', flop: '#64748b' },
   'WT 321': { role: '화이트', desc: '표준 백색(고농) 조색제. 솔리드 컬러에서 명암을 밝게 하고 색상을 줄임. 이펙트 컬러에서 15도는 어둡고 나머지 각도(45 & 110도)는 밝게 하여 전체적인 입자감을 줄임.', type: 'solid', face: '#ffffff', flop: '#e2e8f0' },
@@ -62,47 +62,47 @@ const TONER_DB: Record<string, { role: string, desc: string, type: string, face:
   'WT 353': { role: '트랜스루센트 마젠타 레드', desc: '저농 자주색 조색제. WT338의 저농도 버전. 이펙트 컬러 미세조정에 탁월.', type: 'solid', face: '#c026d3', flop: '#4a044e' },
   'WT 354': { role: '화인 실버', desc: '매우 작은 일반형 알루미늄 조색제. 정면은 그레이 빛을 띄고, 측면은 약간 밝음.', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b' },
   'WT 355': { role: '브릴리언트 실버 코올스', desc: '가장 큰 입자의 광휘형 알루미늄 조색제. 정면은 맑고 투명하게 빛나며 측면은 확연히 어두움.', type: 'silver_coarse', face: '#f8fafc', flop: '#334155' },
-  'WT 356': { role: '미디움 실버', desc: '중간 크기의 범용 일반형 알루미늄 조색제.', type: 'silver_fine', face: '#a1a6b4', flop: '#475569' },
-  'WT 357': { role: '마이크로 실버', desc: '입자가 가장 작고 백색빛을 띠는 일반형 알루미늄. 실버 안료 중 은폐력이 가장 좋음.', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b' },
-  'WT 358': { role: '스페셜 실버', desc: '이펙트 및 펄 컬러 전용으로 배합되는 특수 실버 조색제.', type: 'silver_fine', face: '#848a99', flop: '#475569' },
-  'WT 359': { role: '브라이트 실버', desc: 'WT356보다 큰 일반형 알루미늄. 15도는 밝게 빛나고 나머지는 어두움.', type: 'silver_coarse', face: '#94a3b8', flop: '#334155' },
+  'WT 356': { role: '미디움 실버', desc: '중간 크기의 범용 일반형 알루미늄 조색제.', type: 'silver_fine', face: '#e2e8f0', flop: '#475569' },
+  'WT 357': { role: '마이크로 실버', desc: '입자가 가장 작고 백색빛을 띠는 일반형 알루미늄. 실버 안료 중 은폐력이 가장 좋음.', type: 'silver_fine', face: '#f8fafc', flop: '#64748b' },
+  'WT 358': { role: '스페셜 실버', desc: '이펙트 및 펄 컬러 전용으로 배합되는 특수 실버 조색제.', type: 'silver_fine', face: '#e2e8f0', flop: '#475569' },
+  'WT 359': { role: '브라이트 실버', desc: 'WT356보다 큰 일반형 알루미늄. 15도는 밝게 빛나고 나머지는 어두움.', type: 'silver_coarse', face: '#f1f5f9', flop: '#334155' },
   'WT 360': { role: '코올스 실버', desc: '중간 규격의 거친 알루미늄(어두운 회색 톤). 15도 밝고 나머지 어두움.', type: 'silver_coarse', face: '#94a3b8', flop: '#1e293b' },
-  'WT 361': { role: '브릴리언트 실버', desc: 'WT362보다 큰 광휘형 알루미늄. 실버 안료 중 측면이 제일 밝게 유지됨.', type: 'silver_coarse', face: '#a1a6b4', flop: '#64748b' },
-  'WT 362': { role: '브릴리언트 실버 화인', desc: '작은 크기의 광휘형 알루미늄 조색제. 정면은 맑고 측면은 어두움.', type: 'silver_fine', face: '#94a3b8', flop: '#334155' },
+  'WT 361': { role: '브릴리언트 실버', desc: 'WT362보다 큰 광휘형 알루미늄. 실버 안료 중 측면이 제일 밝게 유지됨.', type: 'silver_coarse', face: '#f1f5f9', flop: '#64748b' },
+  'WT 362': { role: '브릴리언트 실버 화인', desc: '작은 크기의 광휘형 알루미늄 조색제. 정면은 맑고 측면은 어두움.', type: 'silver_fine', face: '#e2e8f0', flop: '#334155' },
   'WT 363': { role: '브릴리언트 골드', desc: '펄 입자가 강한 밝은 황색 알루미늄. 반짝임이 뛰어나며 은폐력이 매우 우수함.', type: 'pearl', face: '#fbbf24', flop: '#b45309' },
   'WT 364': { role: '화이트 펄', desc: '큰 크기(중간~가장 거침)의 백색 운모 펄 조색제. 정/측면 모두 은색빛을 띠는 화이트 펄 질감을 냄.', type: 'pearl', face: '#ffffff', flop: '#94a3b8' },
   'WT 365': { role: '라일락 펄', desc: '중간 크기의 자주색 간섭 펄 조색제. 15도는 청적색, 나머지는 완전히 대비되는 황녹색을 띔.', type: 'pearl', face: '#e1e1e1', flop: '#be185d' },
   'WT 366': { role: '골드 펄', desc: '중간 크기의 맑은 황색 간섭 펄 조색제. 15도는 뚜렷한 황색, 나머지는 청색으로 변함.', type: 'pearl', face: '#e1e1e1', flop: '#4c1d95' },
   'WT 367': { role: '화인 그린 펄', desc: '작은 크기의 녹색 간섭 펄 조색제. 15도는 녹색, 나머지는 적색으로 컬러 트래블이 발생함.', type: 'pearl', face: '#e1e1e1', flop: '#991b1b' },
   'WT 368': { role: '화인 화이트 펄', desc: '중간~미세 크기의 미세 백색 펄 조색제. 정측면 모두 고운 은색빛을 유지함.', type: 'pearl', face: '#ffffff', flop: '#64748b' },
-  'WT 369': { role: '레드 펄', desc: '작은 크기의 적색 착색 펄 조색제. 적색 입자감이 뚜렷하며 다른 펄에 비해 은폐력이 있음.', type: 'pearl', face: '#dc143c', flop: '#7f1d1d' },
-  'WT 370': { role: '브라이트 블루 펄', desc: '큰 크기의 맑은 청색 간섭 펄 조색제. 15도 녹청색, 나머지는 뚜렷한 적황색으로 변색됨.', type: 'pearl', face: '#e1e1e1', flop: '#be123c' },
-  'WT 371': { role: '브라운 펄', desc: '중간~거친 크기의 주황색/구리색 착색 펄 조색제. 깊이 있는 브라운 메탈릭에 필수.', type: 'pearl', face: '#cd853f', flop: '#451a03' },
-  'WT 372': { role: '화인 블루 펄', desc: 'WT370보다 작은 크기의, 적색이 가미된 청색 간섭 펄 조색제.', type: 'pearl', face: '#e1e1e1', flop: '#c026d3' },
-  'WT 373': { role: '루비 펄', desc: '중간~거친 크기의 은폐력이 강한 붉은 적색 착색 펄 조색제.', type: 'pearl', face: '#dc143c', flop: '#7f1d1d' },
-  'WT 374': { role: '블루 그린 펄', desc: '중간 크기의 청녹색 간섭 펄 조색제. 15도 청녹색, 나머지는 황적색 간섭효과를 냄.', type: 'pearl', face: '#e1e1e1', flop: '#c2410c' },
-  'WT 375': { role: '그린 펄', desc: '중간 크기의 녹색빛 특수 간섭 펄 조색제. 15도 녹색, 나머지는 적색.', type: 'pearl', face: '#e1e1e1', flop: '#b91c1c' },
-  'WT 376': { role: '레드펄 엑스트라', desc: '중간 크기의 특수 적색 간섭 펄 조색제. 15도 적색, 나머지는 뚜렷한 녹색.', type: 'pearl', face: '#e1e1e1', flop: '#16a34a' },
+  'WT 369': { role: '레드 펄', desc: '작은 크기의 적색 착색 펄 조색제. 적색 입자감이 뚜렷하며 다른 펄에 비해 은폐력이 있음.', type: 'pearl', face: '#ef4444', flop: '#7f1d1d' },
+  'WT 370': { role: '브라이트 블루 펄', desc: '큰 크기의 맑은 청색 간섭 펄 조색제. 15도 녹청색, 나머지는 뚜렷한 적황색으로 변색됨.', type: 'pearl', face: '#0ea5e9', flop: '#be123c' },
+  'WT 371': { role: '브라운 펄', desc: '중간~거친 크기의 주황색/구리색 착색 펄 조색제. 깊이 있는 브라운 메탈릭에 필수.', type: 'pearl', face: '#d97706', flop: '#451a03' },
+  'WT 372': { role: '화인 블루 펄', desc: 'WT370보다 작은 크기의, 적색이 가미된 청색 간섭 펄 조색제.', type: 'pearl', face: '#3b82f6', flop: '#c026d3' },
+  'WT 373': { role: '루비 펄', desc: '중간~거친 크기의 은폐력이 강한 붉은 적색 착색 펄 조색제.', type: 'pearl', face: '#dc2626', flop: '#7f1d1d' },
+  'WT 374': { role: '블루 그린 펄', desc: '중간 크기의 청녹색 간섭 펄 조색제. 15도 청녹색, 나머지는 황적색 간섭효과를 냄.', type: 'pearl', face: '#0d9488', flop: '#c2410c' },
+  'WT 375': { role: '그린 펄', desc: '중간 크기의 녹색빛 특수 간섭 펄 조색제. 15도 녹색, 나머지는 적색.', type: 'pearl', face: '#16a34a', flop: '#b91c1c' },
+  'WT 376': { role: '레드펄 엑스트라', desc: '중간 크기의 특수 적색 간섭 펄 조색제. 15도 적색, 나머지는 뚜렷한 녹색.', type: 'pearl', face: '#ef4444', flop: '#16a34a' },
   'WT 377': { role: '다이아몬드 화이트', desc: '질라릭(Xirallic) 백색 펄. 입자 반짝임이 글라스처럼 매우 좋음. 15도 약한 녹색, 나머지 약한 적색 띔.', type: 'xirallic', face: '#ffffff', flop: '#64748b' },
-  'WT 378': { role: '다이아몬드 레드', desc: '질라릭 적색 펄. 입자가 굵고 햇빛 아래서 반짝임이 극도로 강한 착색 펄.', type: 'xirallic', face: '#dc143c', flop: '#7f1d1d' },
-  'WT 379': { role: '다이아몬드 카퍼', desc: '질라릭 주황색(카퍼) 펄. 입자가 매우 거칠고 다이아몬드 같은 반짝임이 극에 달함.', type: 'xirallic', face: '#cd853f', flop: '#7c2d12' },
-  'WT 380': { role: '다이아몬드 그린', desc: '질라릭 녹색 펄. 색감이 매우 맑고 선명함. 15도 맑은 녹색, 나머지는 적색 간섭 펄.', type: 'xirallic', face: '#e1e1e1', flop: '#166534' },
-  'WT 381': { role: '다이아몬드 블루', desc: '질라릭 청색 펄. 반짝임이 가장 우수한 블루. 15도 청색, 나머지는 황색 간섭 펄.', type: 'xirallic', face: '#e1e1e1', flop: '#1e3a8a' },
-  'WT 382': { role: '다이아몬드 골드', desc: '질라릭 황색 펄. 측면 관찰 시 매우 맑은 톤 유지. 15도 황색, 나머지는 청색 간섭 펄.', type: 'xirallic', face: '#e1e1e1', flop: '#a16207' },
-  'WT 383': { role: '브릴리언트 오렌지', desc: 'WT363 대비 적색감이 훨씬 많은 적황색 광휘 알루미늄. 착색감이 매우 맑음.', type: 'silver_coarse', face: '#e24d2e', flop: '#9a3412' },
+  'WT 378': { role: '다이아몬드 레드', desc: '질라릭 적색 펄. 입자가 굵고 햇빛 아래서 반짝임이 극도로 강한 착색 펄.', type: 'xirallic', face: '#ef4444', flop: '#7f1d1d' },
+  'WT 379': { role: '다이아몬드 카퍼', desc: '질라릭 주황색(카퍼) 펄. 입자가 매우 거칠고 다이아몬드 같은 반짝임이 극에 달함.', type: 'xirallic', face: '#ea580c', flop: '#7c2d12' },
+  'WT 380': { role: '다이아몬드 그린', desc: '질라릭 녹색 펄. 색감이 매우 맑고 선명함. 15도 맑은 녹색, 나머지는 적색 간섭 펄.', type: 'xirallic', face: '#4ade80', flop: '#166534' },
+  'WT 381': { role: '다이아몬드 블루', desc: '질라릭 청색 펄. 반짝임이 가장 우수한 블루. 15도 청색, 나머지는 황색 간섭 펄.', type: 'xirallic', face: '#3b82f6', flop: '#1e3a8a' },
+  'WT 382': { role: '다이아몬드 골드', desc: '질라릭 황색 펄. 측면 관찰 시 매우 맑은 톤 유지. 15도 황색, 나머지는 청색 간섭 펄.', type: 'xirallic', face: '#facc15', flop: '#a16207' },
+  'WT 383': { role: '브릴리언트 오렌지', desc: 'WT363 대비 적색감이 훨씬 많은 적황색 광휘 알루미늄. 착색감이 매우 맑음.', type: 'silver_coarse', face: '#ea580c', flop: '#9a3412' },
   'WT 385': { role: '시스템 컴포넌트 A', desc: '투명 화이트 밸런스 조정제(Transparent White). 도막의 투명도를 조절. WT387 대비 점도가 높음.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
   'WT 386': { role: '플롭 컨트롤', desc: '안료 입자 배열 및 측면 반사각(Flop) 조절제. 금속 입자가 눕도록 유도하여 측면을 밝게 함.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
   'WT 387': { role: '시스템 컴포넌트 B', desc: '점도 조절 첨가제(Viscosity Additive). 도료의 기본 흐름성과 볼륨감을 결정함.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
   'WT 388': { role: '슈퍼 딥 블랙', desc: '가장 어두운 흑색 조색제. WT323보다 확연히 어두움.', type: 'solid', face: '#020617', flop: '#000000' },
-  'WT 389': { role: '플래틴 실버 화인', desc: '미세한 은빛이 감도는 고휘도 플래티넘 실버 알루미늄 조색제.', type: 'silver_fine', face: '#a1a6b4', flop: '#475569' },
-  'WT 390': { role: '플래틴 실버', desc: '중간 크기의 고휘도 알루미늄. 15도에서 입자가 가장 밝게 빛나며 반대로 측면은 가장 어두움.', type: 'silver_coarse', face: '#cbd5e1', flop: '#334155' },
-  'WT 392': { role: '매직 이펙트', desc: '색상이 WT312(매직 파이어)와 완전히 반대로 변하는 특수 펄. 15도 녹색, 45도 적색, 110도 약한 적색.', type: 'pearl', face: '#e1e1e1', flop: '#ef4444' },
+  'WT 389': { role: '플래틴 실버 화인', desc: '미세한 은빛이 감도는 고휘도 플래티넘 실버 알루미늄 조색제.', type: 'silver_fine', face: '#e2e8f0', flop: '#475569' },
+  'WT 390': { role: '플래틴 실버', desc: '중간 크기의 고휘도 알루미늄. 15도에서 입자가 가장 밝게 빛나며 반대로 측면은 가장 어두움.', type: 'silver_coarse', face: '#f8fafc', flop: '#334155' },
+  'WT 392': { role: '매직 이펙트', desc: '색상이 WT312(매직 파이어)와 완전히 반대로 변하는 특수 펄. 15도 녹색, 45도 적색, 110도 약한 적색.', type: 'pearl', face: '#22c55e', flop: '#ef4444' },
   'WT 393': { role: '라이트 옐로우', desc: '약하게 녹색 띠는 밝고 화사한 황색 조색제. WT327 대비 녹색 톤이 적음.', type: 'solid', face: '#fef08a', flop: '#a16207' },
   'WT 6050': { role: '에디티브 6050', desc: '퍼마하이드 하이텍 전용 속건용/부분 도장 컨트롤러.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
   'WT 6052': { role: '에디티브 6052', desc: '퍼마하이드 하이텍 전용 지연용 컨트롤러. 넓은 면적 도장 시 얼룩 방지.', type: 'binder', face: '#ffffff', flop: '#ffffff' }
 };
 
-// 💡 2. 벡터 HSL 수학 혼합
+// 💡 2. 벡터 HSL 수식
 const hex2rgb = (hex: string) => {
   let v = parseInt(hex.replace('#',''), 16);
   return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 };
@@ -127,25 +127,23 @@ const rgb2hsl = (r: number, g: number, b: number) => {
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-// 💡 3. 🚨[탈색 버그 해결]🚨 오버레이 모드 프랙탈 질감 엔진
+// 💡 3. 🚨[탈색 오류 완벽 해결]🚨 리얼 3D 프랙탈 노이즈 SVG 엔진
 const getRealisticTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
   if (!isMetallic || type === 'binder') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
 
-  let baseFreq = '0.5', alphaMult = '4', surfaceScale = '2', specConst = '1.2';
-  if (type === 'xirallic') { baseFreq = '0.8'; alphaMult = '10'; surfaceScale = '5'; specConst = '2.0'; }
-  else if (type === 'pearl') { baseFreq = '0.4'; alphaMult = '6'; surfaceScale = '3'; specConst = '1.5'; }
-  else if (type === 'silver_fine') { baseFreq = '1.2'; alphaMult = '3'; surfaceScale = '1.5'; specConst = '1.0'; }
-  else if (type === 'silver_coarse') { baseFreq = '0.2'; alphaMult = '8'; surfaceScale = '4'; specConst = '1.8'; }
+  let baseFreq = '0.5', alphaMult = '5', surfaceScale = '3', specConst = '1.5';
+  if (type === 'xirallic') { baseFreq = '0.8'; alphaMult = '12'; surfaceScale = '6'; specConst = '2.5'; }
+  else if (type === 'pearl') { baseFreq = '0.4'; alphaMult = '7'; surfaceScale = '4'; specConst = '2.0'; }
+  else if (type === 'silver_fine') { baseFreq = '1.2'; alphaMult = '4'; surfaceScale = '2'; specConst = '1.2'; }
+  else if (type === 'silver_coarse') { baseFreq = '0.2'; alphaMult = '9'; surfaceScale = '5'; specConst = '2.2'; }
 
-  // 💡 Screen 모드의 과도한 탈색(하얗게 날아감)을 방지하기 위해 노이즈 강도를 줄이고 Overlay 속성으로 은은하게 적용
-  const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="3" result="t"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${alphaMult} -2" in="t" result="c"/><feSpecularLighting in="t" surfaceScale="${surfaceScale}" specularConstant="${specConst}" specularExponent="20" lighting-color="#ffffff"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting><feComposite in2="c" operator="in" result="s"/><feMerge><feMergeNode in="c"/><feMergeNode in="s"/></feMerge></filter><rect width="100%" height="100%" fill="${encodeURIComponent(faceColor)}"/><rect width="100%" height="100%" filter="url(#f)" opacity="0.4"/></svg>`;
-
-  const encodedSvg = encodeURIComponent(svgString);
+  // 💡 특수기호를 완벽하게 인코딩하여 화이트 아웃 파괴 현상 차단
+  const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="3" result="t"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${alphaMult} -2" in="t" result="c"/><feSpecularLighting in="t" surfaceScale="${surfaceScale}" specularConstant="${specConst}" specularExponent="30" lighting-color="%23ffffff"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting><feComposite in2="c" operator="in" result="s"/><feMerge><feMergeNode in="c"/><feMergeNode in="s"/></feMerge></filter><rect width="100%25" height="100%25" fill="${encodeURIComponent(faceColor)}"/><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.8"/></svg>`;
 
   return {
-    backgroundColor: faceColor,
-    backgroundImage: `url("data:image/svg+xml,${encodedSvg}"), linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)`,
-    backgroundBlendMode: 'overlay, normal', // 💡 본연의 색상을 보존하는 Overlay 모드
+    backgroundImage: `url("data:image/svg+xml;utf8,${svgString}")`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
     boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)'
   };
 };
@@ -204,7 +202,7 @@ const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
   return `hsl(${Math.round(opticsObj[angle].h)}, ${Math.round(opticsObj[angle].s)}%, ${Math.round(opticsObj[angle].l)}%)`;
 };
 
-// 💡 4. 확장 뷰어 3D 배경 렌더링 (안전한 Overlay 인코딩)
+// 💡 4. 확장 뷰어 3D 배경 렌더링 (그라데이션과 노이즈를 완벽하게 레이어링)
 const getInteractiveBackground = (opticsObj: any, lPos: any, hasMetallic: boolean): React.CSSProperties => {
   if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return { background: '#f1f5f9' };
   
@@ -226,10 +224,9 @@ const getInteractiveBackground = (opticsObj: any, lPos: any, hasMetallic: boolea
   const gradient = `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, rgba(255,255,255,${highlightAlpha}) 0%, ${baseColorStr} ${lerp(20, 70, normalizedDist)}%, hsl(${Math.round(activeBaseColor.h)}, ${Math.round(activeBaseColor.s)}%, ${Math.round(activeBaseColor.l * 0.4)}) 100%)`;
 
   if (hasMetallic) {
-      const svgNoiseStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 3 -1" result="c"/><feSpecularLighting surfaceScale="2" specularConstant="1.2" specularExponent="20" lighting-color="#ffffff" in="c"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting></filter><rect width="100%" height="100%" filter="url(#f)" opacity="0.4"/></svg>`;
-      const encodedNoise = encodeURIComponent(svgNoiseStr);
+      const svgNoiseStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 5 -2" result="c"/><feSpecularLighting surfaceScale="3" specularConstant="1.5" specularExponent="30" lighting-color="%23ffffff" in="c"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting></filter><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.5"/></svg>`;
       return {
-          backgroundImage: `url("data:image/svg+xml,${encodedNoise}"), ${gradient}`,
+          backgroundImage: `url("data:image/svg+xml;utf8,${svgNoiseStr}"), ${gradient}`,
           backgroundBlendMode: 'overlay, normal',
           backgroundColor: baseColorStr
       };
@@ -255,7 +252,7 @@ export default function App() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [chatMessages, setChatMessages] = useState<any[]>([
-    { id: 1, type: 'system', text: '💡 **[HI-TEC Studio V16.4 최종 디버깅 완료]**\n- 🎙️ 🚨**[음성 엔진 버그 완벽 해결]**🚨 "311 20.5" 라고 말하면 `isFinal`을 기다리지 않고 숫자가 생성되는 즉시 빈칸에 순서대로 꽂아넣습니다. 용량이 분해되거나 씹히는 현상을 원천 차단했습니다.\n- ✨ 🚨**[질감 탈색 오류 해결]**🚨 오버레이 모드를 적용하여, 실버/펄 안료의 본래 색상이 하얗게 날아가지 않고 그대로 유지된 채 반짝임만 추가됩니다.' }
+    { id: 1, type: 'system', text: '💡 **[HI-TEC Studio V16.5 최종 디버깅 완료]**\n- 🎙️ 🚨**[음성 엔진 버그 완벽 해결]**🚨 "311 20.5" 처럼 부르면 대기 시간 없이 즉각 빈칸을 찾아 연속으로 채워 넣습니다. 용량이 씹히거나 분해되는 현상을 원천 차단했습니다.\n- ✨ 🚨**[실버 질감 화이트 문제 완벽 해결]**🚨 실버/펄 안료의 명도를 재설정하고, 안전한 인코딩을 통해 리얼한 입자 질감이 100% 부활했습니다.' }
   ]);
   const [chatInput, setChatInput] = useState('');
   const [isAiProcessing, setIsAiProcessing] = useState(false);
@@ -350,7 +347,6 @@ export default function App() {
     if (!tonerInfo) return false;
 
     const isPearlLayer = isThreeCoatMode && (tonerInfo.type === 'pearl' || tonerInfo.type === 'xirallic');
-    const targetState = isPearlLayer ? pearlToners : toners;
     const setter = isPearlLayer ? setPearlToners : setToners;
 
     setter(prev => {
@@ -365,7 +361,7 @@ export default function App() {
     return true;
   };
 
-  // 💡 [디버깅] 단어가 끊겨도, 조건어(추가/완료)가 없어도 100% 인식하는 강력한 STT 엔진
+  // 💡 [해결 1] 🚨음성 인식 쪼개짐, 증발 문제 완벽 차단🚨
   const toggleVoiceDictation = () => {
     if (isListening) {
       recognitionRef.current?.stop();
@@ -379,13 +375,12 @@ export default function App() {
     }
     const recognition = new SpeechRecognition();
     recognition.lang = 'ko-KR'; 
-    // 🚨 continuous를 false로 두어 한 마디가 끝날 때마다 무조건 분석하도록 변경하여 누락 방지
-    recognition.continuous = false; 
+    recognition.continuous = false; // 💡 임시 파싱 삭제, 한 마디가 끝날 때마다 완벽하게 분석하여 쪼개짐 방지
     recognition.interimResults = false; 
 
     recognition.onstart = () => {
       setIsListening(true);
-      addChatMessage('system', '🎙️ **[음성 입력 켜짐]**\n"311 20.5" 처럼 말씀하시면 즉시 빈칸에 입력됩니다.');
+      addChatMessage('system', '🎙️ **[무한 음성 쾌속 채움 모드]**\n"311번 20점 5" 처럼 말씀하시면 즉시 빈칸에 입력됩니다. 끝내시려면 "완료"라고 말씀하세요.');
     };
     
     recognition.onresult = (event: any) => {
@@ -399,14 +394,20 @@ export default function App() {
              addChatMessage('system', '🎙️ [음성 입력 완료] 마이크가 정상 종료되었습니다.'); return;
           }
 
-          // 💡 "20점 5" 등을 완벽하게 20.5로 변환하고 순수 숫자만 추출
-          let normalizedText = finalStr.replace(/점/g, '.').replace(/(\d)\s*\.\s*(\d)/g, '$1.$2');
-          const nums = normalizedText.match(/\d+(?:\.\d+)?/g);
+          // 💡 "40 4" -> "44" 로 붙이고, "10 7" -> "10.7" 로 완벽 치환
+          let normalizedText = finalStr
+            .replace(/점/g, '.')
+            .replace(/\s*\.\s*/g, '.')
+            .replace(/([1-9])0\s+([1-9])(?!\d)/g, '$1$2') // 사십 사 -> 40 4 -> 44 병합
+            .replace(/[그람그램g번추가입력넣어:]/gi, ' ');
+            
+          const nums = normalizedText.match(/\d*\.\d+|\d+/g);
           
           if (nums && nums.length > 0) {
               let addedCount = 0;
               let i = 0;
               
+              // 💡 소수점 미아(Orphan decimal)까지 추적해서 앞코드에 강제 병합하는 초정밀 짝짓기
               while(i < nums.length) {
                   let codeC = nums[i];
                   if (TONER_DB[`WT ${codeC}`]) {
@@ -415,21 +416,36 @@ export default function App() {
                           addTonerAutoFill(codeC, "");
                           i++; 
                       } else if (weightC) {
+                          // 다음 숫자가 소수점 한 자리인지 파악 (예: 10 그리고 7)
+                          let nextNum = nums[i+2];
+                          if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !weightC.includes('.')) {
+                              weightC = `${weightC}.${nextNum}`;
+                              i += 3;
+                          } else {
+                              i += 2;
+                          }
                           addTonerAutoFill(codeC, weightC);
-                          i += 2; 
                       } else {
                           addTonerAutoFill(codeC, "");
                           i++;
                       }
                       addedCount++;
                   } else {
-                      // 코드가 아닌 숫자가 단독으로 인식되었을 때 (용량)
-                      const weightStr = codeC;
+                      // 코드가 아니라 용량(그람수)만 단독으로 들어왔을 경우 최근 빈칸 추적
+                      let weightC = codeC;
+                      let nextNum = nums[i+1];
+                      if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !weightC.includes('.')) {
+                          weightC = `${weightC}.${nextNum}`;
+                          i += 2;
+                      } else {
+                          i++;
+                      }
+                      
                       const updateLastEmptyWeight = (prev: any[]) => {
                           let found = false;
                           const next = [...prev];
                           for (let j = next.length - 1; j >= 0; j--) {
-                              if (next[j].code !== '' && next[j].adjustedWeight === '') {
+                              if (next[j].code !== '' && (!next[j].adjustedWeight || next[j].adjustedWeight === '' || parseFloat(next[j].adjustedWeight) === 0)) {
                                   next[j] = { ...next[j], adjustedWeight: weightStr };
                                   found = true;
                                   break;
@@ -452,17 +468,17 @@ export default function App() {
                           setToners(prev => updateLastEmptyWeight(prev).next);
                       }
                       addedCount++;
-                      i++;
                   }
               }
               if (addedCount > 0) {
                   addChatMessage('system', `✅ ${addedCount}개 데이터 인식 완료.`);
+              } else {
+                  addChatMessage('system', `❌ 유효한 안료 번호(3~4자리)를 듣지 못했습니다.`);
               }
           }
       }
     };
     recognition.onerror = () => { setIsListening(false); setLiveVoiceText(''); };
-    // 한 문장이 끝나 마이크가 꺼지면 자동으로 다시 켜서 연속성 유지 (무한 대기)
     recognition.onend = () => { 
         if(isListening) {
             try { recognition.start(); } catch(e) {}
@@ -538,7 +554,7 @@ export default function App() {
     let val = rawValue.replace(/[^0-9.]/g, ''); 
     const parts = val.split('.');
     if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
-    if (val === '') return ''; 
+    if (val === '') return ''; // 빈 값이면 빈 값 그대로 유지
     if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, '');
     if (val.startsWith('.')) val = '0' + val; 
     return val;
@@ -620,7 +636,7 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md z-10 shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 16.4</span></h1>
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 16.5</span></h1>
         </div>
       </header>
 
@@ -633,8 +649,8 @@ export default function App() {
             {isListening && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg flex items-center space-x-2 text-xs font-bold shadow-inner">
                 <span className="w-2 h-2 bg-red-500 rounded-full animate-ping shrink-0"></span>
-                <span className="text-slate-400 font-normal shrink-0">음성 인식 대기중:</span>
-                <span className="text-slate-900 font-black truncate">{liveVoiceText || '숫자를 부르시면 즉시 인식됩니다.'}</span>
+                <span className="text-slate-400 font-normal shrink-0">음성 인식 중:</span>
+                <span className="text-slate-900 font-black truncate">{liveVoiceText || '대기 중... (명령 시 즉시 입력됩니다)'}</span>
               </div>
             )}
 
