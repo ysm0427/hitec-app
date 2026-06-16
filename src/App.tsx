@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
-  Sliders, Trash2, Plus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2
+  Sliders, Trash2, Plus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap
 } from 'lucide-react';
 
-// 💡 1. 공식 안료 데이터베이스 (선생님 요청 원문 100% 반영)
+// 💡 1. 공식 안료 데이터베이스 (100% 원문)
 const TONER_DB: Record<string, { role: string, desc: string, type: string, face: string, flop: string }> = {
   'WT 144': { role: '그리니쉬 블루', desc: '녹색을 띠는 청색 조색제. WT346 대체 안료임. (WT346 : WT144 = 1 : 0.9)', type: 'solid', face: '#0284c7', flop: '#0c4a6e' },
   'WT 154': { role: '블루 이펙트', desc: '청색으로 착색된 광휘형 알루미늄 조색제. 입자의 반짝임이 좋음. 채도가 높고 입자감이 좋은 청색계열의 컬러에 사용됨.', type: 'silver_fine', face: '#3b82f6', flop: '#1e3a8a' },
@@ -32,14 +33,14 @@ const TONER_DB: Record<string, { role: string, desc: string, type: string, face:
   'WT 327': { role: '옐로우', desc: '녹색을 띠는 밝은 황색 조색제. 주로 솔리드 컬러에 사용함. 이펙트 컬러에서는 특히 45 & 110도에 밝은 황색이 필요할 경우에만 소량 사용.', type: 'solid', face: '#fde047', flop: '#ca8a04' },
   'WT 328': { role: '오커', desc: '주로 솔리드 컬러에 사용하는 탁한 황색.', type: 'solid', face: '#b45309', flop: '#451a03' },
   'WT 329': { role: '트랜스페어런트 옐로우', desc: '적색을 조금 띠는 선명하고 맑은 황색(스칼렛) 조색제. 주로 이펙트 컬러에 사용. 은폐력은 떨어짐.', type: 'solid', face: '#f59e0b', flop: '#ea580c' },
-  'WT 330': { role: '블러드 오렌지', desc: '밝은 주황색 조색제. 주로 솔리드 컬러에 사용. 이펙트 컬러에는 특히 45 & 110도에 밝은 황적색이 부족할 경우에만 소량 사용.', type: 'solid', face: '#ea580c', flop: '#9a3412' },
+  'WT 330': { role: '블러드 오렌지', desc: '밝은 주황색 조색제. 무연(납 미함유) 성분. 주로 솔리드 컬러에 사용. 이펙트 컬러에는 특히 45 & 110도에 밝은 황적색이 부족할 경우에만 소량 사용.', type: 'solid', face: '#ea580c', flop: '#9a3412' },
   'WT 331': { role: '트랜스루센트 옥사이드', desc: '이펙트 컬러에서 맑은 적황색을 내는 조색제. 솔리드 컬러에는 사용을 금함.', type: 'solid', face: '#d97706', flop: '#451a03' },
   'WT 332': { role: '마룬', desc: '어두운 적색 조색제. 주로 적색 이펙트 컬러에 사용하며 전체적으로 황적색을 내고 명암을 조금 어둡게 함.', type: 'solid', face: '#b91c1c', flop: '#7c2d12' },
   'WT 333': { role: '그라나다 레드', desc: '밝은 적색 조색제. 주로 솔리드 컬러에 사용함. 이펙트 컬러에서 특히 45 & 110도에 적색이 부족할 경우 소량 사용됨.', type: 'solid', face: '#991b1b', flop: '#450a0a' },
   'WT 334': { role: '옥사이드 레드', desc: '주로 솔리드 컬러에 사용하는 탁한 적색 조색제. 조색제 단독으로는 은폐력 좋음. 이펙트 컬러에서 특히 45 & 110도에 황적색을 띠게 하기위해 소량 사용.', type: 'solid', face: '#7f1d1d', flop: '#450a0a' },
   'WT 335': { role: '다크 옐로우', desc: '적색을 조금 띠는 밝은 황색 조색제. 주로 솔리드 컬러 배합에 주로 사용함. 이펙트 컬러에서는 특히 45 & 110도에 밝은 녹황색이 부족할 경우에만 소량 사용.', type: 'solid', face: '#d97706', flop: '#78350f' },
   'WT 336': { role: '트랜스루센트 레드', desc: '선명하며 어두운 갈색 조색제. 이펙트 컬러 조색에만 사용.', type: 'solid', face: '#7c2d12', flop: '#450a0a' },
-  'WT 337': { role: '레드', desc: '중간 정도의 적색 조색제. 주로 솔리드 컬러에 사용함. 약하게 청색을 띰.', type: 'solid', face: '#ef4444', flop: '#991b1b' },
+  'WT 337': { role: '레드', desc: '중간 정도의 적색 조색제. 약하게 청색을 띰.', type: 'solid', face: '#ef4444', flop: '#991b1b' },
   'WT 338': { role: '블루이쉬 마젠타 레드', desc: '표준 자주색 조색제. 백색 및 알루미늄 입자에 혼합할 경우 맑은 분홍색을 나타냄.', type: 'solid', face: '#d946ef', flop: '#86198f' },
   'WT 339': { role: '바이올렛', desc: '맑은 보라색 조색제. 청색 및 회색 컬러에 주로 사용되며 보라색을 내고 명암을 어둡게 함.', type: 'solid', face: '#8b5cf6', flop: '#4c1d95' },
   'WT 340': { role: '옐로우 마젠타 레드', desc: '맑은 자주색 조색제. WT338에 비해 밝고 청색이 적음. 주로 이펙트 컬러에 사용함. 알루미늄 입자에 혼합할 경우 맑은 분홍색을 냄.', type: 'solid', face: '#e879f9', flop: '#a21caf' },
@@ -47,9 +48,9 @@ const TONER_DB: Record<string, { role: string, desc: string, type: string, face:
   'WT 342': { role: '다크 바이올렛', desc: '맑은 보라색 조색제. 이펙트 컬러에 사용하면 15도는 보라색, 나머지 각도(45 & 110도)는 자주색을 내는 조색제. WT339에 비해 청색이 적음.', type: 'solid', face: '#6d28d9', flop: '#2e1065' },
   'WT 343': { role: '블루', desc: '표준 청색 조색제. 솔리드와 이펙트 컬러에 모두 사용하는 중간 청색 조색제.', type: 'solid', face: '#3b82f6', flop: '#1e40af' },
   'WT 344': { role: '다크 블루', desc: '어두운 청색 조색제. 이펙트 컬러에서 15도는 청색, 나머지 각도(45 & 110도)는 적색을 띰. 청색 조색제 중 가장 어두움.', type: 'solid', face: '#1d4ed8', flop: '#0f172a' },
-  'WT 345': { role: '트랜스페어런트 에메랄드', desc: '맑고 선명한 황색을 조금 띠는 녹색 조색제. WT347대비 밝고 황색이 많음.', type: 'solid', face: '#10b981', flop: '#064e3b' },
-  'WT 346': { role: '트랜스페어런트 딥 블루', desc: '녹색을 띠는 투명한 청색 조색제. 특히 45 & 110도에서 녹색이 가장 많은 청색 조색제. 이펙트 컬러에 가장 많이 사용하는 청색임.', type: 'solid', face: '#1d4ed8', flop: '#020617' },
-  'WT 347': { role: '트랜스페어런트 그린', desc: '청색을 조금 띠는 녹색 조색제. WT345에 비해 어두움.', type: 'solid', face: '#059669', flop: '#022c22' },
+  'WT 345': { role: '트랜스페어런트 에메랄드', desc: '맑고 선명한 황색을 조금 띠는 녹색 조색제. WT347에 비해 밝고 황색이 많음.', type: 'solid', face: '#10b981', flop: '#064e3b' },
+  'WT 346': { role: '트랜스페어런트 딥 블루', desc: '녹색을 띠는 청색 조색제. 특히 45 & 110도에서 녹색이 가장 많은 청색 조색제. 이펙트 컬러에 가장 많이 사용하는 청색임.', type: 'solid', face: '#1d4ed8', flop: '#020617' },
+  'WT 347': { role: '트랜스페어런트 그린', desc: '청색을 조금 띠는 녹색 조색제. WT345에 비해 청색이 많고 어두움.', type: 'solid', face: '#059669', flop: '#022c22' },
   'WT 348': { role: '트랜스페어런트 아주르 블루', desc: '채도 높은 청색 조색제. 이펙트 컬러에서 15도는 녹색이 강한 청색, 나머지 각도(45 & 110도)는 약하게 적색을 띰.', type: 'solid', face: '#0ea5e9', flop: '#0369a1' },
   'WT 349': { role: '트랜스루센트 그린', desc: '녹색 저농 조색제. WT347의 저농 버전. (WT349 : WT347 = 10.52 : 1)', type: 'solid', face: '#34d399', flop: '#064e3b' },
   'WT 350': { role: '트랜스루센트 블랙', desc: '저농 흑색 조색제. WT323의 저농 버전. (WT350 : WT323 = 2.89 : 1)', type: 'solid', face: '#1e293b', flop: '#451a03' },
@@ -67,18 +68,18 @@ const TONER_DB: Record<string, { role: string, desc: string, type: string, face:
   'WT 362': { role: '브릴리언트 실버 화인', desc: '작은 크기의 광휘형 알루미늄 조색제. WT361에 비해 크기가 작음.', type: 'silver_fine', face: '#e2e8f0', flop: '#334155' },
   'WT 363': { role: '브릴리언트 골드', desc: '밝은 황색 알루미늄 조색제. 은폐력이 우수함.', type: 'pearl', face: '#fbbf24', flop: '#b45309' },
   'WT 364': { role: '화이트 펄', desc: '큰 크기의 백색 펄 조색제.', type: 'pearl', face: '#ffffff', flop: '#94a3b8' },
-  'WT 365': { role: '라일락 펄', desc: '중간 크기의 자주색 간섭 펄 조색제. 15도는 청적색, 나머지 각도(45 & 110도)는 황녹색으로 변하는 간섭 펄.', type: 'pearl', face: '#a3e635', flop: '#be185d' },
-  'WT 366': { role: '골드 펄', desc: '중간 크기의 황색 간섭 펄 조색제. 15도는 황색, 나머지 각도(45 & 110도)는 청색으로 변하는 간섭 펄.', type: 'pearl', face: '#facc15', flop: '#4c1d95' },
-  'WT 367': { role: '화인 그린 펄', desc: '작은 크기의 녹색 간섭 펄 조색제. 15도는 녹색, 나머지 각도(45 & 110도)는 적색으로 변하는 간섭 펄.', type: 'pearl', face: '#4ade80', flop: '#991b1b' },
+  'WT 365': { role: '라일락 펄', desc: '중간 크기의 자주색 간섭 펄 조색제. 15도는 청적색, 나머지 각도(45 & 110도)는 황녹색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#a3e635', flop: '#be185d' },
+  'WT 366': { role: '골드 펄', desc: '중간 크기의 황색 간섭 펄 조색제. 15도는 황색, 나머지 각도(45 & 110도)는 청색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#facc15', flop: '#4c1d95' },
+  'WT 367': { role: '화인 그린 펄', desc: '작은 크기의 녹색 간섭 펄 조색제. 15도는 녹색, 나머지 각도(45 & 110도)는 적색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#4ade80', flop: '#991b1b' },
   'WT 368': { role: '화인 화이트 펄', desc: '중간 크기의 백색 펄 조색제.', type: 'pearl', face: '#f8fafc', flop: '#64748b' },
   'WT 369': { role: '레드 펄', desc: '작은 크기의 적색 펄 조색제. 관찰각도 별로 색상 변화가 거의 없는 착색 펄 입자임. 적색 입자감 있는 컬러에 적용하며, 다른 펄보다 은폐력이 있음.', type: 'pearl', face: '#ef4444', flop: '#7f1d1d' },
-  'WT 370': { role: '브라이트 블루 펄', desc: '큰 크기의 맑은 청색 간섭 펄 조색제. 15도 녹청색, 나머지 각도(45 & 110도)는 적황색으로 변하는 간섭 펄.', type: 'pearl', face: '#0ea5e9', flop: '#be123c' },
+  'WT 370': { role: '브라이트 블루 펄', desc: '큰 크기의 맑은 청색 간섭 펄 조색제. 15도는 녹청색, 나머지 각도(45 & 110도)는 적황색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#0ea5e9', flop: '#be123c' },
   'WT 371': { role: '브라운 펄', desc: '중간 크기의 주황색 펄 조색제. 관찰각도 별로 색상 변화가 거의 없는 착색 펄 입자임.', type: 'pearl', face: '#d97706', flop: '#451a03' },
   'WT 372': { role: '화인 블루 펄', desc: 'WT370보다 작은 적색이 있는 청색 간섭 펄 조색제. 15도는 적청색, 나머지 각도(45 & 110도)는 녹황색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#3b82f6', flop: '#c026d3' },
   'WT 373': { role: '루비 펄', desc: '중간 크기의 은폐력이 있는 적색 펄 조색제. 관찰각도 별로 색상 변화가 거의 없는 착색 펄 입자임.', type: 'pearl', face: '#dc2626', flop: '#7f1d1d' },
-  'WT 374': { role: '블루 그린 펄', desc: '중간 크기의 청녹색 펄 조색제. 15도는 청녹색, 나머지 각도(45 & 110도)는 황적색으로 변하는 간섭 펄.', type: 'pearl', face: '#0d9488', flop: '#c2410c' },
-  'WT 375': { role: '그린 펄', desc: '중간 크기의 녹색 펄 조색제. 15도는 맑은 녹색, 나머지 각도(45 & 110도)는 적색으로 변하는 간섭 펄.', type: 'pearl', face: '#16a34a', flop: '#b91c1c' },
-  'WT 376': { role: '레드펄 엑스트라', desc: '중간 크기의 적색 펄 조색제. 15도는 적색, 나머지 각도(45 & 110도)는 녹색으로 변하는 간섭 펄.', type: 'pearl', face: '#ef4444', flop: '#16a34a' },
+  'WT 374': { role: '블루 그린 펄', desc: '중간 크기의 청녹색 펄 조색제. 15도는 청녹색, 나머지 각도(45 & 110도)는 황적색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#0d9488', flop: '#c2410c' },
+  'WT 375': { role: '그린 펄', desc: '중간 크기의 녹색 펄 조색제. 15도는 맑은 녹색, 나머지 각도(45 & 110도)는 적색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#16a34a', flop: '#b91c1c' },
+  'WT 376': { role: '레드펄 엑스트라', desc: '중간 크기의 적색 펄 조색제. 15도는 적색, 나머지 각도(45 & 110도)는 녹색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#ef4444', flop: '#16a34a' },
   'WT 377': { role: '다이아몬드 화이트', desc: '질라릭 백색 펄 조색제. 입자의 반짝임이 매우 좋음. 15도는 약하게 녹색을 띠며 나머지 각도는 약하게 적색을 띰.', type: 'xirallic', face: '#ffffff', flop: '#64748b' },
   'WT 378': { role: '다이아몬드 레드', desc: '질라릭 적색 펄 조색제. 입자의 반짝임이 매우 좋음. 관찰각도 별로 색상 변화가 거의 없는 착색 펄 입자임.', type: 'xirallic', face: '#ef4444', flop: '#7f1d1d' },
   'WT 379': { role: '다이아몬드 카퍼', desc: '질라릭 주황색 펄 조색제. 입자의 반짝임이 매우 좋음. 관찰각도 별로 색상 변화가 거의 없는 착색 펄 입자임.', type: 'xirallic', face: '#ea580c', flop: '#7c2d12' },
@@ -86,7 +87,7 @@ const TONER_DB: Record<string, { role: string, desc: string, type: string, face:
   'WT 381': { role: '다이아몬드 블루', desc: '질라릭 청색 펄 조색제. 입자의 반짝임이 매우 좋음. 15도는 청색, 나머지 각도(45 & 110도)는 황색으로 변하는 간섭 펄 입자임.', type: 'xirallic', face: '#3b82f6', flop: '#1e3a8a' },
   'WT 382': { role: '다이아몬드 골드', desc: '질라릭 황색 펄 조색제. 입자의 반짝임이 매우 좋음. 15도는 황색, 나머지 각도(45 & 110도)는 청색으로 변하는 간섭 펄 입자임.', type: 'xirallic', face: '#facc15', flop: '#a16207' },
   'WT 383': { role: '브릴리언트 오렌지', desc: 'WT363에 비해 적색감이 많은 적황색 알루미늄 조색제.', type: 'silver_coarse', face: '#f97316', flop: '#9a3412' },
-  'WT 385': { role: '시스템 컴포넌트 A', desc: 'Transparent White. WT387에 비해 점도가 높음.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
+  'WT 385': { role: '시스템 컴포넌트 A', desc: 'Transparent White. 도막의 투명도 조절.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
   'WT 386': { role: '플롭 컨트롤', desc: '측면을 밝게 하기 위한 명암 조정제.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
   'WT 387': { role: '시스템 컴포넌트 B', desc: 'Viscosity Additive. 점도 조절제.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
   'WT 388': { role: '슈퍼 딥 블랙', desc: '어두운 흑색 조색제. WT323보다 어두움. 주로 흑색계열의 컬러에 제한적으로 사용함.', type: 'solid', face: '#020617', flop: '#000000' },
@@ -100,18 +101,18 @@ const TONER_DB: Record<string, { role: string, desc: string, type: string, face:
   'WT 3080': { role: '스페셜 애디티브', desc: '도막 보정 및 흐름 방지 첨가제', type: 'binder', face: '#ffffff', flop: '#ffffff' }
 };
 
-// 💡 1-2. 카탈로그용 데이터 분류 로직
+// 💡 2. 카탈로그 라벨 분류
 const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
   let labelCategory = "일반 특성";
   let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
-  if(data.role.includes("블루") || data.role.includes("레드") || data.role.includes("옐로우") || data.role.includes("그린") || data.role.includes("오렌지") || data.role.includes("바이올렛")) {
-      labelCategory = "색상/외관"; badgeColor = "bg-emerald-50 text-emerald-600 border-emerald-200";
+  if(data.role.includes("블루") || data.role.includes("레드") || data.role.includes("옐로우") || data.role.includes("그린") || data.role.includes("오렌지") || data.role.includes("바이올렛") || data.role.includes("마룬")) {
+      labelCategory = "색상 및 외관 변화"; badgeColor = "bg-emerald-50 text-emerald-600 border-emerald-200";
   } else if (data.desc.includes("금지") || data.desc.includes("최대") || data.desc.includes("주의") || data.desc.includes("제한")) {
-      labelCategory = "경고/주의사항"; badgeColor = "bg-red-50 text-red-600 border-red-200 shadow-sm shadow-red-100";
+      labelCategory = "경고 및 주의사항"; badgeColor = "bg-red-50 text-red-600 border-red-200 shadow-sm shadow-red-100";
   } else if (data.role.includes("실버") || data.role.includes("펄") || data.role.includes("이펙트") || data.desc.includes("이펙트")) {
-      labelCategory = "용도 및 이펙트 컬러"; badgeColor = "bg-blue-50 text-blue-600 border-blue-200";
-  } else if (data.type === "binder" || data.desc.includes("첨가제") || data.desc.includes("수지")) {
-      labelCategory = "배합/시스템 첨가제"; badgeColor = "bg-purple-50 text-purple-600 border-purple-200";
+      labelCategory = "용도 및 적용 컬러"; badgeColor = "bg-blue-50 text-blue-600 border-blue-200";
+  } else if (data.type === "binder" || data.desc.includes("첨가제") || data.desc.includes("수지") || data.desc.includes("바인더")) {
+      labelCategory = "배합 및 혼합 비율"; badgeColor = "bg-purple-50 text-purple-600 border-purple-200";
   }
   return { code, ...data, labelCategory, badgeColor };
 });
@@ -128,19 +129,33 @@ const rgb2hsl = (r: number, g: number, b: number) => {
   return { h: h * 360, s: s * 100, l: l * 100 };
 };
 
-// 💡 2. 리얼 프랙탈 질감 엔진
-const getRealisticTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
-  if (!isMetallic || type === 'binder' || type === 'solid') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
-  let baseFreq = '0.5', alphaMult = '4', surfaceScale = '2', specConst = '1.2';
-  if (type === 'xirallic') { baseFreq = '0.8'; alphaMult = '10'; surfaceScale = '5'; specConst = '2.0'; }
-  else if (type === 'pearl') { baseFreq = '0.4'; alphaMult = '6'; surfaceScale = '3'; specConst = '1.5'; }
-  else if (type === 'silver_fine') { baseFreq = '1.2'; alphaMult = '3'; surfaceScale = '1.5'; specConst = '1.0'; }
-  else if (type === 'silver_coarse') { baseFreq = '0.2'; alphaMult = '8'; surfaceScale = '4'; specConst = '1.8'; }
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="3"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${alphaMult} -1"/><feSpecularLighting surfaceScale="${surfaceScale}" specularConstant="${specConst}" specularExponent="20" lighting-color="%23ffffff"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting></filter><rect width="100%25" height="100%25" fill="${encodeURIComponent(faceColor)}"/><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.4"/></svg>`;
-  return { backgroundImage: `url("data:image/svg+xml;utf8,${svg}"), linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)`, backgroundBlendMode: 'overlay, normal', backgroundColor: faceColor, boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)' };
+const isTonerMetallic = (role: string) => role.includes('실버') || role.includes('알루미늄') || role.includes('펄') || role.includes('이펙트') || role.includes('글라스');
+
+const getTonerColorChip = (code: string, role: string) => {
+  if (!code || !role) return 'transparent';
+  const c = code.replace('WT ', '');
+  const isMetallic = isTonerMetallic(role);
+  let baseColor = '#e2e8f0'; 
+  
+  if (role.includes('블루') || role.includes('청')) baseColor = '#1d4ed8'; 
+  else if (role.includes('레드') || role.includes('마젠타') || role.includes('마룬') || c.includes('300')) baseColor = '#b91c1c';
+  else if (role.includes('그린') || role.includes('녹')) baseColor = '#15803d'; 
+  else if (role.includes('옐로우') || role.includes('황') || role.includes('오커')) baseColor = '#eab308'; 
+  else if (role.includes('오렌지')) baseColor = '#ea580c'; 
+  else if (role.includes('바이올렛')) baseColor = '#7e22ce'; 
+  else if (role.includes('화이트') || role.includes('백')) baseColor = '#ffffff'; 
+  else if (role.includes('블랙') || role.includes('흑')) baseColor = '#0f172a'; 
+  else if (role.includes('실버')) baseColor = '#94a3b8'; 
+  else if (role.includes('바인더') || role.includes('컴포넌트') || role.includes('애디티브') || c === '385' || c === '387') baseColor = 'rgba(255,255,255,0.3)'; 
+
+  if (isMetallic) {
+    if (role.includes('실버') || role.includes('알루미늄')) return `linear-gradient(135deg, #f1f5f9 0%, ${baseColor} 50%, #475569 100%)`;
+    if (role.includes('펄') || role.includes('이펙트')) return `linear-gradient(135deg, rgba(255,255,255,0.9) 0%, ${baseColor} 50%, #000 100%)`;
+    return `linear-gradient(135deg, ${baseColor} 0%, #000 100%)`;
+  }
+  return baseColor;
 };
 
-// 💡 확장 뷰어 전용 렌더링
 const getTonerDetailBackground = (code: string, role: string, angle: string) => {
   const r = role || ''; let h = 0, s = 0, baseL = 50;
   if (r.includes('블루') || r.includes('청')) { h = 210; s = 80; baseL = 40; }
@@ -154,7 +169,7 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
   else if (r.includes('실버') || r.includes('알루미늄')) { h = 210; s = 10; baseL = 60; }
   else { h=0; s=0; baseL=95; } 
   
-  const isMetallic = r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트');
+  const isMetallic = isTonerMetallic(r);
   if (angle === 'face') {
     const l = isMetallic ? Math.min(100, baseL + 25) : Math.min(100, baseL + 10);
     return `radial-gradient(circle at 40% 40%, hsl(${h}, ${s}%, ${Math.min(100, l+20)}%) 0%, hsl(${h}, ${s}%, ${l}%) 60%, hsl(${h}, ${s}%, ${Math.max(0, l-15)}%) 100%)`;
@@ -164,18 +179,36 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
   }
 };
 
+const getRealisticTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
+  if (!isMetallic || type === 'binder' || type === 'solid') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
+  let baseFreq = '0.5', alphaMult = '4', surfaceScale = '2', specConst = '1.2';
+  if (type === 'xirallic') { baseFreq = '0.8'; alphaMult = '10'; surfaceScale = '5'; specConst = '2.0'; }
+  else if (type === 'pearl') { baseFreq = '0.4'; alphaMult = '6'; surfaceScale = '3'; specConst = '1.5'; }
+  else if (type === 'silver_fine') { baseFreq = '1.2'; alphaMult = '3'; surfaceScale = '1.5'; specConst = '1.0'; }
+  else if (type === 'silver_coarse') { baseFreq = '0.2'; alphaMult = '8'; surfaceScale = '4'; specConst = '1.8'; }
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="3"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${alphaMult} -1"/><feSpecularLighting surfaceScale="${surfaceScale}" specularConstant="${specConst}" specularExponent="20" lighting-color="%23ffffff"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting></filter><rect width="100%25" height="100%25" fill="${encodeURIComponent(faceColor)}"/><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.4"/></svg>`;
+  return { backgroundImage: `url("data:image/svg+xml;utf8,${svg}"), linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)`, backgroundBlendMode: 'overlay, normal', backgroundColor: faceColor, boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)' };
+};
+
 const getOptics = (tonersList: any[], weightKey: string) => {
   const colorToners = tonersList.filter(t => !t.role.includes('지정되지 않은') && t.code !== '');
   const sumW = colorToners.reduce((sum, t) => sum + (parseFloat(t[weightKey]) || 0), 0);
   if (sumW === 0) return { face: { h: 0, s: 0, l: 90 }, mid: { h: 0, s: 0, l: 90 }, flop: { h: 0, s: 0, l: 90 }, isMetallic: false };
-  let faceX=0, faceY=0, faceL=0, flopX=0, flopY=0, flopL=0; let totalWeight = 0; let hasMetallic = false;
+
+  let faceX=0, faceY=0, faceL=0, flopX=0, flopY=0, flopL=0;
+  let totalWeight = 0; let hasMetallic = false;
 
   colorToners.forEach(t => {
      let w = parseFloat(t[weightKey]) || 0; if (w <= 0) return;
      let db = TONER_DB[t.code]; if(!db) return;
-     totalWeight += w; if(db.type !== 'solid' && db.type !== 'binder') hasMetallic = true;
+
+     totalWeight += w;
+     if(db.type !== 'solid' && db.type !== 'binder') hasMetallic = true;
+
      let fRgb = hex2rgb(db.face); let fHsl = rgb2hsl(fRgb.r, fRgb.g, fRgb.b); let fRad = fHsl.h * Math.PI / 180;
      faceX += w * fHsl.s * Math.cos(fRad); faceY += w * fHsl.s * Math.sin(fRad); faceL += w * fHsl.l;
+
      let flRgb = hex2rgb(db.flop); let flHsl = rgb2hsl(flRgb.r, flRgb.g, flRgb.b); let flRad = flHsl.h * Math.PI / 180;
      flopX += w * flHsl.s * Math.cos(flRad); flopY += w * flHsl.s * Math.sin(flRad); flopL += w * flHsl.l;
   });
@@ -223,7 +256,6 @@ export default function App() {
   const [isScanning, setIsScanning] = useState(false);
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
 
-  // 💡 [빌드 에러 완전 차단] 필수 참조 변수 선언
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const viewerRef = useRef<HTMLElement>(null);
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -238,7 +270,6 @@ export default function App() {
   const [pearlOptics, setPearlOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
   const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
 
-  // 💡 [6052 수지 계산 로직 변수]
   const [isBaseMetallic, setIsBaseMetallic] = useState(false);
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
 
@@ -276,7 +307,6 @@ export default function App() {
     const activeToners = isThreeCoatMode ? [...toners, ...pearlToners] : toners;
     setFinalOptics(getOptics(activeToners, 'adjustedWeight'));
 
-    // 💡 메탈릭 여부 감지 (6052 계산용)
     const checkMetallic = (list: any[]) => list.some(t => {
       const type = TONER_DB[t.code]?.type || '';
       return type !== 'solid' && type !== 'binder' && type !== '';
@@ -285,7 +315,6 @@ export default function App() {
     setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
-  // 💡 [고속 타이핑 엔진] DOM 마운트 후 커서 자동 점프
   useEffect(() => {
     if (focusTarget) {
       setTimeout(() => {
@@ -313,7 +342,6 @@ export default function App() {
     setIsBaseConfirmed(false);
   };
 
-  // 💡 [사진 스캔 강화] 추출 데이터 즉시 상태 반영 엔진
   const processNumbers = useCallback((nums: string[]) => {
     let nextBase = [...tonersRef.current];
     let nextPearl = [...pearlTonersRef.current];
@@ -374,7 +402,6 @@ export default function App() {
             }
         }
     }
-    // 상태 강제 갱신
     setToners(nextBase);
     setPearlToners(nextPearl);
   }, []);
@@ -416,7 +443,6 @@ export default function App() {
     else setToners(toners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
   };
 
-  // 💡 [고속 타이핑 1] 코드 3자리 입력 시 즉시 그람(g)수로 커서 이동
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
     const formattedCode = newCode.toUpperCase().trim(); 
     const setter = isPearl ? setPearlToners : setToners;
@@ -429,7 +455,7 @@ export default function App() {
             const testCode = `WT ${numMatch[0]}`;
             if (TONER_DB[testCode]) {
                 finalCode = testCode;
-                setFocusTarget({ id: id, type: 'weight' }); // 🔥 포커스 예약
+                setFocusTarget({ id: id, type: 'weight' }); 
             }
         }
         return { ...toner, code: finalCode };
@@ -438,7 +464,6 @@ export default function App() {
     }));
   };
 
-  // 💡 [고속 타이핑 2] 그람수(g) 완료 후 Enter 키 누르면 새 줄 추가 및 포커스 이동
   const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => {
       if (e.key === 'Enter') {
           e.preventDefault();
@@ -446,7 +471,7 @@ export default function App() {
           const newToner = { id: newId, code: '', adjustedWeight: "" };
           if (isPearl) { setPearlToners([...pearlToners, newToner]); } 
           else { setToners([...toners, newToner]); }
-          setFocusTarget({ id: newId, type: 'code' }); // 🔥 새 코드 입력칸으로 점프
+          setFocusTarget({ id: newId, type: 'code' }); 
       }
   };
 
@@ -455,7 +480,7 @@ export default function App() {
     else setToners(toners.filter(t => t.id !== id));
   };
 
-  // 💡 [신규] 카카오톡 공유 기능 연동
+  // 💡 [신규] 카카오톡 공유 기능
   const shareToKakao = () => {
     const text = `[HI-TEC 배합 공유]\n컬러코드: ${targetColorCode || '미지정'}\n베이스 합계: ${totalBaseWeight}g\n펄 코트 합계: ${isThreeCoatMode ? totalPearlWeight + 'g' : 'N/A'}\n최종 총량: ${totalFinalWeight}g`;
     if (navigator.share) {
@@ -472,7 +497,7 @@ export default function App() {
       {scannedImage && (
         <div className="bg-slate-900 border-b-4 border-blue-500 shadow-2xl z-50 p-2 md:p-4 sticky top-0 animate-in slide-in-from-top-10">
           <div className="flex justify-between items-center mb-2 px-2 max-w-[1600px] mx-auto">
-            <h2 className="text-white text-sm font-bold flex items-center"><ImageIcon className="mr-2 text-blue-400" size={18}/> 영수증 스캔 참조 모드</h2>
+            <h2 className="text-white text-sm font-bold flex items-center"><ImageIcon className="mr-2 text-blue-400" size={18}/> 사진 고속 참조 모드</h2>
             <button onClick={() => setScannedImage(null)} className="text-slate-300 hover:text-white bg-slate-800 p-1.5 rounded-full"><X size={18} /></button>
           </div>
           <div className="w-full max-h-[25vh] overflow-auto rounded-lg border border-slate-700 bg-black flex justify-center max-w-[1600px] mx-auto">
@@ -515,11 +540,10 @@ export default function App() {
             
             <div className="flex items-center space-x-1.5">
               <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="컬러코드 (예: UG-Z)" className="bg-white border border-slate-300 px-3 py-2.5 rounded-md text-xs font-bold focus:outline-none flex-1 uppercase shadow-inner" />
-              <button onClick={() => setIsBaseConfirmed(true)} disabled={isBaseConfirmed} className={`px-4 py-2.5 rounded-md text-sm font-bold flex items-center shadow-md ${isBaseConfirmed ? 'bg-slate-200 text-slate-400' : 'bg-slate-800 text-white'}`}>
-                {isBaseConfirmed ? <Lock size={14} className="mr-1"/> : <Unlock size={14} className="mr-1"/>}<span>기준 확정</span>
+              <button onClick={() => setIsBaseConfirmed(true)} disabled={isBaseConfirmed} className={`px-4 py-2.5 rounded-md text-sm font-bold flex items-center shadow-md transition-colors ${isBaseConfirmed ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-900 text-white'}`}>
+                {isBaseConfirmed ? <Lock size={14} className="mr-1"/> : <Unlock size={14} className="mr-1"/>}<span>확정</span>
               </button>
               
-              {/* 💡 [공유 기능] 카카오톡 메세지 연동 */}
               <button onClick={shareToKakao} className="bg-[#FEE500] hover:bg-[#FADA0A] text-[#000000] px-3 py-2.5 rounded-md text-sm font-black flex items-center shadow-md transition-colors">
                  <Share2 size={16} className="mr-1.5" />공유
               </button>
@@ -547,16 +571,13 @@ export default function App() {
                 const isEffect = info.type !== 'solid' && info.type !== 'binder';
 
                 return (
-                  // 💡 [UI 복구 1] 널찍한 모바일 배열 (flex-col sm:flex-row) 유지
                   <div key={toner.id} className="flex flex-col sm:flex-row items-start sm:items-center bg-slate-50 hover:bg-blue-50/50 p-3 mb-2 rounded-xl border border-slate-200 transition-colors shadow-sm gap-3">
                     
-                    {/* 💡 [UI 복구 2] 주색/측면 분할 컬러칩 완전 복원 (리스트 바깥쪽 노출) */}
                     <div className="flex w-16 h-10 rounded-lg shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer hover:scale-105 transition-transform" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
                        <div className="flex-1" style={getRealisticTexture(info.type, info.face, info.face, isEffect)}></div>
                        <div className="flex-1 border-l border-slate-400" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.4)'} 100%)` }}></div>
                     </div>
                     
-                    {/* 💡 [UI 복구 3] 전체 설명 노출 (whitespace-pre-wrap) */}
                     <div className="flex flex-col flex-1 w-full">
                        <div className="flex items-center gap-2 mb-1">
                            <input
@@ -647,7 +668,6 @@ export default function App() {
             )}
           </div>
           
-          {/* 💡 [복원] 6052 수지 자동 계산기 부활 */}
           <div className="p-3 bg-slate-800 text-slate-100 flex justify-between items-center shrink-0 rounded-b-xl lg:rounded-none">
              <div className="flex flex-col">
                  <div className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Total Formula</div>
@@ -671,7 +691,6 @@ export default function App() {
         {/* 💡 Right Column: Multi-View & 수성 안료 카탈로그 */}
         <div className="lg:col-span-5 flex flex-col h-full space-y-4">
           
-          {/* 💡 [복원] 확장 뷰어(Before/After) 버튼 포함된 렌더링창 */}
           <div className={`bg-white border ${isBaseConfirmed ? 'border-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.15)]' : 'border-slate-300'} rounded-xl p-4 shadow-xl flex-none transition-all duration-300`}>
             <h3 className="text-[15px] font-bold mb-3 flex justify-between items-center border-b border-slate-100 pb-2">
               <span className="flex items-center"><Layers className="text-blue-600 mr-2" size={18} />멀티 시각화 렌더링 비교</span>
@@ -686,6 +705,7 @@ export default function App() {
                    <span className="text-[10px] text-slate-400 font-bold">{totalBaseWeight}g</span>
                  </div>
                  <div className={`h-12 rounded-lg border ${isBaseConfirmed ? 'border-slate-300' : 'border-slate-200 opacity-60'} relative overflow-hidden`} style={{ background: `radial-gradient(circle at 35% 35%, ${getColorString(baseOptics, 'face')} 0%, ${getColorString(baseOptics, 'mid')} 45%, ${getColorString(baseOptics, 'flop')} 100%)` }}>
+                   {baseOptics.isMetallic && <div className="metallic-flake opacity-50"></div>}
                  </div>
               </div>
 
@@ -696,6 +716,7 @@ export default function App() {
                      <span className="text-[10px] text-purple-400 font-bold">{totalPearlWeight}g</span>
                    </div>
                    <div className={`h-12 rounded-lg border ${isBaseConfirmed ? 'border-purple-300' : 'border-slate-200'} relative overflow-hidden`} style={{ background: isBaseConfirmed ? `radial-gradient(circle at 35% 35%, ${getColorString(pearlOptics, 'face')} 0%, ${getColorString(pearlOptics, 'mid')} 45%, ${getColorString(pearlOptics, 'flop')} 100%)` : '#f1f5f9' }}>
+                     {isBaseConfirmed && pearlOptics.isMetallic && <div className="metallic-flake opacity-70"></div>}
                    </div>
                 </div>
               )}
@@ -706,12 +727,12 @@ export default function App() {
                    <span className="text-[10px] text-blue-400 font-bold">{totalFinalWeight}g</span>
                  </div>
                  <div className={`h-16 rounded-lg border ${isBaseConfirmed ? 'border-blue-400' : 'border-slate-200'} relative overflow-hidden`} style={{ background: isBaseConfirmed ? `radial-gradient(circle at 35% 35%, ${getColorString(finalOptics, 'face')} 0%, ${getColorString(finalOptics, 'mid')} 45%, ${getColorString(finalOptics, 'flop')} 100%)` : '#f1f5f9' }}>
+                   {isBaseConfirmed && finalOptics.isMetallic && <div className="metallic-flake opacity-60"></div>}
                  </div>
               </div>
             </div>
           </div>
 
-          {/* 💡 [복원] 카탈로그 활용 가이드 HTML 컴포넌트 이식 완료 */}
           <div className="flex-1 bg-slate-50 border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[400px]">
             <div className="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0">
                 <h3 className="text-white font-black text-base flex items-center"><BookOpen className="mr-2 text-blue-400" size={20}/>수성 안료 조색제 카탈로그</h3>
@@ -719,35 +740,29 @@ export default function App() {
             
             <div className="p-5 bg-white border-b border-slate-200 shrink-0">
                 <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2"><span className="text-lg">💡</span> 카탈로그 활용 가이드</h3>
-                <p className="text-xs text-slate-600 leading-relaxed mb-3">각 조색제의 세부 특성을 현장 상황에 맞게 즉각적으로 파악할 수 있도록 데이터가 분류되어 있습니다. 라벨의 색상을 통해 정보의 성격을 빠르게 확인하세요.</p>
+                <p className="text-xs text-slate-600 leading-relaxed mb-3">각 조색제의 세부 특성을 현장 상황에 맞게 즉각적으로 파악할 수 있도록 데이터가 분류되어 있습니다.<br/>라벨의 색상을 통해 정보의 성격을 빠르게 확인하세요.</p>
                 <div className="flex flex-wrap gap-2 text-[10px] font-bold">
                     <span className="px-2 py-1 bg-white text-slate-600 rounded border border-slate-200 shadow-sm">일반 특성</span>
-                    <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded border border-emerald-200 shadow-sm">색상/외관</span>
-                    <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded border border-blue-200 shadow-sm">이펙트 전용</span>
-                    <span className="px-2 py-1 bg-purple-50 text-purple-600 rounded border border-purple-200 shadow-sm">시스템/첨가제</span>
-                    <span className="px-2 py-1 bg-red-50 text-red-600 rounded border border-red-200 shadow-sm shadow-red-100">경고/주의</span>
+                    <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded border border-emerald-200 shadow-sm">색상 및 외관 변화</span>
+                    <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded border border-blue-200 shadow-sm">용도 및 적용 컬러</span>
+                    <span className="px-2 py-1 bg-purple-50 text-purple-600 rounded border border-purple-200 shadow-sm">배합 및 혼합 비율</span>
+                    <span className="px-2 py-1 bg-red-50 text-red-600 rounded border border-red-200 shadow-sm shadow-red-100">경고 및 주의사항</span>
                 </div>
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
-                {Object.entries(TONER_DB).map(([code, data]) => {
-                    const isMetallic = data.type !== 'solid' && data.type !== 'binder';
-                    let labelCategory = "일반 특성"; let badgeColor = "bg-white text-slate-600 border-slate-200";
-                    if(data.role.includes("블루") || data.role.includes("레드") || data.role.includes("옐로우") || data.role.includes("그린")) { labelCategory = "색상/외관"; badgeColor = "bg-emerald-50 text-emerald-600 border-emerald-200"; } 
-                    else if (data.desc.includes("금지") || data.desc.includes("최대") || data.desc.includes("주의")) { labelCategory = "경고/주의"; badgeColor = "bg-red-50 text-red-600 border-red-200 shadow-sm shadow-red-100"; } 
-                    else if (data.role.includes("실버") || data.role.includes("펄") || data.desc.includes("이펙트")) { labelCategory = "이펙트 전용"; badgeColor = "bg-blue-50 text-blue-600 border-blue-200"; } 
-                    else if (data.type === "binder" || data.desc.includes("첨가제")) { labelCategory = "배합/시스템 첨가제"; badgeColor = "bg-purple-50 text-purple-600 border-purple-200"; }
-
+                {catalogData.map((item) => {
+                    const isMetallic = item.type !== 'solid' && item.type !== 'binder';
                     return (
-                        <div key={code} className="flex flex-col sm:flex-row bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                            <div className="w-full sm:w-28 h-16 sm:h-auto flex-shrink-0 relative border-b sm:border-b-0 sm:border-r border-slate-200" style={getRealisticTexture(data.type, data.face, data.flop, isMetallic)}>
-                                <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-black px-1.5 py-0.5 rounded">{code}</div>
+                        <div key={item.code} className="flex flex-col sm:flex-row bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div className="w-full sm:w-28 h-16 sm:h-auto flex-shrink-0 relative border-b sm:border-b-0 sm:border-r border-slate-200" style={getRealisticTexture(item.type, item.face, item.flop, isMetallic)}>
+                                <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-black px-1.5 py-0.5 rounded">{item.code}</div>
                             </div>
                             <div className="p-3 flex-1 flex flex-col justify-center">
-                                <div className="font-black text-slate-800 text-xs mb-1">{data.role}</div>
+                                <div className="font-black text-slate-800 text-xs mb-1">{item.role}</div>
                                 <div className="flex items-start gap-2 mt-1">
-                                    <span className={`shrink-0 inline-flex px-1.5 py-0.5 text-[9px] font-bold rounded border ${badgeColor}`}>{labelCategory}</span>
-                                    <p className="text-[11px] text-slate-600 leading-relaxed break-keep">{data.desc}</p>
+                                    <span className={`shrink-0 inline-flex px-1.5 py-0.5 text-[9px] font-bold rounded border ${item.badgeColor}`}>{item.labelCategory}</span>
+                                    <p className="text-[11px] text-slate-600 leading-relaxed break-keep">{item.desc}</p>
                                 </div>
                             </div>
                         </div>
