@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sliders, Trash2, Plus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, BrainCircuit, RefreshCw, Search
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search
 } from 'lucide-react';
 
 // 💡 1. 공식 안료 데이터베이스
@@ -63,7 +63,7 @@ const TONER_DB: Record<string, { role: string, desc: string, type: string, face:
   'WT 357': { role: '마이크로 실버', desc: '입자가 작은 일반형 알루미늄 조색제. WT356보다 15도는 어둡고, 나머지 각도(45 & 110도)는 밝음.', type: 'silver_fine', face: '#f8fafc', flop: '#64748b' },
   'WT 358': { role: '스페셜 실버', desc: '이펙트 컬러용 특수 실버 조색제', type: 'silver_fine', face: '#e2e8f0', flop: '#475569' },
   'WT 359': { role: '브라이트 실버', desc: 'WT356보다 큰 일반형 알루미늄 조색제. WT356 보다 15도는 밝고, 나머지 각도(45 & 110도)는 어두움.', type: 'silver_coarse', face: '#f1f5f9', flop: '#334155' },
-  'WT 360': { role: '코올스 실버', desc: 'WT359보다 큰 일반형 알루미늄 조색제. WT359보다 15도는 밝고 나머지 각도(45 & 110도)는 어두움.', type: 'silver_coarse', face: '#94a3b8', flop: '#1e293b' },
+  'WT 360': { role: '코올스 실버', desc: 'WT359보다 큰 거친 알루미늄 조색제. WT359보다 15도는 밝고 나머지 각도(45 & 110도)는 어두움.', type: 'silver_coarse', face: '#94a3b8', flop: '#1e293b' },
   'WT 361': { role: '브릴리언트 실버', desc: 'WT362보다 큰 광휘형 알루미늄 조색제. WT362보다 15도는 밝고 나머지 각도(45 & 110도)는 어두움.', type: 'silver_coarse', face: '#f1f5f9', flop: '#64748b' },
   'WT 362': { role: '브릴리언트 실버 화인', desc: '작은 크기의 광휘형 알루미늄 조색제. WT361에 비해 크기가 작음.', type: 'silver_fine', face: '#e2e8f0', flop: '#334155' },
   'WT 363': { role: '브릴리언트 골드', desc: '밝은 황색 알루미늄 조색제. 은폐력이 우수함.', type: 'pearl', face: '#fbbf24', flop: '#b45309' },
@@ -101,7 +101,7 @@ const TONER_DB: Record<string, { role: string, desc: string, type: string, face:
   'WT 3080': { role: '스페셜 애디티브', desc: '도막 보정 및 흐름 방지 첨가제', type: 'binder', face: '#ffffff', flop: '#ffffff' }
 };
 
-// 💡 1-2. 카탈로그용 데이터 라벨 분류 로직
+// 💡 1-2. 카탈로그 데이터 분류
 const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
   let labelCategory = "일반 특성";
   let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
@@ -139,14 +139,11 @@ const isTonerMetallic = (role: string) => {
     return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스');
 }
 
-// 💡 🚨[최적화 핵심]🚨 3D 질감(SVG) 결과물 캐싱 엔진
-// 매 키보드 입력마다 SVG를 재생성하여 모바일을 뻗게 만들던 주범을 캐싱으로 100% 제거했습니다.
+// 💡 🚨[최적화 캐싱 엔진]🚨
+// 컴포넌트 내부에서 매번 SVG를 렌더링하던 부하를 없애고 캐싱을 활용해 화면을 가볍게 만듭니다.
 const textureCache: Record<string, React.CSSProperties> = {};
 const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
-    if (!isMetallic || type === 'binder' || type === 'solid') {
-        return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
-    }
-    
+    if (!isMetallic || type === 'binder' || type === 'solid') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
     const key = `${type}_${faceColor}_${flopColor}`;
     if (textureCache[key]) return textureCache[key];
 
@@ -157,20 +154,19 @@ const getCachedTexture = (type: string, faceColor: string, flopColor: string, is
     else if (type === 'silver_coarse') { baseFreq = '0.2'; alphaMult = '8'; surfaceScale = '4'; specConst = '1.8'; }
 
     const safeFaceColor = faceColor || '#ffffff';
+    const safeFlopColor = flopColor || '#ffffff';
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="3"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${alphaMult} -1"/><feSpecularLighting surfaceScale="${surfaceScale}" specularConstant="${specConst}" specularExponent="20" lighting-color="%23ffffff"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting></filter><rect width="100%25" height="100%25" fill="${encodeURIComponent(safeFaceColor)}"/><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.4"/></svg>`;
 
     const result = {
       backgroundColor: safeFaceColor,
-      backgroundImage: `url("data:image/svg+xml;utf8,${svg}"), linear-gradient(135deg, ${safeFaceColor} 0%, ${flopColor || '#ffffff'} 100%)`,
+      backgroundImage: `url("data:image/svg+xml;utf8,${svg}"), linear-gradient(135deg, ${safeFaceColor} 0%, ${safeFlopColor} 100%)`,
       backgroundBlendMode: 'overlay, normal' as any,
       boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)'
     };
-    
     textureCache[key] = result;
     return result;
 };
 
-// 💡 뷰어 전용 그라데이션
 const getTonerDetailBackground = (code: string, role: string, angle: string) => {
   const r = role || ''; let h = 0, s = 0, baseL = 50;
   if (r.includes('블루') || r.includes('청')) { h = 210; s = 80; baseL = 40; }
@@ -195,152 +191,110 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
   }
 };
 
-const getOptics = (tonersList: any[], weightKey: string) => {
-  const colorToners = tonersList.filter(t => !t.role.includes('지정되지 않은') && t.code !== '');
-  const sumW = colorToners.reduce((sum, t) => sum + (parseFloat(t[weightKey]) || 0), 0);
+// 💡 🚨[화이트 화면 멸균 조치]🚨 t.role을 직접 찾지 않고 DB를 참조하도록 강제 방어
+const getOptics = (tonersList: any[]) => {
+  const colorToners = tonersList.filter(t => t.code && TONER_DB[t.code]);
+  const sumW = colorToners.reduce((sum, t) => sum + (parseFloat(t.adjustedWeight) || 0), 0);
 
   if (sumW === 0) return { face: { h: 0, s: 0, l: 90 }, mid: { h: 0, s: 0, l: 90 }, flop: { h: 0, s: 0, l: 90 }, isMetallic: false };
 
-  let rBlue=0, rGreen=0, rRed=0, rYellow=0, rViolet=0;
-  let wSilver=0, wWhite=0, wBlack=0, wPearl=0, wBinder=0;
-  let interferenceColor: string | null = null;
+  let faceX=0, faceY=0, faceL=0, flopX=0, flopY=0, flopL=0;
+  let totalWeight = 0; let hasMetallic = false;
 
   colorToners.forEach(t => {
-    const w = parseFloat(t[weightKey]) || 0;
-    if (w <= 0) return;
+     let w = parseFloat(t.adjustedWeight) || 0; if (w <= 0) return;
+     let db = TONER_DB[t.code];
+     
+     totalWeight += w;
+     if(db.type !== 'solid' && db.type !== 'binder') hasMetallic = true;
 
-    const role = t.role || '';
-    const code = t.code || '';
-    let strength = 1.0;
-    if (code.includes('144') || code.includes('341') || code.includes('300') || code.includes('338')) strength = 2.5;
+     let fRgb = hex2rgb(db.face); let fHsl = rgb2hsl(fRgb.r, fRgb.g, fRgb.b); let fRad = fHsl.h * Math.PI / 180;
+     faceX += w * fHsl.s * Math.cos(fRad); faceY += w * fHsl.s * Math.sin(fRad); faceL += w * fHsl.l;
 
-    if (role.includes('컴포넌트') || role.includes('바인더') || role.includes('애디티브') || ['WT 385', 'WT 387', 'WT 386', 'WT 400', 'WT 3080', 'WT 310'].some(c => code.includes(c.replace('WT ', '')))) {
-      wBinder += w;
-    } else if (role.includes('블랙') || code.includes('323') || code.includes('388') || code.includes('188')) wBlack += w;
-    else if (role.includes('실버') || role.includes('알루미늄') || code.includes('362') || code.includes('357') || code.includes('197') || code.includes('303') || code.includes('305') || code.includes('307')) wSilver += w;
-    else if (role.includes('화이트') || code.includes('321') || code.includes('328')) wWhite += w;
-    else if (role.includes('펄') || role.includes('이펙트') || role.includes('스파클') || code.includes('304') || code.includes('377') || code.includes('381')) {
-      wPearl += w;
-      if (role.includes('블루') || code.includes('381')) { interferenceColor = 'blue'; rBlue += w * 0.15; }
-      else if (role.includes('레드') || role.includes('마젠타')) { interferenceColor = 'red'; rRed += w * 0.15; }
-      else if (role.includes('그린')) { interferenceColor = 'green'; rGreen += w * 0.15; }
-      else if (role.includes('골드') || code.includes('304')) { interferenceColor = 'yellow'; rYellow += w * 0.15; }
-      else if (role.includes('화이트') || code.includes('377')) interferenceColor = 'white';
-    } else if (code.includes('144') || role.includes('블루') || role.includes('청')) { rBlue += w * strength; rGreen += (w * strength) * 0.5; }
-    else if (code.includes('339') || role.includes('바이올렛')) rViolet += w * strength;
-    else if (code.includes('353') || code.includes('309') || role.includes('마젠타')) { rRed += w * strength; rViolet += (w * strength) * 0.5; }
-    else if (code.includes('300') || role.includes('마룬') || role.includes('적')) rRed += w * strength;
-    else if (code.includes('308') || role.includes('오렌지')) { rRed += w * strength; rYellow += (w * strength) * 0.5; }
-    else if (role.includes('옐로우') || role.includes('황') || code.includes('350')) rYellow += w * strength;
-    else if (role.includes('그린') || role.includes('녹')) rGreen += w * strength;
+     let flRgb = hex2rgb(db.flop); let flHsl = rgb2hsl(flRgb.r, flRgb.g, flRgb.b); let flRad = flHsl.h * Math.PI / 180;
+     flopX += w * flHsl.s * Math.cos(flRad); flopY += w * flHsl.s * Math.sin(flRad); flopL += w * flHsl.l;
   });
 
-  const colorWeight = (rBlue + rGreen + rRed + rYellow + rViolet);
-  const effectiveW = wWhite + wBlack + wSilver + wPearl + colorWeight;
-  const totalForRatio = effectiveW > 0 ? effectiveW : 1;
-
-  const pSilver = wSilver / totalForRatio;
-  const pWhite = wWhite / totalForRatio;
-  const pBlack = wBlack / totalForRatio;
-  const pPearl = wPearl / totalForRatio;
-  const pColor = colorWeight / totalForRatio;
-
-  let baseL = (pWhite * 96) + (pSilver * 65) + (pPearl * 85);
-  if (effectiveW === 0 && wBinder > 0) baseL = 90; 
-
-  let blackImpact = Math.pow(pBlack, 0.45) * 60; 
-  if (pWhite > 0.6) blackImpact = blackImpact * 0.15; 
-  const colorImpactL = Math.pow(pColor, 0.5) * 30;
-  baseL = Math.max(4, baseL - blackImpact - colorImpactL);
-
-  let l15 = baseL + (Math.pow(pSilver + pPearl, 0.6) * 45); 
-  let l110 = baseL - (Math.pow(pSilver, 0.6) * 45) - (Math.pow(pBlack, 0.5) * 20);
-  
-  if (pWhite > 0.6) {
-      l110 = Math.max(83, baseL - 8); 
-      l15 = Math.min(99, baseL + (pPearl > 0 ? 10 : 3));
-  }
-
-  let x = rRed + (rYellow * 0.5) - (rGreen * 0.5) - rBlue - (rViolet * 0.5);
-  let y = (rYellow * 0.866) + (rGreen * 0.866) - (rBlue * 0.866) - (rViolet * 0.866);
-  
-  let hue = Math.atan2(y, x) * (180 / Math.PI);
-  if (hue < 0) hue += 360;
-
-  let sat = colorWeight > 0 ? Math.min(100, Math.pow((colorWeight / (colorWeight + wWhite + wSilver + Math.max(wBlack * 2, 0))), 0.4) * 100) : 0;
-  if (pWhite > 0.6) sat = sat * 0.3; 
-
-  let flopHue = hue, faceHue = hue;
-  if (interferenceColor === 'blue') { faceHue = 210; flopHue = 230; }
-  else if (interferenceColor === 'red') { faceHue = 340; flopHue = 350; }
-  else if (interferenceColor === 'green') { faceHue = 120; flopHue = 140; }
-  else if (interferenceColor === 'yellow') { faceHue = 50; flopHue = 60; }
-
-  let faceSat = Math.min(100, sat + (pPearl * (interferenceColor === 'white' ? 5 : 20)));
-  let flopSat = Math.min(100, sat + (pPearl * (interferenceColor === 'white' ? 2 : 12)));
-
-  if (colorWeight === 0 && wPearl === 0) { hue = 0; flopHue = 0; faceHue = 0; sat = 0; faceSat = 0; flopSat = 0; }
+  if(totalWeight === 0) return { face: { h: 0, s: 0, l: 90 }, mid: { h: 0, s: 0, l: 90 }, flop: { h: 0, s: 0, l: 90 }, isMetallic: false };
+  let avgFaceH = Math.atan2(faceY, faceX) * 180 / Math.PI; if(avgFaceH < 0) avgFaceH += 360;
+  let avgFlopH = Math.atan2(flopY, flopX) * 180 / Math.PI; if(avgFlopH < 0) avgFlopH += 360;
 
   return {
-    face: { h: Math.round(faceHue), s: Math.round(faceSat), l: Math.round(Math.min(99, Math.max(5, l15))) },
-    mid:  { h: Math.round(hue), s: Math.round(sat), l: Math.round(Math.min(98, Math.max(5, baseL))) },
-    flop: { h: Math.round(wPearl > 0 ? flopHue : hue), s: Math.round(flopSat), l: Math.round(Math.min(98, Math.max(2, l110))) },
-    isMetallic: (wSilver > 0 || wPearl > 0)
+     face: {h: avgFaceH, s: Math.min(100, Math.sqrt(faceX*faceX + faceY*faceY) / totalWeight), l: faceL / totalWeight},
+     mid: {h: (avgFaceH + avgFlopH) / 2, s: (Math.min(100, Math.sqrt(faceX*faceX + faceY*faceY) / totalWeight) + Math.min(100, Math.sqrt(flopX*flopX + flopY*flopY) / totalWeight)) / 2, l: (faceL / totalWeight + flopL / totalWeight) / 2},
+     flop: {h: avgFlopH, s: Math.min(100, Math.sqrt(flopX*flopX + flopY*flopY) / totalWeight), l: flopL / totalWeight},
+     isMetallic: hasMetallic
   };
 };
 
-const getColorString = (opticsObj: any, angle: string) => `hsl(${Math.round(opticsObj[angle].h)}, ${Math.round(opticsObj[angle].s)}%, ${Math.round(opticsObj[angle].l)}%)`;
+const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
+  if (!opticsObj || !opticsObj[angle]) return 'hsl(0,0%,90%)';
+  return `hsl(${Math.round(opticsObj[angle].h)}, ${Math.round(opticsObj[angle].s)}%, ${Math.round(opticsObj[angle].l)}%)`;
+};
 
-// 💡 확장 뷰어 3D 배경 렌더링
-const getInteractiveBackground = (opticsObj: any, lPos: any) => {
-  if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return '#f1f5f9';
+const getInteractiveBackground = (opticsObj: any, lPos: any, hasMetallic: boolean): React.CSSProperties => {
+  if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return { background: '#f1f5f9' };
   const viewAngleT = Math.max(0, Math.min(1, lPos.x / 100));
-  let activeColor = viewAngleT > 0.5 ? lerpColor(opticsObj.mid, opticsObj.face, (viewAngleT - 0.5) * 2) : lerpColor(opticsObj.flop, opticsObj.mid, viewAngleT * 2);
-  const baseColorStr = `hsl(${Math.round(activeColor.h)}, ${Math.round(activeColor.s)}%, ${Math.round(activeColor.l)}%)`;
+  
+  const lerpColorAdvanced = (c1: any, c2: any, t: number) => {
+      let d = c2.h - c1.h; if (d > 180) d -= 360; if (d < -180) d += 360;
+      let h = c1.h + d * t; if (h < 0) h += 360; if (h >= 360) h -= 360;
+      return { h, s: lerp(c1.s, c2.s, t), l: lerp(c1.l, c2.l, t) };
+  };
+
+  let activeBaseColor = viewAngleT > 0.5 ? lerpColorAdvanced(opticsObj.mid, opticsObj.face, (viewAngleT - 0.5) * 2) : lerpColorAdvanced(opticsObj.flop, opticsObj.mid, viewAngleT * 2);
+  const baseColorStr = `hsl(${Math.round(activeBaseColor.h)}, ${Math.round(activeBaseColor.s)}%, ${Math.round(activeBaseColor.l)}%)`;
+  
   const dist = Math.sqrt(Math.pow(lPos.x - 50, 2) + Math.pow(lPos.y - 50, 2)); 
   const normalizedDist = Math.min(1, dist / 70); 
   const highlightAlpha = lerp(0.6, 0.0, normalizedDist);
-  return `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, rgba(255,255,255,${highlightAlpha}) 0%, ${baseColorStr} ${lerp(20, 70, normalizedDist)}%, hsl(${Math.round(activeColor.h)}, ${Math.round(activeColor.s)}%, ${Math.round(activeColor.l * 0.4)}) 100%)`;
+  
+  const gradient = `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, rgba(255,255,255,${highlightAlpha}) 0%, ${baseColorStr} ${lerp(20, 70, normalizedDist)}%, hsl(${Math.round(activeBaseColor.h)}, ${Math.round(activeBaseColor.s)}%, ${Math.round(activeBaseColor.l * 0.4)}) 100%)`;
+
+  if (hasMetallic) {
+      const svgNoiseStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 5 -2" result="c"/><feSpecularLighting surfaceScale="3" specularConstant="1.5" specularExponent="30" lighting-color="#ffffff" in="c"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting></filter><rect width="100%" height="100%" filter="url(#f)" opacity="0.5"/></svg>`;
+      const encodedNoise = encodeURIComponent(svgNoiseStr);
+      return {
+          backgroundImage: `url("data:image/svg+xml,${encodedNoise}"), ${gradient}`,
+          backgroundBlendMode: 'screen, normal',
+          backgroundColor: baseColorStr
+      };
+  }
+  return { background: gradient };
 };
 
-
-// ==========================================
-// 💡 메인 APP 컴포넌트
-// ==========================================
 export default function App() {
-  const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "" }]);
-  const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "" }]);
+  const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', role: '코드 입력', adjustedWeight: "" }]);
+  const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', role: '코드 입력', adjustedWeight: "" }]);
   
-  const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
+  const [isThreeCoatMode, setIsThreeCoatMode] = useState(false);
   const [targetColorCode, setTargetColorCode] = useState('');
   
   const [totalBaseWeight, setTotalBaseWeight] = useState("0.00");
   const [totalPearlWeight, setTotalPearlWeight] = useState("0.00");
   const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
-  
   const [isBaseConfirmed, setIsBaseConfirmed] = useState(false);
-  const [scannedImage, setScannedImage] = useState<string | null>(null);
-  const [isScanning, setIsScanning] = useState(false);
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
 
-  // 💡 [에러 멸균] 필수 참조 변수 선언
+  const [scannedImage, setScannedImage] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
   const cameraInputRef = useRef<HTMLInputElement>(null);
-  const viewerRef = useRef<HTMLElement>(null);
+
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight'} | null>(null);
 
+  const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
   const [lightPos, setLightPos] = useState({ x: 50, y: 50 });
   const [isDraggingLight, setIsDraggingLight] = useState(false);
-  const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
+  const viewerRef = useRef<HTMLElement>(null);
+  const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
 
+  const [isBaseMetallic, setIsBaseMetallic] = useState(false);
+  const [isPearlMetallic, setIsPearlMetallic] = useState(false);
   const [baseOptics, setBaseOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
   const [pearlOptics, setPearlOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
   const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
-
-  // 💡 [6052 수지 계산 로직 변수]
-  const [isBaseMetallic, setIsBaseMetallic] = useState(false);
-  const [isPearlMetallic, setIsPearlMetallic] = useState(false);
 
   const tonersRef = useRef<any[]>([]);
   const pearlTonersRef = useRef<any[]>([]);
@@ -363,29 +317,26 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const baseTotal = toners.reduce((sum, t) => sum + (parseFloat(t.adjustedWeight) || 0), 0);
-    const pearlTotal = pearlToners.reduce((sum, t) => sum + (parseFloat(t.adjustedWeight) || 0), 0);
+    const baseTotalNum = toners.reduce((sum, t) => sum + (parseFloat(t.adjustedWeight) || 0), 0);
+    const pearlTotalNum = pearlToners.reduce((sum, t) => sum + (parseFloat(t.adjustedWeight) || 0), 0);
     
-    setTotalBaseWeight(baseTotal.toFixed(2));
-    setTotalPearlWeight(pearlTotal.toFixed(2));
-    setTotalFinalWeight((baseTotal + pearlTotal).toFixed(2));
+    setTotalBaseWeight(baseTotalNum.toFixed(2)); 
+    setTotalPearlWeight(pearlTotalNum.toFixed(2)); 
+    setTotalFinalWeight((baseTotalNum + pearlTotalNum).toFixed(2));
     
-    setBaseOptics(getOptics(toners, 'adjustedWeight'));
-    setPearlOptics(getOptics(pearlToners, 'adjustedWeight'));
-    
-    const activeToners = isThreeCoatMode ? [...toners, ...pearlToners] : toners;
-    setFinalOptics(getOptics(activeToners, 'adjustedWeight'));
+    setBaseOptics(getOptics(toners)); 
+    setPearlOptics(getOptics(pearlToners)); 
+    setFinalOptics(getOptics(isThreeCoatMode ? [...toners, ...pearlToners] : toners));
 
-    // 💡 메탈릭 여부 감지 (6052 계산용)
-    const checkMetallic = (list: any[]) => list.some(t => {
+    const checkMetallic = (tonerList: any[]) => tonerList.some(t => {
       const type = TONER_DB[t.code]?.type || '';
       return type !== 'solid' && type !== 'binder' && type !== '';
     });
+
     setIsBaseMetallic(checkMetallic(toners));
     setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
-  // 💡 [고속 타이핑 엔진] DOM 마운트 후 커서 자동 점프
   useEffect(() => {
     if (focusTarget) {
       setTimeout(() => {
@@ -406,93 +357,25 @@ export default function App() {
     setLightPos({ x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) });
   };
 
-  const handleClearAll = () => {
-    setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "" }]); 
-    setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "" }]); 
-    setTargetColorCode('');
-    setIsBaseConfirmed(false);
+  const getLightDirectionText = (x: number, y: number) => {
+    let angle = Math.round(110 - (x / 100) * 95); 
+    let pos = "센터 조명";
+    if (x > 70) pos = "우측면 (Face)"; else if (x < 30) pos = "좌측면 (Flop)";
+    if (y < 30) pos = `상단 ${pos}`; else if (y > 70) pos = `하단 ${pos}`;
+    return `[조명위치: ${pos}] 현재 관찰 각도: 약 ${angle}°`;
   };
 
-  // 💡 🚨[스캔 오류 해결]🚨 OCR 데이터를 화면 상태에 꽂아넣는 통합 파싱 엔진
-  const processNumbers = useCallback((nums: string[]) => {
-    let nextBase = [...tonersRef.current];
-    let nextPearl = [...pearlTonersRef.current];
-    let addedCount = 0;
-    let i = 0;
+  const handleClearAll = () => {
+    setToners([{ id: `b_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "" }]); 
+    setPearlToners([{ id: `p_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "" }]); 
+    setTargetColorCode(''); setIsBaseConfirmed(false); setScannedImage(null);
+  };
 
-    while (i < nums.length) {
-        let codeC = nums[i];
-        let isCode = !!TONER_DB[`WT ${codeC}`];
-
-        if (isCode) {
-            let finalCode = `WT ${codeC}`;
-            let weightC = nums[i+1];
-            
-            let finalWeight = "";
-            if (weightC && TONER_DB[`WT ${weightC}`]) {
-                finalWeight = ""; i++; 
-            } else if (weightC) {
-                let nextNum = nums[i+2];
-                if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !weightC.includes('.')) {
-                    finalWeight = `${weightC}.${nextNum}`; i += 3;
-                } else {
-                    finalWeight = weightC; i += 2;
-                }
-            } else { finalWeight = ""; i++; }
-
-            const isPearlLayer = isThreeCoatModeRef.current && (TONER_DB[finalCode].type === 'pearl' || TONER_DB[finalCode].type === 'xirallic');
-            const targetList = isPearlLayer ? nextPearl : nextBase;
-
-            const emptyIndex = targetList.findIndex(t => t.code === '' || (t.code === finalCode && t.adjustedWeight === ''));
-            if (emptyIndex !== -1) {
-                targetList[emptyIndex] = { ...targetList[emptyIndex], code: finalCode, adjustedWeight: finalWeight };
-            } else {
-                targetList.push({ id: `scan_${Date.now()}_${i}`, code: finalCode, adjustedWeight: finalWeight });
-            }
-            addedCount++;
-        } else {
-            let orphanWeight = codeC;
-            let nextNum = nums[i+1];
-            if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !orphanWeight.includes('.')) {
-                orphanWeight = `${orphanWeight}.${nextNum}`; i += 2;
-            } else { i++; }
-            
-            let found = false;
-            if (isThreeCoatModeRef.current) {
-                for (let j = nextPearl.length - 1; j >= 0; j--) {
-                    if (nextPearl[j].code !== '' && (!nextPearl[j].adjustedWeight || nextPearl[j].adjustedWeight === '')) {
-                        nextPearl[j] = { ...nextPearl[j], adjustedWeight: orphanWeight };
-                        found = true; break;
-                    }
-                }
-            }
-            if (!found) {
-                for (let j = nextBase.length - 1; j >= 0; j--) {
-                    if (nextBase[j].code !== '' && (!nextBase[j].adjustedWeight || nextBase[j].adjustedWeight === '')) {
-                        nextBase[j] = { ...nextBase[j], adjustedWeight: orphanWeight };
-                        found = true; break;
-                    }
-                }
-            }
-            if(found) addedCount++;
-        }
-    }
-    
-    if (addedCount > 0) {
-        setToners(nextBase);
-        setPearlToners(nextPearl);
-    } else {
-        alert("유효한 안료 번호(3~4자리)를 찾지 못했습니다.");
-    }
-  }, []);
-
-  // 💡 [사진 스캔 강화] 
+  // 💡 [사진 스캔 고도화] 
   const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
-    const imageUrl = URL.createObjectURL(file); 
-    setScannedImage(imageUrl); 
-    setIsScanning(true);
-
+    const imageUrl = URL.createObjectURL(file); setScannedImage(imageUrl); setIsScanning(true);
+    
     try {
       if (typeof window !== 'undefined' && (window as any).Tesseract) {
         const result = await (window as any).Tesseract.recognize(file, 'eng', { 
@@ -500,31 +383,101 @@ export default function App() {
             params: { tessedit_pageseg_mode: '6', tessedit_char_whitelist: '0123456789.WT ' }
         });
         const text = result.data.text;
+        
         let norm = text.replace(/:/g, '.').replace(/점/g, '.').replace(/\s*\.\s*/g, '.').replace(/[A-Za-z]/g, ' ');
         const nums = norm.match(/\d*\.\d+|\d+/g);
         
         if (nums && nums.length > 0) {
-            processNumbers(nums);
+            let addedCount = 0;
+            let i = 0;
+            
+            let nextBase = [...tonersRef.current];
+            let nextPearl = [...pearlTonersRef.current];
+
+            while (i < nums.length) {
+                let codeC = nums[i];
+                let isCode = !!TONER_DB[`WT ${codeC}`];
+
+                if (isCode) {
+                    let finalCode = `WT ${codeC}`;
+                    let weightC = nums[i+1];
+                    let finalWeight = "";
+
+                    if (weightC && TONER_DB[`WT ${weightC}`]) {
+                        finalWeight = ""; i++; 
+                    } else if (weightC) {
+                        let nextNum = nums[i+2];
+                        if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !weightC.includes('.')) {
+                            finalWeight = `${weightC}.${nextNum}`; i += 3;
+                        } else {
+                            finalWeight = weightC; i += 2;
+                        }
+                    } else { finalWeight = ""; i++; }
+
+                    const isPearlLayer = isThreeCoatModeRef.current && (TONER_DB[finalCode].type === 'pearl' || TONER_DB[finalCode].type === 'xirallic');
+                    const targetList = isPearlLayer ? nextPearl : nextBase;
+
+                    const emptyIndex = targetList.findIndex(t => t.code === '' || (t.code === finalCode && t.adjustedWeight === ''));
+                    if (emptyIndex !== -1) {
+                        targetList[emptyIndex] = { ...targetList[emptyIndex], code: finalCode, role: TONER_DB[finalCode].role, adjustedWeight: finalWeight };
+                    } else {
+                        targetList.push({ id: `scan_${Date.now()}_${i}`, code: finalCode, role: TONER_DB[finalCode].role, adjustedWeight: finalWeight });
+                    }
+                    addedCount++;
+                } else {
+                    let orphanWeight = codeC;
+                    let nextNum = nums[i+1];
+                    if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !orphanWeight.includes('.')) {
+                        orphanWeight = `${orphanWeight}.${nextNum}`; i += 2;
+                    } else { i++; }
+                    
+                    let found = false;
+                    if (isThreeCoatModeRef.current) {
+                        for (let j = nextPearl.length - 1; j >= 0; j--) {
+                            if (nextPearl[j].code !== '' && (!nextPearl[j].adjustedWeight || nextPearl[j].adjustedWeight === '')) {
+                                nextPearl[j] = { ...nextPearl[j], adjustedWeight: orphanWeight };
+                                found = true; break;
+                            }
+                        }
+                    }
+                    if (!found) {
+                        for (let j = nextBase.length - 1; j >= 0; j--) {
+                            if (nextBase[j].code !== '' && (!nextBase[j].adjustedWeight || nextBase[j].adjustedWeight === '')) {
+                                nextBase[j] = { ...nextBase[j], adjustedWeight: orphanWeight };
+                                found = true; break;
+                            }
+                        }
+                    }
+                }
+            }
+            setToners(nextBase);
+            setPearlToners(nextPearl);
+            
+            if (addedCount === 0) throw new Error("코드 인식 실패");
         } else { throw new Error("코드 인식 실패"); }
       } else { throw new Error("OCR 모듈 미적용"); }
     } catch (error) {
-      alert("스캔 실패: 화질 문제로 숫자를 찾지 못했습니다. 에디터에서 직접 기입해 주십시오.");
+      alert("스캔 실패: 밝고 선명한 곳에서 다시 촬영해 주십시오.");
     }
     setIsScanning(false);
   };
 
-  const handleWeightInputChange = (id: string, rawValue: string, isPearl = false) => {
-    let val = rawValue.replace(/[^0-9.]/g, ''); const parts = val.split('.');
+  const processWeightInput = (rawValue: string) => {
+    let val = rawValue.replace(/[^0-9.]/g, ''); 
+    const parts = val.split('.');
     if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
-    if (val === '') val = ''; 
-    else if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, '');
-    else if (val.startsWith('.')) val = '0' + val; 
-
-    if (isPearl) setPearlToners(pearlToners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
-    else setToners(toners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
+    if (val === '') return ''; 
+    if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, '');
+    if (val.startsWith('.')) val = '0' + val; 
+    return val;
   };
 
-  // 💡 [고속 타이핑 1] 코드 3자리 입력 시 즉시 그람(g)수로 커서 이동
+  const handleWeightInputChange = (id: string, rawValue: string, isPearl = false) => {
+    const cleanValue = processWeightInput(rawValue);
+    if (isPearl) setPearlToners(pearlToners.map(t => t.id === id ? { ...t, adjustedWeight: cleanValue } : t));
+    else setToners(toners.map(t => t.id === id ? { ...t, adjustedWeight: cleanValue } : t));
+  };
+
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
     const formattedCode = newCode.toUpperCase().trim(); 
     const setter = isPearl ? setPearlToners : setToners;
@@ -537,24 +490,23 @@ export default function App() {
             const testCode = `WT ${numMatch[0]}`;
             if (TONER_DB[testCode]) {
                 finalCode = testCode;
-                setFocusTarget({ id: id, type: 'weight' }); // 🔥 포커스 예약
+                setFocusTarget({ id: id, type: 'weight' }); 
             }
         }
-        return { ...toner, code: finalCode };
+        return { ...toner, code: finalCode, role: TONER_DB[finalCode]?.role || '코드 입력' };
       }
       return toner;
     }));
   };
 
-  // 💡 [고속 타이핑 2] 그람수(g) 완료 후 Enter 키 누르면 새 줄 추가 및 포커스 이동
   const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => {
       if (e.key === 'Enter') {
           e.preventDefault();
-          const newId = `new_${Date.now()}`; 
-          const newToner = { id: newId, code: '', adjustedWeight: "" };
+          const newId = `new_${Date.now()}`;
+          const newToner = { id: newId, code: '', role: '코드 입력', adjustedWeight: "" };
           if (isPearl) { setPearlToners([...pearlToners, newToner]); } 
           else { setToners([...toners, newToner]); }
-          setFocusTarget({ id: newId, type: 'code' }); // 🔥 새 코드 입력칸으로 점프
+          setFocusTarget({ id: newId, type: 'code' }); 
       }
   };
 
@@ -563,9 +515,20 @@ export default function App() {
     else setToners(toners.filter(t => t.id !== id));
   };
 
-  // 💡 [신규] 카카오톡 공유 기능
+  const quickEditWeight = (id: string, delta: number, isPearl: boolean) => {
+    const setter = isPearl ? setPearlToners : setToners;
+    setter(prev => prev.map(t => {
+      if(t.id === id) {
+         let current = parseFloat(t.adjustedWeight) || 0;
+         let newVal = Math.max(0, current + delta);
+         return { ...t, adjustedWeight: newVal.toFixed(1) };
+      }
+      return t;
+    }));
+  };
+
   const shareToKakao = () => {
-    const text = `[HI-TEC 배합 공유]\n컬러코드: ${targetColorCode || '미지정'}\n베이스 합계: ${totalBaseWeight}g\n펄 코트 합계: ${isThreeCoatMode ? totalPearlWeight + 'g' : 'N/A'}\n최종 총량: ${totalFinalWeight}g`;
+    const text = `[HI-TEC 배합 공유]\n컬러코드: ${targetColorCode || '미지정'}\n베이스 합계: ${totalBaseWeight}g\n펄 코트 합계: ${isThreeCoatMode ? totalPearlWeight + 'g' : '해당 없음'}\n최종 총량: ${totalFinalWeight}g`;
     if (typeof navigator !== 'undefined' && navigator.share) {
         navigator.share({ title: 'HI-TEC 배합 공유', text: text }).catch(console.error);
     } else {
@@ -594,7 +557,7 @@ export default function App() {
       {isScanning && (
         <div className="fixed inset-0 bg-slate-900/95 z-[200] flex flex-col items-center justify-center backdrop-blur-sm">
           <ScanLine className="text-blue-500 w-28 h-28 animate-pulse opacity-80 mb-4" />
-          <h2 className="text-white text-xl font-black">영수증 정밀 분석 중...</h2>
+          <h2 className="text-white text-xl font-black">숫자 헌팅 필터 가동 중...</h2>
         </div>
       )}
 
@@ -618,9 +581,7 @@ export default function App() {
             
             <div className="flex items-center space-x-1.5">
               <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} className="hidden" onChange={handleCameraCapture} />
-              <button onClick={() => cameraInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-md flex-1 items-center justify-center text-sm font-black shadow-md transition-colors flex">
-                <Camera size={18} className="mr-2" />시편 촬영
-              </button>
+              <button onClick={() => cameraInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-md flex-1 items-center justify-center text-sm font-black shadow-md transition-colors flex"><Camera size={18} className="mr-2" />시편 촬영</button>
             </div>
             
             <div className="flex items-center space-x-1.5">
@@ -698,7 +659,7 @@ export default function App() {
               })}
               <button onClick={() => {
                 const newId = `new_${Date.now()}`;
-                setToners([...toners, { id: newId, code: '', adjustedWeight: "" }]);
+                setToners([...toners, { id: newId, code: '', role: '코드 입력', adjustedWeight: "" }]);
                 setFocusTarget({ id: newId, type: 'code' });
               }} className="w-full py-2 border border-dashed rounded-lg text-slate-400 font-bold flex items-center justify-center space-x-1 text-xs hover:border-blue-500 transition-colors"><Plus size={14} /><span>베이스 안료 추가</span></button>
             </div>
@@ -747,7 +708,7 @@ export default function App() {
                 })}
                 <button onClick={() => {
                   const newId = `new_${Date.now()}`;
-                  setPearlToners([...pearlToners, { id: newId, code: '', adjustedWeight: "" }]);
+                  setPearlToners([...pearlToners, { id: newId, code: '', role: '코드 입력', adjustedWeight: "" }]);
                   setFocusTarget({ id: newId, type: 'code' });
                 }} className="w-full py-2.5 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-md text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-2 shadow-sm">
                   <Plus size={16} /><span>펄 조색제 추가</span>
@@ -756,7 +717,6 @@ export default function App() {
             )}
           </div>
           
-          {/* 💡 [복원] 6052 수지 자동 계산기 부활 */}
           <div className="p-3 bg-slate-800 text-slate-100 flex justify-between items-center shrink-0 rounded-b-xl lg:rounded-none">
              <div className="flex flex-col">
                  <div className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Total Formula</div>
@@ -780,11 +740,10 @@ export default function App() {
         {/* 💡 Right Column: Multi-View & 수성 안료 카탈로그 */}
         <div className="lg:col-span-5 flex flex-col h-full space-y-4">
           
-          {/* 💡 [복원] 확장 뷰어(Before/After) 버튼 포함된 렌더링창 */}
           <div className={`bg-white border ${isBaseConfirmed ? 'border-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.15)]' : 'border-slate-300'} rounded-xl p-4 shadow-xl flex-none transition-all duration-300`}>
             <h3 className="text-[15px] font-bold mb-3 flex justify-between items-center border-b border-slate-100 pb-2">
               <span className="flex items-center"><Layers className="text-blue-600 mr-2" size={18} />멀티 시각화 렌더링 비교</span>
-              <button onClick={() => { setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); }} className="text-xs px-3 py-1.5 rounded bg-slate-800 text-white font-bold flex items-center hover:bg-slate-700 shadow-md">
+              <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); }} className="text-xs px-3 py-1.5 rounded bg-slate-800 text-white font-bold flex items-center hover:bg-slate-700 shadow-md">
                   <Maximize size={12} className="mr-1.5"/>확장 뷰어 열기
               </button>
             </h3>
@@ -795,6 +754,7 @@ export default function App() {
                    <span className="text-[10px] text-slate-400 font-bold">{totalBaseWeight}g</span>
                  </div>
                  <div className={`h-12 rounded-lg border ${isBaseConfirmed ? 'border-slate-300' : 'border-slate-200 opacity-60'} relative overflow-hidden`} style={{ background: `radial-gradient(circle at 35% 35%, ${getColorString(baseOptics, 'face')} 0%, ${getColorString(baseOptics, 'mid')} 45%, ${getColorString(baseOptics, 'flop')} 100%)` }}>
+                   {baseOptics.isMetallic && <div className="metallic-flake opacity-50"></div>}
                  </div>
               </div>
 
@@ -805,6 +765,7 @@ export default function App() {
                      <span className="text-[10px] text-purple-400 font-bold">{totalPearlWeight}g</span>
                    </div>
                    <div className={`h-12 rounded-lg border ${isBaseConfirmed ? 'border-purple-300' : 'border-slate-200'} relative overflow-hidden`} style={{ background: isBaseConfirmed ? `radial-gradient(circle at 35% 35%, ${getColorString(pearlOptics, 'face')} 0%, ${getColorString(pearlOptics, 'mid')} 45%, ${getColorString(pearlOptics, 'flop')} 100%)` : '#f1f5f9' }}>
+                     {isBaseConfirmed && pearlOptics.isMetallic && <div className="metallic-flake opacity-70"></div>}
                    </div>
                 </div>
               )}
@@ -815,15 +776,16 @@ export default function App() {
                    <span className="text-[10px] text-blue-400 font-bold">{totalFinalWeight}g</span>
                  </div>
                  <div className={`h-16 rounded-lg border ${isBaseConfirmed ? 'border-blue-400' : 'border-slate-200'} relative overflow-hidden`} style={{ background: isBaseConfirmed ? `radial-gradient(circle at 35% 35%, ${getColorString(finalOptics, 'face')} 0%, ${getColorString(finalOptics, 'mid')} 45%, ${getColorString(finalOptics, 'flop')} 100%)` : '#f1f5f9' }}>
+                   {isBaseConfirmed && finalOptics.isMetallic && <div className="metallic-flake opacity-60"></div>}
                  </div>
               </div>
             </div>
           </div>
 
-          {/* 💡 [복원] 카탈로그 활용 가이드 이식 완료 */}
           <div className="flex-1 bg-slate-50 border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[400px]">
             <div className="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0">
                 <h3 className="text-white font-black text-base flex items-center"><BookOpen className="mr-2 text-blue-400" size={20}/>수성 안료 조색제 카탈로그</h3>
+                <Search size={16} className="text-slate-400" />
             </div>
             
             <div className="p-5 bg-white border-b border-slate-200 shrink-0">
@@ -869,41 +831,91 @@ export default function App() {
             <button onClick={() => setIsConfiguratorOpen(false)} className="p-2 bg-slate-800 hover:bg-red-500 rounded-full transition-colors border border-slate-700"><X size={24}/></button>
           </header>
           
-          <main ref={viewerRef} className="flex-1 p-6 flex gap-4 overflow-hidden items-center justify-center h-full relative cursor-crosshair w-full max-w-[1600px] mx-auto" onPointerDown={(e) => { setIsDraggingLight(true); handlePointerMove(e); }} onPointerMove={handlePointerMove} onPointerUp={() => setIsDraggingLight(false)} onPointerLeave={() => setIsDraggingLight(false)}>
-             <div className="absolute z-50 flex items-center justify-center transition-transform duration-75 pointer-events-none" style={{ left: `${lightPos.x}%`, top: `${lightPos.y}%`, transform: 'translate(-50%, -50%)' }}>
-                <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(255,255,255,0.8)] backdrop-blur-sm border border-white/40 animate-pulse">
-                    <Sun className="text-yellow-100 drop-shadow-[0_0_15px_rgba(255,255,255,1)]" size={40} />
+          <div className="w-full bg-slate-900 border-b border-slate-700 p-3 overflow-x-auto flex gap-3 items-center custom-scrollbar shrink-0 shadow-xl">
+             <div className="text-[10px] font-black text-blue-400 bg-blue-900/30 px-2 py-1 rounded border border-blue-800/50 shrink-0 mr-1 text-center leading-tight">베이스<br/>수정</div>
+             {toners.filter(t => t.code).map(t => (
+                <div key={t.id} className="flex flex-col bg-slate-800 border border-slate-600 rounded p-2 shrink-0 min-w-[240px] items-center shadow-inner">
+                   <span className="text-[11px] font-bold text-slate-300 mb-2">{t.code}</span>
+                   
+                   <div className="flex items-center space-x-1 w-full justify-between">
+                      <div className="flex space-x-1">
+                        <button onClick={() => quickEditWeight(t.id, -10, false)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">-10</button>
+                        <button onClick={() => quickEditWeight(t.id, -1, false)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">-1</button>
+                        <button onClick={() => quickEditWeight(t.id, -0.1, false)} className="bg-red-900/50 hover:bg-red-500 text-red-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-red-800/50">-0.1</button>
+                      </div>
+                      
+                      <div className="flex items-center px-1">
+                         <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, false)} placeholder="" className="w-10 text-center bg-transparent text-sm font-black text-white outline-none" />
+                         <span className="text-slate-400 text-[10px] font-bold">g</span>
+                      </div>
+                      
+                      <div className="flex space-x-1">
+                        <button onClick={() => quickEditWeight(t.id, 0.1, false)} className="bg-blue-900/50 hover:bg-blue-500 text-blue-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-blue-800/50">+0.1</button>
+                        <button onClick={() => quickEditWeight(t.id, 1, false)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">+1</button>
+                        <button onClick={() => quickEditWeight(t.id, 10, false)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">+10</button>
+                      </div>
+                   </div>
                 </div>
-             </div>
-
-             <div className="flex-1 h-[85%] rounded-[2rem] border border-slate-700 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] transition-all duration-75"
-                  style={{ background: getInteractiveBackground(baseOptics, lightPos) }}>
-                <div className="absolute top-6 left-6 bg-black/80 px-4 py-2 rounded-xl font-bold text-sm border border-slate-600 text-slate-200 shadow-lg">A. 베이스 코트 (Ground)</div>
-             </div>
-             
+             ))}
              {isThreeCoatMode && (
                <>
-                 <div className="text-slate-600 pointer-events-none shrink-0"><ChevronRight size={32} /></div>
-                 <div className="flex-1 h-[85%] rounded-[2rem] border border-purple-500 relative overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-75"
-                      style={{ background: getInteractiveBackground(pearlOptics, lightPos) }}>
-                    <div className="absolute top-6 left-6 bg-purple-900/90 px-4 py-2 rounded-xl font-bold text-sm border border-purple-400 text-white shadow-lg">B. 펄 코트 (Mid-coat)</div>
-                 </div>
+                 <div className="w-px h-12 bg-slate-700 mx-2 shrink-0"></div>
+                 <div className="text-[10px] font-black text-purple-400 bg-purple-900/30 px-2 py-1 rounded border border-purple-800/50 shrink-0 mr-1 text-center leading-tight">펄 코트<br/>수정</div>
+                 {pearlToners.filter(t => t.code).map(t => (
+                    <div key={t.id} className="flex flex-col bg-slate-800 border border-slate-600 rounded p-2 shrink-0 min-w-[240px] items-center shadow-inner">
+                       <span className="text-[11px] font-bold text-purple-300 mb-2">{t.code}</span>
+                       <div className="flex items-center space-x-1 w-full justify-between">
+                          <div className="flex space-x-1">
+                            <button onClick={() => quickEditWeight(t.id, -10, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">-10</button>
+                            <button onClick={() => quickEditWeight(t.id, -1, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">-1</button>
+                            <button onClick={() => quickEditWeight(t.id, -0.1, true)} className="bg-red-900/50 hover:bg-red-500 text-red-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-red-800/50">-0.1</button>
+                          </div>
+                          
+                          <div className="flex items-center px-1">
+                             <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, true)} placeholder="" className="w-10 text-center bg-transparent text-sm font-black text-white outline-none" />
+                             <span className="text-slate-400 text-[10px] font-bold">g</span>
+                          </div>
+                          
+                          <div className="flex space-x-1">
+                            <button onClick={() => quickEditWeight(t.id, 0.1, true)} className="bg-purple-900/50 hover:bg-purple-500 text-purple-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-purple-800/50">+0.1</button>
+                            <button onClick={() => quickEditWeight(t.id, 1, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">+1</button>
+                            <button onClick={() => quickEditWeight(t.id, 10, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">+10</button>
+                          </div>
+                       </div>
+                    </div>
+                 ))}
                </>
              )}
+          </div>
 
-             <div className="text-slate-600 pointer-events-none shrink-0"><ChevronRight size={32} /></div>
-
-             <div className="flex-1 h-[85%] rounded-[2rem] border border-blue-500 relative overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.4)] transition-all duration-75"
-                  style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
-                <div className="absolute top-6 left-6 bg-blue-900/90 px-4 py-2 rounded-xl font-bold text-sm border border-blue-400 text-white shadow-lg">{isThreeCoatMode ? 'C. 최종 3코트 (Base + Pearl)' : 'B. 최종 렌더링 (Base Only)'}</div>
+          <main ref={viewerRef} className="flex-1 p-3 flex flex-col md:flex-row gap-4 overflow-hidden items-center justify-center relative cursor-crosshair w-full max-w-[1600px] mx-auto" onPointerDown={(e) => { setIsDraggingLight(true); handlePointerMove(e); }} onPointerMove={handlePointerMove} onPointerUp={() => setIsDraggingLight(false)} onPointerLeave={() => setIsDraggingLight(false)}>
+             
+             <div className="absolute z-50 flex items-center justify-center pointer-events-none" style={{ left: `${lightPos.x}%`, top: `${lightPos.y}%`, transform: 'translate(-50%, -50%)' }}>
+                <div className="w-14 h-16 bg-white/10 rounded-full flex items-center justify-center shadow-[0_0_50px_#fff] border border-white/30"><Sun className="text-yellow-100" size={28} /></div>
              </div>
              
-             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex flex-col items-center bg-slate-900/90 p-4 rounded-2xl border border-slate-700 backdrop-blur-md z-50 shadow-2xl">
-                <span className="text-xs text-blue-400 font-bold mb-3 uppercase tracking-wider animate-pulse flex items-center"><Sun size={14} className="mr-1"/>빈 공간을 드래그하여 광원을 유기적으로 움직여 보세요</span>
-                <div className="flex space-x-3">
-                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 50, y: 50}); }} className="px-6 py-2.5 rounded-xl font-bold uppercase transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-600 hover:border-blue-400">정면 (15°)</button>
-                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 25, y: 25}); }} className="px-6 py-2.5 rounded-xl font-bold uppercase transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-600 hover:border-blue-400">중면 (45°)</button>
-                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 5, y: 5}); }} className="px-6 py-2.5 rounded-xl font-bold uppercase transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-600 hover:border-blue-400">측면 (110°)</button>
+             <div className="w-full md:flex-1 h-1/2 md:h-[80%] rounded-2xl border border-slate-600 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)]" style={getInteractiveBackground(originalFinalOptics, lightPos)}>
+                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                {originalFinalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
+                <div className="absolute top-3 left-3 bg-black/80 px-3 py-1.5 rounded-lg text-xs font-black text-slate-300 border border-slate-700 shadow-md">A. 원본 배합 (변경 전)</div>
+             </div>
+             
+             <div className="text-slate-600 pointer-events-none shrink-0 hidden md:block"><ChevronRight size={32} /></div>
+             
+             <div className="w-full md:flex-1 h-1/2 md:h-[80%] rounded-2xl border-2 border-blue-500 relative overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.3)]" style={getInteractiveBackground(finalOptics, lightPos)}>
+                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                {finalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
+                <div className="absolute top-3 left-3 bg-blue-900/90 px-3 py-1.5 rounded-lg text-xs font-black text-white border border-blue-400 shadow-md flex items-center">
+                   <Zap size={14} className="mr-1.5 text-yellow-300 animate-pulse"/> B. 실시간 시뮬레이션 (변경 후)
+                </div>
+             </div>
+             
+             <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex flex-col items-center bg-slate-900/90 p-2.5 rounded-xl border border-slate-700 w-[92%] sm:w-auto shadow-2xl">
+                <span className="text-[10px] text-blue-400 font-bold text-center leading-tight">화면을 드래그하면 원본과 수정본의 반사광을 동시에 비교할 수 있습니다.</span>
+                <div className="flex space-x-2 mt-2">
+                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x:50, y:50}); }} className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-[10px] font-bold whitespace-nowrap transition-colors">정면 (Face 15°)</button>
+                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x:25, y:25}); }} className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-[10px] font-bold whitespace-nowrap transition-colors">중면 (Mid 45°)</button>
+                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x:5, y:5}); }} className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-[10px] font-bold whitespace-nowrap transition-colors">측면 (Flop 110°)</button>
                 </div>
              </div>
           </main>
@@ -945,6 +957,10 @@ export default function App() {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
         .clean-number-input { font-variant-numeric: tabular-nums; -webkit-text-fill-color: #0f172a; }
+        .metallic-flake {
+          position: absolute; inset: 0; pointer-events: none; z-index: 1; mix-blend-mode: color-dodge;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
       `}} />
     </div>
   );
