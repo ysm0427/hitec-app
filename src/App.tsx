@@ -4,7 +4,7 @@ import {
   Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search
 } from 'lucide-react';
 
-// 💡 1. 공식 안료 데이터베이스
+// 💡 1. 공식 안료 데이터베이스 (100% 원문 복원)
 const TONER_DB: Record<string, { role: string, desc: string, type: string, face: string, flop: string }> = {
   'WT 144': { role: '그리니쉬 블루', desc: '녹색을 띠는 청색 조색제. WT346 대체 안료임. (WT346 : WT144 = 1 : 0.9)', type: 'solid', face: '#0284c7', flop: '#0c4a6e' },
   'WT 154': { role: '블루 이펙트', desc: '청색으로 착색된 광휘형 알루미늄 조색제. 입자의 반짝임이 좋으며, 채도가 높고 입자감이 좋은 청색계열의 컬러에 사용됨.', type: 'silver_fine', face: '#3b82f6', flop: '#1e3a8a' },
@@ -101,7 +101,7 @@ const TONER_DB: Record<string, { role: string, desc: string, type: string, face:
   'WT 3080': { role: '스페셜 애디티브', desc: '도막 보정 및 흐름 방지 첨가제', type: 'binder', face: '#ffffff', flop: '#ffffff' }
 };
 
-// 💡 1-2. 카탈로그 데이터 분류
+// 💡 1-2. 카탈로그 라벨 분류
 const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
   let labelCategory = "일반 특성";
   let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
@@ -139,11 +139,13 @@ const isTonerMetallic = (role: string) => {
     return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스');
 }
 
-// 💡 🚨[최적화 캐싱 엔진]🚨
-// 컴포넌트 내부에서 매번 SVG를 렌더링하던 부하를 없애고 캐싱을 활용해 화면을 가볍게 만듭니다.
+// 💡 🚨[성능 최적화 코어]🚨 3D 질감(SVG) 렌더링 캐싱 엔진
 const textureCache: Record<string, React.CSSProperties> = {};
 const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
-    if (!isMetallic || type === 'binder' || type === 'solid') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
+    if (!isMetallic || type === 'binder' || type === 'solid') {
+        return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
+    }
+    
     const key = `${type}_${faceColor}_${flopColor}`;
     if (textureCache[key]) return textureCache[key];
 
@@ -163,6 +165,7 @@ const getCachedTexture = (type: string, faceColor: string, flopColor: string, is
       backgroundBlendMode: 'overlay, normal' as any,
       boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)'
     };
+    
     textureCache[key] = result;
     return result;
 };
@@ -191,7 +194,6 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
   }
 };
 
-// 💡 🚨[화이트 화면 멸균 조치]🚨 t.role을 직접 찾지 않고 DB를 참조하도록 강제 방어
 const getOptics = (tonersList: any[]) => {
   const colorToners = tonersList.filter(t => t.code && TONER_DB[t.code]);
   const sumW = colorToners.reduce((sum, t) => sum + (parseFloat(t.adjustedWeight) || 0), 0);
@@ -232,8 +234,9 @@ const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
   return `hsl(${Math.round(opticsObj[angle].h)}, ${Math.round(opticsObj[angle].s)}%, ${Math.round(opticsObj[angle].l)}%)`;
 };
 
-const getInteractiveBackground = (opticsObj: any, lPos: any, hasMetallic: boolean): React.CSSProperties => {
-  if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return { background: '#f1f5f9' };
+// 💡 🚨[에러 원천 차단]🚨 매개변수 2개를 명확히 받는 함수로 확정
+const getInteractiveBackground = (opticsObj: any, lPos: any) => {
+  if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return '#f1f5f9';
   const viewAngleT = Math.max(0, Math.min(1, lPos.x / 100));
   
   const lerpColorAdvanced = (c1: any, c2: any, t: number) => {
@@ -242,59 +245,55 @@ const getInteractiveBackground = (opticsObj: any, lPos: any, hasMetallic: boolea
       return { h, s: lerp(c1.s, c2.s, t), l: lerp(c1.l, c2.l, t) };
   };
 
-  let activeBaseColor = viewAngleT > 0.5 ? lerpColorAdvanced(opticsObj.mid, opticsObj.face, (viewAngleT - 0.5) * 2) : lerpColorAdvanced(opticsObj.flop, opticsObj.mid, viewAngleT * 2);
+  let activeBaseColor = viewAngleT > 0.5 
+      ? lerpColorAdvanced(opticsObj.mid, opticsObj.face, (viewAngleT - 0.5) * 2) 
+      : lerpColorAdvanced(opticsObj.flop, opticsObj.mid, viewAngleT * 2);
+      
   const baseColorStr = `hsl(${Math.round(activeBaseColor.h)}, ${Math.round(activeBaseColor.s)}%, ${Math.round(activeBaseColor.l)}%)`;
   
   const dist = Math.sqrt(Math.pow(lPos.x - 50, 2) + Math.pow(lPos.y - 50, 2)); 
   const normalizedDist = Math.min(1, dist / 70); 
   const highlightAlpha = lerp(0.6, 0.0, normalizedDist);
   
-  const gradient = `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, rgba(255,255,255,${highlightAlpha}) 0%, ${baseColorStr} ${lerp(20, 70, normalizedDist)}%, hsl(${Math.round(activeBaseColor.h)}, ${Math.round(activeBaseColor.s)}%, ${Math.round(activeBaseColor.l * 0.4)}) 100%)`;
-
-  if (hasMetallic) {
-      const svgNoiseStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 5 -2" result="c"/><feSpecularLighting surfaceScale="3" specularConstant="1.5" specularExponent="30" lighting-color="#ffffff" in="c"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting></filter><rect width="100%" height="100%" filter="url(#f)" opacity="0.5"/></svg>`;
-      const encodedNoise = encodeURIComponent(svgNoiseStr);
-      return {
-          backgroundImage: `url("data:image/svg+xml,${encodedNoise}"), ${gradient}`,
-          backgroundBlendMode: 'screen, normal',
-          backgroundColor: baseColorStr
-      };
-  }
-  return { background: gradient };
+  return `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, rgba(255,255,255,${highlightAlpha}) 0%, ${baseColorStr} ${lerp(20, 70, normalizedDist)}%, hsl(${Math.round(activeBaseColor.h)}, ${Math.round(activeBaseColor.s)}%, ${Math.round(activeBaseColor.l * 0.4)}) 100%)`;
 };
 
+// ==========================================
+// 💡 메인 APP 컴포넌트
+// ==========================================
 export default function App() {
-  const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', role: '코드 입력', adjustedWeight: "" }]);
-  const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', role: '코드 입력', adjustedWeight: "" }]);
+  const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "" }]);
+  const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "" }]);
   
-  const [isThreeCoatMode, setIsThreeCoatMode] = useState(false);
+  const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
   const [targetColorCode, setTargetColorCode] = useState('');
   
   const [totalBaseWeight, setTotalBaseWeight] = useState("0.00");
   const [totalPearlWeight, setTotalPearlWeight] = useState("0.00");
   const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
+  
   const [isBaseConfirmed, setIsBaseConfirmed] = useState(false);
-  const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
-
   const [scannedImage, setScannedImage] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
 
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const viewerRef = useRef<HTMLElement>(null);
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight'} | null>(null);
 
-  const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
   const [lightPos, setLightPos] = useState({ x: 50, y: 50 });
   const [isDraggingLight, setIsDraggingLight] = useState(false);
-  const viewerRef = useRef<HTMLElement>(null);
-  const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
+  const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
 
-  const [isBaseMetallic, setIsBaseMetallic] = useState(false);
-  const [isPearlMetallic, setIsPearlMetallic] = useState(false);
   const [baseOptics, setBaseOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
   const [pearlOptics, setPearlOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
   const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
+
+  // 💡 [6052 수지 계산 로직 변수]
+  const [isBaseMetallic, setIsBaseMetallic] = useState(false);
+  const [isPearlMetallic, setIsPearlMetallic] = useState(false);
 
   const tonersRef = useRef<any[]>([]);
   const pearlTonersRef = useRef<any[]>([]);
@@ -317,26 +316,27 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const baseTotalNum = toners.reduce((sum, t) => sum + (parseFloat(t.adjustedWeight) || 0), 0);
-    const pearlTotalNum = pearlToners.reduce((sum, t) => sum + (parseFloat(t.adjustedWeight) || 0), 0);
+    const baseTotal = toners.reduce((sum, t) => sum + (parseFloat(t.adjustedWeight) || 0), 0);
+    const pearlTotal = pearlToners.reduce((sum, t) => sum + (parseFloat(t.adjustedWeight) || 0), 0);
     
-    setTotalBaseWeight(baseTotalNum.toFixed(2)); 
-    setTotalPearlWeight(pearlTotalNum.toFixed(2)); 
-    setTotalFinalWeight((baseTotalNum + pearlTotalNum).toFixed(2));
+    setTotalBaseWeight(baseTotal.toFixed(2));
+    setTotalPearlWeight(pearlTotal.toFixed(2));
+    setTotalFinalWeight((baseTotal + pearlTotal).toFixed(2));
     
-    setBaseOptics(getOptics(toners)); 
-    setPearlOptics(getOptics(pearlToners)); 
+    setBaseOptics(getOptics(toners));
+    setPearlOptics(getOptics(pearlToners));
     setFinalOptics(getOptics(isThreeCoatMode ? [...toners, ...pearlToners] : toners));
 
-    const checkMetallic = (tonerList: any[]) => tonerList.some(t => {
+    // 💡 메탈릭 여부 감지 (6052 계산용)
+    const checkMetallic = (list: any[]) => list.some(t => {
       const type = TONER_DB[t.code]?.type || '';
       return type !== 'solid' && type !== 'binder' && type !== '';
     });
-
     setIsBaseMetallic(checkMetallic(toners));
     setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
+  // 💡 [고속 타이핑 엔진] DOM 마운트 후 커서 자동 점프
   useEffect(() => {
     if (focusTarget) {
       setTimeout(() => {
@@ -357,127 +357,121 @@ export default function App() {
     setLightPos({ x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) });
   };
 
-  const getLightDirectionText = (x: number, y: number) => {
-    let angle = Math.round(110 - (x / 100) * 95); 
-    let pos = "센터 조명";
-    if (x > 70) pos = "우측면 (Face)"; else if (x < 30) pos = "좌측면 (Flop)";
-    if (y < 30) pos = `상단 ${pos}`; else if (y > 70) pos = `하단 ${pos}`;
-    return `[조명위치: ${pos}] 현재 관찰 각도: 약 ${angle}°`;
-  };
-
   const handleClearAll = () => {
-    setToners([{ id: `b_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "" }]); 
-    setPearlToners([{ id: `p_${Date.now()}`, code: '', role: '코드 입력', adjustedWeight: "" }]); 
-    setTargetColorCode(''); setIsBaseConfirmed(false); setScannedImage(null);
+    setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "" }]); 
+    setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "" }]); 
+    setTargetColorCode('');
+    setIsBaseConfirmed(false);
   };
 
-  // 💡 [사진 스캔 고도화] 
+  // 💡 [사진 스캔 강화] 추출 데이터 즉시 상태 반영 엔진
+  const processNumbers = useCallback((nums: string[]) => {
+    let nextBase = [...tonersRef.current];
+    let nextPearl = [...pearlTonersRef.current];
+    let addedCount = 0;
+    let i = 0;
+
+    while (i < nums.length) {
+        let codeC = nums[i];
+        let isCode = !!TONER_DB[`WT ${codeC}`];
+
+        if (isCode) {
+            let finalCode = `WT ${codeC}`;
+            let weightC = nums[i+1];
+            
+            let finalWeight = "";
+            if (weightC && TONER_DB[`WT ${weightC}`]) {
+                finalWeight = ""; i++; 
+            } else if (weightC) {
+                let nextNum = nums[i+2];
+                if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !weightC.includes('.')) {
+                    finalWeight = `${weightC}.${nextNum}`; i += 3;
+                } else {
+                    finalWeight = weightC; i += 2;
+                }
+            } else { finalWeight = ""; i++; }
+
+            const isPearlLayer = isThreeCoatModeRef.current && (TONER_DB[finalCode].type === 'pearl' || TONER_DB[finalCode].type === 'xirallic');
+            const targetList = isPearlLayer ? nextPearl : nextBase;
+
+            const emptyIndex = targetList.findIndex(t => t.code === '' || (t.code === finalCode && t.adjustedWeight === ''));
+            if (emptyIndex !== -1) {
+                targetList[emptyIndex] = { ...targetList[emptyIndex], code: finalCode, adjustedWeight: finalWeight };
+            } else {
+                targetList.push({ id: `scan_${Date.now()}_${i}`, code: finalCode, adjustedWeight: finalWeight });
+            }
+            addedCount++;
+        } else {
+            let orphanWeight = codeC;
+            let nextNum = nums[i+1];
+            if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !orphanWeight.includes('.')) {
+                orphanWeight = `${orphanWeight}.${nextNum}`; i += 2;
+            } else { i++; }
+            
+            let found = false;
+            if (isThreeCoatModeRef.current) {
+                for (let j = nextPearl.length - 1; j >= 0; j--) {
+                    if (nextPearl[j].code !== '' && (!nextPearl[j].adjustedWeight || nextPearl[j].adjustedWeight === '')) {
+                        nextPearl[j] = { ...nextPearl[j], adjustedWeight: orphanWeight };
+                        found = true; break;
+                    }
+                }
+            }
+            if (!found) {
+                for (let j = nextBase.length - 1; j >= 0; j--) {
+                    if (nextBase[j].code !== '' && (!nextBase[j].adjustedWeight || nextBase[j].adjustedWeight === '')) {
+                        nextBase[j] = { ...nextBase[j], adjustedWeight: orphanWeight };
+                        found = true; break;
+                    }
+                }
+            }
+            if(found) addedCount++;
+        }
+    }
+    // 상태 강제 갱신
+    setToners(nextBase);
+    setPearlToners(nextPearl);
+  }, []);
+
   const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
-    const imageUrl = URL.createObjectURL(file); setScannedImage(imageUrl); setIsScanning(true);
+    const imageUrl = URL.createObjectURL(file); 
+    setScannedImage(imageUrl); 
+    setIsScanning(true);
     
     try {
       if (typeof window !== 'undefined' && (window as any).Tesseract) {
+        // psm 6: 삐뚤어진 블록 스캔 향상, whitelist: 오인식 방지
         const result = await (window as any).Tesseract.recognize(file, 'eng', { 
             logger: (m: any) => console.log(m),
             params: { tessedit_pageseg_mode: '6', tessedit_char_whitelist: '0123456789.WT ' }
         });
         const text = result.data.text;
-        
         let norm = text.replace(/:/g, '.').replace(/점/g, '.').replace(/\s*\.\s*/g, '.').replace(/[A-Za-z]/g, ' ');
         const nums = norm.match(/\d*\.\d+|\d+/g);
         
         if (nums && nums.length > 0) {
-            let addedCount = 0;
-            let i = 0;
-            
-            let nextBase = [...tonersRef.current];
-            let nextPearl = [...pearlTonersRef.current];
-
-            while (i < nums.length) {
-                let codeC = nums[i];
-                let isCode = !!TONER_DB[`WT ${codeC}`];
-
-                if (isCode) {
-                    let finalCode = `WT ${codeC}`;
-                    let weightC = nums[i+1];
-                    let finalWeight = "";
-
-                    if (weightC && TONER_DB[`WT ${weightC}`]) {
-                        finalWeight = ""; i++; 
-                    } else if (weightC) {
-                        let nextNum = nums[i+2];
-                        if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !weightC.includes('.')) {
-                            finalWeight = `${weightC}.${nextNum}`; i += 3;
-                        } else {
-                            finalWeight = weightC; i += 2;
-                        }
-                    } else { finalWeight = ""; i++; }
-
-                    const isPearlLayer = isThreeCoatModeRef.current && (TONER_DB[finalCode].type === 'pearl' || TONER_DB[finalCode].type === 'xirallic');
-                    const targetList = isPearlLayer ? nextPearl : nextBase;
-
-                    const emptyIndex = targetList.findIndex(t => t.code === '' || (t.code === finalCode && t.adjustedWeight === ''));
-                    if (emptyIndex !== -1) {
-                        targetList[emptyIndex] = { ...targetList[emptyIndex], code: finalCode, role: TONER_DB[finalCode].role, adjustedWeight: finalWeight };
-                    } else {
-                        targetList.push({ id: `scan_${Date.now()}_${i}`, code: finalCode, role: TONER_DB[finalCode].role, adjustedWeight: finalWeight });
-                    }
-                    addedCount++;
-                } else {
-                    let orphanWeight = codeC;
-                    let nextNum = nums[i+1];
-                    if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !orphanWeight.includes('.')) {
-                        orphanWeight = `${orphanWeight}.${nextNum}`; i += 2;
-                    } else { i++; }
-                    
-                    let found = false;
-                    if (isThreeCoatModeRef.current) {
-                        for (let j = nextPearl.length - 1; j >= 0; j--) {
-                            if (nextPearl[j].code !== '' && (!nextPearl[j].adjustedWeight || nextPearl[j].adjustedWeight === '')) {
-                                nextPearl[j] = { ...nextPearl[j], adjustedWeight: orphanWeight };
-                                found = true; break;
-                            }
-                        }
-                    }
-                    if (!found) {
-                        for (let j = nextBase.length - 1; j >= 0; j--) {
-                            if (nextBase[j].code !== '' && (!nextBase[j].adjustedWeight || nextBase[j].adjustedWeight === '')) {
-                                nextBase[j] = { ...nextBase[j], adjustedWeight: orphanWeight };
-                                found = true; break;
-                            }
-                        }
-                    }
-                }
-            }
-            setToners(nextBase);
-            setPearlToners(nextPearl);
-            
-            if (addedCount === 0) throw new Error("코드 인식 실패");
+            processNumbers(nums);
         } else { throw new Error("코드 인식 실패"); }
       } else { throw new Error("OCR 모듈 미적용"); }
     } catch (error) {
-      alert("스캔 실패: 밝고 선명한 곳에서 다시 촬영해 주십시오.");
+      alert("스캔 실패: 화질 문제로 숫자를 찾지 못했습니다. 직접 입력해 주세요.");
     }
     setIsScanning(false);
   };
 
-  const processWeightInput = (rawValue: string) => {
-    let val = rawValue.replace(/[^0-9.]/g, ''); 
-    const parts = val.split('.');
-    if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
-    if (val === '') return ''; 
-    if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, '');
-    if (val.startsWith('.')) val = '0' + val; 
-    return val;
-  };
-
   const handleWeightInputChange = (id: string, rawValue: string, isPearl = false) => {
-    const cleanValue = processWeightInput(rawValue);
-    if (isPearl) setPearlToners(pearlToners.map(t => t.id === id ? { ...t, adjustedWeight: cleanValue } : t));
-    else setToners(toners.map(t => t.id === id ? { ...t, adjustedWeight: cleanValue } : t));
+    let val = rawValue.replace(/[^0-9.]/g, ''); const parts = val.split('.');
+    if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
+    if (val === '') val = ''; 
+    else if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, '');
+    else if (val.startsWith('.')) val = '0' + val; 
+
+    if (isPearl) setPearlToners(pearlToners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
+    else setToners(toners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
   };
 
+  // 💡 [고속 타이핑 1] 코드 3자리 입력 시 즉시 그람(g)수로 커서 이동
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
     const formattedCode = newCode.toUpperCase().trim(); 
     const setter = isPearl ? setPearlToners : setToners;
@@ -490,23 +484,24 @@ export default function App() {
             const testCode = `WT ${numMatch[0]}`;
             if (TONER_DB[testCode]) {
                 finalCode = testCode;
-                setFocusTarget({ id: id, type: 'weight' }); 
+                setFocusTarget({ id: id, type: 'weight' }); // 🔥 포커스 예약
             }
         }
-        return { ...toner, code: finalCode, role: TONER_DB[finalCode]?.role || '코드 입력' };
+        return { ...toner, code: finalCode };
       }
       return toner;
     }));
   };
 
+  // 💡 [고속 타이핑 2] 그람수(g) 완료 후 Enter 키 누르면 새 줄 추가 및 포커스 이동
   const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => {
       if (e.key === 'Enter') {
           e.preventDefault();
-          const newId = `new_${Date.now()}`;
-          const newToner = { id: newId, code: '', role: '코드 입력', adjustedWeight: "" };
+          const newId = `new_${Date.now()}`; 
+          const newToner = { id: newId, code: '', adjustedWeight: "" };
           if (isPearl) { setPearlToners([...pearlToners, newToner]); } 
           else { setToners([...toners, newToner]); }
-          setFocusTarget({ id: newId, type: 'code' }); 
+          setFocusTarget({ id: newId, type: 'code' }); // 🔥 새 코드 입력칸으로 점프
       }
   };
 
@@ -515,18 +510,7 @@ export default function App() {
     else setToners(toners.filter(t => t.id !== id));
   };
 
-  const quickEditWeight = (id: string, delta: number, isPearl: boolean) => {
-    const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(t => {
-      if(t.id === id) {
-         let current = parseFloat(t.adjustedWeight) || 0;
-         let newVal = Math.max(0, current + delta);
-         return { ...t, adjustedWeight: newVal.toFixed(1) };
-      }
-      return t;
-    }));
-  };
-
+  // 💡 [공유] 카카오톡 기능
   const shareToKakao = () => {
     const text = `[HI-TEC 배합 공유]\n컬러코드: ${targetColorCode || '미지정'}\n베이스 합계: ${totalBaseWeight}g\n펄 코트 합계: ${isThreeCoatMode ? totalPearlWeight + 'g' : '해당 없음'}\n최종 총량: ${totalFinalWeight}g`;
     if (typeof navigator !== 'undefined' && navigator.share) {
@@ -545,7 +529,7 @@ export default function App() {
       {scannedImage && (
         <div className="bg-slate-900 border-b-4 border-blue-500 shadow-2xl z-50 p-2 md:p-4 sticky top-0 animate-in slide-in-from-top-10">
           <div className="flex justify-between items-center mb-2 px-2 max-w-[1600px] mx-auto">
-            <h2 className="text-white text-sm font-bold flex items-center"><ImageIcon className="mr-2 text-blue-400" size={18}/> 사진 고속 참조 모드</h2>
+            <h2 className="text-white text-sm font-bold flex items-center"><ImageIcon className="mr-2 text-blue-400" size={18}/> 시편 고속 참조 모드</h2>
             <button onClick={() => setScannedImage(null)} className="text-slate-300 hover:text-white bg-slate-800 p-1.5 rounded-full"><X size={18} /></button>
           </div>
           <div className="w-full max-h-[25vh] overflow-auto rounded-lg border border-slate-700 bg-black flex justify-center max-w-[1600px] mx-auto">
@@ -581,7 +565,9 @@ export default function App() {
             
             <div className="flex items-center space-x-1.5">
               <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} className="hidden" onChange={handleCameraCapture} />
-              <button onClick={() => cameraInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-md flex-1 items-center justify-center text-sm font-black shadow-md transition-colors flex"><Camera size={18} className="mr-2" />시편 촬영</button>
+              <button onClick={() => cameraInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-md flex-1 items-center justify-center text-sm font-black shadow-md transition-colors flex">
+                <Camera size={18} className="mr-2" />시편 촬영
+              </button>
             </div>
             
             <div className="flex items-center space-x-1.5">
@@ -617,16 +603,13 @@ export default function App() {
                 const isEffect = info.type !== 'solid' && info.type !== 'binder';
 
                 return (
-                  // 💡 [UI 복구 1] 널찍한 모바일 배열 (flex-col sm:flex-row) 유지
                   <div key={toner.id} className="flex flex-col sm:flex-row items-start sm:items-center bg-slate-50 hover:bg-blue-50/50 p-3 mb-2 rounded-xl border border-slate-200 transition-colors shadow-sm gap-3">
                     
-                    {/* 💡 [UI 복구 2] 주색/측면 분할 컬러칩 완전 복원 (리스트 바깥쪽 노출) */}
                     <div className="flex w-16 h-10 rounded-lg shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer hover:scale-105 transition-transform" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
                        <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                        <div className="flex-1 border-l border-slate-400" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.4)'} 100%)` }}></div>
                     </div>
                     
-                    {/* 💡 [UI 복구 3] 전체 설명 노출 (whitespace-pre-wrap) */}
                     <div className="flex flex-col flex-1 w-full">
                        <div className="flex items-center gap-2 mb-1">
                            <input
@@ -659,7 +642,7 @@ export default function App() {
               })}
               <button onClick={() => {
                 const newId = `new_${Date.now()}`;
-                setToners([...toners, { id: newId, code: '', role: '코드 입력', adjustedWeight: "" }]);
+                setToners([...toners, { id: newId, code: '', adjustedWeight: "" }]);
                 setFocusTarget({ id: newId, type: 'code' });
               }} className="w-full py-2 border border-dashed rounded-lg text-slate-400 font-bold flex items-center justify-center space-x-1 text-xs hover:border-blue-500 transition-colors"><Plus size={14} /><span>베이스 안료 추가</span></button>
             </div>
@@ -708,7 +691,7 @@ export default function App() {
                 })}
                 <button onClick={() => {
                   const newId = `new_${Date.now()}`;
-                  setPearlToners([...pearlToners, { id: newId, code: '', role: '코드 입력', adjustedWeight: "" }]);
+                  setPearlToners([...pearlToners, { id: newId, code: '', adjustedWeight: "" }]);
                   setFocusTarget({ id: newId, type: 'code' });
                 }} className="w-full py-2.5 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-md text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-2 shadow-sm">
                   <Plus size={16} /><span>펄 조색제 추가</span>
@@ -743,7 +726,7 @@ export default function App() {
           <div className={`bg-white border ${isBaseConfirmed ? 'border-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.15)]' : 'border-slate-300'} rounded-xl p-4 shadow-xl flex-none transition-all duration-300`}>
             <h3 className="text-[15px] font-bold mb-3 flex justify-between items-center border-b border-slate-100 pb-2">
               <span className="flex items-center"><Layers className="text-blue-600 mr-2" size={18} />멀티 시각화 렌더링 비교</span>
-              <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); }} className="text-xs px-3 py-1.5 rounded bg-slate-800 text-white font-bold flex items-center hover:bg-slate-700 shadow-md">
+              <button onClick={() => { setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); }} className="text-xs px-3 py-1.5 rounded bg-slate-800 text-white font-bold flex items-center hover:bg-slate-700 shadow-md">
                   <Maximize size={12} className="mr-1.5"/>확장 뷰어 열기
               </button>
             </h3>
@@ -754,7 +737,7 @@ export default function App() {
                    <span className="text-[10px] text-slate-400 font-bold">{totalBaseWeight}g</span>
                  </div>
                  <div className={`h-12 rounded-lg border ${isBaseConfirmed ? 'border-slate-300' : 'border-slate-200 opacity-60'} relative overflow-hidden`} style={{ background: `radial-gradient(circle at 35% 35%, ${getColorString(baseOptics, 'face')} 0%, ${getColorString(baseOptics, 'mid')} 45%, ${getColorString(baseOptics, 'flop')} 100%)` }}>
-                   {baseOptics.isMetallic && <div className="metallic-flake opacity-50"></div>}
+                   {baseOptics.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge opacity-50 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.95%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%221%22/%3E%3C/svg%3E')]"></div>}
                  </div>
               </div>
 
@@ -765,7 +748,7 @@ export default function App() {
                      <span className="text-[10px] text-purple-400 font-bold">{totalPearlWeight}g</span>
                    </div>
                    <div className={`h-12 rounded-lg border ${isBaseConfirmed ? 'border-purple-300' : 'border-slate-200'} relative overflow-hidden`} style={{ background: isBaseConfirmed ? `radial-gradient(circle at 35% 35%, ${getColorString(pearlOptics, 'face')} 0%, ${getColorString(pearlOptics, 'mid')} 45%, ${getColorString(pearlOptics, 'flop')} 100%)` : '#f1f5f9' }}>
-                     {isBaseConfirmed && pearlOptics.isMetallic && <div className="metallic-flake opacity-70"></div>}
+                     {isBaseConfirmed && pearlOptics.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge opacity-70 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.95%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%221%22/%3E%3C/svg%3E')]"></div>}
                    </div>
                 </div>
               )}
@@ -776,7 +759,7 @@ export default function App() {
                    <span className="text-[10px] text-blue-400 font-bold">{totalFinalWeight}g</span>
                  </div>
                  <div className={`h-16 rounded-lg border ${isBaseConfirmed ? 'border-blue-400' : 'border-slate-200'} relative overflow-hidden`} style={{ background: isBaseConfirmed ? `radial-gradient(circle at 35% 35%, ${getColorString(finalOptics, 'face')} 0%, ${getColorString(finalOptics, 'mid')} 45%, ${getColorString(finalOptics, 'flop')} 100%)` : '#f1f5f9' }}>
-                   {isBaseConfirmed && finalOptics.isMetallic && <div className="metallic-flake opacity-60"></div>}
+                   {isBaseConfirmed && finalOptics.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge opacity-60 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.95%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%221%22/%3E%3C/svg%3E')]"></div>}
                  </div>
               </div>
             </div>
@@ -785,12 +768,11 @@ export default function App() {
           <div className="flex-1 bg-slate-50 border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[400px]">
             <div className="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0">
                 <h3 className="text-white font-black text-base flex items-center"><BookOpen className="mr-2 text-blue-400" size={20}/>수성 안료 조색제 카탈로그</h3>
-                <Search size={16} className="text-slate-400" />
             </div>
             
             <div className="p-5 bg-white border-b border-slate-200 shrink-0">
                 <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2"><span className="text-lg">💡</span> 카탈로그 활용 가이드</h3>
-                <p className="text-xs text-slate-600 leading-relaxed mb-3">각 조색제의 세부 특성을 현장 상황에 맞게 즉각적으로 파악할 수 있도록 데이터가 분류되어 있습니다. 라벨의 색상을 통해 정보의 성격을 빠르게 확인하세요.</p>
+                <p className="text-xs text-slate-600 leading-relaxed mb-3">각 조색제의 세부 특성을 현장 상황에 맞게 즉각적으로 파악할 수 있도록 데이터가 분류되어 있습니다.<br/>라벨의 색상을 통해 정보의 성격을 빠르게 확인하세요.</p>
                 <div className="flex flex-wrap gap-2 text-[10px] font-bold">
                     <span className="px-2 py-1 bg-white text-slate-600 rounded border border-slate-200 shadow-sm">일반 특성</span>
                     <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded border border-emerald-200 shadow-sm">색상 및 외관 변화</span>
@@ -831,91 +813,47 @@ export default function App() {
             <button onClick={() => setIsConfiguratorOpen(false)} className="p-2 bg-slate-800 hover:bg-red-500 rounded-full transition-colors border border-slate-700"><X size={24}/></button>
           </header>
           
-          <div className="w-full bg-slate-900 border-b border-slate-700 p-3 overflow-x-auto flex gap-3 items-center custom-scrollbar shrink-0 shadow-xl">
-             <div className="text-[10px] font-black text-blue-400 bg-blue-900/30 px-2 py-1 rounded border border-blue-800/50 shrink-0 mr-1 text-center leading-tight">베이스<br/>수정</div>
-             {toners.filter(t => t.code).map(t => (
-                <div key={t.id} className="flex flex-col bg-slate-800 border border-slate-600 rounded p-2 shrink-0 min-w-[240px] items-center shadow-inner">
-                   <span className="text-[11px] font-bold text-slate-300 mb-2">{t.code}</span>
-                   
-                   <div className="flex items-center space-x-1 w-full justify-between">
-                      <div className="flex space-x-1">
-                        <button onClick={() => quickEditWeight(t.id, -10, false)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">-10</button>
-                        <button onClick={() => quickEditWeight(t.id, -1, false)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">-1</button>
-                        <button onClick={() => quickEditWeight(t.id, -0.1, false)} className="bg-red-900/50 hover:bg-red-500 text-red-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-red-800/50">-0.1</button>
-                      </div>
-                      
-                      <div className="flex items-center px-1">
-                         <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, false)} placeholder="" className="w-10 text-center bg-transparent text-sm font-black text-white outline-none" />
-                         <span className="text-slate-400 text-[10px] font-bold">g</span>
-                      </div>
-                      
-                      <div className="flex space-x-1">
-                        <button onClick={() => quickEditWeight(t.id, 0.1, false)} className="bg-blue-900/50 hover:bg-blue-500 text-blue-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-blue-800/50">+0.1</button>
-                        <button onClick={() => quickEditWeight(t.id, 1, false)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">+1</button>
-                        <button onClick={() => quickEditWeight(t.id, 10, false)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">+10</button>
-                      </div>
-                   </div>
+          <main ref={viewerRef} className="flex-1 p-6 flex gap-4 overflow-hidden items-center justify-center h-full relative cursor-crosshair w-full max-w-[1600px] mx-auto" onPointerDown={(e) => { setIsDraggingLight(true); handlePointerMove(e); }} onPointerMove={handlePointerMove} onPointerUp={() => setIsDraggingLight(false)} onPointerLeave={() => setIsDraggingLight(false)}>
+             <div className="absolute z-50 flex items-center justify-center transition-transform duration-75 pointer-events-none" style={{ left: `${lightPos.x}%`, top: `${lightPos.y}%`, transform: 'translate(-50%, -50%)' }}>
+                <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(255,255,255,0.8)] backdrop-blur-sm border border-white/40 animate-pulse">
+                    <Sun className="text-yellow-100 drop-shadow-[0_0_15px_rgba(255,255,255,1)]" size={40} />
                 </div>
-             ))}
+             </div>
+
+             <div className="flex-1 h-[85%] rounded-[2rem] border border-slate-700 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] transition-all duration-75"
+                  style={{ background: getInteractiveBackground(baseOptics, lightPos) }}>
+                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                {baseOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
+                <div className="absolute top-6 left-6 bg-black/80 px-4 py-2 rounded-xl font-bold text-sm border border-slate-600 text-slate-200 shadow-lg">A. 베이스 코트 (Ground)</div>
+             </div>
+             
              {isThreeCoatMode && (
                <>
-                 <div className="w-px h-12 bg-slate-700 mx-2 shrink-0"></div>
-                 <div className="text-[10px] font-black text-purple-400 bg-purple-900/30 px-2 py-1 rounded border border-purple-800/50 shrink-0 mr-1 text-center leading-tight">펄 코트<br/>수정</div>
-                 {pearlToners.filter(t => t.code).map(t => (
-                    <div key={t.id} className="flex flex-col bg-slate-800 border border-slate-600 rounded p-2 shrink-0 min-w-[240px] items-center shadow-inner">
-                       <span className="text-[11px] font-bold text-purple-300 mb-2">{t.code}</span>
-                       <div className="flex items-center space-x-1 w-full justify-between">
-                          <div className="flex space-x-1">
-                            <button onClick={() => quickEditWeight(t.id, -10, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">-10</button>
-                            <button onClick={() => quickEditWeight(t.id, -1, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">-1</button>
-                            <button onClick={() => quickEditWeight(t.id, -0.1, true)} className="bg-red-900/50 hover:bg-red-500 text-red-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-red-800/50">-0.1</button>
-                          </div>
-                          
-                          <div className="flex items-center px-1">
-                             <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, true)} placeholder="" className="w-10 text-center bg-transparent text-sm font-black text-white outline-none" />
-                             <span className="text-slate-400 text-[10px] font-bold">g</span>
-                          </div>
-                          
-                          <div className="flex space-x-1">
-                            <button onClick={() => quickEditWeight(t.id, 0.1, true)} className="bg-purple-900/50 hover:bg-purple-500 text-purple-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-purple-800/50">+0.1</button>
-                            <button onClick={() => quickEditWeight(t.id, 1, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">+1</button>
-                            <button onClick={() => quickEditWeight(t.id, 10, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">+10</button>
-                          </div>
-                       </div>
-                    </div>
-                 ))}
+                 <div className="text-slate-600 pointer-events-none shrink-0"><ChevronRight size={32} /></div>
+                 <div className="flex-1 h-[85%] rounded-[2rem] border border-purple-500 relative overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-75"
+                      style={{ background: getInteractiveBackground(pearlOptics, lightPos) }}>
+                    <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                    {pearlOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.7, 0.1, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
+                    <div className="absolute top-6 left-6 bg-purple-900/90 px-4 py-2 rounded-xl font-bold text-sm border border-purple-400 text-white shadow-lg">B. 펄 코트 (Mid-coat)</div>
+                 </div>
                </>
              )}
-          </div>
 
-          <main ref={viewerRef} className="flex-1 p-3 flex flex-col md:flex-row gap-4 overflow-hidden items-center justify-center relative cursor-crosshair w-full max-w-[1600px] mx-auto" onPointerDown={(e) => { setIsDraggingLight(true); handlePointerMove(e); }} onPointerMove={handlePointerMove} onPointerUp={() => setIsDraggingLight(false)} onPointerLeave={() => setIsDraggingLight(false)}>
-             
-             <div className="absolute z-50 flex items-center justify-center pointer-events-none" style={{ left: `${lightPos.x}%`, top: `${lightPos.y}%`, transform: 'translate(-50%, -50%)' }}>
-                <div className="w-14 h-16 bg-white/10 rounded-full flex items-center justify-center shadow-[0_0_50px_#fff] border border-white/30"><Sun className="text-yellow-100" size={28} /></div>
-             </div>
-             
-             <div className="w-full md:flex-1 h-1/2 md:h-[80%] rounded-2xl border border-slate-600 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)]" style={getInteractiveBackground(originalFinalOptics, lightPos)}>
+             <div className="text-slate-600 pointer-events-none shrink-0"><ChevronRight size={32} /></div>
+
+             <div className="flex-1 h-[85%] rounded-[2rem] border border-blue-500 relative overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.4)] transition-all duration-75"
+                  style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-                {originalFinalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
-                <div className="absolute top-3 left-3 bg-black/80 px-3 py-1.5 rounded-lg text-xs font-black text-slate-300 border border-slate-700 shadow-md">A. 원본 배합 (변경 전)</div>
+                {finalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.7, 0.1, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
+                <div className="absolute top-6 left-6 bg-blue-900/90 px-4 py-2 rounded-xl font-bold text-sm border border-blue-400 text-white shadow-lg">{isThreeCoatMode ? 'C. 최종 3코트 결합' : 'B. 최종 렌더링'}</div>
              </div>
              
-             <div className="text-slate-600 pointer-events-none shrink-0 hidden md:block"><ChevronRight size={32} /></div>
-             
-             <div className="w-full md:flex-1 h-1/2 md:h-[80%] rounded-2xl border-2 border-blue-500 relative overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.3)]" style={getInteractiveBackground(finalOptics, lightPos)}>
-                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-                {finalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
-                <div className="absolute top-3 left-3 bg-blue-900/90 px-3 py-1.5 rounded-lg text-xs font-black text-white border border-blue-400 shadow-md flex items-center">
-                   <Zap size={14} className="mr-1.5 text-yellow-300 animate-pulse"/> B. 실시간 시뮬레이션 (변경 후)
-                </div>
-             </div>
-             
-             <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex flex-col items-center bg-slate-900/90 p-2.5 rounded-xl border border-slate-700 w-[92%] sm:w-auto shadow-2xl">
-                <span className="text-[10px] text-blue-400 font-bold text-center leading-tight">화면을 드래그하면 원본과 수정본의 반사광을 동시에 비교할 수 있습니다.</span>
-                <div className="flex space-x-2 mt-2">
-                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x:50, y:50}); }} className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-[10px] font-bold whitespace-nowrap transition-colors">정면 (Face 15°)</button>
-                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x:25, y:25}); }} className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-[10px] font-bold whitespace-nowrap transition-colors">중면 (Mid 45°)</button>
-                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x:5, y:5}); }} className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-[10px] font-bold whitespace-nowrap transition-colors">측면 (Flop 110°)</button>
+             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex flex-col items-center bg-slate-900/90 p-4 rounded-2xl border border-slate-700 backdrop-blur-md z-50 shadow-2xl">
+                <span className="text-xs text-blue-400 font-bold mb-3 uppercase tracking-wider animate-pulse flex items-center"><Sun size={14} className="mr-1"/>빈 공간을 드래그하여 광원을 유기적으로 움직여 보세요</span>
+                <div className="flex space-x-3">
+                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 50, y: 50}); }} className="px-6 py-2.5 rounded-xl font-bold uppercase transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-600 hover:border-blue-400">정면 (15°)</button>
+                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 25, y: 25}); }} className="px-6 py-2.5 rounded-xl font-bold uppercase transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-600 hover:border-blue-400">중면 (45°)</button>
+                  <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 5, y: 5}); }} className="px-6 py-2.5 rounded-xl font-bold uppercase transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-600 hover:border-blue-400">측면 (110°)</button>
                 </div>
              </div>
           </main>
@@ -957,10 +895,6 @@ export default function App() {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
         .clean-number-input { font-variant-numeric: tabular-nums; -webkit-text-fill-color: #0f172a; }
-        .metallic-flake {
-          position: absolute; inset: 0; pointer-events: none; z-index: 1; mix-blend-mode: color-dodge;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
-        }
       `}} />
     </div>
   );
