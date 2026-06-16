@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { 
   Sliders, Trash2, Plus, Camera, X, Maximize, 
-  Layers, Lock, Unlock, ChevronRight, Sun, Droplet, Image as ImageIcon, ScanLine, Beaker, BookOpen
+  Layers, Lock, Unlock, ChevronRight, Sun, Droplet, 
+  Image as ImageIcon, ScanLine, Beaker, BookOpen, Search, Zap, FolderOpen
 } from 'lucide-react';
 
 // 💡 1. 공식 안료 데이터베이스 (설명글 100% 완전 노출 복원)
@@ -376,7 +377,6 @@ export default function App() {
                 targetList.push({ id: `scan_${Date.now()}_${i}`, code: finalCode, adjustedWeight: finalWeight });
             }
         } else {
-            // 💡 [에러 멸균] weightStr 스코프 오류 치환
             let orphanWeight = codeC;
             let nextNum = nums[i+1];
             if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !orphanWeight.includes('.')) {
