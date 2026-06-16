@@ -1,107 +1,122 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sliders, Trash2, Plus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, CornerDownLeft
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2
 } from 'lucide-react';
 
-// 💡 1. 공식 안료 데이터베이스 (100% 원문)
-const TONER_DB: Record<string, { role: string, desc: string, type: string, face: string, flop: string }> = {
-  'WT 144': { role: '그리니쉬 블루', desc: '녹색을 띠는 청색 조색제. WT346 대체 안료임. (WT346 : WT144 = 1 : 0.9)', type: 'solid', face: '#0284c7', flop: '#0c4a6e' },
-  'WT 154': { role: '블루 이펙트', desc: '청색으로 착색된 광휘형 알루미늄 조색제. 입자의 반짝임이 좋으며, 채도가 높고 입자감이 좋은 청색계열의 컬러에 사용됨.', type: 'silver_fine', face: '#3b82f6', flop: '#1e3a8a' },
-  'WT 188': { role: '슈퍼 딥 블랙', desc: '어두운 흑색 조색제. WT388보다 조금 더 어두움. 주로 흑색계열의 컬러에 제한적으로 사용함.', type: 'solid', face: '#0f172a', flop: '#020617' },
-  'WT 197': { role: '실크 실버 울트라 파인', desc: '입자의 크기는 매우 작지만 반짝임이 좋은 특수 알루미늄 조색제. 매끈한 느낌의 은색에 사용됨.', type: 'silver_fine', face: '#a1a6b4', flop: '#64748b' },
-  'WT 300': { role: '마룬', desc: '어두운 적색 조색제. WT332에 비해 채도가 높으며 측면(110도)을 더 어둡게 함. 주로 적색 이펙트 컬러에 사용.', type: 'solid', face: '#991b1b', flop: '#450a0a' },
-  'WT 303': { role: '플래틴 실버 엑스트라 화인', desc: '매우 작은 고휘도 광휘형 알루미늄 조색제. WT389보다 작음.', type: 'silver_fine', face: '#d1d5db', flop: '#475569' },
-  'WT 304': { role: '매직 스파클 이펙트', desc: '투명한 황색의 크고 반짝임이 매우 좋은 글라스 플레이크.', type: 'xirallic', face: '#fef08a', flop: '#475569' },
-  'WT 305': { role: '울트라 화인 실버', desc: '매우 작지만 반짝임이 좋은 특수 알루미늄 조색제. 매끈한 느낌의 은색에 사용됨.', type: 'silver_fine', face: '#cbd5e1', flop: '#334155' },
-  'WT 307': { role: '프리즈마 실버', desc: '정면에서는 은색, 측면에서는 무지개 색을 내는 특수 조색제.', type: 'xirallic', face: '#e2e8f0', flop: '#a855f7' },
-  'WT 308': { role: '브라이트 오렌지', desc: '주로 이펙트 컬러에 사용하는 맑은 주황색. 은폐력은 떨어짐.', type: 'solid', face: '#ea580c', flop: '#7c2d12' },
-  'WT 309': { role: '브릴리언트 마젠타', desc: '맑은 자주색 조색제. 주로 채도가 높은 이펙트 컬러에 사용함. 은폐력은 떨어짐.', type: 'solid', face: '#d946ef', flop: '#701a75' },
-  'WT 310': { role: '파우더 펄 바인더', desc: '파우더 펄 사용을 위한 조색제 바인더로 사용', type: 'binder', face: '#ffffff', flop: '#ffffff' },
-  'WT 311': { role: '루비 레드', desc: '약하게 황색을 띠는 맑은 적색 조색제. 주로 채도 높은 적색 이펙트 컬러에 사용함. 은폐력은 떨어짐.', type: 'solid', face: '#ef4444', flop: '#7f1d1d' },
-  'WT 312': { role: '매직 파이어 이펙트', desc: '관찰각도에 따라 색상변화가 큰 특수 펄 조색제. 15도는 맑은 적색, 45도는 맑은 녹색, 110도는 약하게 녹색으로 변하는 펄.', type: 'pearl', face: '#ef4444', flop: '#22c55e' },
-  'WT 315': { role: '엑스트라 화인 블루 펄', desc: '가장 작은 크기의 약하게 적색을 띠는 청색 펄 조색제. WT372 보다도 작음. 15도는 적청색, 나머지 각도(45 & 110도)는 녹황색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#3b82f6', flop: '#84cc16' },
-  'WT 316': { role: '터콰이즈 펄', desc: '중간 크기의 녹색을 띠는 청색 펄 조색제. 15도는 맑은 청색, 나머지 각도(45 & 110도)는 맑은 녹색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#06b6d4', flop: '#10b981' },
-  'WT 317': { role: '플래틴 실버 브릴리언트 화인', desc: 'WT305보다 조금 큰 반짝임이 좋은 매끄러운 특수 알루미늄 조색제. WT305 보다 15도는 밝고 나머지 각도(45 & 110도)는 어두움.', type: 'silver_fine', face: '#94a3b8', flop: '#334155' },
-  'WT 318': { role: '브릴리언트 블루', desc: '녹색을 띠는 맑은 청색 조색제. WT346보다 밝고 녹색이 더 많음', type: 'solid', face: '#0284c7', flop: '#082f49' },
-  'WT 320': { role: '플래티늄 펄', desc: '가장 작은 크기의 백색 펄 조색제. 예) 현대 XB3, 아우디 LX7L, LX6T, BMW A96 등에 사용됨.', type: 'pearl', face: '#e2e8f0', flop: '#64748b' },
-  'WT 321': { role: '화이트', desc: '표준 백색(고농) 조색제. 솔리드 컬러에서 명암을 밝게 하고 색상을 줄임. 이펙트 컬러에서 15도는 어둡고 나머지 각도(45 & 110도)는 밝게 함. 입자감을 줄임.', type: 'solid', face: '#ffffff', flop: '#e2e8f0' },
-  'WT 322': { role: '마이크로 화이트', desc: '알루미늄 및 펄 입자가 사용되는 이펙트 컬러에만 사용함. 15도는 황색을 띠며 어둡고 나머지 각도(45 & 110도)는 청색을 띠며 밝게 함.', type: 'solid', face: '#f8fafc', flop: '#cbd5e1' },
-  'WT 323': { role: '스페셜 블랙', desc: '표준 흑색 조색제. 알루미늄 입자에 사용하면 명암은 어두워지고 약하게 적황색이 늘어남. 솔리드 컬러에 사용하면 명도와 채도를 낮춤.', type: 'solid', face: '#020617', flop: '#000000' },
-  'WT 324': { role: '레디쉬 옐로우', desc: '적색을 띠는 맑고 채도 높은 황색 조색제. 은폐력은 떨어짐. 주로 이펙트 컬러에 사용함.', type: 'solid', face: '#f59e0b', flop: '#9a3412' },
-  'WT 326': { role: '그리니쉬 옐로우', desc: '이펙트 컬러에 사용하는 녹색을 띤 맑은 황색 조색제. 알루미늄 입자에 혼합하면 15도는 맑은 황색, 나머지 각도(45 & 110도)는 녹황색을 띰.', type: 'solid', face: '#eab308', flop: '#65a30d' },
-  'WT 327': { role: '옐로우', desc: '녹색을 띠는 밝은 황색 조색제. 주로 솔리드 컬러에 사용함. 이펙트 컬러에서는 특히 45 & 110도에 밝은 황색이 필요할 경우에만 소량 사용.', type: 'solid', face: '#fde047', flop: '#ca8a04' },
-  'WT 328': { role: '오커', desc: '주로 솔리드 컬러에 사용하는 탁한 황색.', type: 'solid', face: '#b45309', flop: '#451a03' },
-  'WT 329': { role: '트랜스페어런트 옐로우', desc: '적색을 조금 띠는 선명하고 맑은 황색(스칼렛) 조색제. 주로 이펙트 컬러에 사용. 은폐력은 떨어짐.', type: 'solid', face: '#f59e0b', flop: '#ea580c' },
-  'WT 330': { role: '블러드 오렌지', desc: '밝은 주황색 조색제. 무연(납 미함유) 성분. 주로 솔리드 컬러에 사용. 이펙트 컬러에는 특히 45 & 110도에 밝은 황적색이 부족할 경우에만 소량 사용.', type: 'solid', face: '#ea580c', flop: '#9a3412' },
-  'WT 331': { role: '트랜스루센트 옥사이드', desc: '이펙트 컬러에서 맑은 적황색을 내는 조색제. 솔리드 컬러에는 사용을 금함.', type: 'solid', face: '#d97706', flop: '#451a03' },
-  'WT 332': { role: '마룬', desc: '어두운 적색 조색제. 주로 적색 이펙트 컬러에 사용하며 전체적으로 황적색을 내고 명암을 조금 어둡게 함.', type: 'solid', face: '#b91c1c', flop: '#7c2d12' },
-  'WT 333': { role: '그라나다 레드', desc: '밝은 적색 조색제. 주로 솔리드 컬러에 사용함. 이펙트 컬러에서 특히 45 & 110도에 적색이 부족할 경우 소량 사용됨.', type: 'solid', face: '#991b1b', flop: '#450a0a' },
-  'WT 334': { role: '옥사이드 레드', desc: '주로 솔리드 컬러에 사용하는 탁한 적색 조색제. 조색제 단독으로는 은폐력 좋음. 이펙트 컬러에서 특히 45 & 110도에 황적색을 띠게 하기위해 소량 사용.', type: 'solid', face: '#7f1d1d', flop: '#450a0a' },
-  'WT 335': { role: '다크 옐로우', desc: '적색을 조금 띠는 밝은 황색 조색제. 주로 솔리드 컬러 배합에 주로 사용함. 이펙트 컬러에서는 특히 45 & 110도에 밝은 녹황색이 부족할 경우에만 소량 사용.', type: 'solid', face: '#d97706', flop: '#78350f' },
-  'WT 336': { role: '트랜스루센트 레드', desc: '선명하며 어두운 갈색 조색제. 이펙트 컬러 조색에만 사용.', type: 'solid', face: '#7c2d12', flop: '#450a0a' },
-  'WT 337': { role: '레드', desc: '중간 정도의 적색 조색제. 약하게 청색을 띰.', type: 'solid', face: '#ef4444', flop: '#991b1b' },
-  'WT 338': { role: '블루이쉬 마젠타 레드', desc: '표준 자주색 조색제. 백색 및 알루미늄 입자에 혼합할 경우 맑은 분홍색을 나타냄.', type: 'solid', face: '#d946ef', flop: '#86198f' },
-  'WT 339': { role: '바이올렛', desc: '맑은 보라색 조색제. 청색 및 회색 컬러에 주로 사용되며 보라색을 내고 명암을 어둡게 함.', type: 'solid', face: '#8b5cf6', flop: '#4c1d95' },
-  'WT 340': { role: '옐로우 마젠타 레드', desc: '맑은 자주색 조색제. WT338에 비해 밝고 청색이 적음. 주로 이펙트 컬러에 사용함. 알루미늄 입자에 혼합할 경우 맑은 분홍색을 냄.', type: 'solid', face: '#e879f9', flop: '#a21caf' },
-  'WT 341': { role: '아주르 블루', desc: '채도 높은 청색 조색제. 이펙트 컬러에서 15도는 녹청색, 나머지 각도(45 & 110도)는 적청색을 띰. 관찰각도 별로 컬러의 변화가 가장 큼.', type: 'solid', face: '#2563eb', flop: '#1e3a8a' },
-  'WT 342': { role: '다크 바이올렛', desc: '맑은 보라색 조색제. 은폐력이 있음. 15도는 진한 보라색, 나머지는 자주색을 나타냄.', type: 'solid', face: '#6d28d9', flop: '#2e1065' },
-  'WT 343': { role: '블루', desc: '표준 청색 조색제. 솔리드와 이펙트 컬러에 모두 사용하는 중간 청색 조색제.', type: 'solid', face: '#3b82f6', flop: '#1e40af' },
-  'WT 344': { role: '다크 블루', desc: '어두운 청색 조색제. 이펙트 컬러에서 15도는 청색, 나머지 각도(45 & 110도)는 적색을 띰. 청색 조색제 중 가장 어두움.', type: 'solid', face: '#1d4ed8', flop: '#0f172a' },
-  'WT 345': { role: '트랜스페어런트 에메랄드', desc: '맑고 선명한 황색을 조금 띠는 녹색 조색제. WT347대비 밝고 황색이 많음.', type: 'solid', face: '#10b981', flop: '#064e3b' },
-  'WT 346': { role: '트랜스페어런트 딥 블루', desc: '녹색을 띠는 청색 조색제. 특히 45 & 110도에서 녹색이 가장 많은 청색 조색제. 이펙트 컬러에 가장 많이 사용하는 청색임.', type: 'solid', face: '#1d4ed8', flop: '#020617' },
-  'WT 347': { role: '트랜스페어런트 그린', desc: '청색을 조금 띠는 녹색 조색제. WT345에 비해 어두움.', type: 'solid', face: '#059669', flop: '#022c22' },
-  'WT 348': { role: '트랜스페어런트 아주르 블루', desc: '채도 높은 청색 조색제. 이펙트 컬러에서 15도는 녹색이 강한 청색, 나머지 각도(45 & 110도)는 약하게 적색을 띰.', type: 'solid', face: '#0ea5e9', flop: '#0369a1' },
-  'WT 349': { role: '트랜스루센트 그린', desc: '녹색 저농 조색제. WT347의 저농 버전. (WT349 : WT347 = 10.52 : 1)', type: 'solid', face: '#34d399', flop: '#064e3b' },
-  'WT 350': { role: '트랜스루센트 블랙', desc: '저농 흑색 조색제. WT323의 저농 버전. (WT350 : WT323 = 2.89 : 1)', type: 'solid', face: '#1e293b', flop: '#451a03' },
-  'WT 351': { role: '트랜스루센트 아주르 블루', desc: '저농 청색 조색제. WT348의 저농 버전. (WT351 : WT348 = 8.7 : 1)', type: 'solid', face: '#38bdf8', flop: '#075985' },
-  'WT 352': { role: '트랜스루센트 화이트', desc: '저농 백색 조색제. WT321의 저농 버전. (WT352 : WT321 = 7.69 : 1)', type: 'solid', face: '#f8fafc', flop: '#cbd5e1' },
-  'WT 353': { role: '트랜스루센트 마젠타 레드', desc: '저농 자주색 조색제. WT338의 저농 버전. (WT353 : WT338 = 5.68 : 1)', type: 'solid', face: '#c026d3', flop: '#4a044e' },
-  'WT 354': { role: '화인 실버', desc: '매우 작은 크기의 일반형 알루미늄 조색제. WT356 보다 작음.', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b' },
-  'WT 355': { role: '브릴리언트 실버 코올스', desc: '가장 큰 광휘형 알루미늄 조색제. 은폐력은 떨어짐.', type: 'silver_coarse', face: '#f8fafc', flop: '#334155' },
-  'WT 356': { role: '미디움 실버', desc: '중간 크기의 일반형 알루미늄 조색제.', type: 'silver_fine', face: '#e2e8f0', flop: '#475569' },
-  'WT 357': { role: '마이크로 실버', desc: '입자가 작은 일반형 알루미늄 조색제. WT356보다 15도는 어둡고, 나머지 각도(45 & 110도)는 밝음.', type: 'silver_fine', face: '#f8fafc', flop: '#64748b' },
-  'WT 358': { role: '스페셜 실버', desc: '이펙트 컬러용 특수 실버 조색제', type: 'silver_fine', face: '#e2e8f0', flop: '#475569' },
-  'WT 359': { role: '브라이트 실버', desc: 'WT356보다 큰 일반형 알루미늄 조색제. WT356 보다 15도는 밝고, 나머지 각도(45 & 110도)는 어두움.', type: 'silver_coarse', face: '#f1f5f9', flop: '#334155' },
-  'WT 360': { role: '코올스 실버', desc: 'WT359보다 큰 거친 알루미늄 조색제. WT359보다 15도는 밝고 나머지 각도(45 & 110도)는 어두움.', type: 'silver_coarse', face: '#94a3b8', flop: '#1e293b' },
-  'WT 361': { role: '브릴리언트 실버', desc: 'WT362보다 큰 광휘형 알루미늄 조색제. WT362보다 15도는 밝고 나머지 각도(45 & 110도)는 어두움.', type: 'silver_coarse', face: '#f1f5f9', flop: '#64748b' },
-  'WT 362': { role: '브릴리언트 실버 화인', desc: '작은 크기의 광휘형 알루미늄 조색제. WT361에 비해 크기가 작음.', type: 'silver_fine', face: '#e2e8f0', flop: '#334155' },
-  'WT 363': { role: '브릴리언트 골드', desc: '밝은 황색 알루미늄 조색제. 은폐력이 우수함.', type: 'pearl', face: '#fbbf24', flop: '#b45309' },
-  'WT 364': { role: '화이트 펄', desc: '큰 크기의 백색 펄 조색제.', type: 'pearl', face: '#ffffff', flop: '#94a3b8' },
-  'WT 365': { role: '라일락 펄', desc: '중간 크기의 자주색 간섭 펄 조색제. 15도는 청적색, 나머지 각도(45 & 110도)는 황녹색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#a3e635', flop: '#be185d' },
-  'WT 366': { role: '골드 펄', desc: '중간 크기의 황색 간섭 펄 조색제. 15도는 황색, 나머지 각도(45 & 110도)는 청색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#facc15', flop: '#4c1d95' },
-  'WT 367': { role: '화인 그린 펄', desc: '작은 크기의 녹색 간섭 펄 조색제. 15도는 녹색, 나머지 각도(45 & 110도)는 적색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#4ade80', flop: '#991b1b' },
-  'WT 368': { role: '화인 화이트 펄', desc: '중간 크기의 백색 펄 조색제.', type: 'pearl', face: '#f8fafc', flop: '#64748b' },
-  'WT 369': { role: '레드 펄', desc: '작은 크기의 적색 펄 조색제. 관찰각도 별로 색상 변화가 거의 없는 착색 펄 입자임. 적색 입자감 있는 컬러에 적용하며, 다른 펄보다 은폐력이 있음.', type: 'pearl', face: '#ef4444', flop: '#7f1d1d' },
-  'WT 370': { role: '브라이트 블루 펄', desc: '큰 크기의 맑은 청색 간섭 펄 조색제. 15도는 녹청색, 나머지 각도(45 & 110도)는 적황색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#0ea5e9', flop: '#be123c' },
-  'WT 371': { role: '브라운 펄', desc: '중간 크기의 주황색 펄 조색제. 관찰각도 별로 색상 변화가 거의 없는 착색 펄 입자임.', type: 'pearl', face: '#d97706', flop: '#451a03' },
-  'WT 372': { role: '화인 블루 펄', desc: 'WT370보다 작은 적색이 있는 청색 간섭 펄 조색제. 15도는 적청색, 나머지 각도(45 & 110도)는 녹황색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#3b82f6', flop: '#c026d3' },
-  'WT 373': { role: '루비 펄', desc: '중간 크기의 은폐력이 있는 적색 펄 조색제. 관찰각도 별로 색상 변화가 거의 없는 착색 펄 입자임.', type: 'pearl', face: '#dc2626', flop: '#7f1d1d' },
-  'WT 374': { role: '블루 그린 펄', desc: '중간 크기의 청녹색 펄 조색제. 15도는 청녹색, 나머지 각도(45 & 110도)는 황적색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#0d9488', flop: '#c2410c' },
-  'WT 375': { role: '그린 펄', desc: '중간 크기의 녹색 펄 조색제. 15도는 맑은 녹색, 나머지 각도(45 & 110도)는 적색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#16a34a', flop: '#b91c1c' },
-  'WT 376': { role: '레드펄 엑스트라', desc: '중간 크기의 적색 펄 조색제. 15도는 적색, 나머지 각도(45 & 110도)는 녹색으로 변하는 간섭 펄 입자임.', type: 'pearl', face: '#ef4444', flop: '#16a34a' },
-  'WT 377': { role: '다이아몬드 화이트', desc: '질라릭 백색 펄 조색제. 입자의 반짝임이 매우 좋음. 15도는 약하게 녹색을 띠며 나머지 각도는 약하게 적색을 띰.', type: 'xirallic', face: '#ffffff', flop: '#64748b' },
-  'WT 378': { role: '다이아몬드 레드', desc: '질라릭 적색 펄 조색제. 입자의 반짝임이 매우 좋음. 관찰각도 별로 색상 변화가 거의 없는 착색 펄 입자임.', type: 'xirallic', face: '#ef4444', flop: '#7f1d1d' },
-  'WT 379': { role: '다이아몬드 카퍼', desc: '질라릭 주황색 펄 조색제. 입자의 반짝임이 매우 좋음. 관찰각도 별로 색상 변화가 거의 없는 착색 펄 입자임.', type: 'xirallic', face: '#ea580c', flop: '#7c2d12' },
-  'WT 380': { role: '다이아몬드 그린', desc: '질라릭 녹색 펄 조색제. 입자의 반짝임이 매우 좋음. 15도는 녹색, 나머지 각도(45 & 110도)는 적색으로 변하는 간섭 펄 입자임.', type: 'xirallic', face: '#4ade80', flop: '#166534' },
-  'WT 381': { role: '다이아몬드 블루', desc: '질라릭 청색 펄 조색제. 입자의 반짝임이 매우 좋음. 15도는 청색, 나머지 각도(45 & 110도)는 황색으로 변하는 간섭 펄 입자임.', type: 'xirallic', face: '#3b82f6', flop: '#1e3a8a' },
-  'WT 382': { role: '다이아몬드 골드', desc: '질라릭 황색 펄 조색제. 입자의 반짝임이 매우 좋음. 15도는 황색, 나머지 각도(45 & 110도)는 청색으로 변하는 간섭 펄 입자임.', type: 'xirallic', face: '#facc15', flop: '#a16207' },
-  'WT 383': { role: '브릴리언트 오렌지', desc: 'WT363에 비해 적색감이 많은 적황색 알루미늄 조색제.', type: 'silver_coarse', face: '#f97316', flop: '#9a3412' },
-  'WT 385': { role: '시스템 컴포넌트 A', desc: 'Transparent White. WT387에 비해 점도가 높음.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
-  'WT 386': { role: '플롭 컨트롤', desc: '측면을 밝게 하기 위한 명암 조정제.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
-  'WT 387': { role: '시스템 컴포넌트 B', desc: 'Viscosity Additive. 점도 조절제.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
-  'WT 388': { role: '슈퍼 딥 블랙', desc: '어두운 흑색 조색제. WT323보다 어두움. 주로 흑색계열의 컬러에 제한적으로 사용함.', type: 'solid', face: '#020617', flop: '#000000' },
-  'WT 389': { role: '플래틴 실버 화인', desc: '작은 고휘도 광휘형 알루미늄 조색제. WT303보다 크고 WT390보다 작음.', type: 'silver_fine', face: '#e2e8f0', flop: '#475569' },
-  'WT 390': { role: '플래틴 실버', desc: '중간 크기의 고휘도 광휘형 알루미늄 조색제. WT389보다 큼. 알루미늄 입자 중 15도가 가장 밝고 나머지 각도(45 & 110도)가 가장 어두움.', type: 'silver_coarse', face: '#f8fafc', flop: '#334155' },
-  'WT 392': { role: '매직 이펙트', desc: '관찰각도에 따라 색상변화가 큰 특수 펄 조색제. 색상이 WT312의 반대로 변함. 15도는 맑은 녹색, 45도는 맑은 적색, 110도는 약하게 적색으로 변하는 펄.', type: 'pearl', face: '#22c55e', flop: '#ef4444' },
-  'WT 393': { role: '라이트 옐로우', desc: '약하게 녹색을 띠는 밝은 황색 조색제. WT327에 비해 녹색이 적음. 주로 솔리드 컬러에 사용함. 이펙트 컬러에서 특히 45 & 110도에 밝은 황색이 필요할 경우에만 소량 사용.', type: 'solid', face: '#fef08a', flop: '#a16207' },
-  'WT 1051': { role: '블랜딩 1051', desc: '블랜드인 첨가제, 블랜딩용 첨가제.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
-  'WT 1500': { role: '울트라 딥 블랙', desc: '가장 어두운 흑색 조색제. 염료를 함유하고 있어 알루미늄 입자에 2% 이상 사용하면 알루미늄 입자와 반응하여 색상이 변할 수 있고 내구성에도 문제가 될 수 있음(솔리드: 최대 5%, 실버: 최대 2%, 펄: 최대 5% 이내 사용)', type: 'solid', face: '#000000', flop: '#000000' },
-  'WT 455': { role: '퍼포먼스 컴포넌트', desc: '솔리드 컬러에만 사용하는 첨가제. WT455를 베이스코트 무게의 10% 혼합하면 특히 겨울과 같은 낮은 습도 조건에서 작업성이 좋아지며 외관도 개선됨.', type: 'binder', face: '#ffffff', flop: '#ffffff' },
-  'WT 3080': { role: '스페셜 애디티브', desc: '도막 보정 및 흐름 방지 첨가제', type: 'binder', face: '#ffffff', flop: '#ffffff' }
+// 💡 [에러 원천 차단] TypeScript 구조를 완벽하게 정의하여 TS2339 에러를 멸균합니다.
+interface TonerDetail {
+  label: string;
+  text: string;
+}
+
+interface TonerData {
+  role: string;
+  desc: string;
+  type: string;
+  face: string;
+  flop: string;
+  details?: TonerDetail[];
+}
+
+// 💡 1. 공식 안료 데이터베이스 (선생님의 HTML 원본 구조 100% 완벽 이식)
+const TONER_DB: Record<string, TonerData> = {
+  'WT 144': { role: '그리니쉬 블루', type: 'solid', face: '#0284c7', flop: '#0c4a6e', desc: '녹색을 띠는 청색 조색제. WT346 대체 안료임.', details: [{label:'특징',text:'녹색을 띠는 청색 조색제입니다.'},{label:'용도',text:'기존 WT346을 대체하는 안료입니다.'},{label:'배합비율',text:'WT346 : WT144 = 1 : 0.9 로 적용합니다.'}] },
+  'WT 154': { role: '블루 이펙트', type: 'silver_fine', face: '#3b82f6', flop: '#1e3a8a', desc: '청색으로 착색된 광휘형 알루미늄 조색제.', details: [{label:'특징',text:'청색으로 착색된 광휘형 알루미늄 조색제입니다.'},{label:'외관',text:'입자의 반짝임이 매우 뛰어납니다.'},{label:'용도',text:'주로 채도가 높고 입자감이 두드러지는 청색 계열 컬러에 사용됩니다.'}] },
+  'WT 188': { role: '슈퍼 딥 블랙', type: 'solid', face: '#0f172a', flop: '#020617', desc: '어두운 흑색 조색제. WT388보다 조금 더 어두움.', details: [{label:'특징',text:'매우 어두운 흑색 조색제입니다.'},{label:'색상비교',text:'WT388보다도 조금 더 어두운 특성을 지닙니다.'},{label:'제한용도',text:'주로 특정 흑색 계열의 컬러에 제한적으로 사용합니다.'}] },
+  'WT 197': { role: '실크 실버 울트라 파인', type: 'silver_fine', face: '#e2e8f0', flop: '#64748b', desc: '입자의 크기는 매우 작지만 반짝임이 좋은 특수 알루미늄 조색제.', details: [{label:'특징',text:'입자 크기가 매우 작지만 반짝임이 좋은 특수 알루미늄 조색제입니다.'},{label:'용도',text:'매끈한 느낌의 은색을 연출할 때 사용됩니다.'},{label:'적용OEM',text:'Lexus - 1F1, M.Benz - 047 등에 적용됩니다.'}] },
+  'WT 300': { role: '마룬', type: 'solid', face: '#991b1b', flop: '#450a0a', desc: '어두운 적색 조색제. WT332에 비해 채도가 높으며 측면(110도)을 더 어둡게 함.', details: [{label:'특징',text:'어두운 적색 조색제입니다.'},{label:'색상비교',text:'WT332에 비해 채도가 더 높습니다.'},{label:'색상변화',text:'측면(110도 각도)에서 보았을 때 더 어둡게 보입니다.'},{label:'용도',text:'주로 적색 이펙트 컬러 조색에 사용됩니다.'}] },
+  'WT 303': { role: '플래틴 실버 엑스트라 화인', type: 'silver_fine', face: '#d1d5db', flop: '#475569', desc: '매우 작은 고휘도 광휘형 알루미늄 조색제.', details: [{label:'특징',text:'매우 작은 고휘도 광휘형 알루미늄 조색제입니다.'},{label:'비교',text:'WT389보다 입자가 더 작습니다.'}] },
+  'WT 304': { role: '매직 스파클 이펙트', type: 'xirallic', face: '#fef08a', flop: '#475569', desc: '투명한 황색의 크고 반짝임이 매우 좋은 글라스 플레이크.', details: [{label:'특징',text:'투명한 황색의 반짝임이 매우 좋은 글라스 플레이크입니다.'},{label:'효과',text:'도장면에 강렬하게 튀는 스파클링 효과를 부여합니다.'}] },
+  'WT 305': { role: '울트라 화인 실버', type: 'silver_fine', face: '#cbd5e1', flop: '#334155', desc: '매우 작지만 반짝임이 좋은 특수 알루미늄 조색제.', details: [{label:'특징',text:'매우 작지만 반짝임이 좋은 특수 알루미늄 조색제입니다.'},{label:'용도',text:'매끈한 느낌의 은색 베이스에 사용됩니다.'},{label:'적용OEM',text:'Nissan - KAB, Lexus - 1F1 등에 적용됩니다.'}] },
+  'WT 307': { role: '프리즈마 실버', type: 'xirallic', face: '#e2e8f0', flop: '#a855f7', desc: '정면에서는 은색, 측면에서는 무지개 색을 내는 특수 조색제.', details: [{label:'특징',text:'정면은 은색, 측면은 무지개색을 내는 특수 조색제입니다.'},{label:'효과',text:'빛의 굴절에 따라 스펙트럼(홀로그램) 효과를 줍니다.'}] },
+  'WT 308': { role: '브라이트 오렌지', type: 'solid', face: '#ea580c', flop: '#7c2d12', desc: '주로 이펙트 컬러에 사용하는 맑은 주황색. 은폐력은 떨어짐.', details: [{label:'특징',text:'맑은 주황색 조색제입니다.'},{label:'단점',text:'은폐력이 떨어집니다.'},{label:'용도',text:'투명한 발색 특성 때문에 주로 이펙트 컬러의 조색에 사용됩니다.'}] },
+  'WT 309': { role: '브릴리언트 마젠타', type: 'solid', face: '#d946ef', flop: '#701a75', desc: '맑은 자주색 조색제. 이펙트 컬러에 사용.', details: [{label:'특징',text:'맑고 밝은 자주색 조색제입니다.'},{label:'단점',text:'은폐력은 떨어집니다.'},{label:'용도',text:'탁해지지 않고 채도가 매우 높아야 하는 이펙트 컬러 조색에 사용합니다.'}] },
+  'WT 310': { role: '파우더 펄 바인더', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '파우더 펄 분말 사용을 위한 조색제 바인더', details: [{label:'특징',text:'단독으로 색상을 내지 않는 전용 조색제 바인더입니다.'},{label:'용도',text:'파우더 펄 분말을 액상 도료에 안정적으로 섞어주는 역할을 합니다.'}] },
+  'WT 311': { role: '루비 레드', type: 'solid', face: '#ef4444', flop: '#7f1d1d', desc: '약하게 황색을 띠는 맑은 적색 조색제.', details: [{label:'특징',text:'약하게 황색을 띠는 맑은 적색 조색제입니다.'},{label:'단점',text:'은폐력은 떨어집니다.'},{label:'용도',text:'채도가 높아야 하는 적색 이펙트 컬러 조색에 주로 사용됩니다.'}] },
+  'WT 312': { role: '매직 파이어 이펙트', type: 'pearl', face: '#ef4444', flop: '#22c55e', desc: '관찰각도에 따라 색상변화가 큰 특수 펄.', details: [{label:'특징',text:'관찰 각도에 따라 색상 변화가 매우 큰 특수 간섭 펄입니다.'},{label:'색상변화',text:'15도는 맑은 적색, 45도는 맑은 녹색, 110도는 약하게 녹색으로 변합니다.'}] },
+  'WT 315': { role: '엑스트라 화인 블루 펄', type: 'pearl', face: '#3b82f6', flop: '#84cc16', desc: '가장 작은 크기의 약하게 적색을 띠는 청색 간섭 펄.', details: [{label:'특징',text:'가장 작은 크기의 약하게 적색을 띠는 청색 간섭 펄 조색제입니다.'},{label:'비교',text:'WT372 보다도 입자가 작습니다.'},{label:'색상변화',text:'15도는 적청색, 나머지 각도는 녹황색으로 변합니다.'}] },
+  'WT 316': { role: '터콰이즈 펄', type: 'pearl', face: '#06b6d4', flop: '#10b981', desc: '중간 크기의 녹색을 띠는 청색 간섭 펄 조색제.', details: [{label:'특징',text:'중간 크기의 녹색을 띠는 청색 간섭 펄 조색제입니다.'},{label:'색상변화',text:'15도는 맑은 청색, 나머지 각도는 밝은 녹색으로 변합니다.'}] },
+  'WT 317': { role: '플래틴 실버 브릴리언트 화인', type: 'silver_fine', face: '#f8fafc', flop: '#334155', desc: 'WT305보다 조금 더 크며 반짝임이 좋은 특수 알루미늄.', details: [{label:'특징',text:'WT305보다 조금 더 크고 반짝임이 좋은 특수 알루미늄 조색제입니다.'},{label:'색상변화',text:'WT305 대비 15도(정면)는 더 밝고, 측면은 더 어두운 강한 명암 대비를 보입니다.'}] },
+  'WT 318': { role: '브릴리언트 블루', type: 'solid', face: '#0284c7', flop: '#082f49', desc: '녹색을 띠는 맑은 청색 조색제.', details: [{label:'특징',text:'녹색을 띠는 맑은 청색 조색제입니다.'},{label:'비교',text:'WT346과 비교할 때 톤이 더 밝고 녹색 기운이 더 돕니다.'}] },
+  'WT 320': { role: '플래티늄 펄', type: 'pearl', face: '#f1f5f9', flop: '#64748b', desc: '가장 작은 크기의 초미립 백색 펄 조색제.', details: [{label:'특징',text:'가장 작은 크기의 초미립 백색 펄 조색제입니다.'},{label:'적용OEM',text:'현대 XB3, 아우디 LX7L, BMW A96 등에 폭넓게 사용됩니다.'}] },
+  'WT 321': { role: '화이트', type: 'solid', face: '#ffffff', flop: '#e2e8f0', desc: '가장 표준이 되는 백색(고농도) 조색제.', details: [{label:'특징',text:'가장 표준이 되는 백색(고농도) 조색제입니다.'},{label:'이펙트적용',text:'15도는 어둡게, 나머지 각도는 밝게 하며 금속/펄의 입자감을 줄여줍니다.'}] },
+  'WT 322': { role: '마이크로 화이트', type: 'solid', face: '#f8fafc', flop: '#cbd5e1', desc: '알루미늄 및 펄 입자가 사용되는 이펙트 컬러에만 한정하여 사용.', details: [{label:'주의사항',text:'솔리드에는 쓰지 않고 이펙트 컬러에만 한정하여 사용합니다.'},{label:'색상변화',text:'15도는 황색을 띠며 어둡고, 나머지 각도는 청색을 띠며 밝게 반사됩니다.'}] },
+  'WT 323': { role: '스페셜 블랙', type: 'solid', face: '#020617', flop: '#000000', desc: '표준 흑색 조색제.', details: [{label:'특징',text:'표준 흑색 조색제입니다.'},{label:'이펙트적용',text:'알루미늄 입자와 혼합 시 명암은 어두워지면서 약하게 적황색 기운이 늘어납니다.'}] },
+  'WT 324': { role: '레디쉬 옐로우', type: 'solid', face: '#f59e0b', flop: '#9a3412', desc: '적색을 띠는 맑고 채도 높은 황색 조색제.', details: [{label:'특징',text:'적색을 띠는 맑고 채도 높은 황색 조색제입니다.'},{label:'단점',text:'바탕 은폐력은 떨어집니다.'}] },
+  'WT 326': { role: '그리니쉬 옐로우', type: 'solid', face: '#eab308', flop: '#65a30d', desc: '이펙트 컬러에 사용하는 녹색을 띤 맑은 황색 조색제.', details: [{label:'특징',text:'이펙트 컬러에 사용하는 녹색을 띤 맑은 황색 조색제입니다.'},{label:'이펙트적용',text:'15도는 맑은 황색, 나머지 각도는 녹황색을 띱니다.'}] },
+  'WT 327': { role: '옐로우', type: 'solid', face: '#fde047', flop: '#ca8a04', desc: '약하게 녹색을 띠는 밝은 황색 조색제.', details: [{label:'특징',text:'약하게 녹색을 띠는 밝은 황색 조색제입니다.'},{label:'이펙트적용',text:'측면에 밝은 황색이 필요할 경우에만 소량 첨가합니다.'}] },
+  'WT 328': { role: '오커', type: 'solid', face: '#b45309', flop: '#451a03', desc: '탁한 황토색 조색제.', details: [{label:'특징',text:'탁한 황토색 조색제입니다.'},{label:'용도',text:'은폐력이 요구되거나 채도가 낮아야 하는 솔리드 컬러에 주로 사용됩니다.'}] },
+  'WT 329': { role: '트랜스페어런트 옐로우', type: 'solid', face: '#f59e0b', flop: '#ea580c', desc: '적색을 조금 띠는 아주 선명하고 맑은 투명 황색 조색제.', details: [{label:'특징',text:'적색을 조금 띠는 아주 선명하고 맑은 투명 황색 조색제입니다.'},{label:'단점',text:'투명도가 높아 은폐력은 크게 떨어집니다.'}] },
+  'WT 330': { role: '블러드 오렌지', type: 'solid', face: '#ea580c', flop: '#9a3412', desc: '밝은 주황색 조색제.', details: [{label:'특징',text:'밝은 주황색 조색제입니다.'},{label:'이펙트적용',text:'측면에 밝은 황적색 기운이 부족할 경우 소량 첨가합니다.'}] },
+  'WT 331': { role: '트랜스루센트 옥사이드', type: 'solid', face: '#d97706', flop: '#451a03', desc: '이펙트 컬러 내부에서 맑은 적황색을 발현하는 반투명 조색제.', details: [{label:'특징',text:'이펙트 컬러 내부에서 맑은 적황색을 발현하는 반투명 조색제입니다.'},{label:'사용금지',text:'안료 특성상 솔리드 컬러에는 사용을 엄격히 금합니다.'}] },
+  'WT 332': { role: '마룬', type: 'solid', face: '#b91c1c', flop: '#7c2d12', desc: '탁하고 어두운 적색 조색제.', details: [{label:'특징',text:'탁하고 어두운 적색 조색제입니다.'},{label:'용도',text:'전체적인 톤을 황적색으로 잡아주고 명암을 조금 더 어둡게 누릅니다.'}] },
+  'WT 333': { role: '그라나다 레드', type: 'solid', face: '#991b1b', flop: '#450a0a', desc: '맑고 밝은 기본 적색 조색제.', details: [{label:'특징',text:'맑고 밝은 기본 적색 조색제입니다.'},{label:'이펙트적용',text:'측면에 적색 기운이 부족할 경우 소량 첨가하여 보완합니다.'}] },
+  'WT 334': { role: '옥사이드 레드', type: 'solid', face: '#7f1d1d', flop: '#450a0a', desc: '탁한 산화철 적색 조색제.', details: [{label:'특징',text:'탁한 산화철 적색 조색제입니다. 조색제 단독 은폐력이 매우 뛰어납니다.'},{label:'이펙트적용',text:'측면에 무거운 황적색 톤을 띠게 하기 위해 소량만 사용합니다.'}] },
+  'WT 335': { role: '다크 옐로우', type: 'solid', face: '#d97706', flop: '#78350f', desc: '적색을 조금 띠는 차분하고 밝은 톤의 황색 조색제.', details: [{label:'특징',text:'적색을 조금 띠는 차분하고 밝은 톤의 황색 조색제입니다.'},{label:'이펙트적용',text:'측면에 밝은 녹황색 기운이 부족할 경우 한하여 소량 사용합니다.'}] },
+  'WT 336': { role: '트랜스루센트 레드', type: 'solid', face: '#7c2d12', flop: '#450a0a', desc: '선명하면서도 어두운 갈색 빛이 도는 반투명 조색제.', details: [{label:'특징',text:'선명하면서도 어두운 갈색 빛이 도는 반투명 조색제입니다.'},{label:'용도제한',text:'반사광을 투과시키기 위해 이펙트 컬러에만 한정하여 사용합니다.'}] },
+  'WT 337': { role: '레드', type: 'solid', face: '#ef4444', flop: '#991b1b', desc: '약하게 청색 기운이 도는 중간 정도 톤의 표준 적색 조색제.', details: [{label:'특징',text:'약하게 청색 기운이 도는 중간 정도 톤의 표준 적색 조색제입니다.'},{label:'용도',text:'솔리드 적색 컬러 배합 시 가장 기본으로 사용됩니다.'}] },
+  'WT 338': { role: '블루이쉬 마젠타 레드', type: 'solid', face: '#d946ef', flop: '#86198f', desc: '표준 자주색(Magenta) 조색제.', details: [{label:'특징',text:'푸른빛이 많이 도는 표준 자주색(Magenta) 조색제입니다.'},{label:'이펙트적용',text:'백색 안료나 알루미늄에 혼합할 경우 매우 맑은 분홍색(Pink)을 나타냅니다.'}] },
+  'WT 339': { role: '바이올렛', type: 'solid', face: '#8b5cf6', flop: '#4c1d95', desc: '맑은 보라색 조색제.', details: [{label:'특징',text:'맑은 보라색 조색제입니다.'},{label:'용도',text:'청색 및 회색 컬러 조색 시 은은한 보라빛을 내고 명암을 차분하게 눌러줍니다.'}] },
+  'WT 340': { role: '옐로우 마젠타 레드', type: 'solid', face: '#e879f9', flop: '#a21caf', desc: '황색 기운이 도는 맑은 자주색 조색제.', details: [{label:'특징',text:'황색 기운이 도는 맑은 자주색 조색제입니다.'},{label:'비교',text:'WT338 안료에 비해 전체적으로 톤이 밝고 청색감이 적습니다.'}] },
+  'WT 341': { role: '아주르 블루', type: 'solid', face: '#2563eb', flop: '#1e3a8a', desc: '채도가 가장 높은 아주 선명한 청색 조색제.', details: [{label:'특징',text:'채도가 가장 높은 아주 선명한 청색 조색제입니다.'},{label:'색상변화',text:'솔리드 안료임에도 관찰 각도 별로 컬러 변화(플롭)가 가장 큽니다.'}] },
+  'WT 342': { role: '다크 바이올렛', type: 'solid', face: '#6d28d9', flop: '#2e1065', desc: '맑고 어두운 보라색 조색제.', details: [{label:'특징',text:'맑고 어두운 보라색 조색제입니다.'},{label:'비교',text:'WT339 안료에 비해 청색이 적게 배합되어 있습니다.'}] },
+  'WT 343': { role: '블루', type: 'solid', face: '#3b82f6', flop: '#1e40af', desc: '특정한 색 치우침이 없는 표준 청색 조색제.', details: [{label:'특징',text:'특정한 색 치우침이 없는 표준 청색 조색제입니다.'},{label:'용도',text:'솔리드와 이펙트 배합 모두에 가장 범용적으로 쓰이는 중간톤 파란색입니다.'}] },
+  'WT 344': { role: '다크 블루', type: 'solid', face: '#1d4ed8', flop: '#0f172a', desc: '명도가 가장 어두운 딥 블루 조색제.', details: [{label:'특징',text:'청색 조색제 라인업 중 명도가 가장 어두운 딥 블루입니다.'},{label:'색상변화',text:'이펙트 적용 시 15도는 어두운 청색, 측면에서는 붉은 적색 기운이 올라옵니다.'}] },
+  'WT 345': { role: '트랜스페어런트 에메랄드', type: 'solid', face: '#10b981', flop: '#064e3b', desc: '맑고 선명한 황색 기운을 띠는 투명 녹색 조색제.', details: [{label:'특징',text:'맑고 선명한 황색 기운을 띠는 투명 녹색 조색제입니다.'},{label:'비교',text:'WT347에 비해 톤이 훨씬 밝고 황색 비율이 높아 화사한 에메랄드 빛을 냅니다.'}] },
+  'WT 346': { role: '트랜스페어런트 딥 블루', type: 'solid', face: '#0369a1', flop: '#020617', desc: '녹색 기운을 많이 띠는 투명 청색 조색제.', details: [{label:'특징',text:'녹색 기운을 많이 띠는 투명 청색 조색제입니다.'},{label:'용도',text:'이펙트 컬러 조색 시 가장 기본적으로 많이 사용하는 청색입니다.'}] },
+  'WT 347': { role: '트랜스페어런트 그린', type: 'solid', face: '#15803d', flop: '#022c22', desc: '청색 기운을 조금 띠는 맑은 투명 녹색 조색제.', details: [{label:'특징',text:'청색 기운을 조금 띠는 맑은 투명 녹색 조색제입니다.'},{label:'비교',text:'WT345 안료에 비해서 청색 비율이 높고 명암이 더 차갑고 어둡습니다.'}] },
+  'WT 348': { role: '트랜스페어런트 아주르 블루', type: 'solid', face: '#0ea5e9', flop: '#0369a1', desc: '채도가 높은 맑은 하늘색(Azure) 투명 조색제.', details: [{label:'특징',text:'채도가 높은 맑은 하늘색(Azure) 투명 조색제입니다.'},{label:'이펙트적용',text:'이펙트 혼합 시 15도는 녹청색, 측면에서는 약하게 적색 기운을 띱니다.'}] },
+  'WT 349': { role: '트랜스루센트 그린', type: 'solid', face: '#86efac', flop: '#064e3b', desc: '정밀한 조색을 위한 녹색 저농도 조색제.', details: [{label:'특징',text:'정밀한 조색을 위한 녹색 저농도 조색제입니다. WT347의 농도를 낮춘 버전입니다.'},{label:'배합비율',text:'WT349 : WT347 = 10.52 : 1 의 배합 비율을 가집니다.'}] },
+  'WT 350': { role: '트랜스루센트 블랙', type: 'solid', face: '#525252', flop: '#451a03', desc: '정밀한 조색을 위한 흑색 저농도 조색제.', details: [{label:'특징',text:'정밀한 조색을 위한 흑색 저농도 조색제입니다. WT323의 농도를 낮춘 버전입니다.'},{label:'배합비율',text:'WT350 : WT323 = 2.89 : 1 의 배합 비율을 가집니다.'}] },
+  'WT 351': { role: '트랜스루센트 아주르 블루', type: 'solid', face: '#38bdf8', flop: '#075985', desc: 'WT348 안료의 저농도 버전입니다.', details: [{label:'특징',text:'WT348 안료의 저농도 버전입니다.'},{label:'배합비율',text:'WT351 : WT348 = 8.7 : 1 의 배합 비율을 가집니다.'}] },
+  'WT 352': { role: '트랜스루센트 화이트', type: 'solid', face: '#f8fafc', flop: '#cbd5e1', desc: 'WT321 안료의 저농도 버전입니다.', details: [{label:'특징',text:'WT321 안료의 저농도 버전입니다.'},{label:'배합비율',text:'WT352 : WT321 = 7.69 : 1 의 배합 비율을 가집니다.'}] },
+  'WT 353': { role: '트랜스루센트 마젠타 레드', type: 'solid', face: '#c026d3', flop: '#4a044e', desc: 'WT338 안료의 저농도 버전입니다.', details: [{label:'특징',text:'WT338 안료의 저농도 버전입니다.'},{label:'배합비율',text:'WT353 : WT338 = 5.68 : 1 의 배합 비율을 가집니다.'}] },
+  'WT 354': { role: '화인 실버', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b', desc: '매우 작은 크기의 일반형 알루미늄 조색제.', details: [{label:'특징',text:'매우 작은 크기의 일반형 알루미늄 조색제입니다. WT356 보다 작습니다.'}] },
+  'WT 355': { role: '브릴리언트 실버 코올스', type: 'silver_coarse', face: '#f8fafc', flop: '#334155', desc: '가장 큰 광휘형 알루미늄 조색제. 은폐력은 떨어짐.', details: [{label:'특징',text:'가장 큰 광휘형 알루미늄 조색제입니다.'},{label:'단점',text:'입자가 커서 은폐력은 떨어집니다.'}] },
+  'WT 356': { role: '미디움 실버', type: 'silver_fine', face: '#e2e8f0', flop: '#475569', desc: '중간 크기의 일반형 알루미늄 조색제.', details: [{label:'특징',text:'중간 크기의 일반형 알루미늄 조색제입니다.'}] },
+  'WT 357': { role: '마이크로 실버', type: 'silver_fine', face: '#f8fafc', flop: '#64748b', desc: '입자가 가장 작은 일반형 알루미늄 조색제.', details: [{label:'특징',text:'입자가 가장 작은 일반형 알루미늄 조색제입니다. 실버 중 은폐력이 가장 우수합니다.'},{label:'색상비교',text:'WT356보다 15도는 어둡고, 나머지 각도는 밝습니다.'}] },
+  'WT 358': { role: '스페셜 실버', type: 'silver_fine', face: '#e2e8f0', flop: '#475569', desc: '이펙트 컬러용으로 배합되는 특수 실버 조색제.', details: [{label:'특징',text:'이펙트 컬러용으로 배합되는 특수 실버 조색제입니다.'}] },
+  'WT 359': { role: '브라이트 실버', type: 'silver_coarse', face: '#f1f5f9', flop: '#334155', desc: 'WT356보다 큰 일반형 알루미늄 조색제.', details: [{label:'특징',text:'WT356보다 큰 일반형 알루미늄 조색제입니다.'},{label:'색상비교',text:'WT356 보다 15도는 밝고, 나머지 각도는 어두움.'}] },
+  'WT 360': { role: '코올스 실버', type: 'silver_coarse', face: '#94a3b8', flop: '#1e293b', desc: 'WT359보다 큰 거친 알루미늄 조색제.', details: [{label:'특징',text:'WT359보다 큰 거친 알루미늄 조색제입니다.'},{label:'색상비교',text:'WT359보다 15도는 밝고 나머지 각도는 어두움.'}] },
+  'WT 361': { role: '브릴리언트 실버', type: 'silver_coarse', face: '#f1f5f9', flop: '#64748b', desc: 'WT362보다 큰 광휘형 알루미늄 조색제.', details: [{label:'특징',text:'WT362보다 큰 광휘형 알루미늄 조색제입니다.'},{label:'색상비교',text:'WT362보다 15도는 밝고 나머지 각도는 어두움.'}] },
+  'WT 362': { role: '브릴리언트 실버 화인', type: 'silver_fine', face: '#e2e8f0', flop: '#334155', desc: '작은 크기의 광휘형 알루미늄 조색제.', details: [{label:'특징',text:'작은 크기의 광휘형 알루미늄 조색제입니다. WT361에 비해 크기가 작습니다.'}] },
+  'WT 363': { role: '브릴리언트 골드', type: 'pearl', face: '#fbbf24', flop: '#b45309', desc: '맑고 선명한 황색 알루미늄 조색제.', details: [{label:'특징',text:'맑고 선명한 황색 알루미늄 조색제입니다.'},{label:'용도',text:'은폐력이 우수하여 금빛(Gold) 메탈릭 컬러를 구현할 때 필수적으로 사용됩니다.'}] },
+  'WT 364': { role: '화이트 펄', type: 'pearl', face: '#ffffff', flop: '#94a3b8', desc: '입자 크기가 매우 큰 백색 펄 조색제.', details: [{label:'특징',text:'입자 크기가 매우 큰 백색 펄 조색제입니다.'},{label:'외관',text:'육안으로 개별 펄 입자의 스파클링 반짝임이 가장 강렬하게 돋보입니다.'}] },
+  'WT 365': { role: '라일락 펄', type: 'pearl', face: '#a3e635', flop: '#be185d', desc: '중간 크기의 자주색 간섭 펄 조색제.', details: [{label:'특징',text:'중간 크기의 자주색 간섭 펄 조색제입니다.'},{label:'색상변화',text:'15도는 푸른빛의 청적색, 측면은 노란빛의 황녹색으로 변합니다.'}] },
+  'WT 366': { role: '골드 펄', type: 'pearl', face: '#facc15', flop: '#4c1d95', desc: '중간 크기의 황색 간섭 펄 조색제.', details: [{label:'특징',text:'중간 크기의 황색 간섭 펄 조색제입니다.'},{label:'색상변화',text:'15도는 황색, 측면은 청색으로 교차 변화하는 입체감을 줍니다.'}] },
+  'WT 367': { role: '화인 그린 펄', type: 'pearl', face: '#4ade80', flop: '#991b1b', desc: '작은 크기의 섬세한 녹색 간섭 펄 조색제.', details: [{label:'특징',text:'작은 크기의 섬세한 녹색 간섭 펄 조색제입니다.'},{label:'색상변화',text:'15도는 녹색, 측면은 적색으로 색상이 부드럽게 반전됩니다.'}] },
+  'WT 368': { role: '화인 화이트 펄', type: 'pearl', face: '#f8fafc', flop: '#64748b', desc: '중간 크기의 백색 펄 조색제.', details: [{label:'특징',text:'중간 크기의 백색 펄 조색제입니다.'}] },
+  'WT 369': { role: '레드 펄', type: 'pearl', face: '#ef4444', flop: '#7f1d1d', desc: '작은 크기의 적색 착색 펄 조색제.', details: [{label:'특징',text:'작은 크기의 적색 착색 펄 조색제입니다.'},{label:'외관',text:'관찰 각도에 따라 색상 변화가 거의 없이 일관된 빛을 냅니다.'},{label:'용도',text:'은폐력이 좋아 적색 입자감이 뚜렷해야 하는 컬러에 주로 적용됩니다.'}] },
+  'WT 370': { role: '브라이트 블루 펄', type: 'pearl', face: '#0ea5e9', flop: '#be123c', desc: '큰 크기를 가진 화려하고 맑은 청색 간섭 펄 조색제.', details: [{label:'특징',text:'큰 크기를 가진 화려하고 맑은 청색 간섭 펄 조색제입니다.'},{label:'색상변화',text:'15도는 녹청색, 측면은 따뜻한 적황색으로 시각적 변화 폭이 매우 큽니다.'}] },
+  'WT 371': { role: '브라운 펄', type: 'pearl', face: '#d97706', flop: '#451a03', desc: '중간 크기의 주황색 착색 펄 조색제.', details: [{label:'특징',text:'중간 크기의 주황색 착색 펄 조색제입니다.'},{label:'외관',text:'각도 별로 색상 변화가 거의 없으며 안정적이고 차분한 갈색 펄감을 줍니다.'}] },
+  'WT 372': { role: '화인 블루 펄', type: 'pearl', face: '#3b82f6', flop: '#c026d3', desc: '적색 기운이 도는 청색 간섭 펄 조색제.', details: [{label:'특징',text:'적색 기운이 도는 청색 간섭 펄 조색제입니다.'},{label:'비교',text:'WT370 안료보다 입자 크기가 작습니다.'},{label:'색상변화',text:'15도는 적청색, 측면은 녹황색으로 부드럽게 변합니다.'}] },
+  'WT 373': { role: '루비 펄', type: 'pearl', face: '#dc2626', flop: '#7f1d1d', desc: '중간 크기의 은폐력이 있는 적색 착색 펄 조색제.', details: [{label:'특징',text:'중간 크기의 은폐력이 있는 적색 착색 펄 조색제입니다.'},{label:'외관',text:'펄 입자 자체에 어느 정도 은폐력이 있으며, 안정적인 착색 펄입니다.'}] },
+  'WT 374': { role: '블루 그린 펄', type: 'pearl', face: '#0d9488', flop: '#c2410c', desc: '중간 크기의 오묘한 청녹색 간섭 펄 조색제.', details: [{label:'특징',text:'중간 크기의 오묘한 청녹색 간섭 펄 조색제입니다.'},{label:'색상변화',text:'15도는 맑은 청녹색, 측면은 따뜻한 황적색으로 교차 변화합니다.'}] },
+  'WT 375': { role: '그린 펄', type: 'pearl', face: '#16a34a', flop: '#b91c1c', desc: '중간 크기의 기본 녹색 간섭 펄 조색제.', details: [{label:'특징',text:'중간 크기의 기본 녹색 간섭 펄 조색제입니다.'},{label:'색상변화',text:'15도는 맑은 녹색, 측면은 적색으로 반전되며 도장면에 신비로운 입체감을 줍니다.'}] },
+  'WT 376': { role: '레드펄 엑스트라', type: 'pearl', face: '#ef4444', flop: '#16a34a', desc: '중간 크기의 적색 간섭 펄 조색제.', details: [{label:'특징',text:'중간 크기의 적색 간섭 펄 조색제입니다.'},{label:'색상변화',text:'선명한 적색 베이스로 15도는 적색, 측면은 보색인 녹색이 은은하게 드러납니다.'}] },
+  'WT 377': { role: '다이아몬드 화이트', type: 'xirallic', face: '#ffffff', flop: '#64748b', desc: '질라릭 코팅 기반의 프리미엄 백색 펄 조색제.', details: [{label:'특징',text:'질라릭(Xirallic) 코팅 기반의 프리미엄 백색 펄 조색제입니다.'},{label:'외관',text:'입자의 반짝임이 다이아몬드처럼 매우 뛰어납니다.'},{label:'색상변화',text:'15도는 약하게 녹색을 띠고, 나머지 각도는 약하게 적색을 띱니다.'}] },
+  'WT 378': { role: '다이아몬드 레드', type: 'xirallic', face: '#ef4444', flop: '#7f1d1d', desc: '질라릭 기반의 프리미엄 적색 펄 조색제.', details: [{label:'특징',text:'질라릭(Xirallic) 기반의 프리미엄 적색 펄 조색제입니다.'},{label:'외관',text:'입자 반짝임이 우수하며 색상 변화가 거의 없는 초고광택 착색 펄입니다.'}] },
+  'WT 379': { role: '다이아몬드 카퍼', type: 'xirallic', face: '#ea580c', flop: '#7c2d12', desc: '질라릭 기반의 프리미엄 주황색(구리) 펄 조색제.', details: [{label:'특징',text:'질라릭(Xirallic) 기반의 프리미엄 주황색(Copper/구리) 펄 조색제입니다.'},{label:'외관',text:'차분하고 화려한 착색 펄입니다.'}] },
+  'WT 380': { role: '다이아몬드 그린', type: 'xirallic', face: '#4ade80', flop: '#166534', desc: '질라릭 기반의 프리미엄 녹색 간섭 펄 조색제.', details: [{label:'특징',text:'질라릭(Xirallic) 기반의 프리미엄 녹색 간섭 펄 조색제입니다.'},{label:'외관/변화',text:'반짝임이 매우 뛰어나며, 15도는 그린, 측면은 붉은 적색으로 강렬하게 변합니다.'}] },
+  'WT 381': { role: '다이아몬드 블루', type: 'xirallic', face: '#3b82f6', flop: '#1e3a8a', desc: '질라릭 기반의 프리미엄 청색 간섭 펄 조색제.', details: [{label:'특징',text:'질라릭(Xirallic) 기반의 프리미엄 청색 간섭 펄 조색제입니다.'},{label:'외관/변화',text:'반짝임이 눈부시며, 15도는 맑은 청색, 측면은 노란빛 황색으로 변합니다.'}] },
+  'WT 382': { role: '다이아몬드 골드', type: 'xirallic', face: '#facc15', flop: '#a16207', desc: '질라릭 기반의 프리미엄 황색 간섭 펄 조색제.', details: [{label:'특징',text:'질라릭(Xirallic) 기반의 프리미엄 황색 간섭 펄 조색제입니다.'},{label:'외관/변화',text:'15도는 영롱한 황금색, 측면은 푸른 청색으로 화려하게 변합니다.'}] },
+  'WT 383': { role: '브릴리언트 오렌지', type: 'silver_coarse', face: '#f97316', flop: '#9a3412', desc: '강렬한 주황빛의 알루미늄 조색제.', details: [{label:'특징',text:'강렬한 주황빛의 알루미늄 조색제입니다.'},{label:'비교/용도',text:'WT363 베이스에 비해 적색감(적황색)이 훨씬 많이 배합되었습니다.'}] },
+  'WT 385': { role: '시스템 컴포넌트 A', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '투명한 백색을 내는 수지.', details: [{label:'특징',text:'투명한 백색을 내는 수지입니다. 도료 시스템의 뼈대를 구성합니다.'},{label:'상세',text:'점도 조절 첨가제인 WT387에 비해 기본 점도가 더 높은 것이 특징입니다.'}] },
+  'WT 386': { role: '플롭 컨트롤', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '특수 명암 조정제.', details: [{label:'특징',text:'특수 명암 조정제입니다.'},{label:'용도/효과',text:'측면을 밝게 끌어올리기 위한 목적이며, 이펙트 입자 배열을 제어합니다.'}] },
+  'WT 387': { role: '시스템 컴포넌트 B', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '점도 조절 첨가제.', details: [{label:'특징',text:'수용성 베이스코트 도료 전체의 시스템 점도 조절제입니다.'}] },
+  'WT 388': { role: '슈퍼 딥 블랙', type: 'solid', face: '#050505', flop: '#000000', desc: '아주 어두운 흑색 조색제.', details: [{label:'특징',text:'아주 어두운 흑색 조색제입니다.'},{label:'비교',text:'표준 블랙인 WT323 안료보다도 훨씬 더 어둡고 진합니다.'},{label:'제한용도',text:'아주 어두운 극한의 흑색 계열 컬러 조색 시에만 제한적으로 사용합니다.'}] },
+  'WT 389': { role: '플래틴 실버 화인', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b', desc: '입자 크기가 작은 고휘도 광휘형 알루미늄 조색제.', details: [{label:'특징',text:'입자 크기가 작은 고휘도 광휘형 알루미늄 조색제입니다.'},{label:'상세/비교',text:'입자가 WT303 보다는 크고 WT390 보다는 작게 설계되었습니다.'}] },
+  'WT 390': { role: '플래틴 실버', type: 'silver_coarse', face: '#f8fafc', flop: '#334155', desc: '중간 크기 입자의 고휘도 광휘형 알루미늄 조색제.', details: [{label:'특징',text:'중간 크기 입자의 고휘도 광휘형 알루미늄 조색제입니다.'},{label:'비교',text:'WT389 안료보다 입자가 더 큽니다.'},{label:'색상플롭',text:'15도가 가장 밝고 측면이 극단적으로 어두워져 명암 대비(플롭)가 강합니다.'}] },
+  'WT 392': { role: '매직 이펙트', type: 'pearl', face: '#22c55e', flop: '#ef4444', desc: '관찰 각도에 따라 색상 변화가 매우 큰 특수 펄 조색제.', details: [{label:'특징',text:'관찰 각도에 따라 색상 변화가 매우 큰 특수 펄 조색제입니다.'},{label:'비교',text:'WT312(매직 파이어) 안료와 색상이 완전히 정반대로 변색되는 고유한 특징.'},{label:'색상변화',text:'15도는 녹색, 45도는 적색, 110도는 약하게 적색으로 변하는 마법 같은 펄입니다.'}] },
+  'WT 393': { role: '라이트 옐로우', type: 'solid', face: '#fef08a', flop: '#a16207', desc: '약하게 녹색을 띠는 밝은 황색 조색제.', details: [{label:'특징',text:'녹색을 아주 약하게 띠는 밝은 황색 조색제입니다.'},{label:'비교',text:'기본 황색인 WT327 안료에 비해서 녹색 기운이 적게 돕니다.'},{label:'용도',text:'이펙트에서는 측면에 밝은 황색이 미세하게 필요할 경우에만 소량 첨가합니다.'}] },
+  'WT 1051': { role: '블랜딩 1051', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '블랜드인 첨가제 및 블랜딩용 특수 첨가제.', details: [{label:'특징',text:'부분 보수 도장 작업 시 필수적인 전용 블랜딩(숨김) 첨가제입니다.'}] },
+  'WT 1500': { role: '울트라 딥 블랙', type: 'solid', face: '#000000', flop: '#000000', desc: '가장 극도로 어두운 흑색 조색제.', details: [{label:'특징',text:'Hi-TEC 시스템 내에서 가장 극도로 어두운 흑색 조색제입니다. 특수 염료 함유.'},{label:'절대주의',text:'알루미늄/펄에 과도하게(2% 이상) 사용 시 색상이 변질되거나 내구성에 문제가 생깁니다.'},{label:'허용배합비율',text:'반드시 솔리드: 최대 5%, 실버: 최대 2%, 펄: 최대 5% 이내의 비율을 지켜야 합니다.'}] },
+  'WT 455': { role: '퍼포먼스 컴포넌트', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '솔리드 컬러에만 단독 사용하는 기능성 첨가제.', details: [{label:'특징/용도',text:'이펙트가 아닌 솔리드 컬러에만 단독 사용하는 기능성 첨가제입니다.'},{label:'혼합비율',text:'베이스코트 총 무게의 10% 비율로 혼합하여 분사합니다.'},{label:'효과',text:'겨울철이나 건조한 환경(낮은 습도)에서도 스프레이 작업성을 보장합니다.'}] },
+  'WT 3080': { role: '스페셜 애디티브', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '도막 보정 및 흐름 방지 전용 첨가제.', details: [{label:'특징',text:'도막 보정 및 흐름 방지 전용 첨가제입니다.'}] }
 };
 
-// 💡 1-2. 카탈로그 라벨 분류
+// 💡 1-2. 카탈로그 라벨 자동 분류 로직
 const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
   let labelCategory = "일반 특성";
   let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
@@ -139,7 +154,7 @@ const isTonerMetallic = (role: string) => {
     return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스');
 }
 
-// 💡 🚨[최적화 캐싱 엔진]🚨
+// 💡 3. SVG 텍스처 렌더링 캐싱 엔진 (모바일 버벅임 원천 차단)
 const textureCache: Record<string, React.CSSProperties> = {};
 const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
     if (!isMetallic || type === 'binder' || type === 'solid') {
@@ -170,6 +185,7 @@ const getCachedTexture = (type: string, faceColor: string, flopColor: string, is
     return result;
 };
 
+// 💡 단일 뷰어 정밀 그라데이션
 const getTonerDetailBackground = (code: string, role: string, angle: string) => {
   const r = role || ''; let h = 0, s = 0, baseL = 50;
   if (r.includes('블루') || r.includes('청')) { h = 210; s = 80; baseL = 40; }
@@ -194,9 +210,10 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
   }
 };
 
+// 💡 🚨[화면 뻗음(Black Screen) 방어 엔진 100% 롤백]🚨
+// 이전 코드에서 안료 정보 부족 시 NaN이 발생하던 치명적 버그를 완벽하게 차단했습니다.
 const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
 
-// 💡 🚨[화면 뻗음 원천 차단]🚨 NaN 에러를 100% 차단합니다.
 const getOptics = (tonersList: any[]) => {
   const colorToners = tonersList.filter(t => t.code && TONER_DB[t.code]);
   const sumW = colorToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
@@ -239,7 +256,7 @@ const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
   return `hsl(${opticsObj[angle].h}, ${opticsObj[angle].s}%, ${opticsObj[angle].l}%)`;
 };
 
-// 💡 🚨[화면 뻗음 원천 차단]🚨 매개변수를 2개만 받도록 완벽히 고정
+// 💡 확장 뷰어 3D 배경 렌더링 (매개변수 2개 완벽 방어)
 const getInteractiveBackground = (opticsObj: any, lPos: any) => {
   if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return '#f1f5f9';
   const viewAngleT = Math.max(0, Math.min(1, lPos.x / 100));
@@ -268,10 +285,9 @@ const getInteractiveBackground = (opticsObj: any, lPos: any) => {
 // 💡 메인 APP 컴포넌트
 // ==========================================
 export default function App() {
-  // 💡 [LocalStorage 상태 연동 엔진 탑재] 
-  const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "" }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "" }]);
+  
   const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
   const [targetColorCode, setTargetColorCode] = useState('');
   
@@ -284,7 +300,7 @@ export default function App() {
   const [isScanning, setIsScanning] = useState(false);
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
 
-  // 💡 [에러 원천 차단] 필수 참조 변수 선언
+  // 💡 필수 Refs 선언
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const viewerRef = useRef<HTMLElement>(null);
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -299,44 +315,15 @@ export default function App() {
   const [baseOptics, setBaseOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
   const [pearlOptics, setPearlOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
   const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false });
-  const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null);
+  const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); // 💡 확장 뷰어 Before 렌더링용 상태
 
+  // 💡 [6052 수지 계산 로직 변수]
   const [isBaseMetallic, setIsBaseMetallic] = useState(false);
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
 
   const tonersRef = useRef<any[]>([]);
   const pearlTonersRef = useRef<any[]>([]);
   const isThreeCoatModeRef = useRef<boolean>(true);
-
-  // 💡 [데이터 증발 방지] 앱 실행 시 스토리지 복원
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-        const savedBase = localStorage.getItem('hitec_base');
-        const savedPearl = localStorage.getItem('hitec_pearl');
-        const savedCode = localStorage.getItem('hitec_code');
-        const savedMode = localStorage.getItem('hitec_mode');
-        
-        if (savedBase) setToners(JSON.parse(savedBase));
-        if (savedPearl) setPearlToners(JSON.parse(savedPearl));
-        if (savedCode) setTargetColorCode(savedCode);
-        if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode));
-        
-        setIsLoaded(true);
-    }
-  }, []);
-
-  // 💡 [데이터 증발 방지] 입력 시 자동 저장
-  useEffect(() => {
-      if (isLoaded && typeof window !== 'undefined') {
-          localStorage.setItem('hitec_base', JSON.stringify(toners));
-          localStorage.setItem('hitec_pearl', JSON.stringify(pearlToners));
-          localStorage.setItem('hitec_code', targetColorCode);
-          localStorage.setItem('hitec_mode', JSON.stringify(isThreeCoatMode));
-      }
-  }, [toners, pearlToners, targetColorCode, isThreeCoatMode, isLoaded]);
-
-  // 실시간 정렬 트래킹
-  const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
 
   useEffect(() => {
     tonersRef.current = toners;
@@ -368,6 +355,7 @@ export default function App() {
     const activeToners = isThreeCoatMode ? [...toners, ...pearlToners] : toners;
     setFinalOptics(getOptics(activeToners));
 
+    // 메탈릭 여부 감지
     const checkMetallic = (list: any[]) => list.some(t => {
       const type = TONER_DB[t.code]?.type || '';
       return type !== 'solid' && type !== 'binder' && type !== '';
@@ -376,7 +364,7 @@ export default function App() {
     setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
-  // 💡 [고속 타이핑 엔진] 오토 포커스
+  // 💡 [고속 타이핑 엔진] 오토 포커스 딜레이 최적화
   useEffect(() => {
     if (focusTarget) {
       setTimeout(() => {
@@ -386,7 +374,7 @@ export default function App() {
             weightRefs.current[focusTarget.id]?.focus();
         }
         setFocusTarget(null);
-      }, 100);
+      }, 50);
     }
   }, [focusTarget, toners, pearlToners]);
 
@@ -400,11 +388,10 @@ export default function App() {
   const handleClearAll = () => {
     setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "" }]); 
     setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "" }]); 
-    setTargetColorCode('');
-    setIsBaseConfirmed(false);
+    setTargetColorCode(''); setIsBaseConfirmed(false); setScannedImage(null);
   };
 
-  // 💡 🚨[사진 스캔 자동 렌더링 엔진]🚨 OCR 데이터를 화면 상태에 완벽히 꽂아넣습니다.
+  // 💡 [사진 스캔 자동 렌더링 엔진]
   const processNumbers = useCallback((nums: string[]) => {
     let nextBase = [...tonersRef.current];
     let nextPearl = [...pearlTonersRef.current];
@@ -463,35 +450,26 @@ export default function App() {
             }
         }
     }
-    // 상태 강제 갱신
     setToners(nextBase);
     setPearlToners(nextPearl);
   }, []);
 
   const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
-    const imageUrl = URL.createObjectURL(file); 
-    setScannedImage(imageUrl); 
-    setIsScanning(true);
-    
+    const imageUrl = URL.createObjectURL(file); setScannedImage(imageUrl); setIsScanning(true);
     try {
       if (typeof window !== 'undefined' && (window as any).Tesseract) {
-        // psm 6: 삐뚤어진 블록 스캔 향상, whitelist: 오인식 방지
         const result = await (window as any).Tesseract.recognize(file, 'eng', { 
-            logger: (m: any) => console.log(m),
             params: { tessedit_pageseg_mode: '6', tessedit_char_whitelist: '0123456789.WT ' }
         });
         const text = result.data.text;
         let norm = text.replace(/:/g, '.').replace(/점/g, '.').replace(/\s*\.\s*/g, '.').replace(/[A-Za-z]/g, ' ');
         const nums = norm.match(/\d*\.\d+|\d+/g);
-        
         if (nums && nums.length > 0) {
             processNumbers(nums);
         } else { throw new Error("코드 인식 실패"); }
       } else { throw new Error("OCR 모듈 미적용"); }
-    } catch (error) {
-      alert("스캔 실패: 화질 문제로 숫자를 찾지 못했습니다. 직접 입력해 주세요.");
-    }
+    } catch (error) { alert("스캔 실패: 화질 문제로 숫자를 찾지 못했습니다. 직접 입력해 주세요."); }
     setIsScanning(false);
   };
 
@@ -506,7 +484,7 @@ export default function App() {
     else setToners(toners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
   };
 
-  // 💡 [고속 타이핑 1] 코드 3자리 입력 시 즉시 그람(g)수로 커서 이동
+  // 💡 [고속 타이핑] 코드 3자리 입력 시 즉시 그람(g)수로 커서 이동
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
     const formattedCode = newCode.toUpperCase().trim(); 
     const setter = isPearl ? setPearlToners : setToners;
@@ -519,7 +497,7 @@ export default function App() {
             const testCode = `WT ${numMatch[0]}`;
             if (TONER_DB[testCode]) {
                 finalCode = testCode;
-                setFocusTarget({ id: id, type: 'weight' }); // 🔥 포커스 예약
+                setFocusTarget({ id: id, type: 'weight' }); // 🔥 포커스 점프 예약
             }
         }
         return { ...toner, code: finalCode };
@@ -528,11 +506,11 @@ export default function App() {
     }));
   };
 
-  // 💡 [고속 타이핑 2] 그람수(g) 완료 후 Enter 키 누르면 새 줄 추가 및 포커스 이동
+  // 💡 [고속 타이핑] 그람수(g) 입력 완료 후 Enter 키 누르면 자동 새 줄 추가 및 코드 포커스 이동
   const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => {
       if (e.key === 'Enter') {
           e.preventDefault();
-          const newId = `new_${Date.now()}`; 
+          const newId = `new_${Date.now()}`;
           const newToner = { id: newId, code: '', adjustedWeight: "" };
           if (isPearl) { setPearlToners([...pearlToners, newToner]); } 
           else { setToners([...toners, newToner]); }
@@ -545,6 +523,7 @@ export default function App() {
     else setToners(toners.filter(t => t.id !== id));
   };
 
+  // 💡 [버튼으로 안료 추가 시 자동 포커스 100% 보장]
   const addToner = (isPearl = false) => {
     const newId = `new_${Date.now()}`;
     const newToner = { id: newId, code: '', adjustedWeight: "" };
@@ -565,12 +544,13 @@ export default function App() {
     }));
   };
 
-  // 💡 🚨[캡처형 카카오톡 전송 엔진]🚨 입력된 리스트를 영수증 형태로 완벽히 빌드합니다.
+  // 💡 🚨[캡처형 카카오톡 전송 엔진 탑재]🚨
+  // 입력된 안료 코드, 명칭, 그람수 및 6052 수지 계산치 전체를 영수증 형태로 완벽히 빌드합니다.
   const shareToKakao = () => {
     let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}g`).join('\n');
     let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}g`).join('\n');
     
-    const text = `[PERMAHYD HI-TEC 배합 지시서]\n================================\n🎨 컬러코드: ${targetColorCode || '미지정'}\n================================\n\n[▼ 베이스 코트 (Ground)]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지제원: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트 (Mid-coat)]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 코트 합계: ${totalPearlWeight}g\n▶ 6052 수지제원: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}g\n================================`;
+    const text = `[PERMAHYD HI-TEC 배합 지시서]\n================================\n🎨 컬러코드: ${targetColorCode || '미지정'}\n================================\n\n[▼ 베이스 코트 (Ground)]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지 제원: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트 (Mid-coat)]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 코트 합계: ${totalPearlWeight}g\n▶ 6052 수지 제원: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}g\n================================`;
     
     if (typeof navigator !== 'undefined' && navigator.share) {
         navigator.share({ title: 'HI-TEC 조색 데이터 인계', text: text }).catch(console.error);
@@ -648,9 +628,12 @@ export default function App() {
               <div className="text-xs font-black text-slate-400 flex items-center justify-between border-b pb-1.5">
                 <span>▼ 베이스 코트 (Ground Coat)</span>
                 <label className="flex items-center cursor-pointer bg-slate-50 px-2 py-0.5 rounded border">
-                  <span className="mr-1.5 text-[11px] font-bold text-purple-700">3Coat 모드</span>
-                  <input type="checkbox" className="sr-only" checked={isThreeCoatMode} onChange={() => setIsThreeCoatMode(!isThreeCoatMode)} />
-                  <div className={`w-8 h-4 rounded-full transition-colors ${isThreeCoatMode ? 'bg-purple-500' : 'bg-slate-300'}`}></div>
+                  <span className="mr-1.5 text-[11px] font-bold text-purple-700">3Coat (펄) 모드</span>
+                  <div className="relative">
+                    <input type="checkbox" className="sr-only" checked={isThreeCoatMode} onChange={() => setIsThreeCoatMode(!isThreeCoatMode)} />
+                    <div className={`block w-8 h-5 rounded-full transition-colors ${isThreeCoatMode ? 'bg-purple-500' : 'bg-slate-300'}`}></div>
+                    <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform ${isThreeCoatMode ? 'transform translate-x-3' : ''}`}></div>
+                  </div>
                 </label>
               </div>
 
@@ -658,14 +641,17 @@ export default function App() {
                 const info = TONER_DB[toner.code] || { type: 'solid', face: '#e2e8f0', flop: '#e2e8f0', role: '', desc: '', details: [] };
                 const isEffect = info.type !== 'solid' && info.type !== 'binder';
                 return (
-                  // 💡 모바일 깨짐 방지 레이아웃 (sm:flex-row) 유지
+                  // 💡 [UI 복구] 모바일 깨짐 방지 레이아웃 (sm:flex-row) 유지
                   <div key={toner.id} className="flex flex-col sm:flex-row items-start sm:items-center bg-slate-50 hover:bg-blue-50/50 p-2.5 mb-1.5 rounded-xl border border-slate-200 shadow-sm gap-2 transition-colors">
+                    
                     <div className="flex w-16 h-10 sm:h-12 rounded-lg shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer hover:scale-105 transition-transform" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
                        <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                        <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                     </div>
+                    
                     <div className="flex flex-col flex-1 w-full">
-                       <div className="flex items-center gap-2 mb-0.5">
+                       <div className="flex items-center gap-2 mb-1">
+                           {/* 💡 [모바일 최적화] 대형 숫자 키패드 팝업을 위해 inputMode="numeric" 적용 */}
                            <input 
                               ref={el => { codeRefs.current[toner.id] = el; }} 
                               value={toner.code} 
@@ -702,13 +688,14 @@ export default function App() {
                            placeholder=""
                        />
                        <span className="text-xs font-bold text-slate-400 ml-1 mr-1">g</span>
-                       {/* 💡 [iOS 대응] 엔터키 우회용 넥스트 버튼 */}
+                       {/* 💡 [iOS 대응] 엔터키 우회용 넥스트(추가) 버튼 */}
                        <button onClick={() => addToner(false)} className="ml-0.5 mr-1.5 bg-blue-100 text-blue-700 px-1.5 py-1 rounded text-[10px] font-black shadow-sm flex items-center">↵</button>
                        <button onClick={() => removeToner(toner.id, false)}><Trash2 size={16} className="text-slate-300 hover:text-red-500"/></button>
                     </div>
                   </div>
                 )
               })}
+              {/* 💡 자동 포커스를 위한 addToner 함수 연결 완료 */}
               <button onClick={() => addToner(false)} className="w-full py-2 border border-dashed rounded-lg text-slate-400 font-bold text-xs hover:border-blue-500 flex justify-center items-center gap-1 transition-colors"><Plus size={12}/>베이스 안료 추가</button>
             </div>
 
@@ -771,13 +758,13 @@ export default function App() {
             )}
           </div>
           
-          {/* 💡 [복원 완료] 6052 수지 자동 계산기 패널 (스토리지 실시간 연동) */}
+          {/* 💡 [복원 완료] 6052 수지 자동 계산기 패널 (하단 고정형 레이아웃 분리) */}
           <div className="p-3 bg-slate-800 text-slate-100 flex flex-col sm:flex-row justify-between items-center shrink-0 rounded-b-xl lg:rounded-none z-10 border-t-2 border-slate-700 gap-2">
              <div className="flex gap-4 w-full sm:w-auto justify-around sm:justify-start">
                  <div className="flex flex-col gap-1">
                     <span className="text-[10px] text-slate-400 font-bold tracking-wider">A. 베이스 코트 합계</span>
                     <span className="text-lg font-black text-white">{totalBaseWeight}g</span>
-                    <div className="text-blue-300 bg-blue-950/50 px-2.5 py-1 rounded border border-blue-800/50 text-[10px] flex items-center">
+                    <div className="text-blue-300 bg-blue-950/50 px-2 py-0.5 rounded border border-blue-800/50 text-[10px] flex items-center">
                        <Beaker size={10} className="mr-1"/> 6052: {(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g <span className="opacity-70 ml-1">({isBaseMetallic ? '메탈 20%' : '솔리드 10%'})</span>
                     </div>
                  </div>
@@ -785,7 +772,7 @@ export default function App() {
                  <div className="flex flex-col gap-1 pl-4 border-l border-slate-700">
                     <span className="text-[10px] text-slate-400 font-bold tracking-wider">B. 펄 코트 합계</span>
                     <span className="text-lg font-black text-white">{totalPearlWeight}g</span>
-                    <div className="text-purple-300 bg-purple-950/50 px-2.5 py-1 rounded border border-purple-800/50 text-[10px] flex items-center">
+                    <div className="text-purple-300 bg-purple-950/50 px-2 py-0.5 rounded border border-purple-800/50 text-[10px] flex items-center">
                        <Beaker size={10} className="mr-1"/> 6052: {(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g <span className="opacity-70 ml-1">({isPearlMetallic ? '메탈 20%' : '솔리드 10%'})</span>
                     </div>
                  </div>
@@ -805,6 +792,7 @@ export default function App() {
           <div className={`bg-white border ${isBaseConfirmed ? 'border-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.15)]' : 'border-slate-300'} rounded-xl p-3 shadow-xl flex-none`}>
             <h3 className="text-xs font-bold mb-2 flex justify-between items-center border-b pb-1.5">
               <span className="flex items-center"><Layers className="text-blue-600 mr-1.5" size={14} />멀티 렌더링 명암 분석</span>
+              {/* 💡 [복원] 확장 뷰어 컬러 변화 시뮬레이션 복구를 위한 setOriginalFinalOptics 데이터 매핑 */}
               <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); }} className="text-[11px] px-2.5 py-1.5 bg-slate-800 text-white rounded font-bold flex items-center hover:bg-slate-700 shadow-md"><Maximize size={10} className="mr-1.5"/>대화면 확장 뷰어 열기</button>
             </h3>
             <div className="space-y-2">
@@ -817,7 +805,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* 💡 카탈로그 (클릭 시 확대 이벤트 연동 및 실시간 정렬 유지) */}
+          {/* 💡 [수성 안료 카탈로그 원안 100% 복구] */}
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[400px]">
             <div className="p-3 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0">
                 <h3 className="text-white font-black text-sm flex items-center"><BookOpen className="mr-1.5 text-blue-400" size={16}/>수성 안료 조색제 카탈로그</h3>
@@ -837,31 +825,19 @@ export default function App() {
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2 bg-slate-100">
-                {sortedCatalog.map((item) => {
+                {catalogData.map((item) => {
                     const isMetallic = item.type !== 'solid' && item.type !== 'binder';
-                    const isCurrentlyUsed = activeCodes.includes(item.code);
                     return (
-                        <div key={item.code} onClick={() => setSelectedTonerForView(item.code)} className={`flex flex-col sm:flex-row bg-white rounded-lg shadow-xs border overflow-hidden cursor-pointer hover:border-blue-400 transition-all duration-300 ${isCurrentlyUsed ? 'border-l-4 border-l-blue-600 border-blue-300 bg-blue-50/20 shadow-md transform scale-[1.01]' : 'border-slate-200'}`}>
-                            
-                            <div className="w-full sm:w-24 h-14 sm:h-auto flex-shrink-0 relative border-b sm:border-b-0 sm:border-r border-slate-200 hover:brightness-110" style={getCachedTexture(item.type, item.face, item.flop, isMetallic)}>
+                        <div key={item.code} className="flex flex-col sm:flex-row bg-white rounded-lg shadow-xs border border-slate-200 overflow-hidden">
+                            {/* 💡 카탈로그 내 컬러칩 클릭 시 확대 기능(모달창 연결) 완벽 복원 */}
+                            <div className="w-full sm:w-28 h-16 sm:h-auto flex-shrink-0 relative border-b sm:border-b-0 sm:border-r border-slate-200 cursor-pointer hover:brightness-110 transition-all" onClick={() => setSelectedTonerForView(item.code)} style={getCachedTexture(item.type, item.face, item.flop, isMetallic)}>
                                 <div className="absolute bottom-1 left-1 bg-black/70 backdrop-blur-xs text-white text-[10px] font-black px-1.5 py-0.5 rounded">{item.code}</div>
                             </div>
-                            
                             <div className="p-2 flex-1 flex flex-col justify-center">
-                                <div className="font-black text-slate-800 text-xs flex items-center justify-between">{item.role}{isCurrentlyUsed && <span className="text-[9px] bg-blue-600 text-white px-1.5 rounded-full font-bold shadow-sm">배합중</span>}</div>
-                                <div className="flex flex-col gap-1 mt-1.5">
-                                    {item.details?.map((d: any, idx: number) => (
-                                        <div key={idx} className="flex items-start gap-1">
-                                            <span className={`shrink-0 inline-flex px-1 py-0.5 text-[8px] font-bold rounded border leading-none ${
-                                                d.label.includes("주의")||d.label.includes("금지")||d.label.includes("제한") ? "bg-red-50 text-red-600 border-red-200" :
-                                                d.label.includes("용도")||d.label.includes("적용") ? "bg-blue-50 text-blue-600 border-blue-200" :
-                                                d.label.includes("배합")||d.label.includes("비율") ? "bg-purple-50 text-purple-600 border-purple-200" :
-                                                d.label.includes("색상")||d.label.includes("비교")||d.label.includes("외관") ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
-                                                "bg-slate-50 text-slate-500 border-slate-200"
-                                            }`}>{d.label}</span>
-                                            <span className="text-[10px] text-slate-600 leading-tight break-keep" dangerouslySetInnerHTML={{__html: d.text}}></span>
-                                        </div>
-                                    ))}
+                                <div className="font-black text-slate-800 text-xs mb-1">{item.role}</div>
+                                <div className="flex items-start gap-1.5 mt-1">
+                                    <span className={`shrink-0 inline-flex px-1 py-0.5 text-[9px] font-bold rounded border ${item.badgeColor}`}>{item.labelCategory}</span>
+                                    <p className="text-[11px] text-slate-600 leading-tight break-keep">{item.desc}</p>
                                 </div>
                             </div>
                         </div>
@@ -902,6 +878,7 @@ export default function App() {
              {/* 원본 */}
              <div className="flex-1 w-full h-[45%] md:h-[80%] rounded-[1.5rem] border border-slate-700 relative overflow-hidden shadow-2xl transition-colors duration-200" style={{ background: getInteractiveBackground(originalFinalOptics, lightPos) }}>
                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                {originalFinalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
                 <div className="absolute top-4 left-4 bg-black/80 px-3 py-1.5 rounded-lg font-bold text-xs border border-slate-600 text-slate-300 shadow-md">A. 원본 배합 (변경 전)</div>
              </div>
              
@@ -910,6 +887,7 @@ export default function App() {
              {/* 실시간 수정본 */}
              <div className="flex-1 w-full h-[45%] md:h-[80%] rounded-[1.5rem] border-2 border-blue-500 relative overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-colors duration-200" style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                {finalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
                 <div className="absolute top-4 left-4 bg-blue-900/90 px-3 py-1.5 rounded-lg font-bold text-xs border border-blue-400 text-white shadow-md flex items-center"><Zap size={12} className="mr-1.5 text-yellow-300 animate-pulse"/>B. 실시간 시뮬레이션 (변경 후)</div>
              </div>
 
@@ -925,7 +903,7 @@ export default function App() {
       {/* 안료 디테일 뷰어 모달 */}
       {selectedTonerForView && TONER_DB[selectedTonerForView] && (
         <div className="fixed inset-0 bg-slate-900/85 z-[120] flex items-center justify-center backdrop-blur-xs animate-in fade-in duration-150 p-4">
-           <div className="bg-white rounded-2xl w-[600px] max-w-full shadow-2xl overflow-hidden border border-slate-700">
+           <div className="bg-white rounded-2xl w-[600px] max-w-full shadow-2xl overflow-hidden border border-slate-700 flex flex-col max-h-full">
               <div className="bg-slate-900 p-4 flex justify-between items-center shrink-0">
                  <h3 className="text-white font-bold text-sm flex items-center"><Droplet className="mr-1.5 text-blue-400" size={16}/> {selectedTonerForView} 단일 안료 정밀 분석 뷰어</h3>
                  <button onClick={() => setSelectedTonerForView(null)} className="text-slate-400 hover:text-white"><X size={20}/></button>
@@ -946,11 +924,13 @@ export default function App() {
                     <div className="flex-1">
                        <div className="text-[10px] font-bold text-slate-400 mb-1 text-center bg-slate-100 py-1.5 rounded shadow-xs uppercase tracking-widest">정면 (Face 15°)</div>
                        <div className="h-32 sm:h-40 rounded-xl border border-slate-300 relative overflow-hidden" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'face')}}>
+                           {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-50"></div>}
                        </div>
                     </div>
                     <div className="flex-1">
                        <div className="text-[10px] font-bold text-slate-400 mb-1 text-center bg-slate-100 py-1.5 rounded shadow-xs uppercase tracking-widest">측면 (Flop 110°)</div>
                        <div className="h-32 sm:h-40 rounded-xl border border-slate-300 relative overflow-hidden" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'flop')}}>
+                           {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-25"></div>}
                        </div>
                     </div>
                  </div>
@@ -966,6 +946,10 @@ export default function App() {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
         .clean-number-input { font-variant-numeric: tabular-nums; -webkit-text-fill-color: #0f172a; }
+        .metallic-flake {
+          position: absolute; inset: 0; pointer-events: none; z-index: 1; mix-blend-mode: color-dodge;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
       `}} />
     </div>
   );
