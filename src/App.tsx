@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { 
   Sliders, Trash2, Plus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
   Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search
 } from 'lucide-react';
 
-// 💡 1. 공식 안료 데이터베이스 (100% 원문 복원)
+// 💡 1. 공식 안료 데이터베이스 (100% 원문)
 const TONER_DB: Record<string, { role: string, desc: string, type: string, face: string, flop: string }> = {
   'WT 144': { role: '그리니쉬 블루', desc: '녹색을 띠는 청색 조색제. WT346 대체 안료임. (WT346 : WT144 = 1 : 0.9)', type: 'solid', face: '#0284c7', flop: '#0c4a6e' },
   'WT 154': { role: '블루 이펙트', desc: '청색으로 착색된 광휘형 알루미늄 조색제. 입자의 반짝임이 좋으며, 채도가 높고 입자감이 좋은 청색계열의 컬러에 사용됨.', type: 'silver_fine', face: '#3b82f6', flop: '#1e3a8a' },
@@ -126,7 +126,6 @@ const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const lerpHue = (a: number, b: number, t: number) => { let d = b - a; if (d > 180) d -= 360; if (d < -180) d += 360; let h = a + d * t; if (h < 0) h += 360; if (h >= 360) h -= 360; return h; };
 const lerpColor = (c1: any, c2: any, t: number) => ({ h: lerpHue(c1.h, c2.h, t), s: lerp(c1.s, c2.s, t), l: lerp(c1.l, c2.l, t) });
-
 const hex2rgb = (hex: string) => { let v = parseInt(hex.replace('#',''), 16); return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 }; };
 const rgb2hsl = (r: number, g: number, b: number) => {
   r /= 255; g /= 255; b /= 255; let max = Math.max(r, g, b), min = Math.min(r, g, b); let h = 0, s = 0, l = (max + min) / 2;
@@ -137,15 +136,14 @@ const rgb2hsl = (r: number, g: number, b: number) => {
 const isTonerMetallic = (role: string) => {
     const r = role || '';
     return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스');
-}
+};
 
-// 💡 🚨[성능 최적화 코어]🚨 3D 질감(SVG) 렌더링 캐싱 엔진
+// 💡 🚨[화면 마비 멸균 최적화]🚨 캐싱 엔진 
 const textureCache: Record<string, React.CSSProperties> = {};
 const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
     if (!isMetallic || type === 'binder' || type === 'solid') {
         return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
     }
-    
     const key = `${type}_${faceColor}_${flopColor}`;
     if (textureCache[key]) return textureCache[key];
 
@@ -165,7 +163,6 @@ const getCachedTexture = (type: string, faceColor: string, flopColor: string, is
       backgroundBlendMode: 'overlay, normal' as any,
       boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)'
     };
-    
     textureCache[key] = result;
     return result;
 };
@@ -184,7 +181,6 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
   else { h=0; s=0; baseL=95; } 
   
   const isMetallic = isTonerMetallic(r);
-  
   if (angle === 'face') {
     const l = isMetallic ? Math.min(100, baseL + 25) : Math.min(100, baseL + 10);
     return `radial-gradient(circle at 40% 40%, hsl(${h}, ${s}%, ${Math.min(100, l+20)}%) 0%, hsl(${h}, ${s}%, ${l}%) 60%, hsl(${h}, ${s}%, ${Math.max(0, l-15)}%) 100%)`;
@@ -194,9 +190,16 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
   }
 };
 
+// 💡 🚨[블랙 스크린 에러 방어 엔진]🚨
+// 어떠한 찌그러진 데이터가 들어와도 수학 함수가 NaN(에러)을 뱉지 않도록 강제 방어합니다.
+const safeNum = (val: any): number => {
+    const num = Number(val);
+    return isNaN(num) ? 0 : num;
+};
+
 const getOptics = (tonersList: any[]) => {
   const colorToners = tonersList.filter(t => t.code && TONER_DB[t.code]);
-  const sumW = colorToners.reduce((sum, t) => sum + (parseFloat(t.adjustedWeight) || 0), 0);
+  const sumW = colorToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
 
   if (sumW === 0) return { face: { h: 0, s: 0, l: 90 }, mid: { h: 0, s: 0, l: 90 }, flop: { h: 0, s: 0, l: 90 }, isMetallic: false };
 
@@ -204,37 +207,39 @@ const getOptics = (tonersList: any[]) => {
   let totalWeight = 0; let hasMetallic = false;
 
   colorToners.forEach(t => {
-     let w = parseFloat(t.adjustedWeight) || 0; if (w <= 0) return;
+     let w = safeNum(parseFloat(t.adjustedWeight)); 
+     if (w <= 0) return;
      let db = TONER_DB[t.code];
      
      totalWeight += w;
      if(db.type !== 'solid' && db.type !== 'binder') hasMetallic = true;
 
-     let fRgb = hex2rgb(db.face); let fHsl = rgb2hsl(fRgb.r, fRgb.g, fRgb.b); let fRad = fHsl.h * Math.PI / 180;
+     let fRgb = hex2rgb(db.face || '#ffffff'); let fHsl = rgb2hsl(fRgb.r, fRgb.g, fRgb.b); let fRad = fHsl.h * Math.PI / 180;
      faceX += w * fHsl.s * Math.cos(fRad); faceY += w * fHsl.s * Math.sin(fRad); faceL += w * fHsl.l;
 
-     let flRgb = hex2rgb(db.flop); let flHsl = rgb2hsl(flRgb.r, flRgb.g, flRgb.b); let flRad = flHsl.h * Math.PI / 180;
+     let flRgb = hex2rgb(db.flop || '#ffffff'); let flHsl = rgb2hsl(flRgb.r, flRgb.g, flRgb.b); let flRad = flHsl.h * Math.PI / 180;
      flopX += w * flHsl.s * Math.cos(flRad); flopY += w * flHsl.s * Math.sin(flRad); flopL += w * flHsl.l;
   });
 
   if(totalWeight === 0) return { face: { h: 0, s: 0, l: 90 }, mid: { h: 0, s: 0, l: 90 }, flop: { h: 0, s: 0, l: 90 }, isMetallic: false };
+  
   let avgFaceH = Math.atan2(faceY, faceX) * 180 / Math.PI; if(avgFaceH < 0) avgFaceH += 360;
   let avgFlopH = Math.atan2(flopY, flopX) * 180 / Math.PI; if(avgFlopH < 0) avgFlopH += 360;
 
   return {
-     face: {h: avgFaceH, s: Math.min(100, Math.sqrt(faceX*faceX + faceY*faceY) / totalWeight), l: faceL / totalWeight},
-     mid: {h: (avgFaceH + avgFlopH) / 2, s: (Math.min(100, Math.sqrt(faceX*faceX + faceY*faceY) / totalWeight) + Math.min(100, Math.sqrt(flopX*flopX + flopY*flopY) / totalWeight)) / 2, l: (faceL / totalWeight + flopL / totalWeight) / 2},
-     flop: {h: avgFlopH, s: Math.min(100, Math.sqrt(flopX*flopX + flopY*flopY) / totalWeight), l: flopL / totalWeight},
+     face: { h: safeNum(Math.round(avgFaceH)), s: safeNum(Math.round(Math.min(100, Math.sqrt(faceX*faceX + faceY*faceY) / totalWeight))), l: safeNum(Math.round(faceL / totalWeight)) },
+     mid: { h: safeNum(Math.round((avgFaceH + avgFlopH) / 2)), s: safeNum(Math.round((Math.min(100, Math.sqrt(faceX*faceX + faceY*faceY) / totalWeight) + Math.min(100, Math.sqrt(flopX*flopX + flopY*flopY) / totalWeight)) / 2)), l: safeNum(Math.round((faceL / totalWeight + flopL / totalWeight) / 2)) },
+     flop: { h: safeNum(Math.round(avgFlopH)), s: safeNum(Math.round(Math.min(100, Math.sqrt(flopX*flopX + flopY*flopY) / totalWeight))), l: safeNum(Math.round(flopL / totalWeight)) },
      isMetallic: hasMetallic
   };
 };
 
 const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
   if (!opticsObj || !opticsObj[angle]) return 'hsl(0,0%,90%)';
-  return `hsl(${Math.round(opticsObj[angle].h)}, ${Math.round(opticsObj[angle].s)}%, ${Math.round(opticsObj[angle].l)}%)`;
+  return `hsl(${opticsObj[angle].h}, ${opticsObj[angle].s}%, ${opticsObj[angle].l}%)`;
 };
 
-// 💡 🚨[에러 원천 차단]🚨 매개변수 2개를 명확히 받는 함수로 확정
+// 💡 🚨[화면 뻗음 원천 차단]🚨 매개변수를 2개만 받도록 완벽히 고정했습니다.
 const getInteractiveBackground = (opticsObj: any, lPos: any) => {
   if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return '#f1f5f9';
   const viewAngleT = Math.max(0, Math.min(1, lPos.x / 100));
@@ -257,6 +262,7 @@ const getInteractiveBackground = (opticsObj: any, lPos: any) => {
   
   return `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, rgba(255,255,255,${highlightAlpha}) 0%, ${baseColorStr} ${lerp(20, 70, normalizedDist)}%, hsl(${Math.round(activeBaseColor.h)}, ${Math.round(activeBaseColor.s)}%, ${Math.round(activeBaseColor.l * 0.4)}) 100%)`;
 };
+
 
 // ==========================================
 // 💡 메인 APP 컴포넌트
@@ -325,9 +331,11 @@ export default function App() {
     
     setBaseOptics(getOptics(toners));
     setPearlOptics(getOptics(pearlToners));
-    setFinalOptics(getOptics(isThreeCoatMode ? [...toners, ...pearlToners] : toners));
+    
+    const activeToners = isThreeCoatMode ? [...toners, ...pearlToners] : toners;
+    setFinalOptics(getOptics(activeToners));
 
-    // 💡 메탈릭 여부 감지 (6052 계산용)
+    // 메탈릭 여부 감지
     const checkMetallic = (list: any[]) => list.some(t => {
       const type = TONER_DB[t.code]?.type || '';
       return type !== 'solid' && type !== 'binder' && type !== '';
@@ -336,7 +344,7 @@ export default function App() {
     setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
-  // 💡 [고속 타이핑 엔진] DOM 마운트 후 커서 자동 점프
+  // 💡 [고속 타이핑 엔진] 커서 점프 딜레이 확보 (안정성)
   useEffect(() => {
     if (focusTarget) {
       setTimeout(() => {
@@ -346,7 +354,7 @@ export default function App() {
             weightRefs.current[focusTarget.id]?.focus();
         }
         setFocusTarget(null);
-      }, 50);
+      }, 100);
     }
   }, [focusTarget, toners, pearlToners]);
 
@@ -447,6 +455,7 @@ export default function App() {
             params: { tessedit_pageseg_mode: '6', tessedit_char_whitelist: '0123456789.WT ' }
         });
         const text = result.data.text;
+        
         let norm = text.replace(/:/g, '.').replace(/점/g, '.').replace(/\s*\.\s*/g, '.').replace(/[A-Za-z]/g, ' ');
         const nums = norm.match(/\d*\.\d+|\d+/g);
         
@@ -508,6 +517,14 @@ export default function App() {
   const removeToner = (id: string, isPearl = false) => {
     if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id));
     else setToners(toners.filter(t => t.id !== id));
+  };
+
+  const addToner = (isPearl = false) => {
+    const newId = `new_${Date.now()}`;
+    const newToner = { id: newId, code: '', adjustedWeight: "" };
+    if (isPearl) { setPearlToners([...pearlToners, newToner]); } 
+    else { setToners([...toners, newToner]); }
+    setFocusTarget({ id: newId, type: 'code' }); // 🔥 자동 포커스
   };
 
   // 💡 [공유] 카카오톡 기능
@@ -603,13 +620,16 @@ export default function App() {
                 const isEffect = info.type !== 'solid' && info.type !== 'binder';
 
                 return (
+                  // 💡 [UI 복구 1] 널찍한 모바일 배열 (flex-col sm:flex-row) 유지
                   <div key={toner.id} className="flex flex-col sm:flex-row items-start sm:items-center bg-slate-50 hover:bg-blue-50/50 p-3 mb-2 rounded-xl border border-slate-200 transition-colors shadow-sm gap-3">
                     
+                    {/* 💡 [UI 복구 2] 주색/측면 분할 컬러칩 (모달 연동) */}
                     <div className="flex w-16 h-10 rounded-lg shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer hover:scale-105 transition-transform" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
                        <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                        <div className="flex-1 border-l border-slate-400" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.4)'} 100%)` }}></div>
                     </div>
                     
+                    {/* 💡 [UI 복구 3] 전체 설명 노출 (whitespace-pre-wrap) */}
                     <div className="flex flex-col flex-1 w-full">
                        <div className="flex items-center gap-2 mb-1">
                            <input
@@ -640,11 +660,7 @@ export default function App() {
                   </div>
                 )
               })}
-              <button onClick={() => {
-                const newId = `new_${Date.now()}`;
-                setToners([...toners, { id: newId, code: '', adjustedWeight: "" }]);
-                setFocusTarget({ id: newId, type: 'code' });
-              }} className="w-full py-2 border border-dashed rounded-lg text-slate-400 font-bold flex items-center justify-center space-x-1 text-xs hover:border-blue-500 transition-colors"><Plus size={14} /><span>베이스 안료 추가</span></button>
+              <button onClick={() => addToner(false)} className="w-full py-2 border border-dashed rounded-lg text-slate-400 font-bold flex items-center justify-center space-x-1 text-xs hover:border-blue-500 transition-colors"><Plus size={14} /><span>베이스 안료 추가</span></button>
             </div>
 
             {isThreeCoatMode && (
@@ -689,33 +705,38 @@ export default function App() {
                     </div>
                   )
                 })}
-                <button onClick={() => {
-                  const newId = `new_${Date.now()}`;
-                  setPearlToners([...pearlToners, { id: newId, code: '', adjustedWeight: "" }]);
-                  setFocusTarget({ id: newId, type: 'code' });
-                }} className="w-full py-2.5 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-md text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-2 shadow-sm">
+                <button onClick={() => addToner(true)} className="w-full py-2.5 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-md text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-2 shadow-sm">
                   <Plus size={16} /><span>펄 조색제 추가</span>
                 </button>
               </div>
             )}
           </div>
           
-          <div className="p-3 bg-slate-800 text-slate-100 flex justify-between items-center shrink-0 rounded-b-xl lg:rounded-none">
-             <div className="flex flex-col">
-                 <div className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Total Formula</div>
-                 <div className="text-lg font-black text-cyan-400">{totalFinalWeight} <span className="text-xs">g</span></div>
-             </div>
-             <div className="flex flex-col gap-1.5 items-end">
-                 <div className="text-blue-300 bg-blue-950/50 px-2.5 py-1 rounded border border-blue-800/50 flex items-center text-[11px]">
-                    <Beaker size={12} className="mr-1.5"/> 6052 (Base): <span className="text-white font-black ml-1">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span> 
-                    <span className="opacity-70 text-[9px] ml-1.5">({isBaseMetallic ? '메탈 20%' : '솔리드 10%'})</span>
+          {/* 💡 [복원 완료] 6052 수지 자동 계산기 (좌측 패널 최하단에 완벽히 고정 배치) */}
+          <div className="p-4 bg-slate-800 text-slate-100 flex flex-col gap-2 shrink-0 rounded-b-xl lg:rounded-none z-10 border-t-4 border-slate-700">
+             <div className="flex justify-between items-end">
+                 <div className="flex flex-col">
+                     <div className="text-[11px] font-bold uppercase text-slate-400 tracking-wider">Total Formula</div>
+                     <div className="text-2xl font-black text-cyan-400">{totalFinalWeight} <span className="text-sm text-cyan-200/50">g</span></div>
                  </div>
-                 {isThreeCoatMode && (
-                     <div className="text-purple-300 bg-purple-950/50 px-2.5 py-1 rounded border border-purple-800/50 flex items-center text-[11px]">
-                        <Beaker size={12} className="mr-1.5"/> 6052 (Pearl): <span className="text-white font-black ml-1">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span> 
-                        <span className="opacity-70 text-[9px] ml-1.5">({isPearlMetallic ? '메탈 20%' : '솔리드 10%'})</span>
+                 <div className="flex flex-col gap-2 items-end">
+                     <div className="flex items-center gap-2">
+                       <span className="text-xs text-slate-400 font-bold">베이스 합계: <span className="text-white">{totalBaseWeight}g</span></span>
+                       <div className="text-blue-300 bg-blue-950/50 px-2.5 py-1 rounded border border-blue-800/50 flex items-center text-[11px]">
+                          <Beaker size={12} className="mr-1.5"/> 6052: <span className="text-white font-black ml-1">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span> 
+                          <span className="opacity-70 text-[9px] ml-1.5">({isBaseMetallic ? '메탈 20%' : '솔리드 10%'})</span>
+                       </div>
                      </div>
-                 )}
+                     {isThreeCoatMode && (
+                       <div className="flex items-center gap-2">
+                         <span className="text-xs text-slate-400 font-bold">펄 코트 합계: <span className="text-white">{totalPearlWeight}g</span></span>
+                         <div className="text-purple-300 bg-purple-950/50 px-2.5 py-1 rounded border border-purple-800/50 flex items-center text-[11px]">
+                            <Beaker size={12} className="mr-1.5"/> 6052: <span className="text-white font-black ml-1">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span> 
+                            <span className="opacity-70 text-[9px] ml-1.5">({isPearlMetallic ? '메탈 20%' : '솔리드 10%'})</span>
+                         </div>
+                       </div>
+                     )}
+                 </div>
              </div>
           </div>
         </div>
@@ -765,7 +786,8 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex-1 bg-slate-50 border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[400px]">
+          {/* 💡 [복원 완료] 카탈로그 활용 가이드 및 리스트 */}
+          <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[400px]">
             <div className="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0">
                 <h3 className="text-white font-black text-base flex items-center"><BookOpen className="mr-2 text-blue-400" size={20}/>수성 안료 조색제 카탈로그</h3>
             </div>
@@ -782,12 +804,13 @@ export default function App() {
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-50">
                 {catalogData.map((item) => {
                     const isMetallic = item.type !== 'solid' && item.type !== 'binder';
                     return (
                         <div key={item.code} className="flex flex-col sm:flex-row bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                            <div className="w-full sm:w-28 h-16 sm:h-auto flex-shrink-0 relative border-b sm:border-b-0 sm:border-r border-slate-200" style={getCachedTexture(item.type, item.face, item.flop, isMetallic)}>
+                            {/* 💡 카탈로그 내 컬러칩 클릭 시 확대 기능(모달창 연결) 복원 */}
+                            <div className="w-full sm:w-28 h-16 sm:h-auto flex-shrink-0 relative border-b sm:border-b-0 sm:border-r border-slate-200 cursor-pointer hover:brightness-110 transition-all" onClick={() => setSelectedTonerForView(item.code)} style={getCachedTexture(item.type, item.face, item.flop, isMetallic)}>
                                 <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-black px-1.5 py-0.5 rounded">{item.code}</div>
                             </div>
                             <div className="p-3 flex-1 flex flex-col justify-center">
@@ -822,8 +845,6 @@ export default function App() {
 
              <div className="flex-1 h-[85%] rounded-[2rem] border border-slate-700 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] transition-all duration-75"
                   style={{ background: getInteractiveBackground(baseOptics, lightPos) }}>
-                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-                {baseOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
                 <div className="absolute top-6 left-6 bg-black/80 px-4 py-2 rounded-xl font-bold text-sm border border-slate-600 text-slate-200 shadow-lg">A. 베이스 코트 (Ground)</div>
              </div>
              
@@ -832,8 +853,6 @@ export default function App() {
                  <div className="text-slate-600 pointer-events-none shrink-0"><ChevronRight size={32} /></div>
                  <div className="flex-1 h-[85%] rounded-[2rem] border border-purple-500 relative overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-75"
                       style={{ background: getInteractiveBackground(pearlOptics, lightPos) }}>
-                    <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-                    {pearlOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.7, 0.1, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
                     <div className="absolute top-6 left-6 bg-purple-900/90 px-4 py-2 rounded-xl font-bold text-sm border border-purple-400 text-white shadow-lg">B. 펄 코트 (Mid-coat)</div>
                  </div>
                </>
@@ -843,9 +862,7 @@ export default function App() {
 
              <div className="flex-1 h-[85%] rounded-[2rem] border border-blue-500 relative overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.4)] transition-all duration-75"
                   style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
-                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-                {finalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.7, 0.1, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
-                <div className="absolute top-6 left-6 bg-blue-900/90 px-4 py-2 rounded-xl font-bold text-sm border border-blue-400 text-white shadow-lg">{isThreeCoatMode ? 'C. 최종 3코트 결합' : 'B. 최종 렌더링'}</div>
+                <div className="absolute top-6 left-6 bg-blue-900/90 px-4 py-2 rounded-xl font-bold text-sm border border-blue-400 text-white shadow-lg">{isThreeCoatMode ? 'C. 최종 3코트 결합' : 'B. 최종 렌더링 (Base Only)'}</div>
              </div>
              
              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex flex-col items-center bg-slate-900/90 p-4 rounded-2xl border border-slate-700 backdrop-blur-md z-50 shadow-2xl">
@@ -895,6 +912,10 @@ export default function App() {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
         .clean-number-input { font-variant-numeric: tabular-nums; -webkit-text-fill-color: #0f172a; }
+        .metallic-flake {
+          position: absolute; inset: 0; pointer-events: none; z-index: 1; mix-blend-mode: color-dodge;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
       `}} />
     </div>
   );
