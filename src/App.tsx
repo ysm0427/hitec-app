@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sliders, Trash2, Plus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search
 } from 'lucide-react';
 
 interface TonerDetail {
@@ -18,7 +18,7 @@ interface TonerData {
   details?: TonerDetail[];
 }
 
-// 💡 1. 공식 안료 데이터베이스 (선생님 제공 Professional HTML 원문 100% 이식)
+// 💡 1. 공식 안료 데이터베이스 (선생님 제공 원문 100% 보존)
 const TONER_DB: Record<string, TonerData> = {
   'WT 144': { role: '그리니쉬 블루', type: 'solid', face: '#0284c7', flop: '#0c4a6e', desc: '녹색을 띠는 고농축 청색 수성 안료 조색제입니다.', 
     details: [
@@ -749,7 +749,7 @@ const TONER_DB: Record<string, TonerData> = {
       { label: "경고 및 주의사항", text: "착색 알루미늄의 특성상 도장 횟수가 늘어날수록 금속의 반짝임은 줄고 주황색 채도만 과도하게 진해질 수 있으니 시편 제작 후 정확한 도장 횟수를 결정해야 합니다." }
     ]
   },
-  'WT 385': { role: '시스템 컴포넌트 A', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '수성 도료 시스템 전체의 뼈대를 구성하는 필수적인 베이스 투명 수지입니다.', 
+  'WT 385': { role: '시스템 콤퍼넌트 A', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '수성 도료 시스템 전체의 뼈대를 구성하는 필수적인 베이스 투명 수지입니다.', 
     details: [
       { label: "일반 특성", text: "색상을 발현하는 조색제가 아니라, 수성 도료 시스템 전체의 뼈대를 구성하는 필수적인 베이스 투명 수지(Resin)입니다." },
       { label: "색상 및 외관 변화", text: "용기 내에서는 탁한 백색 유백광을 띠지만 혼합 후 건조되면 완전히 맑고 깨끗한 무색 투명 도막을 형성합니다." },
@@ -767,7 +767,7 @@ const TONER_DB: Record<string, TonerData> = {
       { label: "경고 및 주의사항", text: "과도하게 첨가하면 입자가 난립하여 표면이 은빛 먼지를 뒤집어쓴 것처럼 뽀얗게 탁해지고 정면 광택이 심각하게 저하되니 주의하십시오." }
     ]
   },
-  'WT 387': { role: '시스템 컴포넌트 B', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '수용성 베이스코트 도료 전체의 시스템 점도 조절제 및 바인더입니다.', 
+  'WT 387': { role: '시스템 콤퍼넌트 B', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '수용성 베이스코트 도료 전체의 시스템 점도 조절제 및 바인더입니다.', 
     details: [
       { label: "일반 특성", text: "수용성 베이스코트 도료 전체의 안정적인 분산과 흐름성을 관리하는 시스템 점도 조절제 및 바인더입니다." },
       { label: "색상 및 외관 변화", text: "건조 시 완벽한 투명 상태가 되며, 다른 안료의 발색을 돕고 도막에 균일하고 매끄러운 펴짐성(Leveling)을 부여합니다." },
@@ -835,7 +835,7 @@ const TONER_DB: Record<string, TonerData> = {
       { label: "일반 특성", text: "Hi-TEC 전체 시스템 내에서 명도가 가장 극도로 어둡게 떨어지는 한정판 흑색 조색제입니다. 액상 특수 염료(Dye)를 함유하고 있습니다." },
       { label: "색상 및 외관 변화", text: "은폐가 목적이 아니라 염색하듯 도막을 시커멓게 물들여, 밑바닥부터 올라오는 빛을 완전히 흡수하여 극한의 검은 심연(블랙홀) 같은 질감을 연출합니다." },
       { label: "용도 및 적용 컬러", text: "포르쉐 제트 블랙이나 메르세데스 벤츠 옵시디안 블랙 등 일반 블랙 안료로는 도저히 맞출 수 없는 프리미엄 브랜드의 극한 다크 컬러 배합에만 독점적으로 쓰입니다." },
-      { label: "배합 및 혼합 비율", text: "염료 성분의 반응성 때문에 엄격한 배합 한계치 [솔리드 컬러: 전체량의 최대 5% / 실버 메탈릭: 최대 2% / 마이카 펄: 최대 5%] 를 절대적으로 준수해야 합니다." },
+      { label: "배합 및 혼합 비율", text: "염료 성분의 반응성 때문에 엄격한 배합 한계치 **[솔리드 컬러: 전체량의 최대 5% / 실버 메탈릭: 최대 2% / 마이카 펄: 최대 5%]** 를 절대적으로 준수해야 합니다." },
       { label: "경고 및 주의사항", text: "허용 배합 비율 초과 시 염료가 이펙트 입자와 화학적으로 비정상 반응하여 색상이 치명적으로 변질(피어오름 현상)되거나 도막 내구성이 파괴될 수 있으므로 절대 주의하십시오." }
     ]
   },
@@ -844,13 +844,13 @@ const TONER_DB: Record<string, TonerData> = {
       { label: "일반 특성", text: "수성 페인트의 물성을 극적으로 안정화시키기 위해 독자 개발된 솔리드 전용 고성능 기능성 유동성 첨가제입니다." },
       { label: "색상 및 외관 변화", text: "안료가 아니므로 색상 자체를 변화시키진 않지만, 도막의 레벨링(펴짐성)을 극한으로 끌어올려 유리면처럼 매끄러운 고품질 외관을 보장합니다." },
       { label: "용도 및 적용 컬러", text: "이펙트 입자가 없는 '솔리드 컬러' 도장 작업에만 단독으로 사용되며, 특히 열악한 환경(겨울철 건조/저온)에서도 탁월한 스프레이 작업성을 제공합니다." },
-      { label: "배합 및 혼합 비율", text: "모든 조색이 완료된 솔리드 베이스코트 도료 총 무게를 기준으로 정확히 10% 중량을 추가 계량하여 혼합 및 분사합니다." },
+      { label: "배합 및 혼합 비율", text: "모든 조색이 완료된 솔리드 베이스코트 도료 총 무게를 기준으로 정확히 **10%** 중량을 추가 계량하여 혼합 및 분사합니다." },
       { label: "경고 및 주의사항", text: "성분 특성 상 펄이나 메탈릭 입자가 들어간 이펙트 컬러에는 절대 사용을 금지하며, 오용 시 메탈 입자가 헤엄쳐 다니는 얼룩 띠(Mottling) 불량이 직빵으로 발생합니다." }
     ]
   },
   'WT 3080': { role: '스페셜 애디티브', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '도막 보정 및 흐름 방지 특수 첨가제.', 
     details: [
-      { label: "특징", text: "도막 보정 및 흐름 방지 전용 첨가제입니다." }
+      { label: "일반 특성", text: "도막 보정 및 흐름 방지 전용 특수 첨가제입니다." }
     ]
   }
 };
@@ -948,7 +948,7 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
   }
 };
 
-// 💡 🚨[화면 뻗음(Black Screen) 방어 엔진]🚨
+// 💡 🚨[화면 뻗음(Black Screen) 방어 엔진 100% 롤백]🚨
 const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
 
 const getOptics = (tonersList: any[]) => {
@@ -993,7 +993,7 @@ const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
   return `hsl(${opticsObj[angle].h}, ${opticsObj[angle].s}%, ${opticsObj[angle].l}%)`;
 };
 
-// 💡 🚨[화면 뻗음 원천 차단]🚨 매개변수를 2개만 받도록 완벽히 고정
+// 💡 확장 뷰어 3D 배경 렌더링 (매개변수 2개 완벽 방어)
 const getInteractiveBackground = (opticsObj: any, lPos: any) => {
   if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return '#f1f5f9';
   const viewAngleT = Math.max(0, Math.min(1, lPos.x / 100));
@@ -1132,7 +1132,7 @@ export default function App() {
     setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
-  // 💡 [고속 타이핑 엔진] 오토 포커스
+  // 💡 [고속 타이핑 엔진] 오토 포커스 딜레이 최적화
   useEffect(() => {
     if (focusTarget) {
       setTimeout(() => {
@@ -1142,7 +1142,7 @@ export default function App() {
             weightRefs.current[focusTarget.id]?.focus();
         }
         setFocusTarget(null);
-      }, 100);
+      }, 50);
     }
   }, [focusTarget, toners, pearlToners]);
 
@@ -1159,7 +1159,7 @@ export default function App() {
     setTargetColorCode(''); setIsBaseConfirmed(false); setScannedImage(null);
   };
 
-  // 💡 🚨[사진 스캔 자동 렌더링 엔진]🚨 OCR 데이터를 화면 상태에 완벽히 꽂아넣습니다.
+  // 💡 [사진 스캔 자동 렌더링 엔진]
   const processNumbers = useCallback((nums: string[]) => {
     let nextBase = [...tonersRef.current];
     let nextPearl = [...pearlTonersRef.current];
@@ -1240,7 +1240,7 @@ export default function App() {
             processNumbers(nums);
         } else { throw new Error("코드 인식 실패"); }
       } else { throw new Error("OCR 모듈 미적용"); }
-    } catch (error) { alert("스캔 실패: 밝고 선명한 곳에서 다시 촬영해 주십시오."); }
+    } catch (error) { alert("스캔 실패: 화질 문제로 숫자를 찾지 못했습니다. 직접 입력해 주세요."); }
     setIsScanning(false);
   };
 
@@ -1325,7 +1325,7 @@ export default function App() {
     if (typeof navigator !== 'undefined' && navigator.share) {
         navigator.share({ title: 'HI-TEC 조색 데이터 인계', text: text }).catch(console.error);
     } else {
-        alert("상세 배합 지시서가 클립보드에 완벽히 복사되었습니다. 카카오톡에 바로 '붙여넣기' 하십시오.\n\n" + text);
+        alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡에 바로 붙여넣기 하십시오.\n\n" + text);
         if (typeof navigator !== 'undefined' && navigator.clipboard) {
             navigator.clipboard.writeText(text);
         }
@@ -1410,6 +1410,7 @@ export default function App() {
                   <span className="mr-1.5 text-[11px] font-bold text-purple-700">3Coat 모드</span>
                   <input type="checkbox" className="sr-only" checked={isThreeCoatMode} onChange={() => setIsThreeCoatMode(!isThreeCoatMode)} />
                   <div className={`w-8 h-4 rounded-full transition-colors ${isThreeCoatMode ? 'bg-purple-500' : 'bg-slate-300'}`}></div>
+                  <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform ${isThreeCoatMode ? 'transform translate-x-3' : ''}`}></div>
                 </label>
               </div>
 
@@ -1557,10 +1558,6 @@ export default function App() {
                  </div>
                  )}
              </div>
-             <div className="flex flex-col w-full sm:w-auto items-center sm:items-end mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-700">
-                 <div className="text-[10px] text-slate-400 font-bold tracking-wider mb-1">FINAL FORMULA</div>
-                 <div className="text-2xl font-black text-cyan-400">{totalFinalWeight} <span className="text-base text-cyan-400/50">g</span></div>
-             </div>
           </div>
         </div>
 
@@ -1632,7 +1629,7 @@ export default function App() {
                     return (
                         <div key={item.code} className={`flex flex-col sm:flex-row bg-white rounded-xl shadow-sm border overflow-hidden transition-all duration-300 ${isCurrentlyUsed ? 'border-l-4 border-l-blue-600 border-blue-300 bg-blue-50/20 shadow-md transform scale-[1.01]' : 'border-slate-200'}`}>
                             <div className="w-full sm:w-28 h-16 sm:h-auto flex-shrink-0 relative border-b sm:border-b-0 sm:border-r border-slate-200 cursor-pointer hover:brightness-110 transition-all" onClick={() => setSelectedTonerForView(item.code)} style={getCachedTexture(item.type, item.face, item.flop, isMetallic)}>
-                                <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-black px-1.5 py-0.5 rounded">{item.code}</div>
+                                <div className="absolute bottom-1 left-1 bg-black/70 backdrop-blur-sm text-white text-[10px] font-black px-1.5 py-0.5 rounded">{item.code}</div>
                             </div>
                             <div className="p-3 flex-1 flex flex-col justify-center">
                                 <div className="font-black text-slate-800 text-xs mb-1 flex items-center justify-between">
@@ -1698,21 +1695,21 @@ export default function App() {
                     <Sun className="text-yellow-100 drop-shadow-[0_0_15px_rgba(255,255,255,1)]" size={40} />
                 </div>
              </div>
-
-             <div className="flex-1 h-[85%] rounded-[2rem] border border-slate-700 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] transition-all duration-75"
-                  style={{ background: getInteractiveBackground(originalFinalOptics, lightPos) }}>
+             
+             {/* 원본 */}
+             <div className="flex-1 w-full h-[45%] md:h-[80%] rounded-[1.5rem] border border-slate-700 relative overflow-hidden shadow-2xl transition-colors duration-200" style={{ background: getInteractiveBackground(originalFinalOptics, lightPos) }}>
                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
                 {originalFinalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
-                <div className="absolute top-6 left-6 bg-black/80 px-4 py-2 rounded-xl font-bold text-sm border border-slate-600 text-slate-200 shadow-lg">A. 원본 배합 (변경 전)</div>
+                <div className="absolute top-4 left-4 bg-black/80 px-3 py-1.5 rounded-lg font-bold text-xs border border-slate-600 text-slate-300 shadow-md">A. 원본 배합 (변경 전)</div>
              </div>
              
-             <div className="text-slate-600 pointer-events-none shrink-0"><ChevronRight size={32} /></div>
+             <div className="text-slate-600 pointer-events-none shrink-0 hidden md:block"><ChevronRight size={32} /></div>
              
-             <div className="flex-1 h-[85%] rounded-[2rem] border-2 border-blue-500 relative overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-all duration-75"
-                  style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
+             {/* 실시간 수정본 */}
+             <div className="flex-1 w-full h-[45%] md:h-[80%] rounded-[1.5rem] border-2 border-blue-500 relative overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-colors duration-200" style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
                 {finalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
-                <div className="absolute top-6 left-6 bg-blue-900/90 px-4 py-2 rounded-xl font-bold text-sm border border-blue-400 text-white shadow-lg flex items-center"><Zap size={14} className="mr-1.5 text-yellow-300 animate-pulse"/>B. 실시간 시뮬레이션 (변경 후)</div>
+                <div className="absolute top-4 left-4 bg-blue-900/90 px-3 py-1.5 rounded-lg font-bold text-xs border border-blue-400 text-white shadow-md flex items-center"><Zap size={12} className="mr-1.5 text-yellow-300 animate-pulse"/>B. 실시간 시뮬레이션 (변경 후)</div>
              </div>
 
              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex bg-slate-900/90 p-2.5 rounded-2xl border border-slate-700 gap-2 shadow-2xl backdrop-blur-md">
