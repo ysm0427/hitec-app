@@ -4,9 +4,8 @@ import {
   Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet
 } from 'lucide-react';
 
-interface TonerData {
-  role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][];
-}
+interface TonerDetail { label: string; text: string; }
+interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
 // 💡 1. 공식 안료 데이터베이스 (용량 초과 방지를 위해 데이터 구조 극한 압축 - 노출 내용은 100% 동일)
 const TONER_DB: Record<string, TonerData> = {
@@ -30,7 +29,7 @@ const TONER_DB: Record<string, TonerData> = {
   'WT 318':{role:'브릴리언트 블루',type:'solid',face:'#0284c7',flop:'#082f49',desc:'밝고 화사한 녹색 기운을 띠는 고광도 맑은 청색 조색제입니다.',details:[['일반 특성','밝고 화사한 녹색 기운을 띠는 고광도 맑은 청색 조색제입니다.'],['색상 및 외관 변화','대표적 청색 안료인 WT346과 비교할 때 전체적인 톤이 훨씬 밝게 유지되며 녹색빛이 감돌아 시원한 느낌을 줍니다.'],['용도 및 적용 컬러','탁색 없는 밝은 블루 이펙트 컬러나 선명한 솔리드 블루 컬러 조색 시 톤업용으로 사용됩니다.'],['배합 및 혼합 비율','표준 조색 시스템 배합 수치를 바탕으로 혼합합니다.'],['경고 및 주의사항','채도가 매우 높아 소량으로도 전체 색상 톤이 크게 변할 수 있으므로 미세 조색 시 주의가 필요합니다.']]},
   'WT 320':{role:'플래티늄 펄',type:'pearl',face:'#f1f5f9',flop:'#64748b',desc:'조색 라인업 중 입자 크기가 가장 작은 초미립 백색 펄입니다.',details:[['일반 특성','조색 라인업 중 입자 크기가 가장 작은 초미립 백색(White) 펄 조색제입니다.'],['색상 및 외관 변화','개별 펄 입자가 육안으로 거의 구별되지 않을 만큼 고와서 밀키(Milky)하고 은은한 진주 광택을 형성합니다.'],['용도 및 적용 컬러','입자가 거칠지 않은 고급 화이트 펄 바탕(현대 XB3, 아우디 LX7L/LX6T, BMW A96 등) 조색의 핵심 베이스로 폭넓게 사용됩니다.'],['배합 및 혼합 비율','조색 프로그램에 명시된 화이트 펄 계열 배합 중량을 준수하여 처방합니다.'],['경고 및 주의사항','초미립 펄이므로 점도가 뭉칠 수 있어 믹싱 전 교반기에서 장시간 혼합해 주어야 펄 뭉침 불량을 방지할 수 있습니다.']]},
   'WT 321':{role:'화이트',type:'solid',face:'#ffffff',flop:'#e2e8f0',desc:'시스템의 가장 표준이 되는 고농축/고은폐력 표준 백색 조색제입니다.',details:[['일반 특성','Hi-TEC 시스템의 가장 뼈대가 되는 고농축/고은폐력 표준 백색 조색제입니다.'],['색상 및 외관 변화','솔리드에 적용 시 전체 명도를 밝히고 파스텔톤으로 유도하며, 이펙트 적용 시 15도는 어둡게, 측면은 밝게 하는 백탁 현상을 일으킵니다.'],['용도 및 적용 컬러','모든 솔리드 컬러의 밝기 조절 및 화이트 베이스코트의 메인 성분으로 절대적으로 사용됩니다.'],['배합 및 혼합 비율','단독 도장부터 소량 첨가까지 배합표에 따라 매우 광범위한 비율로 사용됩니다.'],['경고 및 주의사항','이펙트(메탈릭/펄) 컬러에 임의로 추가 시 금속 입자의 반짝임(스파클링)을 완전히 죽여 탁하게 만들 수 있으므로 극소량만 신중히 사용해야 합니다.']]},
-  'WT 322':{role:'마이크로 화이트',type:'solid',face:'#f8fafc',flop:'#cbd5e1',desc:'미세한 알루미늄 및 펄 입자가 미리 혼합 설계된 특수 복합 화이트 안료입니다.',details:[['일반 특성','미세한 알루미늄 및 펄 입자가 미리 혼합 설계된 특수 복합 화이트 안료입니다.'],['색상 및 외관 변화','도장 후 각도별로 정면(15도)은 황색을 띠며 어둡고, 측면(45도/110도)은 청색을 띠며 밝게 반사되는 독특한 입체감을 냅니다.'],['용도 및 적용 컬러','탁탁하지 않으면서도 측면 밝기가 높아야 하는 복잡한 이펙트 화이트 컬러 배합에 특화되어 쓰입니다.'],['배합 및 혼합 비율','정해진 이펙트 컬러 데이터에 명시된 비율대로만 정확히 혼합합니다.'],['경고 및 주의사항','금속/펄 입자가 포함되어 있으므로 **솔리드 컬러 조색에는 절대 사용을 금합니다.** (이물질 오염 발생)']]} ,
+  'WT 322':{role:'마이크로 화이트',type:'solid',face:'#f8fafc',flop:'#cbd5e1',desc:'미세한 알루미늄 및 펄 입자가 미리 혼합 설계된 특수 복합 화이트 안료입니다.',details:[['일반 특성','미세한 알루미늄 및 펄 입자가 미리 혼합 설계된 특수 복합 화이트 안료입니다.'],['색상 및 외관 변화','도장 후 각도별로 정면(15도)은 황색을 띠며 어둡고, 측면(45도/110도)은 청색을 띠며 밝게 반사되는 독특한 입체감을 냅니다.'],['용도 및 적용 컬러','탁탁하지 않으면서도 측면 밝기가 높아야 하는 복잡한 이펙트 화이트 컬러 배합에 특화되어 쓰입니다.'],['배합 및 혼합 비율','정해진 이펙트 컬러 데이터에 명시된 비율대로만 정확히 혼합합니다.'],['경고 및 주의사항','금속/펄 입자가 포함되어 있으므로 **솔리드 컬러 조색에는 절대 사용을 금합니다.** (이물질 오염 발생)']]},
   'WT 323':{role:'스페셜 블랙',type:'solid',face:'#020617',flop:'#000000',desc:'가장 맑고 진한 스피스해커 시스템의 표준 흑색 수성 조색제입니다.',details:[['일반 특성','스피스해커 시스템의 가장 기준이 되는 범용 표준 흑색 수성 조색제입니다.'],['색상 및 외관 변화','솔리드에 쓰면 전체 명도와 채도를 차분하게 낮추고, 이펙트와 혼합 시 전체를 어둡게 하면서 미세하게 붉은 황색 기운을 올립니다.'],['용도 및 적용 컬러','거의 모든 컬러의 명암(어둡기) 조절 및 솔리드 블랙 도장 베이스로 가장 광범위하게 사용됩니다.'],['배합 및 혼합 비율','표준 배합비를 기준하되, 미세 조색 시 톤다운(어둡게 하기)을 위해 한두 방울 단위로 첨가 비율을 조절합니다.'],['경고 및 주의사항','착색력이 강하므로 밝은 실버 계열에 과투입 시 복구가 불가능할 정도로 톤이 무너질 수 있으니 주의하십시오.']]},
   'WT 324':{role:'레디쉬 옐로우',type:'solid',face:'#f59e0b',flop:'#9a3412',desc:'따뜻한 적색 기운이 도는 맑고 채도가 높은 선명한 황색 조색제입니다.',details:[['일반 특성','따뜻한 적색 기운이 도는 맑고 채도가 높은 선명한 황색 조색제입니다.'],['색상 및 외관 변화','탁해지지 않으면서 도막 내부에서 따뜻하고 화사한 노란빛이 돋보이게 발색됩니다.'],['용도 및 적용 컬러','주로 깨끗하고 맑은 색감이 필요한 이펙트 컬러(골드/레드/오렌지 펄 등)의 조색 틴팅용으로 첨가됩니다.'],['배합 및 혼합 비율','해당 배합표의 정량 수치를 바탕으로 미량 조절하여 사용합니다.'],['경고 및 주의사항','안료 자체의 바탕 은폐력이 매우 떨어지므로 솔리드 황색 베이스로 단독 사용할 경우 얼룩 및 은폐 불량이 발생할 수 있습니다.']]},
   'WT 326':{role:'그리니쉬 옐로우',type:'solid',face:'#eab308',flop:'#65a30d',desc:'차가운 녹색을 살짝 띠는 매우 맑고 투명한 황색 조색제입니다.',details:[['일반 특성','차가운 녹색을 살짝 띠는 매우 맑고 투명한 황색 조색제입니다.'],['색상 및 외관 변화','알루미늄 이펙트와 혼합 시 시너지 효과가 커져 정면은 맑은 황색, 측면(45도/110도)은 선명한 녹황색을 강하게 띱니다.'],['용도 및 적용 컬러','빛 투과율이 좋아 맑고 입체적인 이펙트 컬러 전용 조색제로 특화되어 사용됩니다.'],['배합 및 혼합 비율','조색 프로그램 내 이펙트 계열 배합 중량을 철저히 준수하여 계량합니다.'],['경고 및 주의사항','은폐력이 없는 수준이므로 일반 솔리드 도장에는 절대 단독으로 사용하지 말아야 합니다.']]},
@@ -91,9 +90,9 @@ const TONER_DB: Record<string, TonerData> = {
   'WT 381':{role:'다이아몬드 블루',type:'xirallic',face:'#3b82f6',flop:'#1e3a8a',desc:'합성 크리스탈 질라릭 코팅 기반의 최고급 청색 간섭 펄 조색제입니다.',details:[['일반 특성','합성 크리스탈 질라릭(Xirallic) 코팅 기반으로 눈부시게 세팅된 최고급 청색 간섭 펄 조색제입니다.'],['색상 및 외관 변화','입자 하나하나의 반사광이 강렬하게 살아 숨 쉬며, 정면 15도는 유리처럼 맑고 찬란한 청색을, 측면은 보색인 따뜻한 노란빛 황색으로 극명하고 화려하게 교차 변색됩니다.'],['용도 및 적용 컬러','초고성능 차량이나 하이엔드 전기차에 주로 쓰이는 깊고 맑으면서 반짝임이 극대화된 딥 블루 특수 펄 컬러 조색의 메인으로 사용됩니다.'],['배합 및 혼합 비율','전용 조색표 내 질라릭 배합 가이드라인을 엄격하게 준수하여 전자저울로 배합합니다.'],['경고 및 주의사항','안료 병(Bottle) 보관 시 입자가 빠르게 가라앉으므로 투입 직전 병을 강하게 여러 번 흔들어 침전물을 완전히 풀어주지 않으면 심각한 색상 오차가 발생합니다.']]},
   'WT 382':{role:'다이아몬드 골드',type:'xirallic',face:'#facc15',flop:'#a16207',desc:'빛의 굴절을 극대화시킨 프리미엄 황색 간섭 질라릭 펄 조색제입니다.',details:[['일반 특성','인공 결정 질라릭(Xirallic) 공학으로 완성된 빛의 굴절을 극대화시킨 프리미엄 황색 간섭 펄 조색제입니다.'],['색상 및 외관 변화','일반 골드 펄과는 차원이 다른 다이아몬드 급 입자 반짝임을 지니며, 정면 15도는 영롱하고 화사한 황금색으로, 측면은 맑고 푸른 청색으로 신비롭게 교차 변환됩니다.'],['용도 및 적용 컬러','플래그십 리무진, 최고급 샴페인 화이트 펄 계열이나 특수 골드 메탈릭 도장 시 극한의 고급스러운 입체 반사광을 위해 처방됩니다.'],['배합 및 혼합 비율','조색 소프트웨어에 지시된 프리미엄 이펙트 데이터 수치를 정확히 계량합니다.'],['경고 및 주의사항','단가가 매우 높은 특수 고광택 간섭 안료이므로 보수 도장 시 숨김(블랜딩) 도장 면적을 넓게 잡고 투명 클리어를 고품질로 마감해야 이색 및 얼룩 현상을 방지할 수 있습니다.']]},
   'WT 383':{role:'브릴리언트 오렌지',type:'silver_coarse',face:'#f97316',flop:'#9a3412',desc:'강렬하고 고채도의 주황빛으로 착색된 고광택 알루미늄 조색제입니다.',details:[['일반 특성','시선을 사로잡는 강렬하고 고채도의 주황빛으로 착색된 고광택 알루미늄 조색제입니다.'],['색상 및 외관 변화','기존 WT363 베이스와 비교할 때 적색감(적황색)이 기저에 훨씬 많이 배합되어 있어 더욱 깊이 있고 따뜻하며 화려한 오렌지 메탈릭 광채를 발현합니다.'],['용도 및 적용 컬러','눈에 띄는 화려함이 특징인 수퍼카 시그니처 오렌지 컬러나 특수 오토바이 커스텀 카울 도장 등 튀는 오렌지 메탈릭 연출에 탁월한 핵심 안료입니다.'],['배합 및 혼합 비율','해당 스페셜 컬러의 배합 처방전을 строго하게 준수하여 저울로 혼합합니다.'],['경고 및 주의사항','착색 알루미늄의 특성상 도장 횟수가 늘어날수록 금속의 반짝임은 줄고 주황색 채도만 과도하게 진해질 수 있으니 시편 제작 후 정확한 도장 횟수를 결정해야 합니다.']]},
-  'WT 385':{role:'시스템 컴포넌트 A',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'수성 도료 시스템 전체의 뼈대를 구성하는 필수적인 베이스 투명 수지입니다.',details:[['일반 특성','색상을 발현하는 조색제가 아니라, 수성 도료 시스템 전체의 뼈대를 구성하는 필수적인 베이스 투명 수지(Resin)입니다.'],['색상 및 외관 변화','용기 내에서는 탁한 백색 유백광을 띠지만 혼합 후 건조되면 완전히 맑고 깨끗한 무색 투명 도막을 형성합니다.'],['용도 및 적용 컬러','모든 조색 안료들을 결합시키고 도장면에 부착하게 하는 바인더 역할 및 도료의 기본 점도(Viscosity) 형성에 사용됩니다.'],['배합 및 혼합 비율','조색 안료(Tints) 총 중량에 비례하여 시스템이 자동으로 계산해 주는 가장 마지막 지시 수치를 대용량 투입합니다.'],['경고 및 주의사항','유사한 콤퍼넌트 B(WT387) 제품 대비 기본 점도가 훨씬 높게 설계되어 있으므로 용도에 맞게 구분 사용해야 점도 불량이 나지 않습니다.']]},
+  'WT 385':{role:'시스템 콤퍼넌트 A',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'수성 도료 시스템 전체의 뼈대를 구성하는 필수적인 베이스 투명 수지입니다.',details:[['일반 특성','색상을 발현하는 조색제가 아니라, 수성 도료 시스템 전체의 뼈대를 구성하는 필수적인 베이스 투명 수지(Resin)입니다.'],['색상 및 외관 변화','용기 내에서는 탁한 백색 유백광을 띠지만 혼합 후 건조되면 완전히 맑고 깨끗한 무색 투명 도막을 형성합니다.'],['용도 및 적용 컬러','모든 조색 안료들을 결합시키고 도장면에 부착하게 하는 바인더 역할 및 도료의 기본 점도(Viscosity) 형성에 사용됩니다.'],['배합 및 혼합 비율','조색 안료(Tints) 총 중량에 비례하여 시스템이 자동으로 계산해 주는 가장 마지막 지시 수치를 대용량 투입합니다.'],['경고 및 주의사항','유사한 콤퍼넌트 B(WT387) 제품 대비 기본 점도가 훨씬 높게 설계되어 있으므로 용도에 맞게 구분 사용해야 점도 불량이 나지 않습니다.']]},
   'WT 386':{role:'플롭 컨트롤',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'안료 입자의 눕는 각도를 제어하기 위해 고안된 명암(Flop) 물리적 조정제입니다.',details:[['일반 특성','이펙트 컬러 도장 시 안료 입자의 눕는 각도를 제어하기 위해 특수 고안된 명암(Flop) 물리적 조정제입니다.'],['색상 및 외관 변화','본품 자체는 색상이 없으나, 첨가 시 도막 내부의 알루미늄이나 펄 입자가 일어서게 만들어 빛의 난반사를 유도하여 측면을 밝게 끌어올립니다.'],['용도 및 적용 컬러','정면과 측면의 명도 차이(플롭)가 너무 커 측면이 시커멓게 보일 때 이를 완화하고 전체적인 명암 차이를 부드럽게 조절할 목적으로 첨가됩니다.'],['배합 및 혼합 비율','조색표 처방을 따르며 임의 보정 시 전체 도료량의 5% 내외로 소량씩 첨가하며 효과를 확인합니다.'],['경고 및 주의사항','과도하게 첨가하면 입자가 난립하여 표면이 은빛 먼지를 뒤집어쓴 것처럼 뽀얗게 탁해지고 정면 광택이 심각하게 저하되니 주의하십시오.']]},
-  'WT 387':{role:'시스템 컴포넌트 B',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'수용성 베이스코트 도료 전체의 시스템 점도 조절제 및 바인더입니다.',details:[['일반 특성','수용성 베이스코트 도료 전체의 안정적인 분산과 흐름성을 관리하는 시스템 점도 조절제 및 바인더입니다.'],['색상 및 외관 변화','건조 시 완벽한 투명 상태가 되며, 다른 안료의 발색을 돕고 도막에 균일하고 매끄러운 펴짐성(Leveling)을 부여합니다.'],['용도 및 적용 컬러','고형분이 높은 안료들을 희석하고 분산시켜 최적의 스프레이 점도를 맞추기 위해 모든 수성 컬러 시스템에 사용됩니다.'],['배합 및 혼합 비율','컴퓨터 배합 시스템에서 제시된 해당 컬러의 시스템 B 요구 중량을 한 치의 오차 없이 정밀 투입해야 합니다.'],['경고 및 주의사항','이 콤퍼넌트의 비율이 부족하면 도료가 끈적해져 오렌지필(귤껍질) 현상이 발생하고, 초과하면 흘러내림(Sagging)이 발생하므로 계량에 집중해야 합니다.']]},
+  'WT 387':{role:'시스템 콤퍼넌트 B',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'수용성 베이스코트 도료 전체의 시스템 점도 조절제 및 바인더입니다.',details:[['일반 특성','수용성 베이스코트 도료 전체의 안정적인 분산과 흐름성을 관리하는 시스템 점도 조절제 및 바인더입니다.'],['색상 및 외관 변화','건조 시 완벽한 투명 상태가 되며, 다른 안료의 발색을 돕고 도막에 균일하고 매끄러운 펴짐성(Leveling)을 부여합니다.'],['용도 및 적용 컬러','고형분이 높은 안료들을 희석하고 분산시켜 최적의 스프레이 점도를 맞추기 위해 모든 수성 컬러 시스템에 사용됩니다.'],['배합 및 혼합 비율','컴퓨터 배합 시스템에서 제시된 해당 컬러의 시스템 B 요구 중량을 한 치의 오차 없이 정밀 투입해야 합니다.'],['경고 및 주의사항','이 콤퍼넌트의 비율이 부족하면 도료가 끈적해져 오렌지필(귤껍질) 현상이 발생하고, 초과하면 흘러내림(Sagging)이 발생하므로 계량에 집중해야 합니다.']]},
   'WT 388':{role:'슈퍼 딥 블랙',type:'solid',face:'#050505',flop:'#000000',desc:'빛 반사를 억제하여 깊이감을 극대화한 아주 어두운 고농축 흑색 조색제입니다.',details:[['일반 특성','빛 반사를 억제하여 깊이감을 극대화한 아주 어두운 고농축 흑색 조색제입니다.'],['색상 및 외관 변화','표준 블랙인 WT323 안료와 비교하여 탁한 회색 기운이 없이 맑으면서도 훨씬 더 어둡고 묵직한 진흑색 솔리드 표면을 만들어냅니다.'],['용도 및 적용 컬러','고급 승용차의 완전한 딥 블랙 솔리드 컬러나, 맑고 어두운 베이스가 필요한 특수 다크 펄 이펙트 조색 시 한정적으로 적용됩니다.'],['배합 및 혼합 비율','해당 전용 배합 지침에 따르며 대체 사용 시 일반 블랙 대비 착색력을 고려해 감량하여 테스트 후 투입합니다.'],['경고 및 주의사항','범용 사용보다는 특정 극한의 흑색 계열에만 쓰는 것이 좋으며, 밝은 메탈릭에 한 방울이라도 섞이면 즉시 탁색으로 망치게 되니 사용을 주의하십시오.']]},
   'WT 389':{role:'플래티닌 실버 화인',type:'silver_fine',face:'#cbd5e1',flop:'#64748b',desc:'입자 크기가 정밀하게 통제된 작은 사이즈의 고휘도 광휘형 알루미늄 조색제입니다.',details:[['일반 특성','입자 크기가 정밀하게 통제된 작은 사이즈의 고휘도 광휘형 알루미늄 수성 조색제입니다.'],['색상 및 외관 변화','정밀한 실버 입자 질감을 매칭하기 위해 개발되었으며 거칠지 않고 세밀한 금속 반사광과 뛰어난 정면 명도를 동시에 제공합니다.'],['용도 및 적용 컬러','WT303(엑스트라 화인) 보다는 미세하게 크고 WT390(미디엄 화인) 보다는 작게 설계되어, 특정 아시안 OEM 차량의 중간 입자 실버 매칭에 타겟팅됩니다.'],['배합 및 혼합 비율','조색 프로그램에 배정된 지정 수량을 준수하여 계측, 배합합니다.'],['경고 및 주의사항','입자 배열에 따라 색상이 민감하게 변하므로 보수 도장 시 숨김 도장(Blending) 영역을 충분히 넓게 확보하고 저압으로 플래시오프 해야 이색을 잡을 수 있습니다.']]},
   'WT 390':{role:'플래티닌 실버',type:'silver_coarse',face:'#f8fafc',flop:'#334155',desc:'빛 굴절률과 명암 대비를 최고 수준으로 극대화한 고휘도 광휘형 조색제입니다.',details:[['일반 특성','모든 알루미늄 라인업 중 빛 굴절률과 명암 대비를 최고 수준으로 극대화한 중간 크기 입자의 고휘도 광휘형 조색제입니다.'],['색상 및 외관 변화','극단적인 색상 플롭을 지녀 정면 15도는 거울처럼 눈부시게 가장 밝고, 측면은 흑색에 가깝게 극단적으로 어두워지는 강렬한 음영(Flop) 차이를 만듭니다.'],['용도 및 적용 컬러','입체감이 두드러지는 최고급 유러피안 브랜드의 다크 메탈릭, 건메탈 실버, 액체 금속 느낌의 특수 컬러 조색에 필수적입니다.'],['배합 및 혼합 비율','제공되는 시스템 데이터에 의거하여 배합하며, 과량 투입 시 측면이 지나치게 까맣게 보일 수 있으니 정량을 지켜야 합니다.'],['경고 및 주의사항','명암 대비가 워낙 강해 도장 불량 시 얼룩(Mottling)이 눈에 너무 잘 띄므로 완벽하게 균일한 스프레이 오버랩(겹침) 기술이 필요합니다.']]},
@@ -101,7 +100,7 @@ const TONER_DB: Record<string, TonerData> = {
   'WT 393':{role:'라이트 옐로우',type:'solid',face:'#fef08a',flop:'#a16207',desc:'차가운 녹색 기운을 아주 미세하게 띠면서 레몬처럼 밝고 산뜻한 연황색 조색제입니다.',details:[['일반 특성','차가운 녹색 기운을 아주 미세하게 띠면서도 레몬처럼 밝고 산뜻한 톤을 가진 연황색 조색제입니다.'],['색상 및 외관 변화','탁함이나 붉은 기운이 배제된 깨끗한 밝은 옐로우 광선을 형성하며 바탕을 화사하고 가볍게 밝혀줍니다.'],['용도 및 적용 컬러','주로 레몬빛이나 파스텔톤 솔리드 황색 베이스로 듬직하게 사용되며, 이펙트 조색 시 측면에 밝은 황색을 미세하게 보정할 경우에 극소량 첨가합니다.'],['배합 및 혼합 비율','기본 솔리드 배합 기준에 따르며 기존 WT327 황색 안료 대비 투입량을 조절하여 명도를 맞춥니다.'],['경고 및 주의사항','은폐력이 탁월한 편이나 이펙트 실버 배합에 임의로 첨가 시 알루미늄 광택을 페인트로 덮어버린 듯 탁하게 만들 수 있으니 주의 바랍니다.']]},
   'WT 1051':{role:'블랜딩 1051',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'부분 보수 도장 작업 시 필수적인 전용 블랜딩(숨김) 첨가제입니다.',details:[['일반 특성','수성 페인트 부분 보수 도장(보카시)의 경계면을 자연스럽게 무너뜨리고 녹여주는 필수적인 전용 블랜딩 수지 첨가제입니다.'],['색상 및 외관 변화','자체 색상 없이 투명하며, 새로 도장한 부위와 기존 도장면 사이의 오버스프레이 먼지를 부드럽게 녹여 시각적인 단차나 이색 경계를 완벽히 지워줍니다.'],['용도 및 적용 컬러','은색 등 이색이 나기 쉬운 까다로운 메탈릭 차량의 부분 도장(패널 내 블랜딩) 작업 시 필수적으로 전처리 및 경계선 무너뜨리기 용도로 사용합니다.'],['배합 및 혼합 비율','블랜딩 부위 투명 하도용으로 단독 스프레이 하거나, 마지막 도료를 컵에 남긴 상태에서 본품을 다량 희석하여 경계선에 흩뿌리며 사용합니다.'],['경고 및 주의사항','과도하게 두껍게 뿌리면 페인트 입자가 흘러내리거나 테두리에 하얗게 링마크가 뜰 수 있으므로 얇고 부드럽게 미스트 형태로 분사해야 합니다.']]},
   'WT 1500':{role:'울트라 딥 블랙',type:'solid',face:'#000000',flop:'#000000',desc:'명도가 가장 극도로 어둡게 떨어지는 한정판 흑색 조색제입니다.',details:[['일반 특성','Hi-TEC 전체 시스템 내에서 명도가 가장 극도로 어둡게 떨어지는 한정판 흑색 조색제입니다. 액상 특수 염료(Dye)를 함유하고 있습니다.'],['색상 및 외관 변화','은폐가 목적이 아니라 염색하듯 도막을 시커멓게 물들여, 밑바닥부터 올라오는 빛을 완전히 흡수하여 극한의 검은 심연(블랙홀) 같은 질감을 연출합니다.'],['용도 및 적용 컬러','포르쉐 제트 블랙이나 메르세데스 벤츠 옵시디안 블랙 등 일반 블랙 안료로는 도저히 맞출 수 없는 프리미엄 브랜드의 극한 다크 컬러 배합에만 독점적으로 쓰입니다.'],['배합 및 혼합 비율','염료 성분의 반응성 때문에 엄격한 배합 한계치 **[솔리드 컬러: 전체량의 최대 5% / 실버 메탈릭: 최대 2% / 마이카 펄: 최대 5%]** 를 절대적으로 준수해야 합니다.'],['경고 및 주의사항','허용 배합 비율 초과 시 염료가 이펙트 입자와 화학적으로 비정상 반응하여 색상이 치명적으로 변질(피어오름 현상)되거나 도막 내구성이 파괴될 수 있으므로 절대 주의하십시오.']]},
-  'WT 455':{role:'퍼포먼스 컴포넌트',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'물성을 극적으로 안정화시키는 솔리드 전용 고성능 기능성 유동성 첨가제입니다.',details:[['일반 특성','수성 페인트의 물성을 극적으로 안정화시키기 위해 독자 개발된 솔리드 전용 고성능 기능성 유동성 첨가제입니다.'],['색상 및 외관 변화','안료가 아니므로 색상 자체를 변화시키진 않지만, 도막의 레벨링(펴짐성)을 극한으로 끌어올려 유리면처럼 매끄러운 고품질 외관을 보장합니다.'],['용도 및 적용 컬러','이펙트 입자가 없는 솔리드 컬러 도장 작업에만 단독으로 사용되며, 특히 열악한 환경(겨울철 건조/저온)에서도 탁월한 스프레이 작업성을 제공합니다.'],['배합 및 혼합 비율','모든 조색이 완료된 솔리드 베이스코트 도료 총 무게를 기준으로 정확히 **10%** 중량을 추가 계량하여 혼합 및 분사합니다.'],['경고 및 주의사항','성분 특성 상 펄이나 메탈릭 입자가 들어간 이펙트 컬러에는 절대 사용을 금지하며, 오용 시 메탈 입자가 헤엄쳐 다니는 얼룩 띠(Mottling) 불량이 직빵으로 발생합니다.']]},
+  'WT 455':{role:'퍼포먼스 컴포넌트',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'물성을 극적으로 안정화시키는 솔리드 전용 고성능 기능성 유동성 첨가제입니다.',details:[['일반 특성','수성 페인트의 물성을 극적으로 안정화시키기 위해 독자 개발된 솔리드 전용 고성능 기능성 유동성 첨가제입니다.'],['색상 및 외관 변화','안료가 아니므로 색상 자체를 변화시키진 않지만, 도막의 레벨링(펴짐성)을 극한으로 끌어올려 유리면처럼 매끄러운 고품질 외관을 보장합니다.'],['용도 및 적용 컬러','이펙트 입자가 없는 솔리드 컬러 도장 작업에만 단독으로 사용되며, 특히 열악한 환경(겨울철 건조/저온)에서도 탁월한 스프레이 작업성을 제공합니다.'],['배합 및 혼합 비율','모든 조색이 완료된 솔리드 베이스코트 도료 총 무게를 기준으로 정확히 10% 중량을 추가 계량하여 혼합 및 분사합니다.'],['경고 및 주의사항','성분 특성 상 펄이나 메탈릭 입자가 들어간 이펙트 컬러에는 절대 사용을 금지하며, 오용 시 메탈 입자가 헤엄쳐 다니는 얼룩 띠(Mottling) 불량이 직빵으로 발생합니다.']]},
   'WT 3080':{role:'스페셜 애디티브',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'도막 보정 및 흐름 방지 특수 첨가제.',details:[['일반 특성','도막 보정 및 흐름 방지 전용 특수 첨가제입니다.']]}
 };
 
@@ -182,7 +181,7 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
 
 const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
 
-// 💡 🚨[블랙스크린 방어 + V21.0 광학 계산 엔진 100% 완벽 롤백 적용]🚨
+// 💡 [블랙스크린 방어 + V21.0 광학 계산 엔진 100% 롤백]
 const getOptics = (tonersList: any[]) => {
   const colorToners = tonersList.filter(t => t.code && TONER_DB[t.code]);
   const sumW = colorToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
@@ -285,7 +284,7 @@ const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
   return `hsl(${h}, ${s}%, ${l}%)`;
 };
 
-// 💡 🚨[화면 뻗음(Black Screen) 2차 방어 엔진]🚨
+// 💡 🚨[화면 뻗음 2차 방어 엔진]🚨
 const getInteractiveBackground = (opticsObj: any, lPos: any) => {
   if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return '#f1f5f9';
   
@@ -364,7 +363,7 @@ export default function App() {
   const pearlTonersRef = useRef<any[]>([]);
   const isThreeCoatModeRef = useRef<boolean>(true);
 
-  // 💡 [LocalStorage 연동 업데이트]
+  // 💡 [데이터 저장 연동 업데이트]
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const savedBase = localStorage.getItem('hitec_base');
@@ -439,6 +438,7 @@ export default function App() {
     setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
+  // 💡 [고속 타이핑 10회 추적 엔진]
   useEffect(() => {
     if (focusTarget) {
       let attempts = 0;
@@ -446,6 +446,7 @@ export default function App() {
         const el = focusTarget.type === 'code' ? codeRefs.current[focusTarget.id] : weightRefs.current[focusTarget.id];
         if (el) {
             el.focus();
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             clearInterval(interval);
             setFocusTarget(null);
         }
@@ -627,13 +628,11 @@ export default function App() {
     }));
   };
 
-  // 💡 [새로 추가된 기능] 원클릭 엑셀 복사 API 연동
+  // 💡 [새로 추가된 기능] 원클릭 엑셀 복사 API 연동 (g 삭제 완료)
   const copyToExcel = () => {
-    // 1. 오늘 날짜 생성
     const today = new Date();
     const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     
-    // 2. 수지량 및 총량 문자열 빌드
     const baseResin = (parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1);
     const baseStr = `${totalBaseWeight} (수지 ${baseResin})`;
     
@@ -643,12 +642,11 @@ export default function App() {
       pearlStr = `${totalPearlWeight} (수지 ${pearlResin})`;
     }
 
-    // 3. 상세 안료 정보 빌드
     const baseDetails = toners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ');
-    const pearlDetails = isThreeCoatMode ? pearlToners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ') : '';
+    const pearlDetails = isThreeCoatMode ? pearlToners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ') : '해당없음';
     const detailStr = isThreeCoatMode ? `[베이스] ${baseDetails} / [펄] ${pearlDetails}` : baseDetails;
 
-    // 4. 엑셀 8개 열(Column)에 맞게 탭(\t) 문자로 조합
+    // 엑셀 8개 열(Column)에 맞게 탭(\t) 문자로 조합
     const rowData = [
       formattedDate,
       vehicleNumber || '미입력',
@@ -660,10 +658,9 @@ export default function App() {
       detailStr
     ].join('\t');
 
-    // 5. 클립보드에 복사 실행
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(rowData).then(() => {
-        alert("엑셀에 붙여넣을 준비가 되었습니다!\n\n(엑셀 파일의 빈 줄 첫 칸을 클릭하고 Ctrl+V를 누르세요.)");
+        alert("✅ 자동 등록 준비 완료!\n\n이제 PC 엑셀로 가셔서 [데이터 자동 등록] 매크로 버튼을 누르시면 됩니다!");
       }).catch(err => {
         alert("클립보드 복사 실패: " + err);
       });
@@ -674,7 +671,7 @@ export default function App() {
        textarea.select();
        document.execCommand('copy');
        document.body.removeChild(textarea);
-       alert("엑셀에 붙여넣을 준비가 되었습니다!\n\n(엑셀 파일의 빈 줄 첫 칸을 클릭하고 Ctrl+V를 누르세요.)");
+       alert("✅ 자동 등록 준비 완료!\n\n이제 PC 엑셀로 가셔서 [데이터 자동 등록] 매크로 버튼을 누르시면 됩니다!");
     }
   };
 
@@ -682,7 +679,6 @@ export default function App() {
     let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}`).join('\n');
     let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}`).join('\n');
     
-    // 카카오톡 내용에도 차량 정보 추가
     const text = `[PERMAHYD HI-TEC 배합 지시서]\n================================\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 차종: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n================================\n\n[▼ 베이스 코트 (Ground)]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}\n▶ 6052 수지제원: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}\n\n${isThreeCoatMode ? `[▼ 펄 코트 (Mid-coat)]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 코트 합계: ${totalPearlWeight}\n▶ 6052 수지제원: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}\n================================`;
     
     if (typeof navigator !== 'undefined' && navigator.share) {
@@ -750,7 +746,7 @@ export default function App() {
               </button>
             </div>
             
-            {/* 💡 [새로 추가된 차량 정보 및 액션 버튼 패널] */}
+            {/* 💡 [차량 정보 및 액션 버튼 패널] */}
             <div className="flex flex-col gap-2">
               <div className="flex flex-col sm:flex-row gap-2">
                 <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="차량번호 (예: 12가3456)" className="bg-white border border-slate-300 px-3 py-2 rounded-md text-sm font-bold focus:outline-none w-full sm:w-1/3 shadow-inner" />
@@ -825,13 +821,14 @@ export default function App() {
                        )}
                     </div>
                     <div className="flex items-center self-end sm:self-auto bg-white border rounded-md px-1.5 py-0.5 shrink-0 shadow-sm">
+                       {/* 💡 [글자 짤림 방지] w-20 넓이 대폭 확대 */}
                        <input 
                            ref={el => { weightRefs.current[toner.id] = el; }} 
                            inputMode="decimal" 
                            value={toner.adjustedWeight} 
                            onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} 
                            onKeyDown={e => handleWeightKeyDown(e, toner.id, false)} 
-                           className="w-24 text-right text-base font-black text-blue-600 focus:outline-none clean-number-input" 
+                           className="w-20 text-right text-base font-black text-blue-600 focus:outline-none clean-number-input" 
                            placeholder=""
                        />
                        <span className="text-xs font-bold text-slate-400 ml-1 mr-1"></span>
@@ -882,13 +879,14 @@ export default function App() {
                          )}
                       </div>
                       <div className="flex items-center self-end sm:self-auto bg-white border border-purple-100 rounded-md px-1.5 py-0.5 shrink-0 shadow-sm">
+                         {/* 💡 [글자 짤림 방지 완벽 조치] w-20로 넓게 확장 */}
                          <input 
                              ref={el => { weightRefs.current[toner.id] = el; }} 
                              inputMode="decimal" 
                              value={toner.adjustedWeight} 
                              onChange={e => handleWeightInputChange(toner.id, e.target.value, true)} 
                              onKeyDown={e => handleWeightKeyDown(e, toner.id, true)} 
-                             className="w-24 text-right text-base font-black text-purple-600 focus:outline-none clean-number-input" 
+                             className="w-20 text-right text-base font-black text-purple-600 focus:outline-none clean-number-input" 
                              placeholder=""
                          />
                          <span className="text-xs font-bold text-slate-400 ml-1 mr-1"></span>
@@ -1040,7 +1038,8 @@ export default function App() {
                         <button onClick={() => quickEditWeight(t.id, -0.1, false)} className="bg-red-900/50 hover:bg-red-500 text-red-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-red-800/50">-0.1</button>
                       </div>
                       <div className="flex items-center px-1">
-                         <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, false)} placeholder="" className="w-24 text-center bg-transparent text-sm font-black text-white outline-none" />
+                         {/* 💡 확장 뷰어 에디터도 글자 짤림 방지를 위해 w-20 확장 */}
+                         <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, false)} placeholder="" className="w-20 text-center bg-transparent text-sm font-black text-white outline-none" />
                       </div>
                       <div className="flex space-x-1">
                         <button onClick={() => quickEditWeight(t.id, 0.1, false)} className="bg-blue-900/50 hover:bg-blue-500 text-blue-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-blue-800/50">+0.1</button>
@@ -1064,7 +1063,7 @@ export default function App() {
                             <button onClick={() => quickEditWeight(t.id, -0.1, true)} className="bg-red-900/50 hover:bg-red-500 text-red-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-red-800/50">-0.1</button>
                           </div>
                           <div className="flex items-center px-1">
-                             <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, true)} placeholder="" className="w-24 text-center bg-transparent text-sm font-black text-white outline-none" />
+                             <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, true)} placeholder="" className="w-20 text-center bg-transparent text-sm font-black text-white outline-none" />
                           </div>
                           <div className="flex space-x-1">
                             <button onClick={() => quickEditWeight(t.id, 0.1, true)} className="bg-purple-900/50 hover:bg-purple-500 text-purple-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-purple-800/50">+0.1</button>
@@ -1078,31 +1077,33 @@ export default function App() {
              )}
           </div>
 
-          <main ref={viewerRef} className="flex-1 p-6 flex flex-col md:flex-row gap-6 overflow-hidden items-center justify-center relative cursor-crosshair w-full max-w-[1600px] mx-auto" onPointerDown={(e) => { setIsDraggingLight(true); handlePointerMove(e); }} onPointerMove={handlePointerMove} onPointerUp={() => setIsDraggingLight(false)} onPointerLeave={() => setIsDraggingLight(false)}>
+          <main ref={viewerRef} className="flex-1 p-6 flex gap-4 overflow-hidden items-center justify-center h-full relative cursor-crosshair w-full max-w-[1600px] mx-auto" onPointerDown={(e) => { setIsDraggingLight(true); handlePointerMove(e); }} onPointerMove={handlePointerMove} onPointerUp={() => setIsDraggingLight(false)} onPointerLeave={() => setIsDraggingLight(false)}>
              <div className="absolute z-50 flex items-center justify-center transition-transform duration-75 pointer-events-none" style={{ left: `${lightPos.x}%`, top: `${lightPos.y}%`, transform: 'translate(-50%, -50%)' }}>
-                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center shadow-[0_0_60px_#fff] border border-white/30 animate-pulse"><Sun className="text-yellow-100" size={32} /></div>
-             </div>
-             
-             {/* 원본 */}
-             <div className="flex-1 w-full h-[45%] md:h-[80%] rounded-[1.5rem] border border-slate-700 relative overflow-hidden shadow-2xl transition-colors duration-200" style={{ background: getInteractiveBackground(originalFinalOptics, lightPos) }}>
-                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-                {originalFinalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
-                <div className="absolute top-4 left-4 bg-black/80 px-3 py-1.5 rounded-lg font-bold text-xs border border-slate-600 text-slate-300 shadow-md">A. 원본 배합 (변경 전)</div>
-             </div>
-             
-             <div className="text-slate-600 pointer-events-none shrink-0 hidden md:block"><ChevronRight size={32} /></div>
-             
-             {/* 실시간 수정본 */}
-             <div className="flex-1 w-full h-[45%] md:h-[80%] rounded-[1.5rem] border-2 border-blue-500 relative overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-colors duration-200" style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
-                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-                {finalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
-                <div className="absolute top-4 left-4 bg-blue-900/90 px-3 py-1.5 rounded-lg font-bold text-xs border border-blue-400 text-white shadow-md flex items-center"><Zap size={12} className="mr-1.5 text-yellow-300 animate-pulse"/>B. 실시간 시뮬레이션 (변경 후)</div>
+                <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(255,255,255,0.8)] backdrop-blur-sm border border-white/40 animate-pulse">
+                    <Sun className="text-yellow-100 drop-shadow-[0_0_15px_rgba(255,255,255,1)]" size={40} />
+                </div>
              </div>
 
-             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex bg-slate-900/90 p-2.5 rounded-2xl border border-slate-700 gap-2 shadow-2xl backdrop-blur-md">
-                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 50, y: 50}); }} className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-600 transition-colors">정면 (15°)</button>
-                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 25, y: 25}); }} className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-600 transition-colors">중면 (45°)</button>
-                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 5, y: 5}); }} className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-600 transition-colors">측면 (110°)</button>
+             <div className="flex-1 h-[85%] rounded-[2rem] border border-slate-700 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] transition-all duration-75"
+                  style={{ background: getInteractiveBackground(originalFinalOptics, lightPos) }}>
+                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                {originalFinalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
+                <div className="absolute top-6 left-6 bg-black/80 px-4 py-2 rounded-xl font-bold text-sm border border-slate-600 text-slate-200 shadow-lg">A. 원본 배합 (변경 전)</div>
+             </div>
+             
+             <div className="text-slate-600 pointer-events-none shrink-0"><ChevronRight size={32} /></div>
+             
+             <div className="flex-1 h-[85%] rounded-[2rem] border-2 border-blue-500 relative overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-all duration-75"
+                  style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
+                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                {finalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
+                <div className="absolute top-6 left-6 bg-blue-900/90 px-4 py-2 rounded-xl font-bold text-sm border border-blue-400 text-white shadow-lg flex items-center"><Zap size={14} className="mr-1.5 text-yellow-300 animate-pulse"/>B. 실시간 시뮬레이션 (변경 후)</div>
+             </div>
+
+             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex bg-slate-900/90 p-4 rounded-2xl border border-slate-700 gap-2 shadow-2xl backdrop-blur-md">
+                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 50, y: 50}); }} className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold border border-slate-600 transition-colors">정면 (15°)</button>
+                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 25, y: 25}); }} className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold border border-slate-600 transition-colors">중면 (45°)</button>
+                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 5, y: 5}); }} className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold border border-slate-600 transition-colors">측면 (110°)</button>
              </div>
           </main>
         </div>
