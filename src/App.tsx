@@ -7,7 +7,7 @@ import {
 interface TonerDetail { label: string; text: string; }
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: TonerDetail[]; }
 
-// 💡 1. 공식 안료 데이터베이스 (용량 최적화를 위해 줄바꿈 압축 - 내용은 100% 동일)
+// 💡 1. 공식 안료 데이터베이스 (용량 초과 방지를 위해 공백 압축, 텍스트 내용은 100% 동일)
 const TONER_DB: Record<string, TonerData> = {
   'WT 144': { role:'그리니쉬 블루', type:'solid', face:'#0284c7', flop:'#0c4a6e', desc:'녹색을 띠는 고농축 청색 수성 안료 조색제입니다.', details:[{label:"일반 특성",text:"녹색을 띠는 고농축 청색 수성 안료 조색제입니다."},{label:"색상 및 외관 변화",text:"정면에서는 짙은 청색을 띠며, 측면(플롭)으로 갈수록 맑은 녹청색 기운이 은은하게 발현됩니다."},{label:"용도 및 적용 컬러",text:"기존 WT346 안료를 대체하기 위해 개발되었으며, 청녹색 계열의 솔리드 및 이펙트 컬러 조색에 범용적으로 사용됩니다."},{label:"배합 및 혼합 비율",text:"기존 WT346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용하여 배합해야 동일한 착색력을 얻을 수 있습니다."},{label:"경고 및 주의사항",text:"대체 배합 시 미세한 명도 및 채도 차이가 발생할 수 있으므로, 반드시 시편(Color Chip) 도장 후 대조 및 미세 조정을 거쳐야 합니다."}] },
   'WT 154': { role:'블루 이펙트', type:'silver_fine', face:'#3b82f6', flop:'#1e3a8a', desc:'청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.', details:[{label:"일반 특성",text:"청색으로 특수 착색된 광휘형 알루미늄 조색제입니다."},{label:"색상 및 외관 변화",text:"입자의 반짝임이 매우 뛰어나며 도막에 맑고 깊은 청색 메탈릭 질감을 뚜렷하게 부여합니다."},{label:"용도 및 적용 컬러",text:"주로 채도가 높고 입자감이 두드러지는 고성능 차량의 청색 계열 특수 메탈릭 컬러 조색 시 핵심적으로 사용됩니다."},{label:"배합 및 혼합 비율",text:"조색 프로그램(Phoenix)의 표준 배합 데이터를 기준하여 정밀 저울로 계량하며, 임의로 과량 첨가하지 않습니다."},{label:"경고 및 주의사항",text:"금속 입자가 무거워 용기 바닥에 가라앉기 쉬우므로, 사용 전 반드시 조색제 전용 교반기로 충분히 혼합(Agitation)해야 합니다."}] },
@@ -99,8 +99,8 @@ const TONER_DB: Record<string, TonerData> = {
   'WT 392': { role:'매직 이펙트', type:'pearl', face:'#22c55e', flop:'#ef4444', desc:'다층 박막 코팅 기술을 적용한 특수 광학 간섭 펄 조색제입니다.', details:[{label:"일반 특성",text:"다층 박막 코팅 기술을 적용하여 관찰 각도에 따라 색상이 마법처럼 카멜레온 변이를 일으키는 특수 광학 간섭 펄 조색제입니다."},{label:"색상 및 외관 변화",text:"동일한 매직 라인업인 WT312(매직 파이어)와 색상 변화 순서가 완전히 정반대입니다. 정면 15도는 맑은 녹색, 측면 45도는 맑은 적색, 110도 끝에서는 약하게 적색으로 변환됩니다."},{label:"용도 및 적용 컬러",text:"시각적 반전과 역동성을 요구하는 프리미엄 커스텀 페인팅 전시 차량이나 특수한 다색(Multi-color) 교차 이펙트를 지닌 OEM 컬러 조색용으로 한정 사용됩니다."},{label:"배합 및 혼합 비율",text:"단가가 매우 높은 하이테크 안료이므로 특수 배합표 지침에 따라 0.1g 단위의 한 치의 오차 없이 저울링합니다."},{label:"경고 및 주의사항",text:"입자 크기와 굴절률이 민감하므로 단독 도장 전 바탕색(프라이머) 명도가 매뉴얼 규정(일반적으로 블랙 또는 다크그레이)과 완벽히 일치해야 색상 변이가 제대로 일어납니다."}] },
   'WT 393': { role:'라이트 옐로우', type:'solid', face:'#fef08a', flop:'#a16207', desc:'차가운 녹색 기운을 아주 미세하게 띠면서도 레몬처럼 밝고 산뜻한 연황색 조색제입니다.', details:[{label:"일반 특성",text:"차가운 녹색 기운을 아주 미세하게 띠면서도 레몬처럼 밝고 산뜻한 톤을 가진 연황색 조색제입니다."},{label:"색상 및 외관 변화",text:"탁함이나 붉은 기운이 배제된 깨끗한 밝은 옐로우 광선을 형성하며 바탕을 화사하고 가볍게 밝혀줍니다."},{label:"용도 및 적용 컬러",text:"주로 레몬빛이나 파스텔톤 솔리드 황색 베이스로 듬직하게 사용되며, 이펙트 조색 시 측면에 밝은 황색을 미세하게 보정할 경우에 극소량 첨가합니다."},{label:"배합 및 혼합 비율",text:"기본 솔리드 배합 기준에 따르며 기존 WT327 황색 안료 대비 투입량을 조절하여 명도를 맞춥니다."},{label:"경고 및 주의사항",text:"은폐력이 탁월한 편이나 이펙트 실버 배합에 임의로 첨가 시 알루미늄 광택을 페인트로 덮어버린 듯 탁하게 만들 수 있으니 주의 바랍니다."}] },
   'WT 1051': { role:'블랜딩 1051', type:'binder', face:'#ffffff', flop:'#ffffff', desc:'부분 보수 도장 작업 시 필수적인 전용 블랜딩(숨김) 첨가제입니다.', details:[{label:"일반 특성",text:"수성 페인트 부분 보수 도장(보카시)의 경계면을 자연스럽게 무너뜨리고 녹여주는 필수적인 전용 블랜딩 수지 첨가제입니다."},{label:"색상 및 외관 변화",text:"자체 색상 없이 투명하며, 새로 도장한 부위와 기존 도장면 사이의 오버스프레이 먼지를 부드럽게 녹여 시각적인 단차나 이색 경계를 완벽히 지워줍니다."},{label:"용도 및 적용 컬러",text:"은색 등 이색이 나기 쉬운 까다로운 메탈릭 차량의 부분 도장(패널 내 블랜딩) 작업 시 필수적으로 전처리 및 경계선 무너뜨리기 용도로 사용합니다."},{label:"배합 및 혼합 비율",text:"블랜딩 부위 투명 하도용으로 단독 스프레이 하거나, 마지막 도료를 컵에 남긴 상태에서 본품을 다량 희석하여 경계선에 흩뿌리며 사용합니다."},{label:"경고 및 주의사항",text:"과도하게 두껍게 뿌리면 페인트 입자가 흘러내리거나 테두리에 하얗게 링마크가 뜰 수 있으므로 얇고 부드럽게 미스트 형태로 분사해야 합니다."}] },
-  'WT 1500': { role:'울트라 딥 블랙', type:'solid', face:'#000000', flop:'#000000', desc:'명도가 가장 극도로 어둡게 떨어지는 한정판 흑색 조색제입니다.', details:[{label:"일반 특성",text:"Hi-TEC 전체 시스템 내에서 명도가 가장 극도로 어둡게 떨어지는 한정판 흑색 조색제입니다. 액상 특수 염료(Dye)를 함유하고 있습니다."},{label:"색상 및 외관 변화",text:"은폐가 목적이 아니라 염색하듯 도막을 시커멓게 물들여, 밑바닥부터 올라오는 빛을 완전히 흡수하여 극한의 검은 심연(블랙홀) 같은 질감을 연출합니다."},{label:"용도 및 적용 컬러",text:"포르쉐 제트 블랙이나 메르세데스 벤츠 옵시디안 블랙 등 일반 블랙 안료로는 도저히 맞출 수 없는 프리미엄 브랜드의 극한 다크 컬러 배합에만 독점적으로 쓰입니다."},{label:"배합 및 혼합 비율",text:"염료 성분의 반응성 때문에 엄격한 배합 한계치 **[솔리드 컬러: 전체량의 최대 5% / 실버 메탈릭: 최대 2% / 마이카 펄: 최대 5%]** 를 절대적으로 준수해야 합니다."},{label:"경고 및 주의사항",text:"허용 배합 비율 초과 시 염료가 이펙트 입자와 화학적으로 비정상 반응하여 색상이 치명적으로 변질(피어오름 현상)되거나 도막 내구성이 파괴될 수 있으므로 절대 주의하십시오."}] },
-  'WT 455': { role:'퍼포먼스 컴포넌트', type:'binder', face:'#ffffff', flop:'#ffffff', desc:'물성을 극적으로 안정화시키는 솔리드 전용 고성능 기능성 유동성 첨가제입니다.', details:[{label:"일반 특성",text:"수성 페인트의 물성을 극적으로 안정화시키기 위해 독자 개발된 솔리드 전용 고성능 기능성 유동성 첨가제입니다."},{label:"색상 및 외관 변화",text:"안료가 아니므로 색상 자체를 변화시키진 않지만, 도막의 레벨링(펴짐성)을 극한으로 끌어올려 유리면처럼 매끄러운 고품질 외관을 보장합니다."},{label:"용도 및 적용 컬러",text:"이펙트 입자가 없는 '솔리드 컬러' 도장 작업에만 단독으로 사용되며, 특히 열악한 환경(겨울철 건조/저온)에서도 탁월한 스프레이 작업성을 제공합니다."},{label:"배합 및 혼합 비율",text:"모든 조색이 완료된 솔리드 베이스코트 도료 총 무게를 기준으로 정확히 **10%** 중량을 추가 계량하여 혼합 및 분사합니다."},{label:"경고 및 주의사항",text:"성분 특성 상 펄이나 메탈릭 입자가 들어간 이펙트 컬러에는 절대 사용을 금지하며, 오용 시 메탈 입자가 헤엄쳐 다니는 얼룩 띠(Mottling) 불량이 직빵으로 발생합니다."}] },
+  'WT 1500': { role:'울트라 딥 블랙', type:'solid', face:'#000000', flop:'#000000', desc:'명도가 가장 극도로 어둡게 떨어지는 한정판 흑색 조색제입니다.', details:[{label:"일반 특성",text:"Hi-TEC 전체 시스템 내에서 명도가 가장 극도로 어둡게 떨어지는 한정판 흑색 조색제입니다. 액상 특수 염료(Dye)를 함유하고 있습니다."},{label:"색상 및 외관 변화",text:"은폐가 목적이 아니라 염색하듯 도막을 시커멓게 물들여, 밑바닥부터 올라오는 빛을 완전히 흡수하여 극한의 검은 심연(블랙홀) 같은 질감을 연출합니다."},{label:"용도 및 적용 컬러",text:"포르쉐 제트 블랙이나 메르세데스 벤츠 옵시디안 블랙 등 일반 블랙 안료로는 도저히 맞출 수 없는 프리미엄 브랜드의 극한 다크 컬러 배합에만 독점적으로 쓰입니다."},{label:"배합 및 혼합 비율",text:"염료 성분의 반응성 때문에 엄격한 배합 한계치 [솔리드 컬러: 전체량의 최대 5% / 실버 메탈릭: 최대 2% / 마이카 펄: 최대 5%] 를 절대적으로 준수해야 합니다."},{label:"경고 및 주의사항",text:"허용 배합 비율 초과 시 염료가 이펙트 입자와 화학적으로 비정상 반응하여 색상이 치명적으로 변질(피어오름 현상)되거나 도막 내구성이 파괴될 수 있으므로 절대 주의하십시오."}] },
+  'WT 455': { role:'퍼포먼스 컴포넌트', type:'binder', face:'#ffffff', flop:'#ffffff', desc:'물성을 극적으로 안정화시키는 솔리드 전용 고성능 기능성 유동성 첨가제입니다.', details:[{label:"일반 특성",text:"수성 페인트의 물성을 극적으로 안정화시키기 위해 독자 개발된 솔리드 전용 고성능 기능성 유동성 첨가제입니다."},{label:"색상 및 외관 변화",text:"안료가 아니므로 색상 자체를 변화시키진 않지만, 도막의 레벨링(펴짐성)을 극한으로 끌어올려 유리면처럼 매끄러운 고품질 외관을 보장합니다."},{label:"용도 및 적용 컬러",text:"이펙트 입자가 없는 '솔리드 컬러' 도장 작업에만 단독으로 사용되며, 특히 열악한 환경(겨울철 건조/저온)에서도 탁월한 스프레이 작업성을 제공합니다."},{label:"배합 및 혼합 비율",text:"모든 조색이 완료된 솔리드 베이스코트 도료 총 무게를 기준으로 정확히 10% 중량을 추가 계량하여 혼합 및 분사합니다."},{label:"경고 및 주의사항",text:"성분 특성 상 펄이나 메탈릭 입자가 들어간 이펙트 컬러에는 절대 사용을 금지하며, 오용 시 메탈 입자가 헤엄쳐 다니는 얼룩 띠(Mottling) 불량이 직빵으로 발생합니다."}] },
   'WT 3080': { role:'스페셜 애디티브', type:'binder', face:'#ffffff', flop:'#ffffff', desc:'도막 보정 및 흐름 방지 특수 첨가제.', details:[{label:"일반 특성",text:"도막 보정 및 흐름 방지 전용 특수 첨가제입니다."}] }
 };
 
@@ -118,7 +118,6 @@ const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const lerpHue = (a: number, b: number, t: number) => { let d = b - a; if (d > 180) d -= 360; if (d < -180) d += 360; let h = a + d * t; if (h < 0) h += 360; if (h >= 360) h -= 360; return h; };
 const lerpColor = (c1: any, c2: any, t: number) => ({ h: lerpHue(c1.h, c2.h, t), s: lerp(c1.s, c2.s, t), l: lerp(c1.l, c2.l, t) });
-
 const hex2rgb = (hex: string) => { let v = parseInt(hex.replace('#',''), 16); return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 }; };
 const rgb2hsl = (r: number, g: number, b: number) => {
   r /= 255; g /= 255; b /= 255; let max = Math.max(r, g, b), min = Math.min(r, g, b); let h = 0, s = 0, l = (max + min) / 2;
@@ -181,51 +180,114 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
 
 const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
 
+// 💡 🚨[화면 뻗음(Black Screen) 방어 엔진 원상복구]🚨
 const getOptics = (tonersList: any[]) => {
   const colorToners = tonersList.filter(t => t.code && TONER_DB[t.code]);
   const sumW = colorToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
 
   if (sumW === 0) return { face: { h: 0, s: 0, l: 90 }, mid: { h: 0, s: 0, l: 90 }, flop: { h: 0, s: 0, l: 90 }, isMetallic: false };
 
-  let faceX=0, faceY=0, faceL=0, flopX=0, flopY=0, flopL=0;
-  let totalWeight = 0; let hasMetallic = false;
+  let rBlue=0, rGreen=0, rRed=0, rYellow=0, rViolet=0;
+  let wSilver=0, wWhite=0, wBlack=0, wPearl=0, wBinder=0;
+  let interferenceColor: string | null = null;
 
   colorToners.forEach(t => {
-     let w = safeNum(parseFloat(t.adjustedWeight)); 
-     if (w <= 0) return;
-     let db = TONER_DB[t.code];
-     
-     totalWeight += w;
-     if(db.type !== 'solid' && db.type !== 'binder') hasMetallic = true;
+    const w = safeNum(parseFloat(t.adjustedWeight));
+    if (w <= 0) return;
 
-     let fRgb = hex2rgb(db.face || '#ffffff'); let fHsl = rgb2hsl(fRgb.r, fRgb.g, fRgb.b); let fRad = fHsl.h * Math.PI / 180;
-     faceX += w * fHsl.s * Math.cos(fRad); faceY += w * fHsl.s * Math.sin(fRad); faceL += w * fHsl.l;
+    const role = TONER_DB[t.code]?.role || '';
+    const code = t.code || '';
+    let strength = 1.0;
+    if (code.includes('144') || code.includes('341') || code.includes('300') || code.includes('338')) strength = 2.5;
 
-     let flRgb = hex2rgb(db.flop || '#ffffff'); let flHsl = rgb2hsl(flRgb.r, flRgb.g, flRgb.b); let flRad = flHsl.h * Math.PI / 180;
-     flopX += w * flHsl.s * Math.cos(flRad); flopY += w * flHsl.s * Math.sin(flRad); flopL += w * flHsl.l;
+    if (role.includes('컴포넌트') || role.includes('바인더') || role.includes('애디티브') || ['WT 385', 'WT 387', 'WT 386', 'WT 400', 'WT 3080', 'WT 310'].some(c => code.includes(c.replace('WT ', '')))) {
+      wBinder += w;
+    } else if (role.includes('블랙') || code.includes('323') || code.includes('388') || code.includes('188') || code.includes('1500')) wBlack += w;
+    else if (role.includes('실버') || role.includes('알루미늄') || code.includes('362') || code.includes('357') || code.includes('197') || code.includes('303') || code.includes('305') || code.includes('307')) wSilver += w;
+    else if (role.includes('화이트') || code.includes('321') || code.includes('328') || code.includes('322')) wWhite += w;
+    else if (role.includes('펄') || role.includes('이펙트') || role.includes('스파클') || code.includes('304') || code.includes('377') || code.includes('381')) {
+      wPearl += w;
+      if (role.includes('블루') || code.includes('381')) { interferenceColor = 'blue'; rBlue += w * 0.15; }
+      else if (role.includes('레드') || role.includes('마젠타')) { interferenceColor = 'red'; rRed += w * 0.15; }
+      else if (role.includes('그린') || code.includes('380')) { interferenceColor = 'green'; rGreen += w * 0.15; }
+      else if (role.includes('골드') || code.includes('304') || code.includes('382')) { interferenceColor = 'yellow'; rYellow += w * 0.15; }
+      else if (role.includes('화이트') || code.includes('377')) interferenceColor = 'white';
+    } else if (code.includes('144') || role.includes('블루') || role.includes('청')) { rBlue += w * strength; rGreen += (w * strength) * 0.5; }
+    else if (code.includes('339') || role.includes('바이올렛')) rViolet += w * strength;
+    else if (code.includes('353') || code.includes('309') || role.includes('마젠타')) { rRed += w * strength; rViolet += (w * strength) * 0.5; }
+    else if (code.includes('300') || role.includes('마룬') || role.includes('적')) rRed += w * strength;
+    else if (code.includes('308') || role.includes('오렌지')) { rRed += w * strength; rYellow += (w * strength) * 0.5; }
+    else if (role.includes('옐로우') || role.includes('황') || code.includes('350')) rYellow += w * strength;
+    else if (role.includes('그린') || role.includes('녹')) rGreen += w * strength;
   });
 
-  if(totalWeight === 0) return { face: { h: 0, s: 0, l: 90 }, mid: { h: 0, s: 0, l: 90 }, flop: { h: 0, s: 0, l: 90 }, isMetallic: false };
+  const colorWeight = (rBlue + rGreen + rRed + rYellow + rViolet);
+  const effectiveW = wWhite + wBlack + wSilver + wPearl + colorWeight;
+  const totalForRatio = effectiveW > 0 ? effectiveW : 1;
+
+  const pSilver = wSilver / totalForRatio;
+  const pWhite = wWhite / totalForRatio;
+  const pBlack = wBlack / totalForRatio;
+  const pPearl = wPearl / totalForRatio;
+  const pColor = colorWeight / totalForRatio;
+
+  let baseL = (pWhite * 96) + (pSilver * 65) + (pPearl * 85);
+  if (effectiveW === 0 && wBinder > 0) baseL = 90; 
+
+  let blackImpact = Math.pow(pBlack, 0.45) * 60; 
+  if (pWhite > 0.6) blackImpact = blackImpact * 0.15; 
+  const colorImpactL = Math.pow(pColor, 0.5) * 30;
+  baseL = Math.max(4, baseL - blackImpact - colorImpactL);
+
+  let l15 = baseL + (Math.pow(pSilver + pPearl, 0.6) * 45); 
+  let l110 = baseL - (Math.pow(pSilver, 0.6) * 45) - (Math.pow(pBlack, 0.5) * 20);
   
-  let avgFaceH = Math.atan2(faceY, faceX) * 180 / Math.PI; if(avgFaceH < 0) avgFaceH += 360;
-  let avgFlopH = Math.atan2(flopY, flopX) * 180 / Math.PI; if(avgFlopH < 0) avgFlopH += 360;
+  if (pWhite > 0.6) {
+      l110 = Math.max(83, baseL - 8); 
+      l15 = Math.min(99, baseL + (pPearl > 0 ? 10 : 3));
+  }
+
+  let x = rRed + (rYellow * 0.5) - (rGreen * 0.5) - rBlue - (rViolet * 0.5);
+  let y = (rYellow * 0.866) + (rGreen * 0.866) - (rBlue * 0.866) - (rViolet * 0.866);
+  
+  let hue = Math.atan2(y, x) * (180 / Math.PI);
+  if (hue < 0) hue += 360;
+
+  let sat = colorWeight > 0 ? Math.min(100, Math.pow((colorWeight / (colorWeight + wWhite + wSilver + Math.max(wBlack * 2, 0))), 0.4) * 100) : 0;
+  if (pWhite > 0.6) sat = sat * 0.3; 
+
+  let flopHue = hue, faceHue = hue;
+  if (interferenceColor === 'blue') { faceHue = 210; flopHue = 230; }
+  else if (interferenceColor === 'red') { faceHue = 340; flopHue = 350; }
+  else if (interferenceColor === 'green') { faceHue = 120; flopHue = 140; }
+  else if (interferenceColor === 'yellow') { faceHue = 50; flopHue = 60; }
+
+  let faceSat = Math.min(100, sat + (pPearl * (interferenceColor === 'white' ? 5 : 20)));
+  let flopSat = Math.min(100, sat + (pPearl * (interferenceColor === 'white' ? 2 : 12)));
+
+  if (colorWeight === 0 && wPearl === 0) { hue = 0; flopHue = 0; faceHue = 0; sat = 0; faceSat = 0; flopSat = 0; }
 
   return {
-     face: { h: safeNum(Math.round(avgFaceH)), s: safeNum(Math.round(Math.min(100, Math.sqrt(faceX*faceX + faceY*faceY) / totalWeight))), l: safeNum(Math.round(faceL / totalWeight)) },
-     mid: { h: safeNum(Math.round((avgFaceH + avgFlopH) / 2)), s: safeNum(Math.round((Math.min(100, Math.sqrt(faceX*faceX + faceY*faceY) / totalWeight) + Math.min(100, Math.sqrt(flopX*flopX + flopY*flopY) / totalWeight)) / 2)), l: safeNum(Math.round((faceL / totalWeight + flopL / totalWeight) / 2)) },
-     flop: { h: safeNum(Math.round(avgFlopH)), s: safeNum(Math.round(Math.min(100, Math.sqrt(flopX*flopX + flopY*flopY) / totalWeight))), l: safeNum(Math.round(flopL / totalWeight)) },
-     isMetallic: hasMetallic
+    face: { h: safeNum(Math.round(faceHue)), s: safeNum(Math.round(faceSat)), l: safeNum(Math.round(Math.min(99, Math.max(5, l15)))) },
+    mid:  { h: safeNum(Math.round(hue)), s: safeNum(Math.round(sat)), l: safeNum(Math.round(Math.min(98, Math.max(5, baseL)))) },
+    flop: { h: safeNum(Math.round(wPearl > 0 ? flopHue : hue)), s: safeNum(Math.round(flopSat)), l: safeNum(Math.round(Math.min(98, Math.max(2, l110)))) },
+    isMetallic: (wSilver > 0 || wPearl > 0)
   };
 };
 
 const getColorString = (opticsObj: any, angle: 'face'|'mid'|'flop') => {
   if (!opticsObj || !opticsObj[angle]) return 'hsl(0,0%,90%)';
-  return `hsl(${opticsObj[angle].h}, ${opticsObj[angle].s}%, ${opticsObj[angle].l}%)`;
+  const h = isNaN(opticsObj[angle].h) ? 0 : Math.round(opticsObj[angle].h);
+  const s = isNaN(opticsObj[angle].s) ? 0 : Math.round(opticsObj[angle].s);
+  const l = isNaN(opticsObj[angle].l) ? 90 : Math.round(opticsObj[angle].l);
+  return `hsl(${h}, ${s}%, ${l}%)`;
 };
 
+// 💡 🚨[화면 뻗음(Black Screen) 강력 방어 로직]🚨
 const getInteractiveBackground = (opticsObj: any, lPos: any) => {
   if (!opticsObj || !opticsObj.face || !opticsObj.mid || !opticsObj.flop) return '#f1f5f9';
-  const viewAngleT = Math.max(0, Math.min(1, lPos.x / 100));
+  
+  const viewAngleT = Math.max(0, Math.min(1, (lPos.x || 50) / 100));
   
   const lerpColorAdvanced = (c1: any, c2: any, t: number) => {
       let d = c2.h - c1.h; if (d > 180) d -= 360; if (d < -180) d += 360;
@@ -237,12 +299,19 @@ const getInteractiveBackground = (opticsObj: any, lPos: any) => {
       ? lerpColorAdvanced(opticsObj.mid, opticsObj.face, (viewAngleT - 0.5) * 2) 
       : lerpColorAdvanced(opticsObj.flop, opticsObj.mid, viewAngleT * 2);
       
-  const baseColorStr = `hsl(${Math.round(activeBaseColor.h)}, ${Math.round(activeBaseColor.s)}%, ${Math.round(activeBaseColor.l)}%)`;
-  const dist = Math.sqrt(Math.pow(lPos.x - 50, 2) + Math.pow(lPos.y - 50, 2)); 
-  const normalizedDist = Math.min(1, dist / 70); 
-  const highlightAlpha = lerp(0.6, 0.0, normalizedDist);
+  const h = isNaN(activeBaseColor.h) ? 0 : Math.round(activeBaseColor.h);
+  const s = isNaN(activeBaseColor.s) ? 0 : Math.round(activeBaseColor.s);
+  const l = isNaN(activeBaseColor.l) ? 50 : Math.round(activeBaseColor.l);
   
-  return `radial-gradient(circle at ${lPos.x}% ${lPos.y}%, rgba(255,255,255,${highlightAlpha}) 0%, ${baseColorStr} ${lerp(20, 70, normalizedDist)}%, hsl(${Math.round(activeBaseColor.h)}, ${Math.round(activeBaseColor.s)}%, ${Math.round(activeBaseColor.l * 0.4)}) 100%)`;
+  const baseColorStr = `hsl(${h}, ${s}%, ${l}%)`;
+  
+  const dist = Math.sqrt(Math.pow((lPos.x || 50) - 50, 2) + Math.pow((lPos.y || 50) - 50, 2)); 
+  const normalizedDist = Math.min(1, dist / 70); 
+  const highlightAlpha = isNaN(normalizedDist) ? 0.5 : Number(lerp(0.6, 0.0, normalizedDist).toFixed(2));
+  const distPercent = isNaN(normalizedDist) ? 50 : Math.round(lerp(20, 70, normalizedDist));
+  const darkL = Math.round(l * 0.4);
+  
+  return `radial-gradient(circle at ${lPos.x || 50}% ${lPos.y || 50}%, rgba(255,255,255,${highlightAlpha}) 0%, ${baseColorStr} ${distPercent}%, hsl(${h}, ${s}%, ${darkL}%) 100%)`;
 };
 
 
@@ -586,7 +655,7 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">PERMAHYD HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 22.1</span></h1>
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">PERMAHYD HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 22.3</span></h1>
         </div>
         <button className="flex items-center space-x-2 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white px-4 py-2 rounded-full font-bold transition-colors shadow-lg"><FolderOpen size={16} /><span>엑셀 DB 동기화</span></button>
       </header>
@@ -730,7 +799,7 @@ export default function App() {
                          )}
                       </div>
                       <div className="flex items-center self-end sm:self-auto bg-white border border-purple-100 rounded-md px-1.5 py-0.5 shrink-0 shadow-sm">
-                         {/* 💡 [글자 짤림 방지 완벽 조치] w-24로 더 넓게 고정 */}
+                         {/* 💡 [글자 짤림 방지 완벽 조치] w-24로 넉넉하게 확장 */}
                          <input 
                              ref={el => { weightRefs.current[toner.id] = el; }} 
                              inputMode="decimal" 
@@ -754,6 +823,7 @@ export default function App() {
             )}
           </div>
           
+          {/* 💡 [요청사항 반영] 공간 확보를 위해 토탈 합계를 제거하고 베이스/펄 독립 분할 표시 */}
           <div className="p-4 bg-slate-800 text-slate-100 flex justify-between items-center shrink-0 rounded-b-xl lg:rounded-none z-10 border-t-2 border-slate-700 gap-4">
              <div className="flex flex-col gap-1.5 flex-1 pl-2">
                 <span className="text-[11px] text-slate-400 font-bold tracking-wider">A. 베이스 코트 합계</span>
@@ -911,107 +981,4 @@ export default function App() {
                        <div className="flex items-center space-x-1 w-full justify-between">
                           <div className="flex space-x-1">
                             <button onClick={() => quickEditWeight(t.id, -10, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">-10</button>
-                            <button onClick={() => quickEditWeight(t.id, -1, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">-1</button>
-                            <button onClick={() => quickEditWeight(t.id, -0.1, true)} className="bg-red-900/50 hover:bg-red-500 text-red-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-red-800/50">-0.1</button>
-                          </div>
-                          <div className="flex items-center px-1">
-                             {/* 💡 확장 뷰어 에디터도 글자 짤림 방지를 위해 w-24로 확장 */}
-                             <input type="text" inputMode="decimal" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, true)} placeholder="" className="w-24 text-center bg-transparent text-sm font-black text-white outline-none" />
-                             <span className="text-slate-400 text-[10px] font-bold"></span>
-                          </div>
-                          <div className="flex space-x-1">
-                            <button onClick={() => quickEditWeight(t.id, 0.1, true)} className="bg-purple-900/50 hover:bg-purple-500 text-purple-100 w-8 h-6 rounded flex items-center justify-center font-bold text-[10px] border border-purple-800/50">+0.1</button>
-                            <button onClick={() => quickEditWeight(t.id, 1, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">+1</button>
-                            <button onClick={() => quickEditWeight(t.id, 10, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold text-[9px] text-slate-300">+10</button>
-                          </div>
-                       </div>
-                    </div>
-                 ))}
-               </>
-             )}
-          </div>
-
-          <main ref={viewerRef} className="flex-1 p-6 flex flex-col md:flex-row gap-6 overflow-hidden items-center justify-center relative cursor-crosshair w-full max-w-[1600px] mx-auto" onPointerDown={(e) => { setIsDraggingLight(true); handlePointerMove(e); }} onPointerMove={handlePointerMove} onPointerUp={() => setIsDraggingLight(false)} onPointerLeave={() => setIsDraggingLight(false)}>
-             <div className="absolute z-50 flex items-center justify-center transition-transform duration-75 pointer-events-none" style={{ left: `${lightPos.x}%`, top: `${lightPos.y}%`, transform: 'translate(-50%, -50%)' }}>
-                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center shadow-[0_0_60px_#fff] border border-white/30 animate-pulse"><Sun className="text-yellow-100" size={32} /></div>
-             </div>
-             
-             {/* 원본 */}
-             <div className="flex-1 w-full h-[45%] md:h-[80%] rounded-[1.5rem] border border-slate-700 relative overflow-hidden shadow-2xl transition-colors duration-200" style={{ background: getInteractiveBackground(originalFinalOptics, lightPos) }}>
-                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-                {originalFinalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
-                <div className="absolute top-4 left-4 bg-black/80 px-3 py-1.5 rounded-lg font-bold text-xs border border-slate-600 text-slate-300 shadow-md">A. 원본 배합 (변경 전)</div>
-             </div>
-             
-             <div className="text-slate-600 pointer-events-none shrink-0 hidden md:block"><ChevronRight size={32} /></div>
-             
-             {/* 실시간 수정본 */}
-             <div className="flex-1 w-full h-[45%] md:h-[80%] rounded-[1.5rem] border-2 border-blue-500 relative overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-colors duration-200" style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
-                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-                {finalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
-                <div className="absolute top-4 left-4 bg-blue-900/90 px-3 py-1.5 rounded-lg font-bold text-xs border border-blue-400 text-white shadow-md flex items-center"><Zap size={12} className="mr-1.5 text-yellow-300 animate-pulse"/>B. 실시간 시뮬레이션 (변경 후)</div>
-             </div>
-
-             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex bg-slate-900/90 p-2.5 rounded-2xl border border-slate-700 gap-2 shadow-2xl backdrop-blur-md">
-                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 50, y: 50}); }} className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-600 transition-colors">정면 (15°)</button>
-                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 25, y: 25}); }} className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-600 transition-colors">중면 (45°)</button>
-                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 5, y: 5}); }} className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-600 transition-colors">측면 (110°)</button>
-             </div>
-          </main>
-        </div>
-      )}
-
-      {/* 안료 디테일 뷰어 모달 */}
-      {selectedTonerForView && TONER_DB[selectedTonerForView] && (
-        <div className="fixed inset-0 bg-slate-900/85 z-[120] flex items-center justify-center backdrop-blur-xs animate-in fade-in duration-150 p-4">
-           <div className="bg-white rounded-2xl w-[600px] max-w-full shadow-2xl overflow-hidden border border-slate-700 flex flex-col max-h-full">
-              <div className="bg-slate-900 p-4 flex justify-between items-center shrink-0">
-                 <h3 className="text-white font-bold text-sm flex items-center"><Droplet className="mr-1.5 text-blue-400" size={16}/> {selectedTonerForView} 단일 안료 정밀 분석 뷰어</h3>
-                 <button onClick={() => setSelectedTonerForView(null)} className="text-slate-400 hover:text-white"><X size={20}/></button>
-              </div>
-              <div className="p-5 overflow-y-auto custom-scrollbar">
-                 <div className="text-xl font-black text-blue-700 mb-1">{TONER_DB[selectedTonerForView].role}</div>
-                 
-                 <div className="flex flex-col gap-1.5 bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4">
-                    {TONER_DB[selectedTonerForView].details?.map((d: any, idx: number) => (
-                        <div key={idx} className="flex items-start gap-1.5">
-                            <span className="shrink-0 inline-flex px-1.5 py-0.5 text-[9px] font-bold rounded border bg-white text-slate-600 border-slate-300 leading-none">{d.label}</span>
-                            <span className="text-xs text-slate-700 leading-relaxed break-keep" dangerouslySetInnerHTML={{__html: d.text}}></span>
-                        </div>
-                    ))}
-                 </div>
-
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex-1">
-                       <div className="text-[10px] font-bold text-slate-400 mb-1 text-center bg-slate-100 py-1.5 rounded shadow-xs uppercase tracking-widest">정면 (Face 15°)</div>
-                       <div className="h-32 sm:h-40 rounded-xl border border-slate-300 relative overflow-hidden" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'face')}}>
-                           {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-50"></div>}
-                       </div>
-                    </div>
-                    <div className="flex-1">
-                       <div className="text-[10px] font-bold text-slate-400 mb-1 text-center bg-slate-100 py-1.5 rounded shadow-xs uppercase tracking-widest">측면 (Flop 110°)</div>
-                       <div className="h-32 sm:h-40 rounded-xl border border-slate-300 relative overflow-hidden" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'flop')}}>
-                           {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-25"></div>}
-                       </div>
-                    </div>
-                 </div>
-                 <button onClick={() => setSelectedTonerForView(null)} className="bg-slate-800 text-white py-2.5 rounded-xl font-bold w-full text-sm shadow-md mt-5 hover:bg-slate-700 transition-colors">닫기</button>
-              </div>
-           </div>
-        </div>
-      )}
-
-      <style dangerouslySetInnerHTML={{__html: `
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.02); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
-        .clean-number-input { font-variant-numeric: tabular-nums; -webkit-text-fill-color: #0f172a; }
-        .metallic-flake {
-          position: absolute; inset: 0; pointer-events: none; z-index: 1; mix-blend-mode: color-dodge;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
-        }
-      `}} />
-    </div>
-  );
-}
+                            <button onClick={() => quickEditWeight(t.id, -1, true)} className="bg-slate-700 hover:bg-slate-600 w-7 h-6 rounded flex items-center justify-center font-bold
