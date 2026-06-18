@@ -43,9 +43,9 @@ const TONER_DB: Record<string, TonerData> = {
   'WT 333':{role:'그라나다 레드',type:'solid',face:'#991b1b',flop:'#450a0a',desc:'가장 표준적이며 맑고 밝은 기본 고농축 적색 조색제입니다.',details:[['일반 특성','가장 표준적이며 맑고 밝은 기본 고농축 적색 조색제입니다.'],['색상 및 외관 변화','선명도와 은폐력이 매우 우수하여 붉은색 본연의 강렬하고 깨끗한 솔리드 색감을 그대로 표현합니다.'],['용도 및 적용 컬러','모든 레드 계열 솔리드 컬러 조색 시 뼈대가 되는 메인 안료이며, 이펙트에서는 측면 적색 보강 시 소량 투입됩니다.'],['배합 및 혼합 비율','솔리드 적색 배합의 50~80% 이상 큰 비중을 차지하므로 규정 데이터에 맞춰 계량합니다.'],['경고 및 주의사항','메탈릭에 투입 시 은폐력이 너무 좋아 알루미늄 입자를 가릴 수 있으므로 이펙트 조색 시 투입량 통제에 특히 주의하십시오.']]},
   'WT 334':{role:'옥사이드 레드',type:'solid',face:'#7f1d1d',flop:'#450a0a',desc:'적벽돌과 유사한 묵직하고 탁한 산화철 계열의 적색 조색제입니다.',details:[['일반 특성','적벽돌과 유사한 묵직하고 탁한 산화철 계열의 적색 조색제입니다.'],['색상 및 외관 변화','투명감이 전혀 없고 매우 탁하며, 측면과 정면 모두 무겁고 차분한 황적색(녹슨 철색) 톤을 발현합니다.'],['용도 및 적용 컬러','조색제 중 최고의 은폐력을 지녀 주로 은폐가 안 되는 적색 도장 전 바탕 하도(Undercoat) 조색용으로 특화되어 쓰입니다.'],['배합 및 혼합 비율','하도 베이스 코팅용 배합 지침에 따라 처방 및 혼합합니다.'],['경고 및 주의사항','투명도가 생명인 일반 이펙트 상도(Topcoat) 컬러 배합에는 치명적인 탁색을 유발하므로 사용을 극도로 제한해야 합니다.']]},
   'WT 335':{role:'다크 옐로우',type:'solid',face:'#d97706',flop:'#78350f',desc:'적색 기운이 미세하게 감도는 차분하면서 밝은 솔리드 황색 조색제입니다.',details:[['일반 특성','적색 기운이 미세하게 감도는 차분하면서도 밝은 톤의 솔리드 황색 조색제입니다.'],['색상 및 외관 변화','은폐력이 매우 우수하여 바탕색 간섭 없이 온화하고 부드러운 노란색 질감을 형성합니다.'],['용도 및 적용 컬러','택시 컬러나 중장비 등 은폐가 중요한 솔리드 옐로우의 핵심 베이스로 사용되며, 이펙트에서는 측면의 밝은 녹황색 보완에만 소량 씁니다.'],['배합 및 혼합 비율','조색 시스템상 지시된 솔리드 황색 배합 데이터를 철저히 따릅니다.'],['경고 및 주의사항','고형분이 많아 장기간 미사용 시 침전 우려가 있으므로 사용 직전 교반 작업을 필수적으로 진행해야 합니다.']]},
-  'WT 336':{role:'트랜스루센트 레드',type:'solid',face:'#7c2d12',flop:'#450a0a',desc:'어두운 갈색(Brownish) 빛이 오묘하게 도는 반투명 적색 조색제입니다.',details:[['일반 특성','어두운 갈색(Brownish) 빛이 오묘하게 도는 선명한 반투명 적색 조색제입니다.'],['색상 및 외관 변화','이펙트 입자 위로 색이 투과되어 깊고 선명하면서도 차분한 검붉은 반사광을 연출합니다.'],['용도 및 적용 컬러','빛 반사를 죽이지 않고 깊이감을 더해야 특수 펄/메탈릭 레드 색상에 한정하여 조색 첨가제로 사용합니다.'],['배합 및 혼합 비율','배합 프로그램의 반투명 안료 첨가 가이드라인에 맞게 극소량 단위로 계량합니다.'],['경고 및 주의사항','반투명 성질이므로 솔리드 컬러 조색에 은폐용으로 사용하는 것은 절대 금지됩니다.']]},
+  'WT 336':{role:'트랜스루센트 레드',type:'solid',face:'#7c2d12',flop:'#450a0a',desc:'어두운 갈색(Brownish) 빛이 오묘하게 도는 반투명 적색 조색제입니다.',details:[['일반 특성','어두운 갈색(Brownish) 빛이 오묘하게 도는 선명한 반투명 적색 조색제입니다.'],['색상 및 외관 변화','이펙트 입자 위로 색이 투과되어 깊고 선명하면서도 차분한 검붉은 반사광을 연출합니다.'],['용도 및 적용 컬러','빛 반사를 죽이지 않고 깊이감을 더해야 하는 특수 펄/메탈릭 레드 색상에 한정하여 조색 첨가제로 사용합니다.'],['배합 및 혼합 비율','배합 프로그램의 반투명 안료 첨가 가이드라인에 맞게 극소량 단위로 계량합니다.'],['경고 및 주의사항','반투명 성질이므로 솔리드 컬러 조색에 은폐용으로 사용하는 것은 절대 금지됩니다.']]},
   'WT 337':{role:'레드',type:'solid',face:'#ef4444',flop:'#991b1b',desc:'은은한 청색 기운(Bluish)이 도는 중간 톤의 표준 적색 조색제입니다.',details:[['일반 특성','은은한 청색 기운(Bluish)이 도는 중간 톤의 고은폐력 표준 적색 조색제입니다.'],['색상 및 외관 변화','그라나다 레드(WT333)보다 톤이 무겁고 차가우며 깨끗하고 묵직한 솔리드 적색광을 구현합니다.'],['용도 및 적용 컬러','시중의 일반적인 차가운 톤 솔리드 레드 컬러 배합 시 가장 메인이 되는 기본 안료로 널리 쓰입니다.'],['배합 및 혼합 비율','표준 조색 시스템 데이터(Phoenix)를 엄수하여 정량 계량합니다.'],['경고 및 주의사항','따뜻한(노란빛) 계열의 레드 조색에 잘못 투입할 경우 색이 탁하고 보라색으로 틀어질 수 있으니 식별에 주의하십시오.']]},
-  'WT 338':{role:'블루이쉬 마젠타 레드',type:'solid',face:'#d946ef',flop:'#86198f',desc:'차가운 푸른빛이 많이 도는 선명한 표준 자주색 조색제입니다.',details:[['일반 특성','차가운 푸른빛이 많이 도는 선명한 표준 자주색(Magenta) 조색제입니다.'],['색상 및 외관 변화','화이트(백색) 안료나 실버 입자와 혼합될 경우 채도가 꺾이지 않고 매우 맑고 차가운 분홍색(Pink) 톤을 발현합니다.'],['용도 및 적용 컬러','솔리드 핑크, 밝은 보라 계열, 혹은 맑고 차가운 느낌 내야 하는 이펙트 펄 배합의 채도 상승제로 필수 사용됩니다.'],['배합 및 혼합 비율','조색 시스템의 정량 수치를 기준하되 색상 미세 보정 시 조색봉에 묻혀 소량씩 첨가해야 합니다.'],['경고 및 주의사항','착색이 강해 단 몇 방울의 오차로 전체 톤이 핑크나 보라로 확 변할 수 있으므로 극소량 첨가 시 특히 주의하십시오.']]},
+  'WT 338':{role:'블루이쉬 마젠타 레드',type:'solid',face:'#d946ef',flop:'#86198f',desc:'차가운 푸른빛이 많이 도는 선명한 표준 자주색 조색제입니다.',details:[['일반 특성','차가운 푸른빛이 많이 도는 선명한 표준 자주색(Magenta) 조색제입니다.'],['색상 및 외관 변화','화이트(백색) 안료나 실버 입자와 혼합될 경우 채도가 꺾이지 않고 매우 맑고 차가운 분홍색(Pink) 톤을 발현합니다.'],['용도 및 적용 컬러','솔리드 핑크, 밝은 보라 계열, 혹은 맑고 차가운 느낌을 내야 하는 이펙트 펄 배합의 채도 상승제로 필수 사용됩니다.'],['배합 및 혼합 비율','조색 시스템의 정량 수치를 기준하되 색상 미세 보정 시 조색봉에 묻혀 소량씩 첨가해야 합니다.'],['경고 및 주의사항','착색이 강해 단 몇 방울의 오차로 전체 톤이 핑크나 보라로 확 변할 수 있으므로 극소량 첨가 시 특히 주의하십시오.']]},
   'WT 339':{role:'바이올렛',type:'solid',face:'#8b5cf6',flop:'#4c1d95',desc:'맑고 깨끗한 표준 보라색 수성 조색제입니다.',details:[['일반 특성','맑고 깨끗한 표준 보라색 수성 조색제입니다.'],['색상 및 외관 변화','컬러에 은은한 보라빛 베일을 씌워주며 전체적인 명암 톤을 차분하고 고급스럽게 어둡게 눌러줍니다.'],['용도 및 적용 컬러','바이올렛 자체로 쓰이기보다는 특수 청색이나 다크 그레이(Grey) 솔리드/이펙트 컬러 조색 시 깊이감을 더하기 위해 주로 첨가됩니다.'],['배합 및 혼합 비율','배합표 상의 첨가 지시량에 따라 정밀 계량합니다.'],['경고 및 주의사항','실버 메탈릭에 직접 혼합 시 색이 칙칙하게 오염되어 보일 수 있으니 이펙트 혼합 시 상성 확인이 필요합니다.']]},
   'WT 340':{role:'옐로우 마젠타 레드',type:'solid',face:'#e879f9',flop:'#a21caf',desc:'따뜻한 황색 기운을 띠는 밝고 맑은 자주색 조색제입니다.',details:[['일반 특성','따뜻한 황색 기운을 띠는 밝고 맑은 자주색 조색제입니다.'],['색상 및 외관 변화','블루 계열인 WT338에 비해 전체 톤이 한층 더 환하고 따뜻하며, 알루미늄과 혼합 시 따스하고 화사한 핑크 메탈릭을 냅니다.'],['용도 및 적용 컬러','차갑지 않은 온화한 느낌의 핑크, 코랄, 밝은 레드 펄 이펙트 컬러 조색 및 보정용으로 폭넓게 쓰입니다.'],['배합 및 혼합 비율','이펙트 전용 처방에 따라 정량 계량하여 사용합니다.'],['경고 및 주의사항','조색제 라벨 이름(Yellow)에 현혹되지 마십시오. 실제 발색은 선명한 핑크/자주색이므로 시편 확인 후 조색해야 합니다.']]},
   'WT 341':{role:'아주르 블루',type:'solid',face:'#2563eb',flop:'#1e3a8a',desc:'채도가 가장 높은 아주 선명한 프리미엄 청색 조색제입니다.',details:[['일반 특성','조색 시스템 내에서 채도가 가장 높은 아주 선명한 프리미엄 청색 조색제입니다.'],['색상 및 외관 변화','솔리드 안료임에도 불구하고 정면(15도)은 녹청색, 측면(45도/110도)은 적청색을 띠는 극단적인 각도별 플롭(변화)을 보입니다.'],['용도 및 적용 컬러','스포티하고 입체적인 특수 솔리드 블루 컬러나 강한 채도가 필요한 이펙트 청색 배합의 필수 베이스입니다.'],['배합 및 혼합 비율','배합표 상의 지정된 비율을 전자저울로 정밀하게 계측하여 혼합합니다.'],['경고 및 주의사항','측면과 정면의 색상 차이가 워낙 크므로, 조색 후 반드시 햇빛이나 전용 조색 램프 아래에서 모든 각도를 다 확인해야 합니다.']]},
@@ -339,7 +339,11 @@ export default function App() {
   const [isScanning, setIsScanning] = useState(false);
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
 
+  // 💡 [과거 기록 복원용 모달창]
   const [restoredViewData, setRestoredViewData] = useState<any>(null);
+  
+  // 💡 [텔레파시 전송창 전용 State]
+  const [isTransferTab, setIsTransferTab] = useState(false);
 
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const viewerRef = useRef<HTMLElement>(null);
@@ -364,21 +368,41 @@ export default function App() {
   const pearlTonersRef = useRef<any[]>([]);
   const isThreeCoatModeRef = useRef<boolean>(true);
 
+  // 🚨 [텔레파시(Broadcast) 마법 엔진] 🚨
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
         const d = urlParams.get('d');
 
+        // 1️⃣ 엑셀이 강제로 띄운 새 창일 경우 (임무: 텔레파시 쏘고 자폭하기)
         if (d) {
             try {
                 const parsed = JSON.parse(decodeURIComponent(d));
-                setRestoredViewData(parsed); 
-                window.history.replaceState(null, '', window.location.pathname); 
+                // 메인 창으로 텔레파시(localStorage) 쏘기
+                localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsed, ts: Date.now() }));
+                
+                // 브라우저 탭 스스로 꺼지도록 강제 종료 시도
+                window.close();
+                
+                // 만약 브라우저 보안 때문에 바로 안 꺼지면, 전송 완료 화면 띄우기
+                setIsTransferTab(true);
+                return; // 💥 여기서 이 창은 멈춥니다. 밑의 코드는 실행 안 함!
             } catch (e) {
                 console.error("URL 파싱 실패", e);
             }
         }
 
+        // 2️⃣ 평소 켜두고 작업하던 메인 창일 경우 (임무: 텔레파시 수신 대기)
+        const handleStorageChange = (e: StorageEvent) => {
+            // 다른 탭에서 날아온 텔레파시를 받으면 내 화면에 팝업 띄우기!
+            if (e.key === 'hitec_broadcast' && e.newValue) {
+                const payload = JSON.parse(e.newValue);
+                setRestoredViewData(payload.data);
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+
+        // 평소 내가 하던 작업물 안전하게 불러오기
         const savedBase = localStorage.getItem('hitec_base');
         const savedPearl = localStorage.getItem('hitec_pearl');
         const savedCode = localStorage.getItem('hitec_code');
@@ -398,10 +422,16 @@ export default function App() {
         if (savedNotes) setSpecialNotes(savedNotes);
         
         setIsLoaded(true);
+
+        return () => window.removeEventListener('storage', handleStorageChange);
     }
   }, []);
 
   useEffect(() => {
+      // url에 d가 있으면 일반 저장은 하지 않음 (메인 창만 저장함)
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('d')) return;
+
       if (isLoaded && typeof window !== 'undefined') {
           localStorage.setItem('hitec_base', JSON.stringify(toners));
           localStorage.setItem('hitec_pearl', JSON.stringify(pearlToners));
@@ -644,7 +674,6 @@ export default function App() {
     }));
   };
 
-  // 🚨 [웹 복사 API - 알림창 완전 제거!] 🚨
   const copyToExcel = () => {
     const baseResin = (parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1);
     const baseStr = `${totalBaseWeight} (수지 ${baseResin})`;
@@ -686,7 +715,6 @@ export default function App() {
       shareUrl
     ].join('\t');
 
-    // 클립보드 복사 후 아무 알림창도 띄우지 않습니다.
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(rowData).catch(err => console.error(err));
     } else {
@@ -723,20 +751,36 @@ export default function App() {
       return 0; 
   }).filter(item => item.code.includes(catalogSearch.toUpperCase()) || item.role.includes(catalogSearch));
 
+  // 🚨 엑셀이 연 새 창이 자폭에 실패했을 때만 보여주는 "텔레파시 전송 완료" 화면 🚨
+  if (isTransferTab) {
+      return (
+          <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6 font-sans">
+              <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 text-center max-w-lg shadow-2xl">
+                  <Zap className="text-yellow-400 w-20 h-20 mx-auto mb-6 animate-pulse" />
+                  <h1 className="text-2xl font-black text-blue-400 mb-4">데이터 전송 완료!</h1>
+                  <p className="text-slate-300 text-lg mb-6 leading-relaxed">
+                      바탕화면에 켜두신 <strong>[조색 Pro 엑셀 연동 프로그램]</strong>으로<br/>과거 배합 기록이 텔레파시로 성공 전송되었습니다.
+                  </p>
+                  <button onClick={() => window.close()} className="bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-8 rounded-xl shadow-[0_0_15px_rgba(220,38,38,0.5)] w-full mb-4 text-lg transition-colors flex items-center justify-center gap-2">
+                      <X size={24}/> 이 껍데기 창 강제 닫기
+                  </button>
+                  <p className="text-sm text-slate-500 font-bold">※ 버튼이 안 눌리면 이 탭 위쪽의 (X)를 눌러서 닫아주세요.<br/>닫으시면 원래 하시던 작업 화면으로 돌아갑니다.</p>
+              </div>
+          </div>
+      );
+  }
+
+  // 평소 메인 앱 화면
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden lg:overflow-hidden">
       
-      {/* 💡 [드라마틱한 과거 배합 복원 팝업창 - 강력한 닫기 기능 장착] */}
+      {/* 💡 [드라마틱한 과거 배합 복원 팝업창] */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-black/85 z-[300] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300">
            <div className="bg-slate-900 border border-slate-700 rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col max-h-[90vh]">
               <div className="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 rounded-t-2xl">
                  <h2 className="text-blue-400 font-black text-lg flex items-center"><History className="mr-2"/> 과거 배합 기록 복원</h2>
-                 <button onClick={() => {
-                     setRestoredViewData(null);
-                     window.history.replaceState(null, '', window.location.pathname);
-                     window.close(); // 브라우저 창 강제 닫기 시도
-                 }} className="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full transition-colors"><X size={20}/></button>
+                 <button onClick={() => setRestoredViewData(null)} className="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full transition-colors"><X size={20}/></button>
               </div>
               <div className="p-5 overflow-y-auto custom-scrollbar flex-1 text-slate-300">
                  <div className="grid grid-cols-2 gap-4 mb-6 bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-inner">
@@ -778,15 +822,10 @@ export default function App() {
                  )}
               </div>
               <div className="p-4 border-t border-slate-700 bg-slate-900 rounded-b-2xl">
-                 {/* 💡 핵심: 엑셀이 연 새 탭을 스스로 폭파시키고 뒤에 있던 창으로 자동 복귀 */}
-                 <button onClick={() => {
-                     setRestoredViewData(null);
-                     window.history.replaceState(null, '', window.location.pathname);
-                     window.close(); // 🚨 브라우저 창 강제 닫기 시도!
-                 }} className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-colors text-sm flex justify-center items-center gap-2">
-                     <X size={18} /> 확인 완료 (이 창을 닫고 원래 작업 화면으로 복귀)
+                 {/* 💡 핵심: 팝업 닫기 */}
+                 <button onClick={() => setRestoredViewData(null)} className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-colors text-sm flex justify-center items-center gap-2">
+                     <X size={18} /> 확인 완료 (이 창을 닫고 원래 작업 화면 복귀)
                  </button>
-                 <p className="text-center text-[10px] text-slate-500 mt-3 font-bold">※ 창이 닫히지 않으면, 위쪽의 [X]를 눌러 탭을 꺼주세요.</p>
               </div>
            </div>
         </div>
@@ -814,7 +853,7 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">PERMAHYD HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 22.6</span></h1>
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">PERMAHYD HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 22.7</span></h1>
         </div>
         <button className="flex items-center space-x-2 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white px-4 py-2 rounded-full font-bold transition-colors shadow-lg"><FolderOpen size={16} /><span>엑셀 DB 동기화</span></button>
       </header>
