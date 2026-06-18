@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sliders, Trash2, Plus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet, History
 } from 'lucide-react';
 
 interface TonerData {
   role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][];
 }
 
-// 💡 1. 공식 안료 데이터베이스 (용량 초과 방지)
+// 💡 1. 공식 안료 데이터베이스 (용량 초과 방지를 위해 데이터 구조 극한 압축 - 노출 내용은 100% 동일)
 const TONER_DB: Record<string, TonerData> = {
   'WT 144':{role:'그리니쉬 블루',type:'solid',face:'#0284c7',flop:'#0c4a6e',desc:'녹색을 띠는 고농축 청색 수성 안료 조색제입니다.',details:[['일반 특성','녹색을 띠는 고농축 청색 수성 안료 조색제입니다.'],['색상 및 외관 변화','정면에서는 짙은 청색을 띠며, 측면(플롭)으로 갈수록 맑은 녹청색 기운이 은은하게 발현됩니다.'],['용도 및 적용 컬러','기존 WT346 안료를 대체하기 위해 개발되었으며, 청녹색 계열의 솔리드 및 이펙트 컬러 조색에 범용적으로 사용됩니다.'],['배합 및 혼합 비율','기존 WT346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용하여 배합해야 동일한 착색력을 얻을 수 있습니다.'],['경고 및 주의사항','대체 배합 시 미세한 명도 및 채도 차이가 발생할 수 있으므로, 반드시 시편(Color Chip) 도장 후 대조 및 미세 조정을 거쳐야 합니다.']]},
   'WT 154':{role:'블루 이펙트',type:'silver_fine',face:'#3b82f6',flop:'#1e3a8a',desc:'청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.',details:[['일반 특성','청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.'],['색상 및 외관 변화','입자의 반짝임이 매우 뛰어나며 도막에 맑고 깊은 청색 메탈릭 질감을 뚜렷하게 부여합니다.'],['용도 및 적용 컬러','주로 채도가 높고 입자감이 두드러지는 고성능 차량의 청색 계열 특수 메탈릭 컬러 조색 시 핵심적으로 사용됩니다.'],['배합 및 혼합 비율','조색 프로그램(Phoenix)의 표준 배합 데이터를 기준하여 정밀 저울로 계량하며, 임의로 과량 첨가하지 않습니다.'],['경고 및 주의사항','금속 입자가 무거워 용기 바닥에 가라앉기 쉬우므로, 사용 전 반드시 조색제 전용 교반기로 충분히 혼합(Agitation)해야 합니다.']]},
@@ -30,7 +30,7 @@ const TONER_DB: Record<string, TonerData> = {
   'WT 318':{role:'브릴리언트 블루',type:'solid',face:'#0284c7',flop:'#082f49',desc:'밝고 화사한 녹색 기운을 띠는 고광도 맑은 청색 조색제입니다.',details:[['일반 특성','밝고 화사한 녹색 기운을 띠는 고광도 맑은 청색 조색제입니다.'],['색상 및 외관 변화','대표적 청색 안료인 WT346과 비교할 때 전체적인 톤이 훨씬 밝게 유지되며 녹색빛이 감돌아 시원한 느낌을 줍니다.'],['용도 및 적용 컬러','탁색 없는 밝은 블루 이펙트 컬러나 선명한 솔리드 블루 컬러 조색 시 톤업용으로 사용됩니다.'],['배합 및 혼합 비율','표준 조색 시스템 배합 수치를 바탕으로 혼합합니다.'],['경고 및 주의사항','채도가 매우 높아 소량으로도 전체 색상 톤이 크게 변할 수 있으므로 미세 조색 시 주의가 필요합니다.']]},
   'WT 320':{role:'플래티늄 펄',type:'pearl',face:'#f1f5f9',flop:'#64748b',desc:'조색 라인업 중 입자 크기가 가장 작은 초미립 백색 펄입니다.',details:[['일반 특성','조색 라인업 중 입자 크기가 가장 작은 초미립 백색(White) 펄 조색제입니다.'],['색상 및 외관 변화','개별 펄 입자가 육안으로 거의 구별되지 않을 만큼 고와서 밀키(Milky)하고 은은한 진주 광택을 형성합니다.'],['용도 및 적용 컬러','입자가 거칠지 않은 고급 화이트 펄 바탕(현대 XB3, 아우디 LX7L/LX6T, BMW A96 등) 조색의 핵심 베이스로 폭넓게 사용됩니다.'],['배합 및 혼합 비율','조색 프로그램에 명시된 화이트 펄 계열 배합 중량을 준수하여 처방합니다.'],['경고 및 주의사항','초미립 펄이므로 점도가 뭉칠 수 있어 믹싱 전 교반기에서 장시간 혼합해 주어야 펄 뭉침 불량을 방지할 수 있습니다.']]},
   'WT 321':{role:'화이트',type:'solid',face:'#ffffff',flop:'#e2e8f0',desc:'시스템의 가장 표준이 되는 고농축/고은폐력 표준 백색 조색제입니다.',details:[['일반 특성','Hi-TEC 시스템의 가장 뼈대가 되는 고농축/고은폐력 표준 백색 조색제입니다.'],['색상 및 외관 변화','솔리드에 적용 시 전체 명도를 밝히고 파스텔톤으로 유도하며, 이펙트 적용 시 15도는 어둡게, 측면은 밝게 하는 백탁 현상을 일으킵니다.'],['용도 및 적용 컬러','모든 솔리드 컬러의 밝기 조절 및 화이트 베이스코트의 메인 성분으로 절대적으로 사용됩니다.'],['배합 및 혼합 비율','단독 도장부터 소량 첨가까지 배합표에 따라 매우 광범위한 비율로 사용됩니다.'],['경고 및 주의사항','이펙트(메탈릭/펄) 컬러에 임의로 추가 시 금속 입자의 반짝임(스파클링)을 완전히 죽여 탁하게 만들 수 있으므로 극소량만 신중히 사용해야 합니다.']]},
-  'WT 322':{role:'마이크로 화이트',type:'solid',face:'#f8fafc',flop:'#cbd5e1',desc:'미세한 알루미늄 및 펄 입자가 미리 혼합 설계된 특수 복합 화이트 안료입니다.',details:[['일반 특성','미세한 알루미늄 및 펄 입자가 미리 혼합 설계된 특수 복합 화이트 안료입니다.'],['색상 및 외관 변화','도장 후 각도별로 정면(15도)은 황색을 띠며 어둡고, 측면(45도/110도)은 청색을 띠며 밝게 반사되는 독특한 입체감을 냅니다.'],['용도 및 적용 컬러','탁탁하지 않으면서도 측면 밝기가 높아야 하는 복잡한 이펙트 화이트 컬러 배합에 특화되어 쓰입니다.'],['배합 및 혼합 비율','정해진 이펙트 컬러 데이터에 명시된 비율대로만 정확히 혼합합니다.'],['경고 및 주의사항','금속/펄 입자가 포함되어 있으므로 **솔리드 컬러 조색에는 절대 사용을 금합니다.** (이물질 오염 발생)']]} ,
+  'WT 322':{role:'마이크로 화이트',type:'solid',face:'#f8fafc',flop:'#cbd5e1',desc:'미세한 알루미늄 및 펄 입자가 미리 혼합 설계된 특수 복합 화이트 안료입니다.',details:[['일반 특성','미세한 알루미늄 및 펄 입자가 미리 혼합 설계된 특수 복합 화이트 안료입니다.'],['색상 및 외관 변화','도장 후 각도별로 정면(15도)은 황색을 띠며 어둡고, 측면(45도/110도)은 청색을 띠며 밝게 반사되는 독특한 입체감을 냅니다.'],['용도 및 적용 컬러','탁탁하지 않으면서도 측면 밝기가 높아야 하는 복잡한 이펙트 화이트 컬러 배합에 특화되어 쓰입니다.'],['배합 및 혼합 비율','정해진 이펙트 컬러 데이터에 명시된 비율대로만 정확히 혼합합니다.'],['경고 및 주의사항','금속/펄 입자가 포함되어 있으므로 **솔리드 컬러 조색에는 절대 사용을 금합니다.** (이물질 오염 발생)']]},
   'WT 323':{role:'스페셜 블랙',type:'solid',face:'#020617',flop:'#000000',desc:'가장 맑고 진한 스피스해커 시스템의 표준 흑색 수성 조색제입니다.',details:[['일반 특성','스피스해커 시스템의 가장 기준이 되는 범용 표준 흑색 수성 조색제입니다.'],['색상 및 외관 변화','솔리드에 쓰면 전체 명도와 채도를 차분하게 낮추고, 이펙트와 혼합 시 전체를 어둡게 하면서 미세하게 붉은 황색 기운을 올립니다.'],['용도 및 적용 컬러','거의 모든 컬러의 명암(어둡기) 조절 및 솔리드 블랙 도장 베이스로 가장 광범위하게 사용됩니다.'],['배합 및 혼합 비율','표준 배합비를 기준하되, 미세 조색 시 톤다운(어둡게 하기)을 위해 한두 방울 단위로 첨가 비율을 조절합니다.'],['경고 및 주의사항','착색력이 강하므로 밝은 실버 계열에 과투입 시 복구가 불가능할 정도로 톤이 무너질 수 있으니 주의하십시오.']]},
   'WT 324':{role:'레디쉬 옐로우',type:'solid',face:'#f59e0b',flop:'#9a3412',desc:'따뜻한 적색 기운이 도는 맑고 채도가 높은 선명한 황색 조색제입니다.',details:[['일반 특성','따뜻한 적색 기운이 도는 맑고 채도가 높은 선명한 황색 조색제입니다.'],['색상 및 외관 변화','탁해지지 않으면서 도막 내부에서 따뜻하고 화사한 노란빛이 돋보이게 발색됩니다.'],['용도 및 적용 컬러','주로 깨끗하고 맑은 색감이 필요한 이펙트 컬러(골드/레드/오렌지 펄 등)의 조색 틴팅용으로 첨가됩니다.'],['배합 및 혼합 비율','해당 배합표의 정량 수치를 바탕으로 미량 조절하여 사용합니다.'],['경고 및 주의사항','안료 자체의 바탕 은폐력이 매우 떨어지므로 솔리드 황색 베이스로 단독 사용할 경우 얼룩 및 은폐 불량이 발생할 수 있습니다.']]},
   'WT 326':{role:'그리니쉬 옐로우',type:'solid',face:'#eab308',flop:'#65a30d',desc:'차가운 녹색을 살짝 띠는 매우 맑고 투명한 황색 조색제입니다.',details:[['일반 특성','차가운 녹색을 살짝 띠는 매우 맑고 투명한 황색 조색제입니다.'],['색상 및 외관 변화','알루미늄 이펙트와 혼합 시 시너지 효과가 커져 정면은 맑은 황색, 측면(45도/110도)은 선명한 녹황색을 강하게 띱니다.'],['용도 및 적용 컬러','빛 투과율이 좋아 맑고 입체적인 이펙트 컬러 전용 조색제로 특화되어 사용됩니다.'],['배합 및 혼합 비율','조색 프로그램 내 이펙트 계열 배합 중량을 철저히 준수하여 계량합니다.'],['경고 및 주의사항','은폐력이 없는 수준이므로 일반 솔리드 도장에는 절대 단독으로 사용하지 말아야 합니다.']]},
@@ -328,6 +328,7 @@ export default function App() {
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [carModel, setCarModel] = useState('');
   const [jobDescription, setJobDescription] = useState('');
+  const [specialNotes, setSpecialNotes] = useState('');
   
   const [totalBaseWeight, setTotalBaseWeight] = useState("0.00");
   const [totalPearlWeight, setTotalPearlWeight] = useState("0.00");
@@ -337,6 +338,9 @@ export default function App() {
   const [scannedImage, setScannedImage] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
+
+  // 💡 [과거 기록 복원용 모달창 State - 하던 작업 유지!]
+  const [restoredViewData, setRestoredViewData] = useState<any>(null);
 
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const viewerRef = useRef<HTMLElement>(null);
@@ -361,7 +365,7 @@ export default function App() {
   const pearlTonersRef = useRef<any[]>([]);
   const isThreeCoatModeRef = useRef<boolean>(true);
 
-  // 🚨 [새로 추가된 핵심 로직: 엑셀 복원 URL 파싱 엔진] 🚨
+  // 💡 [복원 URL 감지 엔진] - 현재 작업 데이터는 덮어쓰지 않고 팝업만 띄웁니다!
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
@@ -370,22 +374,14 @@ export default function App() {
         if (d) {
             try {
                 const parsed = JSON.parse(decodeURIComponent(d));
-                if (parsed.v) setVehicleNumber(parsed.v);
-                if (parsed.m) setCarModel(parsed.m);
-                if (parsed.c) setTargetColorCode(parsed.c);
-                if (parsed.j) setJobDescription(parsed.j);
-                if (parsed.b && parsed.b.length > 0) setToners(parsed.b);
-                if (parsed.p && parsed.p.length > 0) setPearlToners(parsed.p);
-                if (parsed.t !== undefined) setIsThreeCoatMode(parsed.t);
-                
-                setIsLoaded(true);
-                return; // URL로 복원된 경우 로컬 스토리지는 건너뜀
+                setRestoredViewData(parsed); // 팝업용 State에만 저장
+                window.history.replaceState(null, '', window.location.pathname); // 주소창 청소
             } catch (e) {
-                console.error("URL 데이터 파싱 실패", e);
+                console.error("URL 파싱 실패", e);
             }
         }
 
-        // URL 접속이 아닐 경우 평소처럼 저장된 데이터 불러오기
+        // 평소 내가 하던 작업물은 안전하게 그대로 불러옴
         const savedBase = localStorage.getItem('hitec_base');
         const savedPearl = localStorage.getItem('hitec_pearl');
         const savedCode = localStorage.getItem('hitec_code');
@@ -393,6 +389,7 @@ export default function App() {
         const savedVehicle = localStorage.getItem('hitec_vehicle');
         const savedCarModel = localStorage.getItem('hitec_carmodel');
         const savedJob = localStorage.getItem('hitec_job');
+        const savedNotes = localStorage.getItem('hitec_notes');
         
         if (savedBase) setToners(JSON.parse(savedBase));
         if (savedPearl) setPearlToners(JSON.parse(savedPearl));
@@ -401,6 +398,7 @@ export default function App() {
         if (savedVehicle) setVehicleNumber(savedVehicle);
         if (savedCarModel) setCarModel(savedCarModel);
         if (savedJob) setJobDescription(savedJob);
+        if (savedNotes) setSpecialNotes(savedNotes);
         
         setIsLoaded(true);
     }
@@ -415,8 +413,9 @@ export default function App() {
           localStorage.setItem('hitec_vehicle', vehicleNumber);
           localStorage.setItem('hitec_carmodel', carModel);
           localStorage.setItem('hitec_job', jobDescription);
+          localStorage.setItem('hitec_notes', specialNotes);
       }
-  }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, isLoaded]);
+  }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, isLoaded]);
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
 
@@ -493,6 +492,7 @@ export default function App() {
     setVehicleNumber(''); 
     setCarModel(''); 
     setJobDescription('');
+    setSpecialNotes('');
     setIsBaseConfirmed(false); 
     setScannedImage(null);
   };
@@ -647,11 +647,7 @@ export default function App() {
     }));
   };
 
-  // 🚨 [복원 URL 생성 및 엑셀 전송 로직 업데이트] 🚨
   const copyToExcel = () => {
-    const today = new Date();
-    const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    
     const baseResin = (parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1);
     const baseStr = `${totalBaseWeight} (수지 ${baseResin})`;
     
@@ -665,28 +661,28 @@ export default function App() {
     const pearlDetails = isThreeCoatMode ? pearlToners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ') : '해당없음';
     const detailStr = isThreeCoatMode ? `[베이스] ${baseDetails} / [펄] ${pearlDetails}` : baseDetails;
 
-    // 현재 화면의 상태를 URL에 담기 위해 압축
     const payload = {
         v: vehicleNumber,
         m: carModel,
         c: targetColorCode,
         j: jobDescription,
+        n: specialNotes,
         b: toners.filter(t => t.code),
         p: isThreeCoatMode ? pearlToners.filter(t => t.code) : [],
         t: isThreeCoatMode
     };
     
-    // 복원 URL 주소 만들기
     const encodedData = encodeURIComponent(JSON.stringify(payload));
     const shareUrl = `${window.location.origin}${window.location.pathname}?d=${encodedData}`;
 
-    // 엑셀 9개 열(Column)에 맞게 탭(\t) 문자로 조합 (9번째에 URL이 들어갑니다)
+    // 💡 날짜는 엑셀에서 찍을 거라서 첫 칸(0)은 그냥 비워둠 ("")
     const rowData = [
-      formattedDate,
+      "", 
       vehicleNumber || '미입력',
       carModel || '미입력',
       targetColorCode || '미지정',
       jobDescription || '미입력',
+      specialNotes || '',
       baseStr,
       pearlStr,
       detailStr,
@@ -714,7 +710,7 @@ export default function App() {
     let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}`).join('\n');
     let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}`).join('\n');
     
-    const text = `[PERMAHYD HI-TEC 배합 지시서]\n================================\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 차종: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n================================\n\n[▼ 베이스 코트 (Ground)]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}\n▶ 6052 수지제원: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}\n\n${isThreeCoatMode ? `[▼ 펄 코트 (Mid-coat)]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 코트 합계: ${totalPearlWeight}\n▶ 6052 수지제원: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}\n================================`;
+    const text = `[PERMAHYD HI-TEC 배합 지시서]\n================================\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 차종: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트 (Ground)]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}\n▶ 6052 수지제원: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}\n\n${isThreeCoatMode ? `[▼ 펄 코트 (Mid-coat)]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 코트 합계: ${totalPearlWeight}\n▶ 6052 수지제원: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}\n================================`;
     
     if (typeof navigator !== 'undefined' && navigator.share) {
         navigator.share({ title: 'HI-TEC 조색 데이터 인계', text: text }).catch(console.error);
@@ -737,6 +733,60 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden lg:overflow-hidden">
       
+      {/* 💡 [드라마틱한 과거 배합 복원 팝업창 - 현재 작업 유지] */}
+      {restoredViewData && (
+        <div className="fixed inset-0 bg-black/85 z-[300] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300">
+           <div className="bg-slate-900 border border-slate-700 rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col max-h-[90vh]">
+              <div className="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 rounded-t-2xl">
+                 <h2 className="text-blue-400 font-black text-lg flex items-center"><History className="mr-2"/> 과거 배합 기록 복원</h2>
+                 <button onClick={() => setRestoredViewData(null)} className="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full transition-colors"><X size={20}/></button>
+              </div>
+              <div className="p-5 overflow-y-auto custom-scrollbar flex-1 text-slate-300">
+                 <div className="grid grid-cols-2 gap-4 mb-6 bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-inner">
+                    <div><span className="text-xs text-slate-500 block mb-1">차량 번호</span><span className="font-bold text-white text-sm">{restoredViewData.v || '-'}</span></div>
+                    <div><span className="text-xs text-slate-500 block mb-1">차종</span><span className="font-bold text-white text-sm">{restoredViewData.m || '-'}</span></div>
+                    <div><span className="text-xs text-slate-500 block mb-1">컬러 코드</span><span className="font-black text-blue-300 text-lg uppercase">{restoredViewData.c || '-'}</span></div>
+                    <div><span className="text-xs text-slate-500 block mb-1">작업 내용</span><span className="font-bold text-white text-sm">{restoredViewData.j || '-'}</span></div>
+                    {restoredViewData.n && <div className="col-span-2 mt-2"><span className="text-xs text-slate-500 block mb-1">특이 사항</span><span className="font-bold text-yellow-300 text-sm bg-yellow-900/30 px-3 py-1.5 rounded-lg border border-yellow-800/50 inline-block">{restoredViewData.n}</span></div>}
+                 </div>
+                 
+                 <h3 className="text-sm font-bold text-slate-400 mb-3 border-b border-slate-700 pb-2 flex items-center"><Layers size={14} className="mr-1.5"/> 베이스 코트 (Ground Coat)</h3>
+                 <div className="space-y-2 mb-6">
+                    {restoredViewData.b?.map((t: any, idx: number) => (
+                       <div key={idx} className="flex justify-between items-center bg-slate-800 px-4 py-2.5 rounded-lg border border-slate-700">
+                          <div className="flex items-center gap-3">
+                             <span className="font-black text-white">{t.code}</span>
+                             <span className="text-xs text-slate-500 hidden sm:inline-block">{TONER_DB[t.code]?.role || ''}</span>
+                          </div>
+                          <span className="text-blue-400 font-black text-lg">{t.adjustedWeight} <span className="text-xs font-normal text-slate-500">g</span></span>
+                       </div>
+                    ))}
+                 </div>
+
+                 {restoredViewData.t && restoredViewData.p?.length > 0 && (
+                 <>
+                   <h3 className="text-sm font-bold text-purple-400 mb-3 border-b border-slate-700 pb-2 flex items-center"><Zap size={14} className="mr-1.5"/> 펄 코트 (Mid Coat)</h3>
+                   <div className="space-y-2 mb-4">
+                      {restoredViewData.p?.map((t: any, idx: number) => (
+                         <div key={idx} className="flex justify-between items-center bg-slate-800 px-4 py-2.5 rounded-lg border border-slate-700">
+                            <div className="flex items-center gap-3">
+                               <span className="font-black text-white">{t.code}</span>
+                               <span className="text-xs text-slate-500 hidden sm:inline-block">{TONER_DB[t.code]?.role || ''}</span>
+                            </div>
+                            <span className="text-purple-400 font-black text-lg">{t.adjustedWeight} <span className="text-xs font-normal text-slate-500">g</span></span>
+                         </div>
+                      ))}
+                   </div>
+                 </>
+                 )}
+              </div>
+              <div className="p-4 border-t border-slate-700 bg-slate-900 rounded-b-2xl">
+                 <button onClick={() => setRestoredViewData(null)} className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-colors text-sm">닫기 및 진행 중인 작업으로 돌아가기</button>
+              </div>
+           </div>
+        </div>
+      )}
+
       {scannedImage && (
         <div className="bg-slate-900 border-b-4 border-blue-500 shadow-2xl z-50 p-2 md:p-4 sticky top-0 animate-in slide-in-from-top-10">
           <div className="flex justify-between items-center mb-2 px-2 max-w-[1600px] mx-auto">
@@ -759,7 +809,7 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">PERMAHYD HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 22.5</span></h1>
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">PERMAHYD HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 22.6</span></h1>
         </div>
         <button className="flex items-center space-x-2 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white px-4 py-2 rounded-full font-bold transition-colors shadow-lg"><FolderOpen size={16} /><span>엑셀 DB 동기화</span></button>
       </header>
@@ -788,19 +838,21 @@ export default function App() {
                 <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="컬러코드 (예: UG4)" className="bg-white border border-slate-300 px-3 py-2 rounded-md text-sm font-bold focus:outline-none w-full sm:w-1/3 uppercase shadow-inner" />
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
-                <input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="작업내용 (예: 프론트 범퍼 보수)" className="bg-white border border-slate-300 px-3 py-2.5 rounded-md text-sm font-bold focus:outline-none w-full sm:flex-1 shadow-inner" />
-                <div className="flex w-full sm:w-auto gap-1.5">
-                  <button onClick={() => setIsBaseConfirmed(!isBaseConfirmed)} className={`flex-1 sm:flex-none px-3 py-2.5 rounded-md text-sm font-bold flex items-center justify-center shadow-md transition-colors ${isBaseConfirmed ? 'bg-slate-200 text-slate-500' : 'bg-slate-800 text-white'}`}>
-                    {isBaseConfirmed ? <Lock size={14} className="mr-1"/> : <Unlock size={14} className="mr-1"/>}확정
-                  </button>
-                  <button onClick={copyToExcel} className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white px-3 py-2.5 rounded-md text-sm font-black flex items-center justify-center shadow-md transition-colors">
-                     <FileSpreadsheet size={16} className="mr-1.5" />엑셀 복사
-                  </button>
-                  <button onClick={shareToKakao} className="flex-1 sm:flex-none bg-[#FEE500] hover:bg-[#FADA0A] text-slate-900 px-3 py-2.5 rounded-md text-sm font-black flex items-center justify-center shadow-md transition-colors">
-                     <Share2 size={16} className="mr-1.5" />공유
-                  </button>
-                  <button onClick={handleClearAll} className="bg-white text-red-600 border border-red-200 px-3 py-2.5 rounded-md flex items-center justify-center shrink-0 transition-colors hover:bg-red-50"><Trash2 size={18} /></button>
-                </div>
+                <input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="작업내용 (예: 프론트 범퍼 보수)" className="bg-white border border-slate-300 px-3 py-2.5 rounded-md text-sm font-bold focus:outline-none w-full sm:w-1/2 shadow-inner" />
+                {/* 💡 [특이사항 추가] */}
+                <input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="특이사항 (선택사항)" className="bg-yellow-50 border border-yellow-300 px-3 py-2.5 rounded-md text-sm font-bold focus:outline-none w-full sm:w-1/2 shadow-inner" />
+              </div>
+              <div className="flex w-full gap-1.5 mt-1">
+                <button onClick={() => setIsBaseConfirmed(!isBaseConfirmed)} className={`flex-1 px-3 py-2.5 rounded-md text-sm font-bold flex items-center justify-center shadow-md transition-colors ${isBaseConfirmed ? 'bg-slate-200 text-slate-500' : 'bg-slate-800 text-white'}`}>
+                  {isBaseConfirmed ? <Lock size={14} className="mr-1"/> : <Unlock size={14} className="mr-1"/>}확정
+                </button>
+                <button onClick={copyToExcel} className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2.5 rounded-md text-sm font-black flex items-center justify-center shadow-md transition-colors">
+                   <FileSpreadsheet size={16} className="mr-1.5" />엑셀 복사
+                </button>
+                <button onClick={shareToKakao} className="flex-1 bg-[#FEE500] hover:bg-[#FADA0A] text-slate-900 px-3 py-2.5 rounded-md text-sm font-black flex items-center justify-center shadow-md transition-colors">
+                   <Share2 size={16} className="mr-1.5" />공유
+                </button>
+                <button onClick={handleClearAll} className="bg-white text-red-600 border border-red-200 px-3 py-2.5 rounded-md flex items-center justify-center shrink-0 transition-colors hover:bg-red-50"><Trash2 size={18} /></button>
               </div>
             </div>
           </div>
@@ -1108,33 +1160,31 @@ export default function App() {
              )}
           </div>
 
-          <main ref={viewerRef} className="flex-1 p-6 flex gap-4 overflow-hidden items-center justify-center h-full relative cursor-crosshair w-full max-w-[1600px] mx-auto" onPointerDown={(e) => { setIsDraggingLight(true); handlePointerMove(e); }} onPointerMove={handlePointerMove} onPointerUp={() => setIsDraggingLight(false)} onPointerLeave={() => setIsDraggingLight(false)}>
+          <main ref={viewerRef} className="flex-1 p-6 flex flex-col md:flex-row gap-6 overflow-hidden items-center justify-center relative cursor-crosshair w-full max-w-[1600px] mx-auto" onPointerDown={(e) => { setIsDraggingLight(true); handlePointerMove(e); }} onPointerMove={handlePointerMove} onPointerUp={() => setIsDraggingLight(false)} onPointerLeave={() => setIsDraggingLight(false)}>
              <div className="absolute z-50 flex items-center justify-center transition-transform duration-75 pointer-events-none" style={{ left: `${lightPos.x}%`, top: `${lightPos.y}%`, transform: 'translate(-50%, -50%)' }}>
-                <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(255,255,255,0.8)] backdrop-blur-sm border border-white/40 animate-pulse">
-                    <Sun className="text-yellow-100 drop-shadow-[0_0_15px_rgba(255,255,255,1)]" size={40} />
-                </div>
+                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center shadow-[0_0_60px_#fff] border border-white/30 animate-pulse"><Sun className="text-yellow-100" size={32} /></div>
              </div>
-
-             <div className="flex-1 h-[85%] rounded-[2rem] border border-slate-700 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] transition-all duration-75"
-                  style={{ background: getInteractiveBackground(originalFinalOptics, lightPos) }}>
+             
+             {/* 원본 */}
+             <div className="flex-1 w-full h-[45%] md:h-[80%] rounded-[1.5rem] border border-slate-700 relative overflow-hidden shadow-2xl transition-colors duration-200" style={{ background: getInteractiveBackground(originalFinalOptics, lightPos) }}>
                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
                 {originalFinalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
-                <div className="absolute top-6 left-6 bg-black/80 px-4 py-2 rounded-xl font-bold text-sm border border-slate-600 text-slate-200 shadow-lg">A. 원본 배합 (변경 전)</div>
+                <div className="absolute top-4 left-4 bg-black/80 px-3 py-1.5 rounded-lg font-bold text-xs border border-slate-600 text-slate-300 shadow-md">A. 원본 배합 (변경 전)</div>
              </div>
              
-             <div className="text-slate-600 pointer-events-none shrink-0"><ChevronRight size={32} /></div>
+             <div className="text-slate-600 pointer-events-none shrink-0 hidden md:block"><ChevronRight size={32} /></div>
              
-             <div className="flex-1 h-[85%] rounded-[2rem] border-2 border-blue-500 relative overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-all duration-75"
-                  style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
+             {/* 실시간 수정본 */}
+             <div className="flex-1 w-full h-[45%] md:h-[80%] rounded-[1.5rem] border-2 border-blue-500 relative overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-colors duration-200" style={{ background: getInteractiveBackground(finalOptics, lightPos) }}>
                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
                 {finalOptics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]" style={{ opacity: lerp(0.4, 0.05, Math.min(1, Math.sqrt(Math.pow(lightPos.x - 50, 2) + Math.pow(lightPos.y - 50, 2)) / 50)) }}></div>}
-                <div className="absolute top-6 left-6 bg-blue-900/90 px-4 py-2 rounded-xl font-bold text-sm border border-blue-400 text-white shadow-lg flex items-center"><Zap size={14} className="mr-1.5 text-yellow-300 animate-pulse"/>B. 실시간 시뮬레이션 (변경 후)</div>
+                <div className="absolute top-4 left-4 bg-blue-900/90 px-3 py-1.5 rounded-lg font-bold text-xs border border-blue-400 text-white shadow-md flex items-center"><Zap size={12} className="mr-1.5 text-yellow-300 animate-pulse"/>B. 실시간 시뮬레이션 (변경 후)</div>
              </div>
-             
-             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex bg-slate-900/90 p-4 rounded-2xl border border-slate-700 gap-2 shadow-2xl backdrop-blur-md">
-                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 50, y: 50}); }} className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold border border-slate-600 transition-colors">정면 (15°)</button>
-                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 25, y: 25}); }} className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold border border-slate-600 transition-colors">중면 (45°)</button>
-                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 5, y: 5}); }} className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold border border-slate-600 transition-colors">측면 (110°)</button>
+
+             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex bg-slate-900/90 p-2.5 rounded-2xl border border-slate-700 gap-2 shadow-2xl backdrop-blur-md">
+                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 50, y: 50}); }} className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-600 transition-colors">정면 (15°)</button>
+                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 25, y: 25}); }} className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-600 transition-colors">중면 (45°)</button>
+                <button onClick={(e) => { e.stopPropagation(); setLightPos({x: 5, y: 5}); }} className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-600 transition-colors">측면 (110°)</button>
              </div>
           </main>
         </div>
