@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sliders, Trash2, Plus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet, History
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet, History,
+  Info, Award, Terminal // 💡 새로운 아이콘 추가
 } from 'lucide-react';
 
 interface TonerData {
@@ -339,11 +340,11 @@ export default function App() {
   const [isScanning, setIsScanning] = useState(false);
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
 
-  // 💡 [과거 기록 복원용 모달창]
   const [restoredViewData, setRestoredViewData] = useState<any>(null);
-  
-  // 💡 [텔레파시 전송창 전용 State]
   const [isTransferTab, setIsTransferTab] = useState(false);
+  
+  // 💡 [추가] 개발자 헌정 정보 모달 State
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const viewerRef = useRef<HTMLElement>(null);
@@ -368,33 +369,29 @@ export default function App() {
   const pearlTonersRef = useRef<any[]>([]);
   const isThreeCoatModeRef = useRef<boolean>(true);
 
-  // 🚨 [텔레파시(Broadcast) 마법 엔진] 🚨
+  // 💡 브라우저 상단 탭 이름을 '조색 Pro'로 강제 고정!
+  useEffect(() => {
+    document.title = "조색 Pro";
+  }, []);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
         const d = urlParams.get('d');
 
-        // 1️⃣ 엑셀이 강제로 띄운 새 창일 경우 (임무: 텔레파시 쏘고 자폭하기)
         if (d) {
             try {
                 const parsed = JSON.parse(decodeURIComponent(d));
-                // 메인 창으로 텔레파시(localStorage) 쏘기
                 localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsed, ts: Date.now() }));
-                
-                // 브라우저 탭 스스로 꺼지도록 강제 종료 시도
-                window.close();
-                
-                // 만약 브라우저 보안 때문에 바로 안 꺼지면, 전송 완료 화면 띄우기
+                window.close(); // 🚨 자폭 시도
                 setIsTransferTab(true);
-                return; // 💥 여기서 이 창은 멈춥니다. 밑의 코드는 실행 안 함!
+                return; 
             } catch (e) {
                 console.error("URL 파싱 실패", e);
             }
         }
 
-        // 2️⃣ 평소 켜두고 작업하던 메인 창일 경우 (임무: 텔레파시 수신 대기)
         const handleStorageChange = (e: StorageEvent) => {
-            // 다른 탭에서 날아온 텔레파시를 받으면 내 화면에 팝업 띄우기!
             if (e.key === 'hitec_broadcast' && e.newValue) {
                 const payload = JSON.parse(e.newValue);
                 setRestoredViewData(payload.data);
@@ -402,7 +399,6 @@ export default function App() {
         };
         window.addEventListener('storage', handleStorageChange);
 
-        // 평소 내가 하던 작업물 안전하게 불러오기
         const savedBase = localStorage.getItem('hitec_base');
         const savedPearl = localStorage.getItem('hitec_pearl');
         const savedCode = localStorage.getItem('hitec_code');
@@ -428,7 +424,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-      // url에 d가 있으면 일반 저장은 하지 않음 (메인 창만 저장함)
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('d')) return;
 
@@ -751,29 +746,64 @@ export default function App() {
       return 0; 
   }).filter(item => item.code.includes(catalogSearch.toUpperCase()) || item.role.includes(catalogSearch));
 
-  // 🚨 엑셀이 연 새 창이 자폭에 실패했을 때만 보여주는 "텔레파시 전송 완료" 화면 🚨
+  // 🚨 텔레파시 전송 완료 껍데기 화면 🚨
   if (isTransferTab) {
       return (
           <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6 font-sans">
               <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 text-center max-w-lg shadow-2xl">
                   <Zap className="text-yellow-400 w-20 h-20 mx-auto mb-6 animate-pulse" />
-                  <h1 className="text-2xl font-black text-blue-400 mb-4">데이터 전송 완료!</h1>
+                  <h1 className="text-2xl font-black text-blue-400 mb-4">데이터 전송 신호 발사!</h1>
                   <p className="text-slate-300 text-lg mb-6 leading-relaxed">
-                      바탕화면에 켜두신 <strong>[조색 Pro 엑셀 연동 프로그램]</strong>으로<br/>과거 배합 기록이 텔레파시로 성공 전송되었습니다.
+                      바탕화면에 켜두신 <strong>[조색 Pro 앱]</strong>으로<br/>과거 배합 기록 신호를 성공적으로 쐈습니다.<br/><br/>
+                      <span className="text-red-400 font-bold">보안상 이 껍데기 창은 자동으로 닫히지 않습니다.</span>
                   </p>
                   <button onClick={() => window.close()} className="bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-8 rounded-xl shadow-[0_0_15px_rgba(220,38,38,0.5)] w-full mb-4 text-lg transition-colors flex items-center justify-center gap-2">
-                      <X size={24}/> 이 껍데기 창 강제 닫기
+                      <X size={24}/> 이 창을 닫고 원래 하던 작업으로 복귀
                   </button>
-                  <p className="text-sm text-slate-500 font-bold">※ 버튼이 안 눌리면 이 탭 위쪽의 (X)를 눌러서 닫아주세요.<br/>닫으시면 원래 하시던 작업 화면으로 돌아갑니다.</p>
+                  <p className="text-sm text-slate-500 font-bold">※ 버튼이 안 눌리면 이 탭 위쪽의 (X)를 눌러서 강제로 꺼주세요.</p>
               </div>
           </div>
       );
   }
 
-  // 평소 메인 앱 화면
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden lg:overflow-hidden">
       
+      {/* 💡 [제작 스토리 헌정 모달] */}
+      {isAboutOpen && (
+        <div className="fixed inset-0 bg-slate-950/80 z-[400] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+           <div className="bg-slate-900 border border-slate-700 rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden">
+               <div className="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800">
+                   <h2 className="text-white font-black text-lg flex items-center"><Award className="mr-2 text-yellow-400"/> 조색 Pro - 개발자 정보</h2>
+                   <button onClick={() => setIsAboutOpen(false)} className="text-slate-400 hover:text-white"><X size={20}/></button>
+               </div>
+               <div className="p-6 text-slate-300 space-y-4">
+                   <div className="flex items-center gap-4 mb-6">
+                       <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center border-2 border-slate-700 shadow-lg shrink-0">
+                           <span className="text-2xl font-black text-white">윤</span>
+                       </div>
+                       <div>
+                           <h3 className="text-xl font-black text-white">윤성만 마스터 <span className="text-sm font-normal text-slate-400">(Yoon Seong-man)</span></h3>
+                           <p className="text-sm text-blue-400 font-bold mt-1">PERMAHYD HI-TEC 현장 조색 시스템 기획 및 개발자</p>
+                       </div>
+                   </div>
+                   
+                   <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                       <h4 className="font-bold text-white mb-2 flex items-center"><Terminal size={14} className="mr-1.5 text-emerald-400"/> 개발 과정 및 투입된 노력</h4>
+                       <p className="text-sm leading-relaxed text-slate-400 text-justify break-keep">
+                           본 프로그램은 실제 자동차 보수도장 현장에서 겪은 수많은 시행착오와 땀방울이 고스란히 녹아있는 결과물입니다.<br/><br/>
+                           단순한 배합 계산을 넘어, <strong>PC 엑셀과의 완벽한 원클릭 연동, 과거 데이터 무손실 복원(텔레파시 엔진), 다중 시각화 렌더링, 10연속 오토 포커싱 기술</strong> 등 실제 작업자가 1초라도 아낄 수 있도록 설계된 '100% 현장 맞춤형 최적화 솔루션'입니다.<br/><br/>
+                           끊임없는 피드백과 로직 설계를 거쳐 완성된 윤성만 마스터만의 고유한 마스터피스입니다.
+                       </p>
+                   </div>
+               </div>
+               <div className="p-4 bg-slate-950 border-t border-slate-800 text-center">
+                   <p className="text-[10px] text-slate-600 font-bold">ⓒ 2026 Yoon Seong-man. All rights reserved.</p>
+               </div>
+           </div>
+        </div>
+      )}
+
       {/* 💡 [드라마틱한 과거 배합 복원 팝업창] */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-black/85 z-[300] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300">
@@ -822,9 +852,8 @@ export default function App() {
                  )}
               </div>
               <div className="p-4 border-t border-slate-700 bg-slate-900 rounded-b-2xl">
-                 {/* 💡 핵심: 팝업 닫기 */}
                  <button onClick={() => setRestoredViewData(null)} className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-colors text-sm flex justify-center items-center gap-2">
-                     <X size={18} /> 확인 완료 (이 창을 닫고 원래 작업 화면 복귀)
+                     <X size={18} /> 확인 완료 (팝업 닫기)
                  </button>
               </div>
            </div>
@@ -853,7 +882,7 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">PERMAHYD HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 22.7</span></h1>
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">PERMAHYD HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 22.8</span></h1>
         </div>
         <button className="flex items-center space-x-2 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white px-4 py-2 rounded-full font-bold transition-colors shadow-lg"><FolderOpen size={16} /><span>엑셀 DB 동기화</span></button>
       </header>
@@ -1059,9 +1088,15 @@ export default function App() {
           <div className={`bg-white border ${isBaseConfirmed ? 'border-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.15)]' : 'border-slate-300'} rounded-xl p-4 shadow-xl flex-none transition-all duration-300`}>
             <h3 className="text-[15px] font-bold mb-3 flex justify-between items-center border-b border-slate-100 pb-2">
               <span className="flex items-center"><Layers className="text-blue-600 mr-2" size={18} />멀티 시각화 렌더링 비교</span>
-              <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); }} className="text-xs px-3 py-1.5 rounded bg-slate-800 text-white font-bold flex items-center hover:bg-slate-700 shadow-md">
-                  <Maximize size={12} className="mr-1.5"/>확장 뷰어 열기
-              </button>
+              {/* 💡 확장 뷰어 열기 옆에 제작스토리 버튼 추가 */}
+              <div className="flex gap-2">
+                 <button onClick={() => setIsAboutOpen(true)} className="text-xs px-3 py-1.5 rounded bg-indigo-600 text-white font-bold flex items-center hover:bg-indigo-500 shadow-md transition-colors">
+                     <Info size={12} className="mr-1.5"/>제작 스토리
+                 </button>
+                 <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); setLightPos({x:50,y:50}); }} className="text-xs px-3 py-1.5 rounded bg-slate-800 text-white font-bold flex items-center hover:bg-slate-700 shadow-md transition-colors">
+                     <Maximize size={12} className="mr-1.5"/>확장 뷰어 열기
+                 </button>
+              </div>
             </h3>
             <div className="flex flex-col space-y-3">
               <div className="flex flex-col space-y-1">
