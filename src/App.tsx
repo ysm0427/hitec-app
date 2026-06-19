@@ -4,6 +4,7 @@ import {
   Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet, History,
   Info, Award, Terminal
 } from 'lucide-react';
+} from 'lucide-react';
 
 interface TonerData {
   role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][];
