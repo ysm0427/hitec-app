@@ -384,6 +384,28 @@ const unpackToners = (str: string) => {
         };
     });
 };
+// 🚨 255자 한계 박살내는 수퍼 압축기
+const packToners = (tonerList: any[]) => {
+    return tonerList.filter(t => t.code).map(t => {
+        const c = t.code.replace('WT ', '').trim();
+        const w = t.adjustedWeight || '';
+        const h = (t.history || []).join(',');
+        return `${c}_${w}_${h}`;
+    }).join('*');
+};
+
+const unpackToners = (str: string) => {
+    if (!str) return [];
+    return str.split('*').map((t, i) => {
+        const [c, w, h] = t.split('_');
+        return {
+            id: `restored_${Date.now()}_${i}`,
+            code: c ? `WT ${c}` : '',
+            adjustedWeight: w || '',
+            history: h ? h.split(',') : []
+        };
+    });
+};
 
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
