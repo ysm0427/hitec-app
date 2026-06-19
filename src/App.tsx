@@ -362,6 +362,28 @@ const unpackToners = (str: string) => {
         };
     });
 };
+// 🚨 255자 한계 박살내는 수퍼 압축기
+const packToners = (tonerList: any[]) => {
+    return tonerList.filter(t => t.code).map(t => {
+        const c = t.code.replace('WT ', '').trim();
+        const w = t.adjustedWeight || '';
+        const h = (t.history || []).join(',');
+        return `${c}_${w}_${h}`;
+    }).join('*');
+};
+
+const unpackToners = (str: string) => {
+    if (!str) return [];
+    return str.split('*').map((t, i) => {
+        const [c, w, h] = t.split('_');
+        return {
+            id: `restored_${Date.now()}_${i}`,
+            code: c ? `WT ${c}` : '',
+            adjustedWeight: w || '',
+            history: h ? h.split(',') : []
+        };
+    });
+};
 
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -431,9 +453,11 @@ export default function App() {
         if (d) {
             try {
                 let parsed;
+                // 🚨 기존 JSON 방식인지, 신규 극한압축 방식인지 확인
                 if (d.includes('%7B') || d.includes('{')) {
                     parsed = JSON.parse(decodeURIComponent(d));
                 } else {
+                    // 🚨 극한 압축 엔진 해독
                     const parts = d.split('|').map(decodeURIComponent);
                     parsed = {
                         v: parts[0] || '',
@@ -859,6 +883,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden lg:overflow-hidden">
       
+      {/* 💡 [제작 스토리 헌정 모달] */}
       {isAboutOpen && (
         <div className="fixed inset-0 bg-slate-950/80 z-[400] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
            <div className="bg-slate-900 border border-slate-700 rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden">
