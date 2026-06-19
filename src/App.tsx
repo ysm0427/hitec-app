@@ -8,8 +8,6 @@ import {
 interface TonerData {
   role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][];
 }
-  role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][];
-}
 
 // 💡 1. 공식 안료 데이터베이스
 const TONER_DB: Record<string, TonerData> = {
@@ -17,7 +15,7 @@ const TONER_DB: Record<string, TonerData> = {
   'WT 154':{role:'블루 이펙트',type:'silver_fine',face:'#3b82f6',flop:'#1e3a8a',desc:'청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.',details:[['일반 특성','청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.'],['색상 및 외관 변화','입자의 반짝임이 매우 뛰어나며 도막에 맑고 깊은 청색 메탈릭 질감을 뚜렷하게 부여합니다.'],['용도 및 적용 컬러','주로 채도가 높고 입자감이 두드러지는 고성능 차량의 청색 계열 특수 메탈릭 컬러 조색 시 핵심적으로 사용됩니다.'],['배합 및 혼합 비율','조색 프로그램(Phoenix)의 표준 배합 데이터를 기준하여 정밀 저울로 계량하며, 임의로 과량 첨가하지 않습니다.'],['경고 및 주의사항','금속 입자가 무거워 용기 바닥에 가라앉기 쉬우므로, 사용 전 반드시 조색제 전용 교반기로 충분히 혼합(Agitation)해야 합니다.']]},
   'WT 188':{role:'슈퍼 딥 블랙',type:'solid',face:'#0f172a',flop:'#020617',desc:'명도를 극단적으로 낮춘 매우 어두운 흑색 조색제입니다.',details:[['일반 특성','명도를 극단적으로 낮춘 매우 어두운 흑색 조색제입니다.'],['색상 및 외관 변화','기존 딥 블랙 계열(WT388 등)과 비교했을 때 밑색이 보이지 않을 정도로 더 차갑고 깊은 완전 흑색을 구현합니다.'],['용도 및 적용 컬러','범용적이지 않으며, 극한의 명암 대비가 필요한 특정 흑색 계열 OEM 컬러나 특수 솔리드 블랙 조색에 제한적으로 사용됩니다.'],['배합 및 혼합 비율','착색력이 매우 강하므로 일반 블랙을 대체하여 사용할 경우 기존 대비 절반 이하의 비율부터 미세 조정하며 투입합니다.'],['경고 및 주의사항','과량 사용 시 도막이 탁해지거나 이펙트 안료의 반짝임을 완전히 덮어버릴(Kill) 수 있으므로 사용량 통제에 각별한 주의가 필요합니다.']]},
   'WT 197':{role:'실크 실버 울트라 파인',type:'silver_fine',face:'#e2e8f0',flop:'#64748b',desc:'특수 초미립 알루미늄 조색제입니다.',details:[['일반 특성','입자 크기가 극도로 미세하게 분쇄된 특수 초미립 알루미늄 조색제입니다.'],['색상 및 외관 변화','입자감이 겉으로 도드라지지 않아 마치 비단(Silk)처럼 부드럽고 매끈하며 밀도 높은 금속 질감을 발현합니다.'],['용도 및 적용 컬러','프리미엄 세단의 매끄러운 고휘도 은색을 연출할 때 사용되며, 대표적으로 Lexus(1F1), M.Benz(047) 등에 적용됩니다.'],['배합 및 혼합 비율','조색 프로그램(Phoenix)의 정해진 표준 배합 수치를 엄격히 준수하여 투입합니다.'],['경고 및 주의사항','미립자 알루미늄의 특성상 도장 횟수나 에어 압력(스프레이 기법)에 따라 플롭(명암 차이)이 크게 달라질 수 있으므로 표준 도장법을 준수해야 합니다.']]},
-  'WT 300':{role:'마룬',type:'solid',face:'#991b1b',flop:'#450a0a',desc:'짙은 밤색 기운이 도는 어두운 적색 수성 조색제입니다.',details:[['일반 특성','짙은 밤색 기운이 도는 어두운 적색(Maroon) 수성 조색제입니다.'],['색상 및 외관 변화','또 다른 마론 안료인 WT332에 비해 채도가 더 높으며, 측면(110도)에서 관찰할 때 명도가 급격히 어두워지는 강한 플롭 특성을 보입니다.'],['용도 및 적용 컬러','주로 입체감이 깊어야 하는 적색 베이스 이펙트(펄/메탈릭) 컬러 조색 시 톤을 눌러주기 위해 사용됩니다.'],['배합 및 혼합 비율','조색 프로그램에 명시된 기본 배합비를 준수하여 첨가합니다.'],['경고 및 주의사항','솔리드 적색에 다량 첨가 시 색상이 탁해지고 검붉게 변질될 수 있으므로 미세 조색 시 한 방울씩 조심스럽게 투입해야 합니다.']]},
+  'WT 300':{role:'마룬',type:'solid',face:'#991b1b',flop:'#450a0a',desc:'짙은 밤색 기운이 도는 어두운 적색 수성 조색제입니다.',details:[['일반 특성','짙은 밤색 기운이 도는 어두운 적색(Maroon) 수성 조색제입니다.'],['색상 및 외관 변화','또 다른 마론 안료인 WT332에 비해 채도가 더 높으며, 측면(110도)에서 관찰할 때 명도가 급격히 어두워지는 강한 플롭 특성을 보 বোর্.'],['용도 및 적용 컬러','주로 입체감이 깊어야 하는 적색 베이스 이펙트(펄/메탈릭) 컬러 조색 시 톤을 눌러주기 위해 사용됩니다.'],['배합 및 혼합 비율','조색 프로그램에 명시된 기본 배합비를 준수하여 첨가합니다.'],['경고 및 주의사항','솔리드 적색에 다량 첨가 시 색상이 탁해지고 검붉게 변질될 수 있으므로 미세 조색 시 한 방울씩 조심스럽게 투입해야 합니다.']]},
   'WT 303':{role:'플래틴 실버 엑스트라 화인',type:'silver_fine',face:'#d1d5db',flop:'#475569',desc:'고휘도 광휘형 초미립 알루미늄 조색제입니다.',details:[['일반 특성','빛 반사율이 극대화된 고휘도(빛 반사가 강한) 광휘형 초미립 알루미늄 조색제입니다.'],['색상 및 외관 변화','동일한 플래티닌 실버 계열(WT389 등) 중에서 입자가 가장 작아 거친 느낌 없이 밝고 매끄러운 금속 반사광을 제공합니다.'],['용도 및 적용 컬러','고운 입자로 높은 정면 명도를 요구하는 현대적인 실버 메탈릭 컬러나 화이트 펄 바탕색을 조색할 때 사용됩니다.'],['배합 및 혼합 비율','배합표의 정량 규정을 엄격하게 준수하여 전자저울로 정밀 계량합니다.'],['경고 및 주의사항','입자가 가라앉아 있을 수 있으므로 교반기(믹싱 머신)에 장착하여 매일 2회 이상 충분히 교반해야 안정적인 색상을 낼 수 있습니다.']]},
   'WT 304':{role:'매직 스파클 이펙트',type:'xirallic',face:'#fef08a',flop:'#475569',desc:'투명한 황색 코팅이 적용된 유리 입자 조색제입니다.',details:[['일반 특성','투명한 황색 코팅이 적용된 입자 크기가 매우 큰 유리 입자(Glass Flake) 조색제입니다.'],['색상 및 외관 변화','도장면에 다이아몬드 가루를 뿌린 듯 다방향으로 강렬하게 튀는 입체적인 스파클링(Sparkling) 효과를 부여합니다.'],['용도 및 적용 컬러','입자감이 극도로 도드라져야 하는 특수 전시용 컬러나 일부 프리미엄 차종의 특수 펄 컬러 조색에 제한적으로 사용됩니다.'],['배합 및 혼합 비율','은폐력이 전무하므로 기본 안료에 소량(1~5%) 첨가하여 효과를 부여하는 형태로 처방됩니다.'],['경고 및 주의사항','유리 입자가 커서 도장 표면이 거칠어질 수 있으므로, 최종 클리어코트(투명) 작업 시 2.5회 이상 두껍게 도장하여 표면을 평활하게 잡아주어야 합니다.']]},
   'WT 305':{role:'울트라 화인 실버',type:'silver_fine',face:'#cbd5e1',flop:'#334155',desc:'반짝임이 부드러운 특수 미립자 알루미늄 수성 조색제입니다.',details:[['일반 특성','반짝임이 매우 부드러운 특수 미립자 알루미늄 수성 조색제입니다.'],['색상 및 외관 변화','일반 메탈릭처럼 입자가 눈에 띄지 않으며 은은하고 매끈한 금속광택 베이스를 형성합니다.'],['용도 및 적용 컬러','매끈한 느낌의 하이엔드 은색을 연출할 때 메인으로 사용되며, Nissan(KAB), Lexus(1F1), M.Benz(047) 등의 배합에 들어갑니다.'],['배합 및 혼합 비율','TDS(기술자료) 및 조색 프로그램의 중량 데이터를 기반으로 계량합니다.'],['경고 및 주의사항','도장 기법(웨트/드라이)에 따라 색상 톤이 민감하게 변할 수 있으므로, 보수 도장 시 블랜딩(보카시) 작업에 각별히 유의해야 합니다.']]},
@@ -316,75 +314,7 @@ const getInteractiveBackground = (opticsObj: any, lPos: any) => {
   
   return `radial-gradient(circle at ${lPos.x || 50}% ${lPos.y || 50}%, rgba(255,255,255,${highlightAlpha}) 0%, ${baseColorStr} ${distPercent}%, hsl(${h}, ${s}%, ${darkL}%) 100%)`;
 };
-
-// 🚨 255자 한계 박살내는 수퍼 압축기
-const packToners = (tonerList: any[]) => {
-    return tonerList.filter(t => t.code).map(t => {
-        const c = t.code.replace('WT ', '').trim();
-        const w = t.adjustedWeight || '';
-        const h = (t.history || []).join(',');
-        return `${c}_${w}_${h}`;
-    }).join('*');
-};
-
-const unpackToners = (str: string) => {
-    if (!str) return [];
-    return str.split('*').map((t, i) => {
-        const [c, w, h] = t.split('_');
-        return {
-            id: `restored_${Date.now()}_${i}`,
-            code: c ? `WT ${c}` : '',
-            adjustedWeight: w || '',
-            history: h ? h.split(',') : []
-        };
-    });
-};
-
 // 🚨 255자 한계 박살내는 엑셀 연동 수퍼 압축기
-const packToners = (tonerList: any[]) => {
-    return tonerList.filter(t => t.code).map(t => {
-        const c = t.code.replace('WT ', '').trim();
-        const w = t.adjustedWeight || '';
-        const h = (t.history || []).join(',');
-        return `${c}_${w}_${h}`;
-    }).join('*');
-};
-
-const unpackToners = (str: string) => {
-    if (!str) return [];
-    return str.split('*').map((t, i) => {
-        const [c, w, h] = t.split('_');
-        return {
-            id: `restored_${Date.now()}_${i}`,
-            code: c ? `WT ${c}` : '',
-            adjustedWeight: w || '',
-            history: h ? h.split(',') : []
-        };
-    });
-};
-// 🚨 255자 한계 박살내는 수퍼 압축기
-const packToners = (tonerList: any[]) => {
-    return tonerList.filter(t => t.code).map(t => {
-        const c = t.code.replace('WT ', '').trim();
-        const w = t.adjustedWeight || '';
-        const h = (t.history || []).join(',');
-        return `${c}_${w}_${h}`;
-    }).join('*');
-};
-
-const unpackToners = (str: string) => {
-    if (!str) return [];
-    return str.split('*').map((t, i) => {
-        const [c, w, h] = t.split('_');
-        return {
-            id: `restored_${Date.now()}_${i}`,
-            code: c ? `WT ${c}` : '',
-            adjustedWeight: w || '',
-            history: h ? h.split(',') : []
-        };
-    });
-};
-// 🚨 255자 한계 박살내는 수퍼 압축기
 const packToners = (tonerList: any[]) => {
     return tonerList.filter(t => t.code).map(t => {
         const c = t.code.replace('WT ', '').trim();
@@ -940,6 +870,7 @@ export default function App() {
         </div>
       )}
 
+      {/* 💡 [드라마틱한 과거 배합 복원 팝업창] */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-black/85 z-[300] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300">
            <div className="bg-slate-900 border border-slate-700 rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col max-h-[90vh]">
@@ -988,7 +919,7 @@ export default function App() {
               </div>
               <div className="p-4 border-t border-slate-700 bg-slate-900 rounded-b-2xl">
                  <button onClick={() => setRestoredViewData(null)} className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-colors text-sm flex justify-center items-center gap-2">
-                     <X size={18} /> 확인 완료 (팝업 닫기)
+                     <X size={18} /> 닫기 및 원래 작업 화면으로 복귀
                  </button>
               </div>
            </div>
@@ -1491,7 +1422,3 @@ export default function App() {
           position: absolute; inset: 0; pointer-events: none; z-index: 1; mix-blend-mode: color-dodge;
           background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
         }
-      `}} />
-    </div>
-  );
-}
