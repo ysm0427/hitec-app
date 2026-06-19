@@ -339,6 +339,29 @@ const unpackToners = (str: string) => {
     });
 };
 
+// 🚨 255자 한계 박살내는 엑셀 연동 수퍼 압축기
+const packToners = (tonerList: any[]) => {
+    return tonerList.filter(t => t.code).map(t => {
+        const c = t.code.replace('WT ', '').trim();
+        const w = t.adjustedWeight || '';
+        const h = (t.history || []).join(',');
+        return `${c}_${w}_${h}`;
+    }).join('*');
+};
+
+const unpackToners = (str: string) => {
+    if (!str) return [];
+    return str.split('*').map((t, i) => {
+        const [c, w, h] = t.split('_');
+        return {
+            id: `restored_${Date.now()}_${i}`,
+            code: c ? `WT ${c}` : '',
+            adjustedWeight: w || '',
+            history: h ? h.split(',') : []
+        };
+    });
+};
+
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   
@@ -388,6 +411,7 @@ export default function App() {
   const pearlTonersRef = useRef<any[]>([]);
   const isThreeCoatModeRef = useRef<boolean>(true);
 
+  // 💡 브라우저 상단 탭 이름을 '조색 Pro'로 강제 고정!
   useEffect(() => {
     document.title = "조색 Pro";
   }, []);
@@ -397,6 +421,7 @@ export default function App() {
         const urlParams = new URLSearchParams(window.location.search);
         const d = urlParams.get('d');
 
+        // 진짜 전용 도메인을 감지해서 보관해두는 스마트 로직
         const ori = window.location.origin;
         if (!ori.includes('google') && !ori.includes('gemini') && !ori.includes('usercontent') && !ori.includes('null')) {
             localStorage.setItem('hitec_clean_domain', ori);
