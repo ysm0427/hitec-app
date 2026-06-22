@@ -9,13 +9,13 @@ interface TonerData {
   role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][];
 }
 
-// 💡 1. 공식 안료 데이터베이스
+// 💡 1. 공식 안료 데이터베이스 (WT 144 전면 수정 완벽 반영)
 const TONER_DB: Record<string, TonerData> = {
-  'WT 144':{role:'그리니쉬 블루',type:'solid',face:'#0284c7',flop:'#0c4a6e',desc:'녹색을 띠는 고농축 청색 수성 안료 조색제입니다.',details:[['일반 특성','녹색을 띠는 고농축 청색 수성 안료 조색제입니다.'],['색상 및 외관 변화','정면에서는 짙은 청색을 띠며, 측면(플롭)으로 갈수록 맑은 녹청색 기운이 은은하게 발현됩니다.'],['용도 및 적용 컬러','기존 WT346 안료를 대체하기 위해 개발되었으며, 청녹색 계열의 솔리드 및 이펙트 컬러 조색에 범용적으로 사용됩니다.'],['배합 및 혼합 비율','기존 WT346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용하여 배합해야 동일한 착색력을 얻을 수 있습니다.'],['경고 및 주의사항','대체 배합 시 미세한 명도 및 채도 차이가 발생할 수 있으므로, 반드시 시편(Color Chip) 도장 후 대조 및 미세 조정을 거쳐야 합니다.']]},
+  'WT 144':{role:'블루 (적청 베이스)',type:'solid',face:'#1d4ed8',flop:'#0369a1',desc:'정면에서 선명한 적청색 기운을 띠며 WT346을 대체하는 고농축 청색 조색제입니다.',details:[['일반 특성','기존 WT346 안료를 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'],['색상 및 외관 변화','가장 큰 특징은 정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점입니다. 기존 녹청 기운과 뚜렷한 차이를 보입니다.'],['용도 및 적용 컬러','WT346이 포함된 모든 솔리드 및 이펙트(메탈릭/펄) 컬러의 1:1 대체 처방 및 조색 보정용으로 폭넓게 사용됩니다.'],['배합 및 혼합 비율','기존 WT346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용하여 배합해야 완벽하게 동일한 착색력을 얻을 수 있습니다.'],['경고 및 주의사항','정면의 뚜렷한 적청색 발색 특성으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로, 반드시 시편(Color Chip) 대조 후 블랜딩 도장을 권장합니다.']]},
   'WT 154':{role:'블루 이펙트',type:'silver_fine',face:'#3b82f6',flop:'#1e3a8a',desc:'청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.',details:[['일반 특성','청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.'],['색상 및 외관 변화','입자의 반짝임이 매우 뛰어나며 도막에 맑고 깊은 청색 메탈릭 질감을 뚜렷하게 부여합니다.'],['용도 및 적용 컬러','주로 채도가 높고 입자감이 두드러지는 고성능 차량의 청색 계열 특수 메탈릭 컬러 조색 시 핵심적으로 사용됩니다.'],['배합 및 혼합 비율','조색 프로그램(Phoenix)의 표준 배합 데이터를 기준하여 정밀 저울로 계량하며, 임의로 과량 첨가하지 않습니다.'],['경고 및 주의사항','금속 입자가 무거워 용기 바닥에 가라앉기 쉬우므로, 사용 전 반드시 조색제 전용 교반기로 충분히 혼합(Agitation)해야 합니다.']]},
   'WT 188':{role:'슈퍼 딥 블랙',type:'solid',face:'#0f172a',flop:'#020617',desc:'명도를 극단적으로 낮춘 매우 어두운 흑색 조색제입니다.',details:[['일반 특성','명도를 극단적으로 낮춘 매우 어두운 흑색 조색제입니다.'],['색상 및 외관 변화','기존 딥 블랙 계열(WT388 등)과 비교했을 때 밑색이 보이지 않을 정도로 더 차갑고 깊은 완전 흑색을 구현합니다.'],['용도 및 적용 컬러','범용적이지 않으며, 극한의 명암 대비가 필요한 특정 흑색 계열 OEM 컬러나 특수 솔리드 블랙 조색에 제한적으로 사용됩니다.'],['배합 및 혼합 비율','착색력이 매우 강하므로 일반 블랙을 대체하여 사용할 경우 기존 대비 절반 이하의 비율부터 미세 조정하며 투입합니다.'],['경고 및 주의사항','과량 사용 시 도막이 탁해지거나 이펙트 안료의 반짝임을 완전히 덮어버릴(Kill) 수 있으므로 사용량 통제에 각별한 주의가 필요합니다.']]},
   'WT 197':{role:'실크 실버 울트라 파인',type:'silver_fine',face:'#e2e8f0',flop:'#64748b',desc:'특수 초미립 알루미늄 조색제입니다.',details:[['일반 특성','입자 크기가 극도로 미세하게 분쇄된 특수 초미립 알루미늄 조색제입니다.'],['색상 및 외관 변화','입자감이 겉으로 도드라지지 않아 마치 비단(Silk)처럼 부드럽고 매끈하며 밀도 높은 금속 질감을 발현합니다.'],['용도 및 적용 컬러','프리미엄 세단의 매끄러운 고휘도 은색을 연출할 때 사용되며, 대표적으로 Lexus(1F1), M.Benz(047) 등에 적용됩니다.'],['배합 및 혼합 비율','조색 프로그램(Phoenix)의 정해진 표준 배합 수치를 엄격히 준수하여 투입합니다.'],['경고 및 주의사항','미립자 알루미늄의 특성상 도장 횟수나 에어 압력(스프레이 기법)에 따라 플롭(명암 차이)이 크게 달라질 수 있으므로 표준 도장법을 준수해야 합니다.']]},
-  'WT 300':{role:'마룬',type:'solid',face:'#991b1b',flop:'#450a0a',desc:'짙은 밤색 기운이 도는 어두운 적색 수성 조색제입니다.',details:[['일반 특성','짙은 밤색 기운이 도는 어두운 적색(Maroon) 수성 조색제입니다.'],['색상 및 외관 변화','또 다른 마론 안료인 WT332에 비해 채도가 더 높으며, 측면(110도)에서 관찰할 때 명도가 급격히 어두워지는 강한 플롭 특성을 보 বোর্.'],['용도 및 적용 컬러','주로 입체감이 깊어야 하는 적색 베이스 이펙트(펄/메탈릭) 컬러 조색 시 톤을 눌러주기 위해 사용됩니다.'],['배합 및 혼합 비율','조색 프로그램에 명시된 기본 배합비를 준수하여 첨가합니다.'],['경고 및 주의사항','솔리드 적색에 다량 첨가 시 색상이 탁해지고 검붉게 변질될 수 있으므로 미세 조색 시 한 방울씩 조심스럽게 투입해야 합니다.']]},
+  'WT 300':{role:'마룬',type:'solid',face:'#991b1b',flop:'#450a0a',desc:'짙은 밤색 기운이 도는 어두운 적색 수성 조색제입니다.',details:[['일반 특성','짙은 밤색 기운이 도는 어두운 적색(Maroon) 수성 조색제입니다.'],['색상 및 외관 변화','또 다른 마론 안료인 WT332에 비해 채도가 더 높으며, 측면(110도)에서 관찰할 때 명도가 급격히 어두워지는 강한 플롭 특성을 보입니다.'],['용도 및 적용 컬러','주로 입체감이 깊어야 하는 적색 베이스 이펙트(펄/메탈릭) 컬러 조색 시 톤을 눌러주기 위해 사용됩니다.'],['배합 및 혼합 비율','조색 프로그램에 명시된 기본 배합비를 준수하여 첨가합니다.'],['경고 및 주의사항','솔리드 적색에 다량 첨가 시 색상이 탁해지고 검붉게 변질될 수 있으므로 미세 조색 시 한 방울씩 조심스럽게 투입해야 합니다.']]},
   'WT 303':{role:'플래틴 실버 엑스트라 화인',type:'silver_fine',face:'#d1d5db',flop:'#475569',desc:'고휘도 광휘형 초미립 알루미늄 조색제입니다.',details:[['일반 특성','빛 반사율이 극대화된 고휘도(빛 반사가 강한) 광휘형 초미립 알루미늄 조색제입니다.'],['색상 및 외관 변화','동일한 플래티닌 실버 계열(WT389 등) 중에서 입자가 가장 작아 거친 느낌 없이 밝고 매끄러운 금속 반사광을 제공합니다.'],['용도 및 적용 컬러','고운 입자로 높은 정면 명도를 요구하는 현대적인 실버 메탈릭 컬러나 화이트 펄 바탕색을 조색할 때 사용됩니다.'],['배합 및 혼합 비율','배합표의 정량 규정을 엄격하게 준수하여 전자저울로 정밀 계량합니다.'],['경고 및 주의사항','입자가 가라앉아 있을 수 있으므로 교반기(믹싱 머신)에 장착하여 매일 2회 이상 충분히 교반해야 안정적인 색상을 낼 수 있습니다.']]},
   'WT 304':{role:'매직 스파클 이펙트',type:'xirallic',face:'#fef08a',flop:'#475569',desc:'투명한 황색 코팅이 적용된 유리 입자 조색제입니다.',details:[['일반 특성','투명한 황색 코팅이 적용된 입자 크기가 매우 큰 유리 입자(Glass Flake) 조색제입니다.'],['색상 및 외관 변화','도장면에 다이아몬드 가루를 뿌린 듯 다방향으로 강렬하게 튀는 입체적인 스파클링(Sparkling) 효과를 부여합니다.'],['용도 및 적용 컬러','입자감이 극도로 도드라져야 하는 특수 전시용 컬러나 일부 프리미엄 차종의 특수 펄 컬러 조색에 제한적으로 사용됩니다.'],['배합 및 혼합 비율','은폐력이 전무하므로 기본 안료에 소량(1~5%) 첨가하여 효과를 부여하는 형태로 처방됩니다.'],['경고 및 주의사항','유리 입자가 커서 도장 표면이 거칠어질 수 있으므로, 최종 클리어코트(투명) 작업 시 2.5회 이상 두껍게 도장하여 표면을 평활하게 잡아주어야 합니다.']]},
   'WT 305':{role:'울트라 화인 실버',type:'silver_fine',face:'#cbd5e1',flop:'#334155',desc:'반짝임이 부드러운 특수 미립자 알루미늄 수성 조색제입니다.',details:[['일반 특성','반짝임이 매우 부드러운 특수 미립자 알루미늄 수성 조색제입니다.'],['색상 및 외관 변화','일반 메탈릭처럼 입자가 눈에 띄지 않으며 은은하고 매끈한 금속광택 베이스를 형성합니다.'],['용도 및 적용 컬러','매끈한 느낌의 하이엔드 은색을 연출할 때 메인으로 사용되며, Nissan(KAB), Lexus(1F1), M.Benz(047) 등의 배합에 들어갑니다.'],['배합 및 혼합 비율','TDS(기술자료) 및 조색 프로그램의 중량 데이터를 기반으로 계량합니다.'],['경고 및 주의사항','도장 기법(웨트/드라이)에 따라 색상 톤이 민감하게 변할 수 있으므로, 보수 도장 시 블랜딩(보카시) 작업에 각별히 유의해야 합니다.']]},
@@ -182,7 +182,6 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
 };
 
 const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
-
 const getOptics = (tonersList: any[]) => {
   const colorToners = tonersList.filter(t => t.code && TONER_DB[t.code]);
   const sumW = colorToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
@@ -200,7 +199,7 @@ const getOptics = (tonersList: any[]) => {
     const role = TONER_DB[t.code]?.role || '';
     const code = t.code || '';
     let strength = 1.0;
-    if (code.includes('144') || code.includes('341') || code.includes('300') || code.includes('338')) strength = 2.5;
+    if (code.includes('341') || code.includes('300') || code.includes('338')) strength = 2.5;
 
     if (role.includes('컴포넌트') || role.includes('바인더') || role.includes('애디티브') || ['WT 385', 'WT 387', 'WT 386', 'WT 400', 'WT 3080', 'WT 310'].some(c => code.includes(c.replace('WT ', '')))) {
       wBinder += w;
@@ -214,7 +213,9 @@ const getOptics = (tonersList: any[]) => {
       else if (role.includes('그린') || code.includes('380')) { interferenceColor = 'green'; rGreen += w * 0.15; }
       else if (role.includes('골드') || code.includes('304') || code.includes('382')) { interferenceColor = 'yellow'; rYellow += w * 0.15; }
       else if (role.includes('화이트') || code.includes('377')) interferenceColor = 'white';
-    } else if (code.includes('144') || role.includes('블루') || role.includes('청')) { rBlue += w * strength; rGreen += (w * strength) * 0.5; }
+    // 💡 [핵심 수정] WT 144는 수학적 렌더링에서도 적청(Reddish-Blue)으로 완벽 계산!
+    } else if (code.includes('144')) { rBlue += w * 2.5; rRed += (w * 2.5) * 0.4; } 
+    else if (role.includes('블루') || role.includes('청')) { rBlue += w * strength; rGreen += (w * strength) * 0.5; }
     else if (code.includes('339') || role.includes('바이올렛')) rViolet += w * strength;
     else if (code.includes('353') || code.includes('309') || role.includes('마젠타')) { rRed += w * strength; rViolet += (w * strength) * 0.5; }
     else if (code.includes('300') || role.includes('마룬') || role.includes('적')) rRed += w * strength;
@@ -314,7 +315,7 @@ const getInteractiveBackground = (opticsObj: any, lPos: any) => {
   
   return `radial-gradient(circle at ${lPos.x || 50}% ${lPos.y || 50}%, rgba(255,255,255,${highlightAlpha}) 0%, ${baseColorStr} ${distPercent}%, hsl(${h}, ${s}%, ${darkL}%) 100%)`;
 };
-// 🚨 255자 한계 박살내는 엑셀 연동 수퍼 압축기
+
 // 🚨 255자 한계 박살내는 엑셀 연동 수퍼 압축기
 const packToners = (tonerList: any[]) => {
     return tonerList.filter(t => t.code).map(t => {
@@ -382,6 +383,9 @@ export default function App() {
 
   const [isBaseMetallic, setIsBaseMetallic] = useState(false);
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
+
+  // 💡 [NEW] 배합량 일괄 조절용 상태 추가
+  const [scaleFactor, setScaleFactor] = useState("2");
 
   const tonersRef = useRef<any[]>([]);
   const pearlTonersRef = useRef<any[]>([]);
@@ -729,6 +733,35 @@ export default function App() {
     }));
   };
 
+  // 💡 [NEW] 배합량 일괄 곱하기/나누기 엔진! (히스토리 자동 저장 포함)
+  const handleScaleAll = (isMultiply: boolean) => {
+    const factor = parseFloat(scaleFactor);
+    if (isNaN(factor) || factor <= 0) {
+        alert("올바른 배율(숫자)을 입력해주세요.");
+        return;
+    }
+
+    const scale = (valStr: string) => {
+        const val = parseFloat(valStr);
+        if (isNaN(val) || val === 0) return valStr;
+        const newVal = isMultiply ? val * factor : val / factor;
+        return newVal.toFixed(1);
+    };
+
+    const applyScale = (list: any[]) => list.map(t => {
+        if (!t.adjustedWeight) return t;
+        const newVal = scale(t.adjustedWeight);
+        const currentHistory = t.history || [];
+        const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== newVal) 
+            ? [...currentHistory, newVal] 
+            : currentHistory;
+        return { ...t, adjustedWeight: newVal, history: nextHistory };
+    });
+
+    setToners(applyScale(toners));
+    setPearlToners(applyScale(pearlToners));
+  };
+
   const copyToExcel = () => {
     const baseResin = (parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1);
     const baseStr = `${totalBaseWeight} (수지 ${baseResin})`;
@@ -774,7 +807,6 @@ export default function App() {
       shareUrl
     ].join('\t');
 
-    // 🔥 알림창(alert) 완벽 제거. 복사만 조용히 처리됨
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(rowData).catch(err => console.error(err));
     } else {
@@ -1033,6 +1065,27 @@ export default function App() {
           </div>
           
           <div className="flex-1 overflow-y-auto custom-scrollbar p-3 bg-white relative min-h-[350px] lg:min-h-0">
+            
+            {/* 💡 NEW: 전체 비율 일괄 조절 패널 */}
+            <div className="mb-4 bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg flex items-center justify-between shadow-sm">
+                <div className="flex items-center gap-2">
+                    <Beaker size={16} className="text-indigo-600" />
+                    <span className="text-xs font-bold text-indigo-800">전체 사용량 일괄 조절</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <input 
+                        type="text" 
+                        inputMode="decimal"
+                        value={scaleFactor}
+                        onChange={(e) => setScaleFactor(e.target.value.replace(/[^0-9.]/g, ''))}
+                        className="w-12 text-center text-sm font-black text-indigo-700 border border-indigo-200 rounded py-1 focus:outline-none focus:border-indigo-500 shadow-inner"
+                    />
+                    <span className="text-xs font-bold text-indigo-400 mr-1">배</span>
+                    <button onClick={() => handleScaleAll(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded shadow-sm transition-colors flex items-center gap-1">× 곱하기</button>
+                    <button onClick={() => handleScaleAll(false)} className="bg-white border border-indigo-300 text-indigo-700 hover:bg-indigo-100 text-xs font-bold px-3 py-1.5 rounded shadow-sm transition-colors flex items-center gap-1">÷ 나누기</button>
+                </div>
+            </div>
+
             <div className="space-y-2 pb-4">
               <div className="text-xs font-black text-slate-400 flex items-center justify-between border-b pb-1.5">
                 <span>▼ 베이스 코트 (Ground Coat)</span>
