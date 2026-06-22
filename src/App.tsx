@@ -315,6 +315,7 @@ const getInteractiveBackground = (opticsObj: any, lPos: any) => {
   return `radial-gradient(circle at ${lPos.x || 50}% ${lPos.y || 50}%, rgba(255,255,255,${highlightAlpha}) 0%, ${baseColorStr} ${distPercent}%, hsl(${h}, ${s}%, ${darkL}%) 100%)`;
 };
 // 🚨 255자 한계 박살내는 엑셀 연동 수퍼 압축기
+// 🚨 255자 한계 박살내는 엑셀 연동 수퍼 압축기
 const packToners = (tonerList: any[]) => {
     return tonerList.filter(t => t.code).map(t => {
         const c = t.code.replace('WT ', '').trim();
@@ -386,7 +387,6 @@ export default function App() {
   const pearlTonersRef = useRef<any[]>([]);
   const isThreeCoatModeRef = useRef<boolean>(true);
 
-  // 💡 브라우저 상단 탭 이름을 '조색 Pro'로 강제 고정!
   useEffect(() => {
     document.title = "조색 Pro";
   }, []);
@@ -396,7 +396,6 @@ export default function App() {
         const urlParams = new URLSearchParams(window.location.search);
         const d = urlParams.get('d');
 
-        // 진짜 전용 도메인을 감지해서 보관해두는 스마트 로직
         const ori = window.location.origin;
         if (!ori.includes('google') && !ori.includes('gemini') && !ori.includes('usercontent') && !ori.includes('null')) {
             localStorage.setItem('hitec_clean_domain', ori);
@@ -405,11 +404,9 @@ export default function App() {
         if (d) {
             try {
                 let parsed;
-                // 🚨 기존 JSON 방식인지, 신규 극한압축 방식인지 확인
                 if (d.includes('%7B') || d.includes('{')) {
                     parsed = JSON.parse(decodeURIComponent(d));
                 } else {
-                    // 🚨 극한 압축 엔진 해독
                     const parts = d.split('|').map(decodeURIComponent);
                     parsed = {
                         v: parts[0] || '',
@@ -777,6 +774,7 @@ export default function App() {
       shareUrl
     ].join('\t');
 
+    // 🔥 알림창(alert) 완벽 제거. 복사만 조용히 처리됨
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(rowData).catch(err => console.error(err));
     } else {
@@ -870,21 +868,60 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 [드라마틱한 과거 배합 복원 팝업창] */}
+      {/* 💡 [드라마틱한 과거 배합 복원 팝업창 - 합계 & 수지 계산기 탑재] */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-black/85 z-[300] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300">
-           <div className="bg-slate-900 border border-slate-700 rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col max-h-[90vh]">
+           <div className="bg-slate-900 border border-slate-700 rounded-2xl w-[800px] max-w-full shadow-2xl flex flex-col max-h-[90vh]">
               <div className="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 rounded-t-2xl">
                  <h2 className="text-blue-400 font-black text-lg flex items-center"><History className="mr-2"/> 과거 배합 기록 복원</h2>
                  <button onClick={() => setRestoredViewData(null)} className="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full transition-colors"><X size={20}/></button>
               </div>
+              
               <div className="p-5 overflow-y-auto custom-scrollbar flex-1 text-slate-300">
-                 <div className="grid grid-cols-2 gap-4 mb-6 bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-inner">
-                    <div><span className="text-xs text-slate-500 block mb-1">차량 번호</span><span className="font-bold text-white text-sm">{restoredViewData.v || '-'}</span></div>
-                    <div><span className="text-xs text-slate-500 block mb-1">차종</span><span className="font-bold text-white text-sm">{restoredViewData.m || '-'}</span></div>
-                    <div><span className="text-xs text-slate-500 block mb-1">컬러 코드</span><span className="font-black text-blue-300 text-lg uppercase">{restoredViewData.c || '-'}</span></div>
-                    <div><span className="text-xs text-slate-500 block mb-1">작업 내용</span><span className="font-bold text-white text-sm">{restoredViewData.j || '-'}</span></div>
-                    {restoredViewData.n && <div className="col-span-2 mt-2"><span className="text-xs text-slate-500 block mb-1">특이 사항</span><span className="font-bold text-yellow-300 text-sm bg-yellow-900/30 px-3 py-1.5 rounded-lg border border-yellow-800/50 inline-block">{restoredViewData.n}</span></div>}
+                 
+                 <div className="flex flex-col md:flex-row gap-4 mb-6">
+                    <div className="grid grid-cols-2 gap-4 bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-inner flex-1">
+                        <div><span className="text-xs text-slate-500 block mb-1">차량 번호</span><span className="font-bold text-white text-sm">{restoredViewData.v || '-'}</span></div>
+                        <div><span className="text-xs text-slate-500 block mb-1">차종</span><span className="font-bold text-white text-sm">{restoredViewData.m || '-'}</span></div>
+                        <div><span className="text-xs text-slate-500 block mb-1">컬러 코드</span><span className="font-black text-blue-300 text-lg uppercase">{restoredViewData.c || '-'}</span></div>
+                        <div><span className="text-xs text-slate-500 block mb-1">작업 내용</span><span className="font-bold text-white text-sm">{restoredViewData.j || '-'}</span></div>
+                        {restoredViewData.n && <div className="col-span-2 mt-2"><span className="text-xs text-slate-500 block mb-1">특이 사항</span><span className="font-bold text-yellow-300 text-sm bg-yellow-900/30 px-3 py-1.5 rounded-lg border border-yellow-800/50 inline-block">{restoredViewData.n}</span></div>}
+                    </div>
+                    
+                    {/* 🔥 요청하신 [베이스/펄 합계] 및 [6052 수지] 실시간 계산 UI */}
+                    <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-inner min-w-[220px] flex flex-col justify-center gap-3">
+                        {(()=>{
+                             const rBaseToners = restoredViewData.b || [];
+                             const rPearlToners = restoredViewData.p || [];
+                             const rBaseTotal = rBaseToners.reduce((sum: number, t: any) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
+                             const rPearlTotal = rPearlToners.reduce((sum: number, t: any) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
+                             const rIsBaseMetallic = rBaseToners.some((t: any) => { const type = TONER_DB[t.code]?.type || ''; return type !== 'solid' && type !== 'binder' && type !== ''; });
+                             const rIsPearlMetallic = rPearlToners.some((t: any) => { const type = TONER_DB[t.code]?.type || ''; return type !== 'solid' && type !== 'binder' && type !== ''; });
+                             const rBaseResin = (rBaseTotal * (rIsBaseMetallic ? 0.2 : 0.1)).toFixed(1);
+                             const rPearlResin = (rPearlTotal * (rIsPearlMetallic ? 0.2 : 0.1)).toFixed(1);
+
+                             return (
+                                 <>
+                                     <div>
+                                         <span className="text-[10px] text-slate-400 font-bold block mb-1">A. 베이스 합계 / 6052</span>
+                                         <div className="flex items-end gap-2">
+                                             <span className="text-xl font-black text-blue-400">{rBaseTotal.toFixed(1)}<span className="text-xs font-normal">g</span></span>
+                                             <span className="text-xs font-bold text-slate-500 mb-1">수지: <span className="text-slate-300">{rBaseResin}g</span></span>
+                                         </div>
+                                     </div>
+                                     {restoredViewData.t && rPearlToners.length > 0 && (
+                                     <div className="border-t border-slate-700 pt-3 mt-1">
+                                         <span className="text-[10px] text-slate-400 font-bold block mb-1">B. 펄 코트 합계 / 6052</span>
+                                         <div className="flex items-end gap-2">
+                                             <span className="text-xl font-black text-purple-400">{rPearlTotal.toFixed(1)}<span className="text-xs font-normal">g</span></span>
+                                             <span className="text-xs font-bold text-slate-500 mb-1">수지: <span className="text-slate-300">{rPearlResin}g</span></span>
+                                         </div>
+                                     </div>
+                                     )}
+                                 </>
+                             )
+                        })()}
+                    </div>
                  </div>
                  
                  <h3 className="text-sm font-bold text-slate-400 mb-3 border-b border-slate-700 pb-2 flex items-center"><Layers size={14} className="mr-1.5"/> 베이스 코트 (Ground Coat)</h3>
@@ -948,7 +985,7 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">PERMAHYD HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 22.9</span></h1>
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">PERMAHYD HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 22.9.5</span></h1>
         </div>
         <button className="flex items-center space-x-2 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white px-4 py-2 rounded-full font-bold transition-colors shadow-lg"><FolderOpen size={16} /><span>엑셀 DB 동기화</span></button>
       </header>
@@ -1412,7 +1449,7 @@ export default function App() {
         </div>
       )}
 
-   <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{__html: `
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.02); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
