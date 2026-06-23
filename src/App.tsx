@@ -7,9 +7,12 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 공식 안료 데이터베이스 (WT 144 적청 수정 / WT 358, 400 상호대체 완벽 적용)
+// 💡 공식 안료 데이터베이스 (상호대체 완벽 크로스 표기 및 적청 렌더링 적용)
 const TONER_DB: Record<string, TonerData> = {
-  'WT 144':{role:'블루 (적청 베이스 / WT346 상호대체)',type:'solid',face:'#1e3a8a',flop:'#0369a1',desc:'정면에서 선명한 적청색(Reddish-Blue) 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다. (대체 안료: WT 346)',details:[['일반 특성','기존 WT346 안료를 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'],['색상 및 외관 변화','가장 큰 특징은 정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점입니다. 기존 녹청 기운과 뚜렷한 차이를 보입니다.'],['용도 및 적용 컬러','WT346이 포함된 모든 솔리드 및 이펙트 컬러의 1:1 대체 처방 및 조색 보정용으로 사용됩니다.'],['배합 및 혼합 비율','기존 WT346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용해야 동일한 착색력을 얻습니다.'],['경고 및 주의사항','정면의 뚜렷한 적청색 발색으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로, 반드시 시편 대조 후 블랜딩 도장을 권장합니다.']]},
+  'WT 144':{role:'블루 [WT 346 완벽대체]',type:'solid',face:'#1e3a8a',flop:'#0369a1',desc:'정면에서 선명한 적청색(Reddish-Blue) 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다. (대체 안료: WT 346)',details:[['일반 특성','기존 WT 346 안료를 완벽하게 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'],['색상 및 외관 변화','가장 큰 특징은 정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점입니다. (기존 346의 녹청 기운과 뚜렷한 차이)'],['용도 및 적용 컬러','WT 346이 포함된 모든 솔리드 및 이펙트 컬러의 1:1 대체 처방 및 조색 보정용으로 사용됩니다.'],['배합 및 혼합 비율','기존 WT 346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용해야 동일한 착색력을 얻습니다.'],['경고 및 주의사항','정면의 뚜렷한 적청색 발색으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로, 반드시 시편 대조 후 블랜딩 도장을 권장합니다.']]},
+  'WT 346':{role:'트랜스페어런트 딥 블루 [WT 144 완벽대체]',type:'solid',face:'#0369a1',flop:'#020617',desc:'녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다. (대체 안료: WT 144)',details:[['일반 특성','녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.'],['색상 및 외관 변화','특히 측면(45도/110도)에서 관찰할 때 전체 청색 조색제 중 녹색빛 반사가 가장 강하게 두드러지는 고유 특징이 있습니다.'],['경고 및 주의사항','이 안료는 신형 WT 144와 상호 대체가 가능합니다. 대체 시 [WT 346 : WT 144 = 1 : 0.9] 비율을 적용하십시오.']]},
+  'WT 358':{role:'스페셜 실버 [WT 400 완벽대체]',type:'silver_fine',face:'#e2e8f0',flop:'#475569',desc:'특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다. (대체 안료: WT 400)',details:[['일반 특성','독자적인 금속 배열 구조를 지녀 특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.'],['용도 및 적용 컬러','특정 수입차 OEM 특수 실버 컬러의 고유 반사각 매칭 시 주로 사용됩니다.'],['경고 및 주의사항','동일한 특성을 지닌 WT 400 안료와 1:1로 상호 완벽 대체가 가능합니다. 재고 상황에 따라 교차 사용하십시오.']]},
+  'WT 400':{role:'스페셜 실버 대체용 [WT 358 완벽대체]',type:'silver_fine',face:'#e2e8f0',flop:'#475569',desc:'WT 358을 1:1로 완벽 대체할 수 있는 특수 밝은 톤 알루미늄입니다. (대체 안료: WT 358)',details:[['일반 특성','WT 358과 동일한 특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.'],['용도 및 적용 컬러','특정 수입차 OEM 특수 실버 컬러 조색 시 WT 358을 100% 동일하게 상호 대체하여 사용합니다.'],['경고 및 주의사항','기존 WT 358과 상호 대체 가능하므로 재고 상황에 맞게 헷갈리지 않도록 교차 사용하십시오.']]},
   'WT 154':{role:'블루 이펙트',type:'silver_fine',face:'#3b82f6',flop:'#1e3a8a',desc:'청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.',details:[['일반 특성','청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.']]},
   'WT 188':{role:'슈퍼 딥 블랙',type:'solid',face:'#0f172a',flop:'#020617',desc:'명도를 극단적으로 낮춘 매우 어두운 흑색 조색제입니다.',details:[['일반 특성','명도를 극단적으로 낮춘 매우 어두운 흑색 조색제입니다.']]},
   'WT 197':{role:'실크 실버 울트라 파인',type:'silver_fine',face:'#e2e8f0',flop:'#64748b',desc:'특수 초미립 알루미늄 조색제입니다.',details:[['일반 특성','입자 크기가 극도로 미세하게 분쇄된 특수 초미립 알루미늄 조색제입니다.']]},
@@ -52,7 +55,6 @@ const TONER_DB: Record<string, TonerData> = {
   'WT 343':{role:'블루',type:'solid',face:'#3b82f6',flop:'#1e40af',desc:'특정 색으로 치우침이 없는 완벽한 중간톤의 고은폐력 파란색입니다.',details:[['일반 특성','특정 색으로 치우침이 없는 완벽한 중간톤의 고은폐력 표준 파란색 조색제입니다.']]},
   'WT 344':{role:'다크 블루',type:'solid',face:'#1d4ed8',flop:'#0f172a',desc:'명도가 가장 묵직하고 어두운 딥 블루(Deep Blue) 안료입니다.',details:[['일반 특성','청색 조색제 라인업 중에서 명도가 가장 묵직하고 어두운 딥 블루(Deep Blue) 안료입니다.']]},
   'WT 345':{role:'트랜스페어런트 에메랄드',type:'solid',face:'#10b981',flop:'#064e3b',desc:'황색 기운을 강하게 띠는 에메랄드빛 투명 녹색 조색제입니다.',details:[['일반 특성','맑고 선명한 황색 기운을 강하게 띠는 에메랄드빛 투명 녹색 조색제입니다.']]},
-  'WT 346':{role:'트랜스페어런트 딥 블루 (WT144 상호대체)',type:'solid',face:'#0369a1',flop:'#020617',desc:'녹색 기운을 띠면서도 묵직함을 가진 투명 청색 조색제입니다. (대체 안료: WT 144)',details:[['일반 특성','녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.'],['경고 및 주의사항','이 안료는 WT 144와 상호 대체가 가능합니다. 대체 시 [WT346 : WT144 = 1 : 0.9] 비율을 적용하십시오.']]},
   'WT 347':{role:'트랜스페어런트 그린',type:'solid',face:'#15803d',flop:'#022c22',desc:'청색 기운을 미세하게 품은 맑고 투명한 기본 녹색 조색제입니다.',details:[['일반 특성','차가운 청색 기운을 미세하게 품은 맑고 투명한 기본 녹색 조색제입니다.']]},
   'WT 348':{role:'트랜스페어런트 아주르 블루',type:'solid',face:'#0ea5e9',flop:'#0369a1',desc:'채도가 매우 높은 맑고 시원한 투명 하늘색(Azure) 조색제입니다.',details:[['일반 특성','채도가 매우 높은 맑고 시원한 투명 하늘색(Azure) 조색제입니다.']]},
   'WT 349':{role:'트랜스루센트 그린',type:'solid',face:'#86efac',flop:'#064e3b',desc:'착색 농도를 대폭 낮춘 반투명 저농도 녹색 조색제입니다.',details:[['일반 특성','매우 정밀한 미세 조색 보정을 위해 의도적으로 착색 농도를 대폭 낮춘 반투명 저농도 녹색 조색제입니다.']]},
@@ -64,7 +66,6 @@ const TONER_DB: Record<string, TonerData> = {
   'WT 355':{role:'브릴리언트 실버 코스',type:'silver_coarse',face:'#f8fafc',flop:'#334155',desc:'알루미늄 입자가 굵고 표면 반짝임이 극도로 강한 조색제입니다.',details:[['일반 특성','알루미늄 입자가 굵고(Coarse) 표면 반짝임이 극도로 강한(Brilliant) 고휘도 거친 알루미늄 조색제입니다.']]},
   'WT 356':{role:'미디엄 실버',type:'silver_fine',face:'#e2e8f0',flop:'#475569',desc:'최적의 균형을 맞춘 중간 크기 입자의 최고 표준 범용 알루미늄입니다.',details:[['일반 특성','가장 균형 잡힌 중간 크기(Medium) 입자를 가진 스피스해커 시스템의 최고 표준 범용 알루미늄 조색제입니다.']]},
   'WT 357':{role:'마이크로 실버',type:'silver_fine',face:'#f8fafc',flop:'#64748b',desc:'알루미늄 입자를 한계치까지 미세하게 분쇄 가공한 초정밀 미립자입니다.',details:[['일반 특성','알루미늄 입자를 한계치까지 미세하게 분쇄 가공한 초정밀 미립자(Micro) 조색제입니다.']]},
-  'WT 358':{role:'스페셜 실버 (WT400 상호대체)',type:'silver_fine',face:'#e2e8f0',flop:'#475569',desc:'특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다. (대체 안료: WT 400)',details:[['일반 특성','독자적인 금속 배열 구조를 지녀 특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.'],['용도 및 적용 컬러','특정 수입차 OEM 특수 실버 컬러의 고유 반사각 매칭 시 주로 사용됩니다.'],['경고 및 주의사항','동일한 특성을 지닌 WT 400 안료와 1:1로 상호 완벽 대체가 가능합니다. 재고에 따라 교차 사용하십시오.']]},
   'WT 359':{role:'브라이트 실버',type:'silver_coarse',face:'#f1f5f9',flop:'#334155',desc:'명도 톤이 한계까지 높게 세팅된 극도로 밝은 광휘형 알루미늄입니다.',details:[['일반 특성','전체적인 명도 톤이 한계까지 높게 세팅된 극도로 밝은(Bright) 광휘형 알루미늄 조색제입니다.']]},
   'WT 360':{role:'코스 실버',type:'silver_coarse',face:'#94a3b8',flop:'#1e293b',desc:'입자가 크고 굵은(Coarse) 표준 거친 알루미늄 조색제입니다.',details:[['일반 특성','일반적인 범위 내에서 입자가 크고 굵은(Coarse) 표준 거친 알루미늄 조색제입니다.']]},
   'WT 361':{role:'브릴리언트 실버',type:'silver_coarse',face:'#f1f5f9',flop:'#64748b',desc:'최적의 반짝임 밸런스를 맞춘 중간 입자 크기의 고휘도 알루미늄입니다.',details:[['일반 특성','최적의 반짝임 밸런스를 맞춘 중간 입자 크기의 고휘도 광휘형 알루미늄 조색제입니다.']]},
@@ -98,7 +99,6 @@ const TONER_DB: Record<string, TonerData> = {
   'WT 390':{role:'플래티닌 실버',type:'silver_coarse',face:'#f8fafc',flop:'#334155',desc:'빛 굴절률과 명암 대비를 최고 수준으로 극대화한 조색제입니다.',details:[['일반 특성','모든 알루미늄 라인업 중 빛 굴절률과 명암 대비를 최고 수준으로 극대화한 중간 크기 입자의 고휘도 광휘형 조색제입니다.']]},
   'WT 392':{role:'매직 이펙트',type:'pearl',face:'#22c55e',flop:'#ef4444',desc:'다층 박막 코팅 기술을 적용한 특수 광학 간섭 펄입니다.',details:[['일반 특성','다층 박막 코팅 기술을 적용하여 관찰 각도에 따라 색상이 마법처럼 카멜레온 변이를 일으키는 특수 광학 간섭 펄 조색제입니다.']]},
   'WT 393':{role:'라이트 옐로우',type:'solid',face:'#fef08a',flop:'#a16207',desc:'레몬처럼 밝고 산뜻한 연황색 조색제입니다.',details:[['일반 특성','차가운 녹색 기운을 아주 미세하게 띠면서도 레몬처럼 밝고 산뜻한 톤을 가진 연황색 조색제입니다.']]},
-  'WT 400':{role:'스페셜 실버 대체용 (WT358 상호대체)',type:'silver_fine',face:'#e2e8f0',flop:'#475569',desc:'WT 358을 1:1로 완벽 대체할 수 있는 특수 밝은 톤 알루미늄입니다. (대체 안료: WT 358)',details:[['일반 특성','WT 358과 동일한 특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.'],['용도 및 적용 컬러','특정 수입차 OEM 특수 실버 컬러 조색 시 WT 358을 100% 동일하게 상호 대체하여 사용합니다.'],['경고 및 주의사항','기존 WT 358과 상호 대체 가능하므로 재고 상황에 맞게 헷갈리지 않도록 교차 사용하십시오.']]},
   'WT 1051':{role:'블랜딩 1051',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'보수 도장 작업 시 필수적인 전용 블랜딩 첨가제입니다.',details:[['일반 특성','수성 페인트 부분 보수 도장(보카시)의 경계면을 자연스럽게 무너뜨리고 녹여주는 필수적인 전용 블랜딩 수지 첨가제입니다.']]},
   'WT 1500':{role:'울트라 딥 블랙',type:'solid',face:'#000000',flop:'#000000',desc:'명도가 가장 극도로 어둡게 떨어지는 한정판 흑색 조색제입니다.',details:[['일반 특성','명도가 가장 극도로 어둡게 떨어지는 한정판 흑색 조색제입니다. 액상 특수 염료(Dye)를 함유하고 있습니다.']]},
   'WT 455':{role:'퍼포먼스 컴포넌트',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'물성을 안정화시키는 기능성 유동성 첨가제입니다.',details:[['일반 특성','수성 페인트의 물성을 극적으로 안정화시키기 위해 독자 개발된 솔리드 전용 고성능 기능성 유동성 첨가제입니다.']]},
@@ -117,7 +117,7 @@ const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const lerpHue = (a: number, b: number, t: number) => { let d = b - a; if (d > 180) d -= 360; if (d < -180) d += 360; let h = a + d * t; if (h < 0) h += 360; if (h >= 360) h -= 360; return h; };
-const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스'); }
+const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스') || r.includes('400'); }
 
 const textureCache: Record<string, React.CSSProperties> = {};
 const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
@@ -282,8 +282,10 @@ export default function App() {
                 localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsed, ts: Date.now() })); window.close(); setIsTransferTab(true); return; 
             } catch (e) { console.error("URL 파싱 실패", e); }
         }
+
         const handleStorageChange = (e: StorageEvent) => { if (e.key === 'hitec_broadcast' && e.newValue) { const payload = JSON.parse(e.newValue); setRestoredViewData(payload.data); } };
         window.addEventListener('storage', handleStorageChange);
+
         const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes');
         if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes);
         setIsLoaded(true); return () => window.removeEventListener('storage', handleStorageChange);
@@ -566,6 +568,7 @@ export default function App() {
       </header>
 
       <div className="flex-1 p-3 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start h-auto lg:h-[calc(100vh-75px)] overflow-y-auto lg:overflow-hidden">
+        
         <div className="lg:col-span-7 flex flex-col h-auto lg:h-full bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden">
           <div className="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3 shrink-0">
             <div className="flex items-center justify-between">
