@@ -104,6 +104,7 @@ const TONER_DB: Record<string, TonerData> = {
   'WT 455':{role:'퍼포먼스 컴포넌트',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'물성을 극적으로 안정화시키는 솔리드 전용 고성능 기능성 유동성 첨가제입니다.',details:[['일반 특성','수성 페인트의 물성을 극적으로 안정화시키기 위해 독자 개발된 솔리드 전용 고성능 기능성 유동성 첨가제입니다.'],['색상 및 외관 변화','안료가 아니므로 색상 자체를 변화시키진 않지만, 도막의 레벨링(펴짐성)을 극한으로 끌어올려 유리면처럼 매끄러운 고품질 외관을 보장합니다.'],['용도 및 적용 컬러','이펙트 입자가 없는 솔리드 컬러 도장 작업에만 단독으로 사용되며, 특히 열악한 환경(겨울철 건조/저온)에서도 탁월한 스프레이 작업성을 제공합니다.'],['배합 및 혼합 비율','모든 조색이 완료된 솔리드 베이스코트 도료 총 무게를 기준으로 정확히 **10%** 중량을 추가 계량하여 혼합 및 분사합니다.'],['경고 및 주의사항','성분 특성 상 펄이나 메탈릭 입자가 들어간 이펙트 컬러에는 절대 사용을 금지하며, 오용 시 메탈 입자가 헤엄쳐 다니는 얼룩 띠(Mottling) 불량이 직빵으로 발생합니다.']]},
   'WT 3080':{role:'스페셜 애디티브',type:'binder',face:'#ffffff',flop:'#ffffff',desc:'도막 보정 및 흐름 방지 특수 첨가제.',details:[['일반 특성','도막 보정 및 흐름 방지 전용 특수 첨가제입니다.']]}
 };
+
 const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
   let labelCategory = "일반 특성"; let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
   const r = data.role || ''; const d = data.desc || ''; const t = data.type || '';
@@ -158,7 +159,7 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
 
 const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
 
-// 💡 2026 먼셀 컬러 변환 엔진
+// 💡 2026 먼셀 컬러 스펙트럼 수치 변환 엔진
 const getMunsellCode = (optics: any) => {
     if(!optics || isNaN(optics.h)) return "N/A";
     const hNorm = (optics.h / 360) * 100; const hueIdx = Math.floor(hNorm / 10) % 10; const hueSub = Math.max(0.1, (hNorm % 10)).toFixed(1);
@@ -170,27 +171,73 @@ const getMunsellCode = (optics: any) => {
 };
 
 // 💡 2026 첨단 먼셀 동적 시뮬레이터 브리핑 엔진
-const getMunsellDynamicDescription = (code: string, role: string, type: string) => {
+const getMunsellDynamicDescription = (code: string, role: string, type: string, cWeight: number) => {
     let behavior = ""; let title = "";
-    if (type === 'binder') {
-        title = "무색 투명도 제어 (N/A)"; behavior = "도막의 뼈대(수지) 역할을 하므로 먼셀 색상(Hue)이나 채도(Chroma)에 직접 개입하지 않습니다. 단, 투입량이 늘어날수록 금속 입자의 분산 공간을 넓혀주어 전체적인 명암 대비(Flop Index)를 안정화하고 도막의 광투과율(Transmittance)을 극대화합니다.";
+    
+    if (cWeight === 0) {
+        title = "대기 상태";
+        behavior = "현재 배합량이 0g입니다. 조색 시트에 안료 중량을 투입하시면, 먼셀 색상환(Hue)과 채도(Chroma)의 3D 입체 변이를 실시간으로 시뮬레이션합니다.";
+    } else if (type === 'binder') {
+        title = "무색 투명도 제어 (N/A)"; 
+        behavior = `[투입량: ${cWeight}g] 도막의 뼈대(수지) 역할을 하므로 먼셀 색상(Hue)이나 채도(Chroma)에 직접 개입하지 않습니다. 단, 투입량이 늘어날수록 금속 입자의 분산 공간을 넓혀주어 전체적인 명암 대비(Flop Index)를 안정화하고 광투과율을 극대화합니다.`;
     } else if (role.includes('블루') || role.includes('청')) {
-        title = "먼셀 5PB ~ 7.5PB 대역 제어"; if (type === 'solid') behavior = "투입량 증대 시 채도(Chroma) 한계점이 극대화되며, 정면 명도(Value)가 2.0 이하의 딥 톤(Deep Tone)으로 급격히 가라앉아 묵직한 청색을 냅니다. 반대로 극소량 틴팅 시, 베이스에 맑게 산란되어 명도가 6.0 이상으로 밝아지며 측면 플롭에 은은하고 시원한 푸른 베일을 씌웁니다. 346 대용 144 처방 시 정면 적청 특성이 강화됩니다."; else behavior = "증량 시 펄 입자 밀도가 급증하여 정면은 극채도의 블루(C 14+)로 화려하게 폭발하고, 측면은 빛의 굴절로 인해 특유의 반전 톤(녹청/적청)이 지배적으로 나타납니다. 감량 시 보색 간섭이 잦아들며 베이스 컬러 위에서 맑은 푸른빛 난반사 역할만 섬세하게 수행합니다.";
+        title = "먼셀 5PB ~ 7.5PB 대역 제어"; 
+        if (type === 'solid') {
+            if(cWeight <= 5) behavior = `[소량 틴팅 감지: ${cWeight}g] 베이스에 맑게 산란되어 정면 명도가 6.0 이상 밝아지며 측면에 시원한 푸른 베일을 씌웁니다.`;
+            else behavior = `[고농축 딥톤 진입: ${cWeight}g] 채도(Chroma) 한계점이 극대화되며 정면 명도(Value)가 2.0 이하의 딥 톤으로 가라앉아 묵직한 청색을 냅니다.`;
+        } else {
+            if(cWeight <= 10) behavior = `[미세 간섭 작용: ${cWeight}g] 보색 간섭이 잦아들며 베이스 컬러 위에서 맑은 푸른빛 난반사 역할만 섬세하게 수행합니다.`;
+            else behavior = `[이펙트 폭발: ${cWeight}g] 펄 입자 밀도가 급증하여 정면은 극채도 블루(C 14+)로 화려해지고 측면은 특유의 반전 톤이 지배적으로 나타납니다.`;
+        }
     } else if (code.includes('376') || role.includes('레드') || role.includes('마젠타') || role.includes('적') || role.includes('마룬')) {
-        title = "먼셀 5R ~ 5RP 대역 제어"; if (type === 'pearl' || type === 'xirallic') behavior = "투입량이 증가할수록 광학 간섭이 극대화됩니다. 정면은 피 끓는 듯한 강렬한 레드(C 14+) 광원을 뿜어내며, 측면으로 갈수록 특수 코팅에 의한 보색(녹색/황색) 간섭 효과가 뚜렷하게 피어오릅니다. 감량 시 보색 효과는 숨고 베이스 컬러에 따뜻한 붉은 윤기(Reddish Glow)만 더해집니다."; else behavior = "증량 시 정면 명도(Value)가 3.0 이하로 떨어지며 묵직하고 강렬한 솔리드 레드가 발색됩니다. 소량 틴팅 첨가 시에는 바탕색의 근본 명도를 훼손하지 않고, 붉은 기운(Reddish)의 채도(Chroma)만 섬세하게 0.5~1.0 단계 끌어올리는 마법을 부립니다.";
+        title = "먼셀 5R ~ 5RP 대역 제어"; 
+        if (type === 'pearl' || type === 'xirallic') {
+            if(cWeight <= 10) behavior = `[미세 광원 효과: ${cWeight}g] 보색 효과는 숨고 베이스 컬러에 따뜻한 붉은 윤기(Reddish Glow)만 은은하게 더해집니다.`;
+            else behavior = `[이펙트 폭발: ${cWeight}g] 광학 간섭이 극대화되어 정면은 피 끓는 듯한 레드(C 14+)를 뿜어내며 측면으로 갈수록 특수 코팅에 의한 보색 간섭이 피어오릅니다.`;
+        } else {
+            if(cWeight <= 5) behavior = `[소량 틴팅 감지: ${cWeight}g] 바탕색 명도를 훼손하지 않고 붉은 기운(Reddish)의 채도만 0.5~1.0 단계 끌어올립니다.`;
+            else behavior = `[고농축 딥톤 진입: ${cWeight}g] 정면 명도가 3.0 이하로 떨어지며 묵직하고 강렬한 솔리드 레드가 발색됩니다.`;
+        }
     } else if (role.includes('옐로우') || role.includes('황') || role.includes('오렌지') || role.includes('골드') || role.includes('오커')) {
-        title = "먼셀 2.5Y ~ 7.5YR 대역 제어"; if (type === 'solid') behavior = "투입량 증대 시 특유의 고은폐력으로 바탕색을 완벽히 차단하며 Value 8.0 이상의 화사한 옐로우/오렌지 솔리드 도막을 형성합니다. 감량 시 따뜻한(Warm) 틴팅제로 작용하여 메탈릭 컬러 측면에 맑음성을 부여합니다."; else behavior = "증량 시 정면에서 순금과 같은 극강의 채도(C 12+)가 발현되며 시각적인 팽창감을 제공합니다. 반면 소량 첨가 시에는 펄 입자가 넓게 흩어지며 별빛처럼 은은하고 따뜻한 웜톤(Warm-tone) 스파클링 효과를 도막 전체에 부드럽게 흩뿌립니다.";
+        title = "먼셀 2.5Y ~ 7.5YR 대역 제어"; 
+        if (type === 'solid') {
+            if(cWeight <= 5) behavior = `[소량 틴팅 감지: ${cWeight}g] 따뜻한(Warm) 틴팅제로 작용하여 메탈릭 컬러 측면에 맑은 황금빛 윤기를 보정합니다.`;
+            else behavior = `[주력 베이스 형성: ${cWeight}g] 특유의 고은폐력으로 바탕색을 차단하며 Value 8.0 이상의 화사한 옐로우/오렌지 솔리드 도막을 형성합니다.`;
+        } else {
+            if(cWeight <= 10) behavior = `[미세 웜톤 펄: ${cWeight}g] 펄 입자가 넓게 흩어지며 별빛처럼 은은하고 따뜻한 스파클링 효과를 도막에 흩뿌립니다.`;
+            else behavior = `[극강 채도 폭발: ${cWeight}g] 정면에서 순금과 같은 극강의 채도(C 12+)가 발현되며 시각적인 팽창감을 제공합니다.`;
+        }
     } else if (role.includes('그린') || role.includes('녹') || role.includes('에메랄드')) {
-        title = "먼셀 5G ~ 10BG 대역 제어"; if (type === 'solid') behavior = "투입량을 늘리면 Value 3.0~4.0 수준의 깊은 산림과 같은 다크 그린 톤이 단단하게 형성됩니다. 극소량 첨가 시, 채도를 억누르면서 차가운(Cool) 톤으로 교정해 주는 보색 컨트롤러 역할을 완벽히 수행합니다."; else behavior = "증량 시 정면은 화려한 에메랄드 펄감이 폭발하며, 측면 110도 플롭에서는 붉은(Reddish) 톤으로 급격히 교차 반전(Shift)되는 특수 효과가 짙어집니다. 감량 시 바탕을 해치지 않는 신비로운 쿨톤 미세 반사광만을 제공합니다.";
+        title = "먼셀 5G ~ 10BG 대역 제어"; 
+        if (type === 'solid') {
+            if(cWeight <= 5) behavior = `[쿨톤 틴팅 감지: ${cWeight}g] 붉은 베이스의 채도를 억누르며 맑고 차가운(Cool) 톤으로 교정하는 보색 컨트롤러 역할을 합니다.`;
+            else behavior = `[다크 톤 형성: ${cWeight}g] Value 3.0~4.0 수준의 깊은 산림과 같은 다크 그린 톤이 단단하게 형성됩니다.`;
+        } else {
+            if(cWeight <= 10) behavior = `[미세 반사광: ${cWeight}g] 바탕을 해치지 않는 신비로운 쿨톤 미세 반사광만을 제공합니다.`;
+            else behavior = `[교차 반전 극대화: ${cWeight}g] 화려한 에메랄드 펄감이 폭발하며 측면 110도 플롭에서는 붉은(Reddish) 톤으로 급격히 교차 반전됩니다.`;
+        }
     } else if (role.includes('블랙') || role.includes('흑')) {
-        title = "먼셀 무채색 N1 ~ N3 대역 제어"; behavior = "투입량이 늘어날수록 가시광선 흡수율이 기하급수적으로 상승하여 명도(Value)를 1.0 이하의 극한의 심연(Deep Black)으로 끌어내립니다. 미량 조색 시 바탕색의 채도를 미세하게 꺾어(Dirty) 차분하고 무거운 딥(Deep) 톤으로 밸런스를 맞추는 쉐이드(Shade) 역할을 합니다.";
+        title = "먼셀 무채색 N1 ~ N3 대역 제어"; 
+        if(cWeight <= 5) behavior = `[소량 쉐이드 제어: ${cWeight}g] 바탕색 채도를 미세하게 꺾어(Dirty) 차분하고 무거운 딥 톤으로 밸런스를 맞추는 역할을 합니다.`;
+        else behavior = `[가시광선 한계 흡수: ${cWeight}g] 가시광선 흡수율이 기하급수적으로 상승하여 명도를 1.0 이하의 극한의 심연으로 끌어내립니다.`;
     } else if (role.includes('화이트') || role.includes('백')) {
-        title = "먼셀 무채색 N8 ~ N9.5 대역 제어"; if (type === 'pearl' || type === 'xirallic') behavior = "증량 시 하이라이트(정면)의 빛 반사율이 극대화되어 입자가 다이아몬드처럼 부서지는 고휘도 진주빛을 발산합니다. 줄어들수록 바탕 베이스 컬러를 투과시키며 은은하고 부드러운 우유빛(Milky) 3D 깊이감을 섬세하게 연출합니다."; else behavior = "투입량 증대 시 무채색 척도 최고점(N9.5)에 도달하며 완전한 고은폐 파스텔 톤을 구축합니다. 이펙트 컬러에 소량 투입 시 15도 하이라이트를 탁하게(Milky) 유도하고, 측면 110도를 밝게 띄워주는 강력한 백탁(Whitening) 작용을 일으킵니다.";
+        title = "먼셀 무채색 N8 ~ N9.5 대역 제어"; 
+        if (type === 'pearl' || type === 'xirallic') {
+            if(cWeight <= 10) behavior = `[은은한 밀키 펄: ${cWeight}g] 바탕 베이스 컬러를 투과시키며 은은하고 부드러운 3D 깊이감을 섬세하게 연출합니다.`;
+            else behavior = `[고휘도 진주빛: ${cWeight}g] 정면 빛 반사율이 극대화되어 입자가 다이아몬드처럼 부서지는 화려한 발색을 뿜어냅니다.`;
+        } else {
+            if(cWeight <= 10) behavior = `[백탁 컨트롤: ${cWeight}g] 이펙트 컬러에 작용하여 15도 하이라이트를 탁하게(Milky) 띄우고 측면을 밝게 유지시킵니다.`;
+            else behavior = `[고은폐 파스텔화: ${cWeight}g] 무채색 척도 최고점(N9.5)에 도달하며 완전한 고은폐 파스텔 톤을 구축합니다.`;
+        }
     } else if (isTonerMetallic(role)) {
-        title = "명암 대비(Flop Index) 제어 안료"; behavior = "증량 시 금속 입자의 배열 밀도가 촘촘해지며 정면(Face 15°)의 명도(Value)는 8.0 이상으로 눈부시게 밝아지고, 측면(Flop 110°)은 빛을 완전히 튕겨내어 3.0 이하로 극단적으로 어두워지는 강렬한 메탈릭 입체감을 완성합니다. 358 및 400 대차 혼합 시 배열 안정도가 극대화됩니다.";
+        title = "명암 대비(Flop Index) 제어 안료"; 
+        if(cWeight <= 15) behavior = `[부드러운 메탈릭: ${cWeight}g] 금속감이 은은하게 흩어지며 베이스 고유의 솔리드 톤이 함께 어우러집니다.`;
+        else behavior = `[강렬한 플롭 형성: ${cWeight}g] 금속 입자 배열 밀도가 촘촘해지며 정면은 8.0 이상 눈부시게 밝아지고 측면은 빛을 튕겨내 3.0 이하로 어두워집니다.`;
     } else {
-        title = "먼셀 다중 스펙트럼 제어"; behavior = "투입량에 따라 명도와 채도 변화 곡선이 다이내믹하게 움직이며, 주변 안료들과의 시너지 비율에 따라 정면광과 측면광의 톤 밸런스를 입체적으로 변환시킵니다.";
+        title = "먼셀 다중 스펙트럼 제어"; 
+        behavior = `[중량 연동 제어: ${cWeight}g] 투입량에 따라 명도와 채도 변화 곡선이 다이내믹하게 움직이며 주변 톤 밸런스를 입체적으로 변환시킵니다.`;
     }
+
     return (
         <div className="mt-1 mb-4 bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-4 border border-slate-700 shadow-lg relative overflow-hidden">
             <div className="absolute -right-4 -top-6 text-slate-700/30 opacity-50 pointer-events-none"><Sun size={90} /></div>
@@ -468,8 +515,6 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
-  const sortedCatalog = [...catalogData].filter(item => item.code.includes(catalogSearch.toUpperCase()) || item.role.includes(catalogSearch));
-
   if (isTransferTab) {
       return (
           <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6 font-sans">
@@ -569,7 +614,7 @@ export default function App() {
                  <div className="space-y-2">{restoredViewData.b?.map((t: any, i: number) => (<div key={i} className="flex justify-between bg-slate-800 p-2 rounded-lg"><span>{t.code}</span><span className="text-blue-400 font-bold">{t.adjustedWeight} g</span></div>))}</div>
               </div>
               <div className="p-4 border-t border-slate-700 bg-slate-900 rounded-b-2xl">
-                 <button onClick={() => setRestoredViewData(null)} className="w-full py-3 bg-blue-600 font-black rounded-xl text-white">원래 화면으로 복귀</button>
+                 <button onClick={() => setRestoredViewData(null)} className="w-full py-3 bg-blue-600 font-black rounded-xl text-white hover:bg-blue-500">원래 화면으로 복귀</button>
               </div>
            </div>
         </div>
@@ -655,10 +700,9 @@ export default function App() {
           </div>
         </div>
       </div>
-      {/* 💡 [NEW] 화면 최하단 무조건 수평 상시 고정형 실시간 연산 대시보드 */}
+      {/* 💡 화면 최하단 무조건 수평 상시 고정형 실시간 연산 대시보드 */}
       <div className="fixed bottom-0 left-0 w-full p-3 sm:p-4 bg-slate-950 text-slate-100 flex flex-col lg:flex-row justify-between items-center z-[500] border-t-4 border-indigo-900 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] gap-4 backdrop-blur-md">
           <div className="flex w-full lg:w-auto gap-4 flex-col sm:flex-row justify-between lg:justify-start">
-              {/* 베이스 중량계산 실시간 보드 */}
               <div className="flex flex-col gap-1 flex-1 min-w-[240px]">
                  <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Layers size={11} className="mr-1 text-blue-400"/> A. 베이스 코트 실시간 중량</span>
                  <div className="flex items-center justify-between bg-slate-900/90 px-3 py-2.5 rounded-xl border border-slate-800 shadow-inner text-xs">
@@ -670,7 +714,6 @@ export default function App() {
                  </div>
               </div>
               
-              {/* 펄 중량계산 실시간 보드 */}
               {isThreeCoatMode && (
               <div className="flex flex-col gap-1 flex-1 min-w-[240px]">
                  <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Zap size={11} className="mr-1 text-purple-400"/> B. 펄 코트 실시간 중량</span>
@@ -685,7 +728,6 @@ export default function App() {
               )}
           </div>
 
-          {/* ✨ 가독성 끝판왕: 최종 도막 혼합 총량 마스터 패널 */}
           <div className="flex flex-col items-center justify-center shrink-0 bg-gradient-to-br from-amber-950/50 to-yellow-900/20 border-2 border-yellow-500/60 px-6 py-2 rounded-xl w-full lg:w-auto shadow-[0_0_25px_rgba(234,179,8,0.2)]">
              <span className="text-[11px] text-yellow-500 font-black tracking-widest flex items-center uppercase"><Beaker size={13} className="mr-1"/> ✨ 최종 도막 혼합 총량</span>
              <span className="text-3xl font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">
@@ -716,8 +758,12 @@ export default function App() {
                     ))}
                  </div>
                  
-                 {/* 🚨 먼셀 색상환 중량 증감 동적 코멘트 박스 가동! */}
-                 {getMunsellDynamicDescription(selectedTonerForView, TONER_DB[selectedTonerForView].role, TONER_DB[selectedTonerForView].type)}
+                 {/* 💡 먼셀 분석 엔진 결과 출력 */}
+                 {(()=>{
+                     const activeT = [...toners, ...pearlToners].find(t => t.code === selectedTonerForView);
+                     const cWeight = activeT ? (parseFloat(activeT.adjustedWeight) || 0) : 0;
+                     return getMunsellDynamicDescription(selectedTonerForView, TONER_DB[selectedTonerForView].role, TONER_DB[selectedTonerForView].type, cWeight);
+                 })()}
 
                  <div className="flex gap-4 mt-2">
                     <div className="flex-1">
@@ -727,13 +773,13 @@ export default function App() {
                        </div>
                     </div>
                     <div className="flex-1">
-                       <div className="text-[9px] font-black text-slate-400 mb-1 text-center bg-slate-100 py-1 rounded">측면 관찰 (Flop 110°)</div>
+                       <div className="text-[9px] font-bold text-slate-400 mb-1 text-center bg-slate-100 py-1 rounded">측면 관찰 (Flop 110°)</div>
                        <div className="h-28 rounded-xl border relative overflow-hidden" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'flop')}}>
                            {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-20"></div>}
                        </div>
                     </div>
                  </div>
-                 <button onClick={() => setSelectedTonerForView(null)} className="bg-slate-900 text-white py-2.5 rounded-xl font-bold w-full text-xs shadow-md mt-4">분석창 닫기</button>
+                 <button onClick={() => setSelectedTonerForView(null)} className="bg-slate-900 text-white py-2.5 rounded-xl font-bold w-full text-xs shadow-md mt-4 hover:bg-slate-800 transition-colors">분석창 닫기</button>
               </div>
            </div>
         </div>
@@ -757,11 +803,11 @@ export default function App() {
                 <div key={t.id} className="flex bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 shrink-0 items-center gap-2 shadow-inner">
                    <span className="text-[10px] font-black text-slate-300">{t.code}</span>
                    <div className="flex items-center gap-1">
-                     <button onClick={() => quickEditWeight(t.id, -1, false)} className="bg-slate-700 w-6 h-5 rounded text-[9px] font-bold">-1</button>
-                     <button onClick={() => quickEditWeight(t.id, -0.1, false)} className="bg-red-950/60 text-red-300 w-7 h-5 rounded text-[9px] font-bold border border-red-900/40">-0.1</button>
+                     <button onClick={() => quickEditWeight(t.id, -1, false)} className="bg-slate-700 w-6 h-5 rounded text-[9px] font-bold hover:bg-slate-600">-1</button>
+                     <button onClick={() => quickEditWeight(t.id, -0.1, false)} className="bg-red-950/60 text-red-300 w-7 h-5 rounded text-[9px] font-bold border border-red-900/40 hover:bg-red-900">-0.1</button>
                      <input type="text" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, false)} className="w-12 bg-transparent text-center text-xs font-black text-white outline-none" />
-                     <button onClick={() => quickEditWeight(t.id, 0.1, false)} className="bg-blue-950/60 text-blue-300 w-7 h-5 rounded text-[9px] font-bold border border-blue-900/40">+0.1</button>
-                     <button onClick={() => quickEditWeight(t.id, 1, false)} className="bg-slate-700 w-6 h-5 rounded text-[9px] font-bold">+1</button>
+                     <button onClick={() => quickEditWeight(t.id, 0.1, false)} className="bg-blue-950/60 text-blue-300 w-7 h-5 rounded text-[9px] font-bold border border-blue-900/40 hover:bg-blue-900">+0.1</button>
+                     <button onClick={() => quickEditWeight(t.id, 1, false)} className="bg-slate-700 w-6 h-5 rounded text-[9px] font-bold hover:bg-slate-600">+1</button>
                    </div>
                 </div>
              ))}
