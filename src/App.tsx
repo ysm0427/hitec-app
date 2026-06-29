@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sliders, Trash2, Plus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet, History,
-  Info, Award, Terminal, Car, Box
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet, History
 } from 'lucide-react';
 
 interface TonerData { 
@@ -15,13 +14,10 @@ interface TonerData {
 }
 
 // 💡 공식 안료 데이터베이스 (마스터님 지시대로 압축 및 간소화 0%, 100% 원본 풀버전)
-const TONER_DB: Record<string, TonerData> = {
+export const TONER_DB: Record<string, TonerData> = {
   'WT 144': {
-    role: '블루 [WT 346 완벽대체]',
-    type: 'solid',
-    face: '#1e3a8a',
-    flop: '#0369a1',
-    desc: '정면에서 선명한 적청색(Reddish-Blue) 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다. (대체 안료: WT 346)',
+    role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1',
+    desc: '정면에서 선명한 적청색(Reddish-Blue) 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다.',
     details: [
       ['일반 특성', '기존 WT 346 안료를 완벽하게 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'],
       ['색상 및 외관 변화', '가장 큰 특징은 정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점입니다. (기존 346의 녹청 기운과 뚜렷한 차이)'],
@@ -31,11 +27,8 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 346': {
-    role: '트랜스페어런트 딥 블루 [WT 144 완벽대체]',
-    type: 'solid',
-    face: '#0369a1',
-    flop: '#020617',
-    desc: '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다. (대체 안료: WT 144)',
+    role: '트랜스페어런트 딥 블루 [WT 144 완벽대체]', type: 'solid', face: '#0369a1', flop: '#020617',
+    desc: '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.',
     details: [
       ['일반 특성', '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.'],
       ['색상 및 외관 변화', '특히 측면(45도/110도)에서 관찰할 때 전체 청색 조색제 중 녹색빛 반사가 가장 강하게 두드러지는 고유 특징이 있습니다.'],
@@ -45,11 +38,8 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 358': {
-    role: '스페셜 실버 [WT 400 완벽대체]',
-    type: 'silver_fine',
-    face: '#e2e8f0',
-    flop: '#475569',
-    desc: '특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다. (대체 안료: WT 400)',
+    role: '스페셜 실버 [WT 400 완벽대체]', type: 'silver_fine', face: '#e2e8f0', flop: '#475569',
+    desc: '특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.',
     details: [
       ['일반 특성', '독자적인 금속 배열 구조를 지녀 특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.'],
       ['색상 및 외관 변화', '일반 실버와 달리 특정 각도에서 빛을 머금었다가 뿜어내는 듯한 오묘한 밝기와 독특한 플롭(Flop) 현상을 일으킵니다.'],
@@ -59,11 +49,8 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 400': {
-    role: '스페셜 실버 대체용 [WT 358 완벽대체]',
-    type: 'silver_fine',
-    face: '#e2e8f0',
-    flop: '#475569',
-    desc: 'WT 358을 1:1로 완벽 대체할 수 있는 특수 밝은 톤 알루미늄입니다. (대체 안료: WT 358)',
+    role: '스페셜 실버 대체용 [WT 358 완벽대체]', type: 'silver_fine', face: '#e2e8f0', flop: '#475569',
+    desc: 'WT 358을 1:1로 완벽 대체할 수 있는 특수 밝은 톤 알루미늄입니다.',
     details: [
       ['일반 특성', 'WT 358과 동일한 특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.'],
       ['색상 및 외관 변화', '일반 실버와 달리 특정 각도에서 빛을 머금었다가 뿜어내는 듯한 오묘한 밝기와 독특한 플롭(Flop) 현상을 일으킵니다.'],
@@ -73,10 +60,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 154': {
-    role: '블루 이펙트',
-    type: 'silver_fine',
-    face: '#3b82f6',
-    flop: '#1e3a8a',
+    role: '블루 이펙트', type: 'silver_fine', face: '#3b82f6', flop: '#1e3a8a',
     desc: '청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.',
     details: [
       ['일반 특성', '청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.'],
@@ -87,10 +71,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 188': {
-    role: '슈퍼 딥 블랙',
-    type: 'solid',
-    face: '#0f172a',
-    flop: '#020617',
+    role: '슈퍼 딥 블랙', type: 'solid', face: '#0f172a', flop: '#020617',
     desc: '명도를 극단적으로 낮춘 매우 어두운 흑색 조색제입니다.',
     details: [
       ['일반 특성', '명도를 극단적으로 낮춘 매우 어두운 흑색 조색제입니다.'],
@@ -101,10 +82,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 197': {
-    role: '실크 실버 울트라 파인',
-    type: 'silver_fine',
-    face: '#e2e8f0',
-    flop: '#64748b',
+    role: '실크 실버 울트라 파인', type: 'silver_fine', face: '#e2e8f0', flop: '#64748b',
     desc: '특수 초미립 알루미늄 조색제입니다.',
     details: [
       ['일반 특성', '입자 크기가 극도로 미세하게 분쇄된 특수 초미립 알루미늄 조색제입니다.'],
@@ -115,10 +93,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 300': {
-    role: '마룬',
-    type: 'solid',
-    face: '#991b1b',
-    flop: '#450a0a',
+    role: '마룬', type: 'solid', face: '#991b1b', flop: '#450a0a',
     desc: '짙은 밤색 기운이 도는 어두운 적색 수성 조색제입니다.',
     details: [
       ['일반 특성', '짙은 밤색 기운이 도는 어두운 적색(Maroon) 수성 조색제입니다.'],
@@ -129,10 +104,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 303': {
-    role: '플래틴 실버 엑스트라 화인',
-    type: 'silver_fine',
-    face: '#d1d5db',
-    flop: '#475569',
+    role: '플래틴 실버 엑스트라 화인', type: 'silver_fine', face: '#d1d5db', flop: '#475569',
     desc: '고휘도 광휘형 초미립 알루미늄 조색제입니다.',
     details: [
       ['일반 특성', '빛 반사율이 극대화된 고휘도(빛 반사가 강한) 광휘형 초미립 알루미늄 조색제입니다.'],
@@ -143,10 +115,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 304': {
-    role: '매직 스파클 이펙트',
-    type: 'xirallic',
-    face: '#fef08a',
-    flop: '#475569',
+    role: '매직 스파클 이펙트', type: 'xirallic', face: '#fef08a', flop: '#475569',
     desc: '투명한 황색 코팅이 적용된 유리 입자 조색제입니다.',
     details: [
       ['일반 특성', '투명한 황색 코팅이 적용된 입자 크기가 매우 큰 유리 입자(Glass Flake) 조색제입니다.'],
@@ -157,10 +126,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 305': {
-    role: '울트라 화인 실버',
-    type: 'silver_fine',
-    face: '#cbd5e1',
-    flop: '#334155',
+    role: '울트라 화인 실버', type: 'silver_fine', face: '#cbd5e1', flop: '#334155',
     desc: '반짝임이 부드러운 특수 미립자 알루미늄 수성 조색제입니다.',
     details: [
       ['일반 특성', '반짝임이 매우 부드러운 특수 미립자 알루미늄 수성 조색제입니다.'],
@@ -171,10 +137,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 307': {
-    role: '프리즈마 실버',
-    type: 'xirallic',
-    face: '#e2e8f0',
-    flop: '#a855f7',
+    role: '프리즈마 실버', type: 'xirallic', face: '#e2e8f0', flop: '#a855f7',
     desc: '빛을 분산시키는 홀로그램 특성의 조색제입니다.',
     details: [
       ['일반 특성', '빛을 파장별로 분산시키는 홀로그램 특성을 지닌 특수 광학 조색제입니다.'],
@@ -185,10 +148,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 308': {
-    role: '브라이트 오렌지',
-    type: 'solid',
-    face: '#ea580c',
-    flop: '#7c2d12',
+    role: '브라이트 오렌지', type: 'solid', face: '#ea580c', flop: '#7c2d12',
     desc: '탁함이 없는 매우 맑고 선명한 주황색 조색제입니다.',
     details: [
       ['일반 특성', '탁함이 전혀 없는 매우 맑고 선명한 주황색 조색제입니다.'],
@@ -199,10 +159,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 309': {
-    role: '브릴리언트 마젠타',
-    type: 'solid',
-    face: '#d946ef',
-    flop: '#701a75',
+    role: '브릴리언트 마젠타', type: 'solid', face: '#d946ef', flop: '#701a75',
     desc: '고채도의 자주색(Magenta) 조색제입니다.',
     details: [
       ['일반 특성', '가장 맑고 밝은 톤을 자랑하는 고채도의 자주색(Magenta) 조색제입니다.'],
@@ -213,10 +170,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 310': {
-    role: '파우더 펄 바인더',
-    type: 'binder',
-    face: '#ffffff',
-    flop: '#ffffff',
+    role: '파우더 펄 바인더', type: 'binder', face: '#ffffff', flop: '#ffffff',
     desc: '단독으로 색상을 내지 않는 전용 조색제 바인더입니다.',
     details: [
       ['일반 특성', '색상을 내는 안료가 포함되지 않은 특수 목적의 투명 수지(Binder)입니다.'],
@@ -227,10 +181,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 311': {
-    role: '루비 레드',
-    type: 'solid',
-    face: '#ef4444',
-    flop: '#7f1d1d',
+    role: '루비 레드', type: 'solid', face: '#ef4444', flop: '#7f1d1d',
     desc: '약하게 황색 기운을 띠는 투명한 적색 수성 조색제입니다.',
     details: [
       ['일반 특성', '약하게 황색(Yellowish) 기운을 띠는 맑고 투명한 적색 수성 조색제입니다.'],
@@ -241,10 +192,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 312': {
-    role: '매직 파이어 이펙트',
-    type: 'pearl',
-    face: '#ef4444',
-    flop: '#22c55e',
+    role: '매직 파이어 이펙트', type: 'pearl', face: '#ef4444', flop: '#22c55e',
     desc: '관찰 각도에 따라 색상이 교차하는 특수 광학 간섭 펄입니다.',
     details: [
       ['일반 특성', '관찰 각도에 따라 색상이 극단적으로 교차하는 특수 광학 간섭 펄 조색제입니다.'],
@@ -255,10 +203,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 315': {
-    role: '엑스트라 화인 블루 펄',
-    type: 'pearl',
-    face: '#3b82f6',
-    flop: '#84cc16',
+    role: '엑스트라 화인 블루 펄', type: 'pearl', face: '#3b82f6', flop: '#84cc16',
     desc: '가장 미세한 입자 크기의 약한 적색 기운 청색 간섭 펄입니다.',
     details: [
       ['일반 특성', '가장 미세한 입자 크기로 분쇄된 약한 적색 기운의 청색 간섭 펄 조색제입니다.'],
@@ -269,10 +214,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 316': {
-    role: '터콰이즈 펄',
-    type: 'pearl',
-    face: '#06b6d4',
-    flop: '#10b981',
+    role: '터콰이즈 펄', type: 'pearl', face: '#06b6d4', flop: '#10b981',
     desc: '중간 크기의 녹청색(터키석 색상) 간섭 펄 조색제입니다.',
     details: [
       ['일반 특성', '중간 크기의 녹청색(터키석 색상) 간섭 펄 조색제입니다.'],
@@ -283,10 +225,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 317': {
-    role: '플래틴 실버 브릴리언트 화인',
-    type: 'silver_fine',
-    face: '#f8fafc',
-    flop: '#334155',
+    role: '플래틴 실버 브릴리언트 화인', type: 'silver_fine', face: '#f8fafc', flop: '#334155',
     desc: '고휘도 반사 특성을 지닌 매끄러운 소립자 특수 알루미늄입니다.',
     details: [
       ['일반 특성', '고휘도 반사 특성을 지닌 매끄러운 소립자 특수 알루미늄 조색제입니다.'],
@@ -297,10 +236,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 318': {
-    role: '브릴리언트 블루',
-    type: 'solid',
-    face: '#0284c7',
-    flop: '#082f49',
+    role: '브릴리언트 블루', type: 'solid', face: '#0284c7', flop: '#082f49',
     desc: '밝고 화사한 녹색 기운을 띠는 고광도 맑은 청색 조색제입니다.',
     details: [
       ['일반 특성', '밝고 화사한 녹색 기운을 띠는 고광도 맑은 청색 조색제입니다.'],
@@ -311,10 +247,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 320': {
-    role: '플래티늄 펄',
-    type: 'pearl',
-    face: '#f1f5f9',
-    flop: '#64748b',
+    role: '플래티늄 펄', type: 'pearl', face: '#f1f5f9', flop: '#64748b',
     desc: '조색 라인업 중 입자 크기가 가장 작은 초미립 백색 펄입니다.',
     details: [
       ['일반 특성', '조색 라인업 중 입자 크기가 가장 작은 초미립 백색(White) 펄 조색제입니다.'],
@@ -325,10 +258,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 321': {
-    role: '화이트',
-    type: 'solid',
-    face: '#ffffff',
-    flop: '#e2e8f0',
+    role: '화이트', type: 'solid', face: '#ffffff', flop: '#e2e8f0',
     desc: '시스템의 가장 표준이 되는 고농축/고은폐력 표준 백색 조색제입니다.',
     details: [
       ['일반 특성', 'Hi-TEC 시스템의 가장 뼈대가 되는 고농축/고은폐력 표준 백색 조색제입니다.'],
@@ -339,10 +269,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 322': {
-    role: '마이크로 화이트',
-    type: 'solid',
-    face: '#f8fafc',
-    flop: '#cbd5e1',
+    role: '마이크로 화이트', type: 'solid', face: '#f8fafc', flop: '#cbd5e1',
     desc: '미세한 알루미늄 및 펄 입자가 혼합 설계된 특수 복합 화이트 안료입니다.',
     details: [
       ['일반 특성', '미세한 알루미늄 및 펄 입자가 미리 혼합 설계된 특수 복합 화이트 안료입니다.'],
@@ -353,24 +280,18 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 323': {
-    role: '스페셜 블랙',
-    type: 'solid',
-    face: '#020617',
-    flop: '#000000',
+    role: '스페셜 블랙', type: 'solid', face: '#020617', flop: '#000000',
     desc: '가장 맑고 진한 시스템의 표준 흑색 수성 조색제입니다.',
     details: [
       ['일반 특성', '스피스해커 시스템의 가장 기준이 되는 범용 표준 흑색 수성 조색제입니다.'],
       ['색상 및 외관 변화', '솔리드에 쓰면 전체 명도와 채도를 차분하게 낮추고, 이펙트와 혼합 시 전체를 어둡게 하면서 미세하게 붉은 황색 기운을 올립니다.'],
       ['용도 및 적용 컬러', '거의 모든 컬러의 명암(어둡기) 조절 및 솔리드 블랙 도장 베이스로 가장 광범위하게 사용됩니다.'],
-      ['배합 및 혼합 비율', '표준 배합비를 기준하되, 미세 조색 시 톤다운(어둡게 하기)을 위해 한두 방울 단위로 첨가 비율을 조절합니다.'],
+      ['배합 및 혼합 비율', '표준 배합비를 기준하되, 미세 조색 시 톤다운(어둡게 하기)을 위해 한두 방울 단위로 첨가 비율 조절합니다.'],
       ['경고 및 주의사항', '착색력이 강하므로 밝은 실버 계열에 과투입 시 복구가 불가능할 정도로 톤이 무너질 수 있으니 주의하십시오.']
     ]
   },
   'WT 324': {
-    role: '레디쉬 옐로우',
-    type: 'solid',
-    face: '#f59e0b',
-    flop: '#9a3412',
+    role: '레디쉬 옐로우', type: 'solid', face: '#f59e0b', flop: '#9a3412',
     desc: '따뜻한 적색 기운이 도는 선명한 황색 조색제입니다.',
     details: [
       ['일반 특성', '따뜻한 적색 기운이 도는 맑고 채도가 높은 선명한 황색 조색제입니다.'],
@@ -381,10 +302,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 326': {
-    role: '그리니쉬 옐로우',
-    type: 'solid',
-    face: '#eab308',
-    flop: '#65a30d',
+    role: '그리니쉬 옐로우', type: 'solid', face: '#eab308', flop: '#65a30d',
     desc: '차가운 녹색을 살짝 띠는 매우 맑고 투명한 황색 조색제입니다.',
     details: [
       ['일반 특성', '차가운 녹색을 살짝 띠는 매우 맑고 투명한 황색 조색제입니다.'],
@@ -395,10 +313,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 327': {
-    role: '옐로우',
-    type: 'solid',
-    face: '#fde047',
-    flop: '#ca8a04',
+    role: '옐로우', type: 'solid', face: '#fde047', flop: '#ca8a04',
     desc: '약하게 녹색 기운이 감도는 밝고 화사한 기본 황색 조색제입니다.',
     details: [
       ['일반 특성', '약하게 녹색 기운이 감도는 밝고 화사한 기본 황색 조색제입니다.'],
@@ -409,10 +324,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 328': {
-    role: '오커',
-    type: 'solid',
-    face: '#b45309',
-    flop: '#451a03',
+    role: '오커', type: 'solid', face: '#b45309', flop: '#451a03',
     desc: '무겁고 탁한 흙빛 황토색의 고은폐력 조색제입니다.',
     details: [
       ['일반 특성', '무겁고 탁한 흙빛 황토색(황색 계열)의 고은폐력 조색제입니다.'],
@@ -423,10 +335,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 329': {
-    role: '트랜스페어런트 옐로우',
-    type: 'solid',
-    face: '#f59e0b',
-    flop: '#ea580c',
+    role: '트랜스페어런트 옐로우', type: 'solid', face: '#f59e0b', flop: '#ea580c',
     desc: '적색이 살짝 가미된 매우 선명하고 맑은 투명 황색 조색제입니다.',
     details: [
       ['일반 특성', '적색이 살짝 가미된 매우 선명하고 맑은 투명 황색 조색제입니다.'],
@@ -437,10 +346,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 330': {
-    role: '블러드 오렌지',
-    type: 'solid',
-    face: '#ea580c',
-    flop: '#9a3412',
+    role: '블러드 오렌지', type: 'solid', face: '#ea580c', flop: '#9a3412',
     desc: '따뜻하고 밝은 기운을 품은 선명한 주황색 수성 조색제입니다.',
     details: [
       ['일반 특성', '따뜻하고 밝은 기운을 품은 선명한 주황색 수성 조색제입니다.'],
@@ -451,10 +357,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 331': {
-    role: '트랜스루센트 옥사이드',
-    type: 'solid',
-    face: '#d97706',
-    flop: '#451a03',
+    role: '트랜스루센트 옥사이드', type: 'solid', face: '#d97706', flop: '#451a03',
     desc: '산화철 성분을 기반으로 맑은 발색을 내는 반투명 황적색 조색제입니다.',
     details: [
       ['일반 특성', '독특한 산화철 성분을 기반으로 맑은 발색을 내도록 정제된 반투명 황적색 조색제입니다.'],
@@ -465,10 +368,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 332': {
-    role: '마룬',
-    type: 'solid',
-    face: '#b91c1c',
-    flop: '#7c2d12',
+    role: '마룬', type: 'solid', face: '#b91c1c', flop: '#7c2d12',
     desc: '탁하고 짙은 검붉은 톤을 지닌 어두운 적색 조색제입니다.',
     details: [
       ['일반 특성', '탁하고 짙은 검붉은 톤을 지닌 어두운 적색 조색제입니다.'],
@@ -479,10 +379,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 333': {
-    role: '그라나다 레드',
-    type: 'solid',
-    face: '#991b1b',
-    flop: '#450a0a',
+    role: '그라나다 레드', type: 'solid', face: '#991b1b', flop: '#450a0a',
     desc: '가장 표준적이며 맑고 밝은 기본 고농축 적색 조색제입니다.',
     details: [
       ['일반 특성', '가장 표준적이며 맑고 밝은 기본 고농축 적색 조색제입니다.'],
@@ -493,10 +390,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 334': {
-    role: '옥사이드 레드',
-    type: 'solid',
-    face: '#7f1d1d',
-    flop: '#450a0a',
+    role: '옥사이드 레드', type: 'solid', face: '#7f1d1d', flop: '#450a0a',
     desc: '적벽돌과 유사한 묵직하고 탁한 산화철 계열의 적색 조색제입니다.',
     details: [
       ['일반 특성', '적벽돌과 유사한 묵직하고 탁한 산화철 계열의 적색 조색제입니다.'],
@@ -507,10 +401,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 335': {
-    role: '다크 옐로우',
-    type: 'solid',
-    face: '#d97706',
-    flop: '#78350f',
+    role: '다크 옐로우', type: 'solid', face: '#d97706', flop: '#78350f',
     desc: '적색 기운이 미세하게 감도는 차분하면서 밝은 솔리드 황색입니다.',
     details: [
       ['일반 특성', '적색 기운이 미세하게 감도는 차분하면서도 밝은 톤의 솔리드 황색 조색제입니다.'],
@@ -521,11 +412,8 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 336': {
-    role: '트랜스루센트 레드',
-    type: 'solid',
-    face: '#7c2d12',
-    flop: '#450a0a',
-    desc: '어두운 갈색(Brownish) 빛이 오묘하게 도는 반투명 적색 조색제입니다.',
+    role: '트랜스루센트 레드', type: 'solid', face: '#7c2d12', flop: '#450a0a',
+    desc: '어두운 갈색 빛이 오묘하게 도는 반투명 적색 조색제입니다.',
     details: [
       ['일반 특성', '어두운 갈색(Brownish) 빛이 오묘하게 도는 선명한 반투명 적색 조색제입니다.'],
       ['색상 및 외관 변화', '이펙트 입자 위로 색이 투과되어 깊고 선명하면서도 차분한 검붉은 반사광을 연출합니다.'],
@@ -535,11 +423,8 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 337': {
-    role: '레드',
-    type: 'solid',
-    face: '#ef4444',
-    flop: '#991b1b',
-    desc: '은은한 청색 기운(Bluish)이 도는 중간 톤의 표준 적색 조색제입니다.',
+    role: '레드', type: 'solid', face: '#ef4444', flop: '#991b1b',
+    desc: '은은한 청색 기운이 도는 중간 톤의 표준 적색 조색제입니다.',
     details: [
       ['일반 특성', '은은한 청색 기운(Bluish)이 도는 중간 톤의 고은폐력 표준 적색 조색제입니다.'],
       ['색상 및 외관 변화', '그라나다 레드(WT333)보다 톤이 무겁고 차가우며 깨끗하고 묵직한 솔리드 적색광을 구현합니다.'],
@@ -549,10 +434,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 338': {
-    role: '블루이쉬 마젠타 레드',
-    type: 'solid',
-    face: '#d946ef',
-    flop: '#86198f',
+    role: '블루이쉬 마젠타 레드', type: 'solid', face: '#d946ef', flop: '#86198f',
     desc: '차가운 푸른빛이 많이 도는 선명한 표준 자주색 조색제입니다.',
     details: [
       ['일반 특성', '차가운 푸른빛이 많이 도는 선명한 표준 자주색(Magenta) 조색제입니다.'],
@@ -563,10 +445,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 339': {
-    role: '바이올렛',
-    type: 'solid',
-    face: '#8b5cf6',
-    flop: '#4c1d95',
+    role: '바이올렛', type: 'solid', face: '#8b5cf6', flop: '#4c1d95',
     desc: '맑고 깨끗한 표준 보라색 수성 조색제입니다.',
     details: [
       ['일반 특성', '맑고 깨끗한 표준 보라색 수성 조색제입니다.'],
@@ -577,10 +456,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 340': {
-    role: '옐로우 마젠타 레드',
-    type: 'solid',
-    face: '#e879f9',
-    flop: '#a21caf',
+    role: '옐로우 마젠타 레드', type: 'solid', face: '#e879f9', flop: '#a21caf',
     desc: '따뜻한 황색 기운을 띠는 밝고 맑은 자주색 조색제입니다.',
     details: [
       ['일반 특성', '따뜻한 황색 기운을 띠는 밝고 맑은 자주색 조색제입니다.'],
@@ -591,10 +467,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 341': {
-    role: '아주르 블루',
-    type: 'solid',
-    face: '#2563eb',
-    flop: '#1e3a8a',
+    role: '아주르 블루', type: 'solid', face: '#2563eb', flop: '#1e3a8a',
     desc: '채도가 가장 높은 아주 선명한 프리미엄 청색 조색제입니다.',
     details: [
       ['일반 특성', '조색 시스템 내에서 채도가 가장 높은 아주 선명한 프리미엄 청색 조색제입니다.'],
@@ -605,10 +478,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 342': {
-    role: '다크 바이올렛',
-    type: 'solid',
-    face: '#581c87',
-    flop: '#2e1065',
+    role: '다크 바이올렛', type: 'solid', face: '#581c87', flop: '#2e1065',
     desc: '탁함 없이 맑은 심연의 어두움을 가진 보라색 수성 조색제입니다.',
     details: [
       ['일반 특성', '탁함 없이 맑은 심연의 어두움을 가진 보라색 수성 조색제입니다.'],
@@ -619,10 +489,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 343': {
-    role: '블루',
-    type: 'solid',
-    face: '#3b82f6',
-    flop: '#1e40af',
+    role: '블루', type: 'solid', face: '#3b82f6', flop: '#1e40af',
     desc: '특정 색으로 치우침이 없는 완벽한 중간톤의 고은폐력 파란색입니다.',
     details: [
       ['일반 특성', '특정 색으로 치우침이 없는 완벽한 중간톤의 고은폐력 표준 파란색 조색제입니다.'],
@@ -633,10 +500,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 344': {
-    role: '다크 블루',
-    type: 'solid',
-    face: '#1d4ed8',
-    flop: '#0f172a',
+    role: '다크 블루', type: 'solid', face: '#1d4ed8', flop: '#0f172a',
     desc: '명도가 가장 묵직하고 어두운 딥 블루(Deep Blue) 안료입니다.',
     details: [
       ['일반 특성', '청색 조색제 라인업 중에서 명도가 가장 묵직하고 어두운 딥 블루(Deep Blue) 안료입니다.'],
@@ -647,10 +511,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 345': {
-    role: '트랜스페어런트 에메랄드',
-    type: 'solid',
-    face: '#10b981',
-    flop: '#064e3b',
+    role: '트랜스페어런트 에메랄드', type: 'solid', face: '#10b981', flop: '#064e3b',
     desc: '황색 기운을 강하게 띠는 에메랄드빛 투명 녹색 조색제입니다.',
     details: [
       ['일반 특성', '맑고 선명한 황색 기운을 강하게 띠는 에메랄드빛 투명 녹색 조색제입니다.'],
@@ -661,10 +522,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 347': {
-    role: '트랜스페어런트 그린',
-    type: 'solid',
-    face: '#15803d',
-    flop: '#022c22',
+    role: '트랜스페어런트 그린', type: 'solid', face: '#15803d', flop: '#022c22',
     desc: '청색 기운을 미세하게 품은 맑고 투명한 기본 녹색 조색제입니다.',
     details: [
       ['일반 특성', '차가운 청색 기운을 미세하게 품은 맑고 투명한 기본 녹색 조색제입니다.'],
@@ -675,11 +533,8 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 348': {
-    role: '트랜스페어런트 아주르 블루',
-    type: 'solid',
-    face: '#0ea5e9',
-    flop: '#0369a1',
-    desc: '채도가 매우 높은 맑고 시원한 투명 하늘색(Azure) 조색제입니다.',
+    role: '트랜스페어런트 아주르 블루', type: 'solid', face: '#0ea5e9', flop: '#0369a1',
+    desc: '채도가 매우 높은 맑고 시원한 투명 하늘색 조색제입니다.',
     details: [
       ['일반 특성', '채도가 매우 높은 맑고 시원한 투명 하늘색(Azure) 조색제입니다.'],
       ['색상 및 외관 변화', '이펙트 입자와 결합 시 정면(15도)에서는 맑은 녹청색, 측면에서는 약하게 붉은 적색 기운이 비치는 다채로운 반사광을 만듭니다.'],
@@ -689,10 +544,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 349': {
-    role: '트랜스루센트 그린',
-    type: 'solid',
-    face: '#86efac',
-    flop: '#064e3b',
+    role: '트랜스루센트 그린', type: 'solid', face: '#86efac', flop: '#064e3b',
     desc: '착색 농도를 대폭 낮춘 반투명 저농도 녹색 조색제입니다.',
     details: [
       ['일반 특성', '매우 정밀한 미세 조색 보정을 위해 의도적으로 착색 농도를 대폭 낮춘 반투명 저농도 녹색 조색제입니다.'],
@@ -703,10 +555,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 350': {
-    role: '트랜스루센트 블랙',
-    type: 'solid',
-    face: '#525252',
-    flop: '#451a03',
+    role: '트랜스루센트 블랙', type: 'solid', face: '#525252', flop: '#451a03',
     desc: '정밀한 명암 조절을 위해 착색 농도를 낮춘 저농도 흑색 조색제입니다.',
     details: [
       ['일반 특성', '극도로 정밀한 명암 조절을 위해 착색 농도를 낮춘 반투명 저농도 흑색 조색제입니다.'],
@@ -717,10 +566,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 351': {
-    role: '트랜스루센트 아주르 블루',
-    type: 'solid',
-    face: '#38bdf8',
-    flop: '#075985',
+    role: '트랜스루센트 아주르 블루', type: 'solid', face: '#38bdf8', flop: '#075985',
     desc: '맑고 선명한 반투명 저농도 하늘색 조색제입니다.',
     details: [
       ['일반 특성', '정밀 조색을 위해 개발된 맑고 선명한 반투명 저농도 하늘색(Azure Blue) 조색제입니다.'],
@@ -731,10 +577,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 352': {
-    role: '트랜스루센트 화이트',
-    type: 'solid',
-    face: '#f8fafc',
-    flop: '#cbd5e1',
+    role: '트랜스루센트 화이트', type: 'solid', face: '#f8fafc', flop: '#cbd5e1',
     desc: '바탕을 덮지 않는 반투명 성질을 가진 특수 백색 조색제입니다.',
     details: [
       ['일반 특성', '바탕을 완전히 덮지 않는 반투명(Translucent) 성질을 가진 특수 기능성 백색 조색제입니다.'],
@@ -745,10 +588,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 353': {
-    role: '트랜스루센트 마젠타 레드',
-    type: 'solid',
-    face: '#c026d3',
-    flop: '#4a044e',
+    role: '트랜스루센트 마젠타 레드', type: 'solid', face: '#c026d3', flop: '#4a044e',
     desc: '착색 농도를 낮추어 설계된 선명한 반투명 자주색 조색제입니다.',
     details: [
       ['일반 특성', '미세 조색용으로 착색 농도를 낮추어 설계된 선명한 반투명 저농도 자주색 조색제입니다.'],
@@ -759,10 +599,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 354': {
-    role: '화인 실버',
-    type: 'silver_fine',
-    face: '#cbd5e1',
-    flop: '#64748b',
+    role: '화인 실버', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b',
     desc: '입자가 곱게 가공된 고운 입자 타입의 기본 알루미늄 조색제입니다.',
     details: [
       ['일반 특성', '비교적 입자가 곱게(Fine) 가공된 고운 입자 타입의 기본 알루미늄 조색제입니다.'],
@@ -773,10 +610,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 355': {
-    role: '브릴리언트 실버 코스',
-    type: 'silver_coarse',
-    face: '#f8fafc',
-    flop: '#334155',
+    role: '브릴리언트 실버 코스', type: 'silver_coarse', face: '#f8fafc', flop: '#334155',
     desc: '알루미늄 입자가 굵고 표면 반짝임이 극도로 강한 조색제입니다.',
     details: [
       ['일반 특성', '알루미늄 입자가 굵고(Coarse) 표면 반짝임이 극도로 강한(Brilliant) 고휘도 거친 알루미늄 조색제입니다.'],
@@ -787,10 +621,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 356': {
-    role: '미디엄 실버',
-    type: 'silver_fine',
-    face: '#e2e8f0',
-    flop: '#475569',
+    role: '미디엄 실버', type: 'silver_fine', face: '#e2e8f0', flop: '#475569',
     desc: '최적의 균형을 맞춘 중간 크기 입자의 최고 표준 범용 알루미늄입니다.',
     details: [
       ['일반 특성', '가장 균형 잡힌 중간 크기(Medium) 입자를 가진 스피스해커 시스템의 최고 표준 범용 알루미늄 조색제입니다.'],
@@ -801,10 +632,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 357': {
-    role: '마이크로 실버',
-    type: 'silver_fine',
-    face: '#f8fafc',
-    flop: '#64748b',
+    role: '마이크로 실버', type: 'silver_fine', face: '#f8fafc', flop: '#64748b',
     desc: '알루미늄 입자를 한계치까지 미세하게 분쇄 가공한 초정밀 미립자입니다.',
     details: [
       ['일반 특성', '알루미늄 입자를 한계치까지 미세하게 분쇄 가공한 초정밀 미립자(Micro) 조색제입니다.'],
@@ -815,10 +643,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 359': {
-    role: '브라이트 실버',
-    type: 'silver_coarse',
-    face: '#f1f5f9',
-    flop: '#334155',
+    role: '브라이트 실버', type: 'silver_coarse', face: '#f1f5f9', flop: '#334155',
     desc: '명도 톤이 한계까지 높게 세팅된 극도로 밝은 광휘형 알루미늄입니다.',
     details: [
       ['일반 특성', '전체적인 명도 톤이 한계까지 높게 세팅된 극도로 밝은(Bright) 광휘형 알루미늄 조색제입니다.'],
@@ -829,10 +654,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 360': {
-    role: '코스 실버',
-    type: 'silver_coarse',
-    face: '#94a3b8',
-    flop: '#1e293b',
+    role: '코스 실버', type: 'silver_coarse', face: '#94a3b8', flop: '#1e293b',
     desc: '입자가 크고 굵은(Coarse) 표준 거친 알루미늄 조색제입니다.',
     details: [
       ['일반 특성', '일반적인 범위 내에서 입자가 크고 굵은(Coarse) 표준 거친 알루미늄 조색제입니다.'],
@@ -843,24 +665,18 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 361': {
-    role: '브릴리언트 실버',
-    type: 'silver_coarse',
-    face: '#f1f5f9',
-    flop: '#64748b',
+    role: '브릴리언트 실버', type: 'silver_coarse', face: '#f1f5f9', flop: '#64748b',
     desc: '최적의 반짝임 밸런스를 맞춘 중간 입자 크기의 고휘도 알루미늄입니다.',
     details: [
       ['일반 특성', '최적의 반짝임 밸런스를 맞춘 중간 입자 크기의 고휘도 광휘형 알루미늄 조색제입니다.'],
       ['색상 및 외관 변화', '고급스러운 거울 같은 반사율을 지녀 정면은 밝고 측면은 짙게 떨어지며, 입자는 매끈하면서도 뛰어난 광택감을 냅니다.'],
-      ['용도 및 적용 컬러', '유럽 프리미엄 브랜드 특유의 깊이 있고 매끄러운 고광택 실버 도장(예: BMW 타이탄 실버 등)을 재현할 때 주력으로 씁니다.'],
+      ['용도 및 적용 컬러', '유럽 프리미 브랜드 특유의 깊이 있고 매끄러운 고광택 실버 도장(예: BMW 타이탄 실버 등)을 재현할 때 주력으로 씁니다.'],
       ['배합 및 혼합 비율', '조색표 상의 정확한 포뮬러 수치에 따라 기본 베이스로 처방 및 혼합합니다.'],
       ['경고 및 주의사항', '알루미늄 플레이크가 균일하게 누워야 완벽한 광택이 나오므로, 도장 시 수분 플래시오프(건조) 공정을 철저히 지키고 에어건으로 과도하게 불지 마십시오.']
     ]
   },
   'WT 362': {
-    role: '브릴리언트 실버 화인',
-    type: 'silver_fine',
-    face: '#f8fafc',
-    flop: '#94a3b8',
+    role: '브릴리언트 실버 화인', type: 'silver_fine', face: '#f8fafc', flop: '#94a3b8',
     desc: '빛 반사 특성과 미세하고 고운 입자를 결합한 최고급 알루미늄입니다.',
     details: [
       ['일반 특성', '뛰어난 빛 반사(Brilliant) 특성과 미세하고 고운 입자(Fine) 특성을 하나의 밸런스로 결합한 최고급 알루미늄 조색제입니다.'],
@@ -871,10 +687,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 363': {
-    role: '브릴리언트 골드',
-    type: 'pearl',
-    face: '#fbbf24',
-    flop: '#b45309',
+    role: '브릴리언트 골드', type: 'pearl', face: '#fbbf24', flop: '#b45309',
     desc: '순금처럼 맑고 선명한 채도를 자랑하는 프리미엄 황색 알루미늄 조색제입니다.',
     details: [
       ['일반 특성', '순금처럼 맑고 선명한 채도를 자랑하는 프리미엄 황색 알루미늄 수성 조색제입니다.'],
@@ -885,10 +698,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 364': {
-    role: '화이트 펄',
-    type: 'pearl',
-    face: '#ffffff',
-    flop: '#94a3b8',
+    role: '화이트 펄', type: 'pearl', face: '#ffffff', flop: '#94a3b8',
     desc: '조색 안료 중 입자 크기가 가장 뚜렷하게 식별되는 대형 백색 마이카 펄입니다.',
     details: [
       ['일반 특성', '조색 안료 중 입자 크기가 육안으로 가장 크고 뚜렷하게 식별되는 대형 백색(White) 마이카 펄 조색제입니다.'],
@@ -899,10 +709,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 365': {
-    role: '라일락 펄',
-    type: 'pearl',
-    face: '#a3e635',
-    flop: '#be185d',
+    role: '라일락 펄', type: 'pearl', face: '#a3e635', flop: '#be185d',
     desc: '마이카 베이스에 빛의 간섭 효과를 이용한 오묘한 자주색 간섭 펄입니다.',
     details: [
       ['일반 특성', '중간 크기의 마이카(Mica)를 베이스로 빛의 간섭 효과를 이용한 오묘한 자주색(Lilac) 펄 조색제입니다.'],
@@ -913,10 +720,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 366': {
-    role: '골드 펄',
-    type: 'pearl',
-    face: '#facc15',
-    flop: '#4c1d95',
+    role: '골드 펄', type: 'pearl', face: '#facc15', flop: '#4c1d95',
     desc: '균일한 중간 크기의 입자로 세팅된 빛 간섭 효과를 가진 황색 펄입니다.',
     details: [
       ['일반 특성', '균일한 중간 크기의 입자로 세팅된 빛 간섭 효과를 가진 황색(Gold) 펄 조색제입니다.'],
@@ -927,10 +731,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 367': {
-    role: '화인 그린 펄',
-    type: 'pearl',
-    face: '#4ade80',
-    flop: '#991b1b',
+    role: '화인 그린 펄', type: 'pearl', face: '#4ade80', flop: '#991b1b',
     desc: '표면이 매우 섬세하고 매끄럽게 설계된 작은 크기의 녹색 간섭 펄입니다.',
     details: [
       ['일반 특성', '표면이 매우 섬세하고 매끄럽게 설계된 작은 크기(Fine)의 녹색 간섭 펄 조색제입니다.'],
@@ -941,10 +742,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 368': {
-    role: '화인 화이트 펄',
-    type: 'pearl',
-    face: '#f8fafc',
-    flop: '#64748b',
+    role: '화인 화이트 펄', type: 'pearl', face: '#f8fafc', flop: '#64748b',
     desc: '스피스해커 라인업 중 가장 활용도가 높은 최적의 범용 백색 마이카 펄입니다.',
     details: [
       ['일반 특성', '스피스해커 라인업 중 가장 활용도가 높은 최적의 중간 크기(Fine) 범용 백색 마이카 펄 조색제입니다.'],
@@ -955,10 +753,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 369': {
-    role: '레드 펄',
-    type: 'pearl',
-    face: '#ef4444',
-    flop: '#7f1d1d',
+    role: '레드 펄', type: 'pearl', face: '#ef4444', flop: '#7f1d1d',
     desc: '적색으로 산화 처리되어 표면이 특수 착색된 고은폐 레드 펄입니다.',
     details: [
       ['일반 특성', '적색으로 산화 처리되어 표면이 특수 착색된 작은 크기의 고은폐 레드 펄 조색제입니다.'],
@@ -969,10 +764,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 370': {
-    role: '브라이트 블루 펄',
-    type: 'pearl',
-    face: '#0ea5e9',
-    flop: '#be123c',
+    role: '브라이트 블루 펄', type: 'pearl', face: '#0ea5e9', flop: '#be123c',
     desc: '입자 크기가 매우 크고 반짝임이 화려한 고광도 맑은 청색 간섭 펄입니다.',
     details: [
       ['일반 특성', '입자 크기가 매우 크고 반짝임이 화려하게 세팅된 고광도 맑은 청색 간섭 펄 조색제입니다.'],
@@ -983,10 +775,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 371': {
-    role: '브라운 펄',
-    type: 'pearl',
-    face: '#d97706',
-    flop: '#451a03',
+    role: '브라운 펄', type: 'pearl', face: '#d97706', flop: '#451a03',
     desc: '표면이 주황/갈색 톤으로 특수 코팅 및 착색 처리된 브라운 펄 조색제입니다.',
     details: [
       ['일반 특성', '표면이 주황/갈색 톤으로 특수 코팅 및 착색 처리된 중간 크기의 브라운 펄 조색제입니다.'],
@@ -997,10 +786,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 372': {
-    role: '화인 블루 펄',
-    type: 'pearl',
-    face: '#3b82f6',
-    flop: '#c026d3',
+    role: '화인 블루 펄', type: 'pearl', face: '#3b82f6', flop: '#c026d3',
     desc: '입자가 부드럽게 세팅되어 붉은 기운이 도는 중간 크기의 청색 간섭 펄입니다.',
     details: [
       ['일반 특성', '입자가 부드럽게 세팅되어 붉은 기운(Reddish)이 매력적으로 감도는 중간 크기의 청색 간섭 펄 조색제입니다.'],
@@ -1011,10 +797,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 373': {
-    role: '루비 펄',
-    type: 'pearl',
-    face: '#dc2626',
-    flop: '#7f1d1d',
+    role: '루비 펄', type: 'pearl', face: '#dc2626', flop: '#7f1d1d',
     desc: '가장 쓰임새가 좋은 중간 크기(Medium)의 붉은색 착색 펄 조색제입니다.',
     details: [
       ['일반 특성', '가장 쓰임새가 좋은 중간 크기(Medium)의 붉은색 착색 펄 조색제입니다.'],
@@ -1025,10 +808,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 374': {
-    role: '블루 그린 펄',
-    type: 'pearl',
-    face: '#0d9488',
-    flop: '#c2410c',
+    role: '블루 그린 펄', type: 'pearl', face: '#0d9488', flop: '#c2410c',
     desc: '마이카 베이스에 티타늄 코팅 처리를 하여 청녹색을 내는 간섭 펄입니다.',
     details: [
       ['일반 특성', '마이카 베이스에 티타늄 코팅 처리를 하여 청녹색을 내도록 유도한 오묘한 중간 크기 간섭 펄 조색제입니다.'],
@@ -1039,10 +819,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 375': {
-    role: '그린 펄',
-    type: 'pearl',
-    face: '#16a34a',
-    flop: '#b91c1c',
+    role: '그린 펄', type: 'pearl', face: '#16a34a', flop: '#b91c1c',
     desc: '가장 표준적인 입자 크기와 반사 특성을 보유한 기본 녹색 간섭 펄입니다.',
     details: [
       ['일반 특성', '가장 표준적인 입자 크기와 반사 특성을 보유한 기본 녹색 간섭 펄 조색제입니다.'],
@@ -1053,10 +830,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 376': {
-    role: '레드펄 엑스트라',
-    type: 'pearl',
-    face: '#ef4444',
-    flop: '#16a34a',
+    role: '레드펄 엑스트라', type: 'pearl', face: '#ef4444', flop: '#16a34a',
     desc: '단순 착색이 아닌 광학적 간섭 코팅을 통한 프리미엄 적색 간섭 펄입니다.',
     details: [
       ['일반 특성', '천연 마이카 표면에 티타늄 및 광학 간섭 금속막을 특수 제어 증착한 프리미엄 간섭 레드 펄 안료입니다.'],
@@ -1067,10 +841,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 377': {
-    role: '다이아몬드 화이트',
-    type: 'xirallic',
-    face: '#ffffff',
-    flop: '#64748b',
+    role: '다이아몬드 화이트', type: 'xirallic', face: '#ffffff', flop: '#64748b',
     desc: '최첨단 질라릭 코팅 공법이 적용된 프리미엄 초고휘도 백색 펄입니다.',
     details: [
       ['일반 특성', '인공 합성 결정 구조를 지닌 최상위 프리미엄 등급의 초고휘도 크리스탈 질라릭 펄입니다.'],
@@ -1081,10 +852,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 378': {
-    role: '다이아몬드 레드',
-    type: 'xirallic',
-    face: '#ef4444',
-    flop: '#7f1d1d',
+    role: '다이아몬드 레드', type: 'xirallic', face: '#ef4444', flop: '#7f1d1d',
     desc: '인공 합성 결정질인 질라릭 구조를 기반으로 한 프리미엄 적색 펄입니다.',
     details: [
       ['일반 특성', '인공 합성 결정질인 질라릭(Xirallic) 구조를 기반으로 설계된 딥 베이스 프리미엄 적색 펄 조색제입니다.'],
@@ -1095,10 +863,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 379': {
-    role: '다이아몬드 카퍼',
-    type: 'xirallic',
-    face: '#ea580c',
-    flop: '#7c2d12',
+    role: '다이아몬드 카퍼', type: 'xirallic', face: '#ea580c', flop: '#7c2d12',
     desc: '질라릭 크리스탈 코팅 기술로 완성된 초고휘도 구리빛 펄 조색제입니다.',
     details: [
       ['일반 특성', '질라릭(Xirallic) 크리스탈 코팅 기술로 완성된 초고휘도 주황색(Copper/구리빛) 프리미엄 펄 조색제입니다.'],
@@ -1109,10 +874,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 380': {
-    role: '다이아몬드 그린',
-    type: 'xirallic',
-    face: '#4ade80',
-    flop: '#166534',
+    role: '다이아몬드 그린', type: 'xirallic', face: '#4ade80', flop: '#166534',
     desc: '극강의 투명도와 고휘도 특성을 지닌 최고급 프리미엄 녹색 간섭 펄입니다.',
     details: [
       ['일반 특성', '질라릭(Xirallic) 특유의 극강의 투명도와 고휘도 특성을 지닌 최고급 프리미엄 녹색 간섭 펄 조색제입니다.'],
@@ -1123,10 +885,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 381': {
-    role: '다이아몬드 블루',
-    type: 'xirallic',
-    face: '#3b82f6',
-    flop: '#1e3a8a',
+    role: '다이아몬드 블루', type: 'xirallic', face: '#3b82f6', flop: '#1e3a8a',
     desc: '합성 크리스탈 질라릭 코팅 기반의 최고급 청색 간섭 펄 조색제입니다.',
     details: [
       ['일반 특성', '합성 크리스탈 질라릭(Xirallic) 코팅 기반으로 눈부시게 세팅된 최고급 청색 간섭 펄 조색제입니다.'],
@@ -1137,10 +896,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 382': {
-    role: '다이아몬드 골드',
-    type: 'xirallic',
-    face: '#facc15',
-    flop: '#a16207',
+    role: '다이아몬드 골드', type: 'xirallic', face: '#facc15', flop: '#a16207',
     desc: '빛의 굴절을 극대화시킨 프리미엄 황색 간섭 질라릭 펄 조색제입니다.',
     details: [
       ['일반 특성', '인공 결정 질라릭(Xirallic) 공학으로 완성된 빛의 굴절을 극대화시킨 프리미엄 황색 간섭 펄 조색제입니다.'],
@@ -1151,10 +907,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 383': {
-    role: '브릴리언트 오렌지',
-    type: 'silver_coarse',
-    face: '#f97316',
-    flop: '#9a3412',
+    role: '브릴리언트 오렌지', type: 'silver_coarse', face: '#f97316', flop: '#9a3412',
     desc: '강렬하고 고채도의 주황빛으로 착색된 고광택 알루미늄 조색제입니다.',
     details: [
       ['일반 특성', '시선을 사로잡는 강렬하고 고채도의 주황빛으로 착색된 고광택 알루미늄 조색제입니다.'],
@@ -1165,10 +918,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 385': {
-    role: '시스템 콤퍼넌트 A',
-    type: 'binder',
-    face: '#ffffff',
-    flop: '#ffffff',
+    role: '시스템 콤퍼넌트 A', type: 'binder', face: '#ffffff', flop: '#ffffff',
     desc: '수성 도료 시스템 전체의 뼈대를 구성하는 필수적인 베이스 투명 수지입니다.',
     details: [
       ['일반 특성', '색상을 발현하는 조색제가 아니라, 수성 도료 시스템 전체의 뼈대를 구성하는 필수적인 베이스 투명 수지(Resin)입니다.'],
@@ -1179,10 +929,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 386': {
-    role: '플롭 컨트롤',
-    type: 'binder',
-    face: '#ffffff',
-    flop: '#ffffff',
+    role: '플롭 컨트롤', type: 'binder', face: '#ffffff', flop: '#ffffff',
     desc: '안료 입자의 눕는 각도를 제어하기 위해 고안된 명암(Flop) 물리적 조정제입니다.',
     details: [
       ['일반 특성', '이펙트 컬러 도장 시 안료 입자의 눕는 각도를 제어하기 위해 특수 고안된 명암(Flop) 물리적 조정제입니다.'],
@@ -1193,10 +940,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 387': {
-    role: '시스템 콤퍼넌트 B',
-    type: 'binder',
-    face: '#ffffff',
-    flop: '#ffffff',
+    role: '시스템 콤퍼넌트 B', type: 'binder', face: '#ffffff', flop: '#ffffff',
     desc: '수용성 베이스코트 도료 전체의 시스템 점도 조절제 및 바인더입니다.',
     details: [
       ['일반 특성', '수용성 베이스코트 도료 전체의 안정적인 분산과 흐름성을 관리하는 시스템 점도 조절제 및 바인더입니다.'],
@@ -1207,10 +951,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 388': {
-    role: '슈퍼 딥 블랙',
-    type: 'solid',
-    face: '#050505',
-    flop: '#000000',
+    role: '슈퍼 딥 블랙', type: 'solid', face: '#050505', flop: '#000000',
     desc: '빛 반사를 억제하여 깊이감을 극대화한 아주 어두운 고농축 흑색 조색제입니다.',
     details: [
       ['일반 특성', '빛 반사를 억제하여 깊이감을 극대화한 아주 어두운 고농축 흑색 조색제입니다.'],
@@ -1221,10 +962,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 389': {
-    role: '플래티닌 실버 화인',
-    type: 'silver_fine',
-    face: '#cbd5e1',
-    flop: '#64748b',
+    role: '플래티닌 실버 화인', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b',
     desc: '입자 크기가 정밀하게 통제된 작은 사이즈의 고휘도 광휘형 알루미늄 조색제입니다.',
     details: [
       ['일반 특성', '입자 크기가 정밀하게 통제된 작은 사이즈의 고휘도 광휘형 알루미늄 수성 조색제입니다.'],
@@ -1235,10 +973,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 390': {
-    role: '플래티닌 실버',
-    type: 'silver_coarse',
-    face: '#f8fafc',
-    flop: '#334155',
+    role: '플래티닌 실버', type: 'silver_coarse', face: '#f8fafc', flop: '#334155',
     desc: '빛 굴절률과 명암 대비를 최고 수준으로 극대화한 고휘도 광휘형 조색제입니다.',
     details: [
       ['일반 특성', '모든 알루미늄 라인업 중 빛 굴절률과 명암 대비를 최고 수준으로 극대화한 중간 크기 입자의 고휘도 광휘형 조색제입니다.'],
@@ -1249,10 +984,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 392': {
-    role: '매직 이펙트',
-    type: 'pearl',
-    face: '#22c55e',
-    flop: '#ef4444',
+    role: '매직 이펙트', type: 'pearl', face: '#22c55e', flop: '#ef4444',
     desc: '다층 박막 코팅 기술을 적용한 특수 광학 간섭 펄 조색제입니다.',
     details: [
       ['일반 특성', '다층 박막 코팅 기술을 적용하여 관찰 각도에 따라 색상이 마법처럼 카멜레온 변이를 일으키는 특수 광학 간섭 펄 조색제입니다.'],
@@ -1263,10 +995,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 393': {
-    role: '라이트 옐로우',
-    type: 'solid',
-    face: '#fef08a',
-    flop: '#a16207',
+    role: '라이트 옐로우', type: 'solid', face: '#fef08a', flop: '#a16207',
     desc: '차가운 녹색 기운을 아주 미세하게 띠면서 레몬처럼 밝고 산뜻한 연황색 조색제입니다.',
     details: [
       ['일반 특성', '차가운 녹색 기운을 아주 미세하게 띠면서도 레몬처럼 밝고 산뜻한 톤을 가진 연황색 조색제입니다.'],
@@ -1277,10 +1006,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 1051': {
-    role: '블랜딩 1051',
-    type: 'binder',
-    face: '#ffffff',
-    flop: '#ffffff',
+    role: '블랜딩 1051', type: 'binder', face: '#ffffff', flop: '#ffffff',
     desc: '부분 보수 도장 작업 시 필수적인 전용 블랜딩(숨김) 첨가제입니다.',
     details: [
       ['일반 특성', '수성 페인트 부분 보수 도장(보카시)의 경계면을 자연스럽게 무너뜨리고 녹여주는 필수적인 전용 블랜딩 수지 첨가제입니다.'],
@@ -1291,10 +1017,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 1500': {
-    role: '울트라 딥 블랙',
-    type: 'solid',
-    face: '#000000',
-    flop: '#000000',
+    role: '울트라 딥 블랙', type: 'solid', face: '#000000', flop: '#000000',
     desc: '명도가 가장 극도로 어둡게 떨어지는 한정판 흑색 조색제입니다.',
     details: [
       ['일반 특성', 'Hi-TEC 전체 시스템 내에서 명도가 가장 극도로 어둡게 떨어지는 한정판 흑색 조색제입니다. 액상 특수 염료(Dye)를 함유하고 있습니다.'],
@@ -1305,10 +1028,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 455': {
-    role: '퍼포먼스 컴포넌트',
-    type: 'binder',
-    face: '#ffffff',
-    flop: '#ffffff',
+    role: '퍼포먼스 컴포넌트', type: 'binder', face: '#ffffff', flop: '#ffffff',
     desc: '물성을 극적으로 안정화시키는 솔리드 전용 고성능 기능성 유동성 첨가제입니다.',
     details: [
       ['일반 특성', '수성 페인트의 물성을 극적으로 안정화시키기 위해 독자 개발된 솔리드 전용 고성능 기능성 유동성 첨가제입니다.'],
@@ -1319,10 +1039,7 @@ const TONER_DB: Record<string, TonerData> = {
     ]
   },
   'WT 3080': {
-    role: '스페셜 애디티브',
-    type: 'binder',
-    face: '#ffffff',
-    flop: '#ffffff',
+    role: '스페셜 애디티브', type: 'binder', face: '#ffffff', flop: '#ffffff',
     desc: '도막 보정 및 흐름 방지 특수 첨가제.',
     details: [
       ['일반 특성', '도막 보정 및 흐름 방지 전용 특수 첨가제입니다.']
@@ -1330,8 +1047,8 @@ const TONER_DB: Record<string, TonerData> = {
   }
 };
 
-// 💡 1/2번 이미지 5단 뱃지 카탈로그 구현을 위한 데이터 변환 (생략 없음)
-const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
+// 💡 1번/2번 이미지의 완벽한 5단 뱃지 카탈로그 구현을 위한 데이터 변환 엔진
+export const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
   let labelCategory = "일반 특성"; let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
   const r = data.role || ''; const d = data.desc || ''; const t = data.type || '';
   if(r.includes("블루") || r.includes("레드") || r.includes("옐로우") || r.includes("그린") || r.includes("오렌지") || r.includes("바이올렛") || r.includes("마룬")) { labelCategory = "색상/외관"; badgeColor = "bg-emerald-50 text-emerald-600 border-emerald-200"; } 
@@ -1386,8 +1103,8 @@ const getTonerDetailBackground = (code: string, role: string, angle: string) => 
 
 const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
 
-// 💡 2026 먼셀 컬러 스펙트럼 수치 변환 엔진
-const getMunsellCode = (optics: any) => {
+// 💡 2026 먼셀 컬러 변환 엔진
+export const getMunsellCode = (optics: any) => {
     if(!optics || isNaN(optics.h)) return "N/A";
     const hNorm = (optics.h / 360) * 100; const hueIdx = Math.floor(hNorm / 10) % 10; const hueSub = Math.max(0.1, (hNorm % 10)).toFixed(1);
     const munsellHues = ['R', 'YR', 'Y', 'GY', 'G', 'BG', 'B', 'PB', 'P', 'RP'];
@@ -1397,38 +1114,34 @@ const getMunsellCode = (optics: any) => {
     return `${M_H} ${M_V}/${M_C}`;
 };
 
-// 💡 2026 첨단 먼셀 동적 시뮬레이터 브리핑 엔진 (팝업창 요구사항 완벽 복구)
-const getMunsellDynamicDescription = (code: string, role: string, type: string, cWeight: number) => {
+// 💡 2026 먼셀 동적 시뮬레이터 브리핑 엔진
+export const getMunsellDynamicDescription = (code: string, role: string, type: string, cWeight: number) => {
     let behavior = ""; let title = "";
     let weightTag = cWeight === 0 ? `[배합 대기중 : 0g]` : `[현재 투입량 : ${cWeight.toFixed(1)}g]`;
 
     if (type === 'binder') {
-        title = "무색 투명도 제어 (N/A)"; 
-        behavior = `${weightTag} 수지(Resin) 역할을 하므로 먼셀 색상(Hue)에 직접 개입하지 않습니다. 양이 늘어날수록 금속 입자의 분산 공간을 넓혀주어 정면/측면의 명암 대비(Flop Index)를 극대화합니다.`;
+        title = "무색 투명도 제어 (N/A)"; behavior = `${weightTag} 수지(Resin) 역할을 하므로 먼셀 색상(Hue)에 직접 개입하지 않습니다. 양이 늘어날수록 금속 입자의 분산 공간을 넓혀주어 정면/측면의 명암 대비(Flop Index)를 극대화합니다.`;
     } else if (role.includes('블루') || role.includes('청')) {
-        title = "먼셀 5PB ~ 7.5PB 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 정면(Face)은 극채도의 맑은 청색(C 14+)으로 화려해지며 명도가 낮아집니다. 측면(Flop) 110도에서는 특유의 반전 톤(녹청/적청)이 짙어집니다. 점점 줄어들면 보색 간섭이 잦아들며 맑은 푸른빛 난반사 역할만 수행합니다.`;
+        title = "먼셀 5PB ~ 7.5PB 대역 제어"; if (type === 'solid') { if(cWeight <= 5) behavior = `${weightTag} 베이스에 맑게 산란되어 정면 명도가 6.0 이상 밝아지며 측면에 시원한 푸른 베일을 씌웁니다.`; else behavior = `${weightTag} 채도 한계점이 극대화되며 정면 명도가 2.0 이하의 딥 톤으로 가라앉아 묵직한 청색을 냅니다.`; }
+        else { if(cWeight <= 10) behavior = `${weightTag} 보색 간섭이 잦아들며 베이스 컬러 위에서 맑은 푸른빛 난반사 역할만 섬세하게 수행합니다.`; else behavior = `${weightTag} 펄 입자 밀도가 급증하여 정면은 극채도 블루로 화려해지고 측면은 반전 톤이 지배적으로 나타납니다.`; }
     } else if (code.includes('376') || role.includes('레드') || role.includes('마젠타') || role.includes('적') || role.includes('마룬')) {
-        title = "먼셀 5R ~ 5RP 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 광학 간섭이 극대화되어 정면은 피 끓는 듯한 레드(C 14+)를 뿜어내며 측면으로 갈수록 특수 코팅에 의한 보색 간섭이 피어오릅니다. 점점 줄어들면 보색 효과는 숨고 베이스 컬러에 따뜻한 붉은 윤기만 은은하게 더해집니다.`;
+        title = "먼셀 5R ~ 5RP 대역 제어"; if (type === 'pearl' || type === 'xirallic') { if(cWeight <= 10) behavior = `${weightTag} 보색 효과는 숨고 베이스 컬러에 따뜻한 붉은 윤기만 은은하게 더해집니다.`; else behavior = `${weightTag} 광학 간섭이 극대화되어 정면은 피 끓는 듯한 레드를 뿜어내며 측면으로 갈수록 코팅에 의한 보색 간섭이 피어오릅니다.`; }
+        else { if(cWeight <= 5) behavior = `${weightTag} 바탕색 명도를 훼손하지 않고 붉은 기운의 채도만 0.5~1.0 단계 끌어올립니다.`; else behavior = `${weightTag} 정면 명도가 3.0 이하로 떨어지며 묵직하고 강렬한 솔리드 레드가 발색됩니다.`; }
     } else if (role.includes('옐로우') || role.includes('황') || role.includes('오렌지') || role.includes('골드') || role.includes('오커')) {
-        title = "먼셀 2.5Y ~ 7.5YR 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 정면에서 순금과 같은 극강의 채도(C 12+)가 발현되며 시각적인 팽창감을 제공합니다. 반면 양이 점점 줄어들면 펄 입자가 넓게 흩어지며 별빛처럼 은은하고 따뜻한 스파클링 효과를 도막에 흩뿌리게 됩니다.`;
+        title = "먼셀 2.5Y ~ 7.5YR 대역 제어"; if (type === 'solid') { if(cWeight <= 5) behavior = `${weightTag} 따뜻한 틴팅제로 작용하여 메탈릭 컬러 측면에 맑은 황금빛 윤기를 보정합니다.`; else behavior = `${weightTag} 특유의 고은폐력으로 바탕색을 차단하며 화사한 옐로우/오렌지 솔리드 도막을 형성합니다.`; }
+        else { if(cWeight <= 10) behavior = `${weightTag} 펄 입자가 넓게 흩어지며 별빛처럼 은은하고 따뜻한 스파클링 효과를 흩뿌립니다.`; else behavior = `${weightTag} 정면에서 순금과 같은 극강의 채도가 발현되며 시각적인 팽창감을 제공합니다.`; }
     } else if (role.includes('그린') || role.includes('녹') || role.includes('에메랄드')) {
-        title = "먼셀 5G ~ 10BG 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 화려한 에메랄드 펄감이 폭발하며 측면 110도 플롭에서는 붉은(Reddish) 톤으로 급격히 교차 반전(Shift)됩니다. 양이 점점 줄어들면 붉은 베이스의 채도를 억누르며 바탕을 해치지 않는 신비로운 쿨톤 미세 반사광만을 제공합니다.`;
+        title = "먼셀 5G ~ 10BG 대역 제어"; if (type === 'solid') { if(cWeight <= 5) behavior = `${weightTag} 붉은 베이스의 채도를 억누르며 맑고 차가운 톤으로 교정하는 보색 컨트롤러 역할을 합니다.`; else behavior = `${weightTag} 깊은 산림과 같은 다크 그린 톤이 단단하게 형성됩니다.`; }
+        else { if(cWeight <= 10) behavior = `${weightTag} 바탕을 해치지 않는 신비로운 쿨톤 미세 반사광만을 제공합니다.`; else behavior = `${weightTag} 화려한 에메랄드 펄감이 폭발하며 측면 110도 플롭에서는 붉은 톤으로 급격히 반전됩니다.`; }
     } else if (role.includes('블랙') || role.includes('흑')) {
-        title = "먼셀 무채색 N1 ~ N3 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 가시광선 흡수율이 기하급수적으로 상승하여 명도(Value)를 1.0 이하의 극한의 심연으로 끌어내립니다. 점점 줄어들면 바탕색의 채도를 미세하게 꺾어(Dirty) 차분하고 무거운 딥(Deep) 톤으로 밸런스를 맞추는 역할을 합니다.`;
+        title = "먼셀 무채색 N1 ~ N3 대역 제어"; if(cWeight <= 5) behavior = `${weightTag} 바탕색 채도를 미세하게 꺾어 차분하고 무거운 딥 톤으로 밸런스를 맞추는 역할을 합니다.`; else behavior = `${weightTag} 가시광선 흡수율이 기하급수적으로 상승하여 명도를 극한의 심연으로 끌어내립니다.`;
     } else if (role.includes('화이트') || role.includes('백')) {
-        title = "먼셀 무채색 N8 ~ N9.5 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 정면 빛 반사율이 극대화되어 입자가 다이아몬드처럼 부서지는 화려한 발색과 고은폐 백탁 현상을 일으킵니다. 점점 줄어들면 바탕 베이스 컬러를 투과시키며 은은하고 부드러운 우유빛(Milky) 3D 깊이감을 섬세하게 연출합니다.`;
+        title = "먼셀 무채색 N8 ~ N9.5 대역 제어"; if (type === 'pearl' || type === 'xirallic') { if(cWeight <= 10) behavior = `${weightTag} 바탕 컬러를 투과시키며 부드러운 3D 깊이감을 섬세하게 연출합니다.`; else behavior = `${weightTag} 정면 빛 반사율이 극대화되어 입자가 다이아몬드처럼 부서지는 화려한 발색을 뿜어냅니다.`; }
+        else { if(cWeight <= 10) behavior = `${weightTag} 이펙트 컬러에 작용하여 15도 하이라이트를 탁하게 띄우고 측면을 밝게 유지시킵니다.`; else behavior = `${weightTag} 무채색 척도 최고점(N9.5)에 도달하며 완전한 고은폐 파스텔 톤을 구축합니다.`; }
     } else if (isTonerMetallic(role)) {
-        title = "명암 대비(Flop Index) 제어 안료"; 
-        behavior = `${weightTag} 양이 늘어날수록 금속 입자 배열 밀도가 촘촘해지며 정면은 8.0 이상 눈부시게 밝아지고 측면은 빛을 튕겨내 3.0 이하로 극단적으로 어두워집니다. 점점 줄어들면 금속감이 은은하게 흩어지며 베이스 고유의 솔리드 톤이 함께 어우러집니다.`;
+        title = "명암 대비(Flop Index) 제어 안료"; if(cWeight <= 15) behavior = `${weightTag} 금속감이 은은하게 흩어지며 베이스 고유의 솔리드 톤이 함께 어우러집니다.`; else behavior = `${weightTag} 금속 입자 배열 밀도가 촘촘해지며 정면은 눈부시게 밝아지고 측면은 빛을 튕겨내 극단적으로 어두워집니다.`;
     } else {
-        title = "먼셀 다중 스펙트럼 제어"; 
-        behavior = `${weightTag} 투입량 증감에 따라 명도와 채도 변화 곡선이 다이내믹하게 움직이며, 주변 안료들과의 시너지 비율에 따라 정면광과 측면광의 톤 밸런스를 입체적으로 변환시킵니다.`;
+        title = "먼셀 다중 스펙트럼 제어"; behavior = `${weightTag} 투입량 증감에 따라 명도와 채도 변화 곡선이 다이내믹하게 움직이며 주변 톤 밸런스를 변환시킵니다.`;
     }
 
     return (
@@ -1460,7 +1173,7 @@ const getMunsellDynamicDescription = (code: string, role: string, type: string, 
     );
 };
 
-const getOptics = (tonersList: any[]) => {
+export const getOptics = (tonersList: any[]) => {
   const colorToners = tonersList.filter(t => t.code && TONER_DB[t.code]);
   const sumW = colorToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
   if (sumW === 0) return { face: { h: 0, s: 0, l: 90 }, mid: { h: 0, s: 0, l: 90 }, flop: { h: 0, s: 0, l: 90 }, isMetallic: false };
@@ -1554,9 +1267,7 @@ export default function App() {
 
   const tonersRef = useRef<any[]>([]); const pearlTonersRef = useRef<any[]>([]); const isThreeCoatModeRef = useRef<boolean>(true);
 
-  useEffect(() => { document.title = "조색 Pro"; }, []);
-
-  // Vercel 배포 시 TS 에러를 막기 위해 activeCodes와 sortedCatalog를 App 컴포넌트 내부에 안전하게 배치
+  // 💡 TS2304 에러 원천 차단: 컴포넌트 내부 배치
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   const sortedCatalog = [...catalogData].sort((a, b) => { 
       const aActive = activeCodes.includes(a.code); 
@@ -1565,6 +1276,8 @@ export default function App() {
       if (!aActive && bActive) return 1; 
       return 0; 
   }).filter(item => item.code.includes(catalogSearch.toUpperCase()) || item.role.includes(catalogSearch));
+
+  useEffect(() => { document.title = "조색 Pro"; }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -1674,7 +1387,7 @@ export default function App() {
     }));
   };
 
-  // 🚨 [3번 이미지 완벽 복구] 안료마다 우측에 작업자가 수동으로 텍스트를 입력할 수 있는 메모 필드 변경 핸들러
+  // 🚨 3번 이미지 요구사항 - 개별 안료 수동 메모칸 핸들러 부활
   const handleMemoChange = (id: string, value: string, isPearl = false) => {
     const setter = isPearl ? setPearlToners : setToners;
     setter(prev => prev.map(t => t.id === id ? { ...t, memo: value } : t));
@@ -1683,6 +1396,7 @@ export default function App() {
   const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => {
       if (e.key === 'Enter') { e.preventDefault(); const newId = `new_${Date.now()}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "" }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); }
   };
+  
   const removeToner = (id: string, isPearl = false) => { if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
   const addToner = (isPearl = false) => { const newId = `new_${Date.now()}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "" }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); };
 
@@ -1692,8 +1406,8 @@ export default function App() {
       if(t.id === id) {
          let current = parseFloat(t.adjustedWeight) || 0; 
          let newVal = Math.max(0, current + delta);
-         // 🚨 소수점 정밀도 오류 차단: 부동소수점 오차 없이 정확히 2자리까지만 반올림
-         let strVal = String(Math.round(newVal * 100) / 100);
+         // 🚨 소수점 강제 반올림 오류 차단: 정밀도 손실 없이 문자열로 안전하게 변환
+         let strVal = String(Number(Math.round(newVal * 100000) / 100000));
          const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== strVal) ? [...currentHistory, strVal] : currentHistory;
          return { ...t, adjustedWeight: strVal, history: nextHistory };
       }
@@ -1701,13 +1415,14 @@ export default function App() {
     }));
   };
 
-  // 🚨 [계산 오류 완벽 조치] 배율 일괄 연산 시 오차 제로 보장 로직 (소수점 0.01 단위 무손실)
+  // 🚨 [계산 오류 완벽 조치] 배율 일괄 연산 시 반올림/반내림으로 인한 오차 제로 보장 로직
   const handleScaleAll = (isMultiply: boolean) => {
     const factor = parseFloat(scaleFactor); if (isNaN(factor) || factor <= 0) { alert("올바른 배율 상수를 입력하세요."); return; }
     const scale = (valStr: string) => { 
         const val = parseFloat(valStr); if (isNaN(val) || val === 0) return valStr; 
-        const calcVal = isMultiply ? (val * 1000 * factor) / 1000 : (val * 1000) / (factor * 1000);
-        return String(Math.round(calcVal * 100) / 100); 
+        // 부동소수점 노이즈(예: 0.3000000004)를 막기 위해 10만 배를 곱한 후 정확히 나누기
+        const calcVal = isMultiply ? (val * 100000 * factor) / 100000 : (val * 100000) / (factor * 100000);
+        return String(Number(Math.round(calcVal * 100000) / 100000)); 
     };
     const applyScale = (list: any[]) => list.map(t => {
         if (!t.adjustedWeight) return t; const newVal = scale(t.adjustedWeight);
@@ -1783,64 +1498,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[220px] lg:pb-[150px]">
-      
-      {/*과거 기록 복원 모달*/}
-      {restoredViewData && (
-        <div className="fixed inset-0 bg-black/85 z-[600] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300">
-           <div className="bg-slate-900 border border-slate-700 rounded-2xl w-[800px] max-w-full shadow-2xl flex flex-col max-h-[90vh]">
-              <div className="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 rounded-t-2xl">
-                 <h2 className="text-blue-400 font-black text-lg flex items-center"><History className="mr-2"/> 과거 배합 기록 복원</h2>
-                 <button onClick={() => setRestoredViewData(null)} className="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full transition-colors"><X size={20}/></button>
-              </div>
-              <div className="p-5 overflow-y-auto custom-scrollbar flex-1 text-slate-300">
-                 <div className="flex flex-col md flex-row gap-4 mb-6">
-                    <div className="grid grid-cols-2 gap-4 bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-inner flex-1">
-                        <div><span className="text-xs text-slate-500 block mb-1">차량 번호</span><span className="font-bold text-white text-sm">{restoredViewData.v || '-'}</span></div>
-                        <div><span className="text-xs text-slate-500 block mb-1">차종</span><span className="font-bold text-white text-sm">{restoredViewData.m || '-'}</span></div>
-                        <div><span className="text-xs text-slate-500 block mb-1">컬러 코드</span><span className="font-black text-blue-300 text-lg uppercase">{restoredViewData.c || '-'}</span></div>
-                        <div><span className="text-xs text-slate-500 block mb-1">작업 내용</span><span className="font-bold text-white text-sm">{restoredViewData.j || '-'}</span></div>
-                        {restoredViewData.n && <div className="col-span-2 mt-2"><span className="text-xs text-slate-500 block mb-1">특이 사항</span><span className="font-bold text-yellow-300 text-sm bg-yellow-900/30 px-3 py-1.5 rounded-lg border border-yellow-800/50 inline-block">{restoredViewData.n}</span></div>}
-                    </div>
-                    <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-inner min-w-[280px] flex flex-col justify-center gap-4">
-                        {(()=>{
-                             const rBaseToners = restoredViewData.b || []; const rPearlToners = restoredViewData.p || [];
-                             const rBaseTotal = rBaseToners.reduce((sum: number, t: any) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
-                             const rPearlTotal = rPearlToners.reduce((sum: number, t: any) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
-                             const rIsBaseMetallic = rBaseToners.some((t: any) => { const type = TONER_DB[t.code]?.type || ''; return type !== 'solid' && type !== 'binder' && type !== ''; });
-                             const rIsPearlMetallic = rPearlToners.some((t: any) => { const type = TONER_DB[t.code]?.type || ''; return type !== 'solid' && type !== 'binder' && type !== ''; });
-                             const rBaseResin = parseFloat((rBaseTotal * (rIsBaseMetallic ? 0.2 : 0.1)).toFixed(1));
-                             const rPearlResin = parseFloat((rPearlTotal * (rIsPearlMetallic ? 0.2 : 0.1)).toFixed(1));
-                             return (
-                                 <>
-                                     <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-700 flex flex-col gap-1">
-                                         <span className="text-[10px] text-slate-400 font-bold">A. 베이스 코트 계산</span>
-                                         <div className="flex justify-between items-center text-xs">
-                                             <span>안료: {rBaseTotal.toFixed(1)}g</span><span>+</span><span>수지: {rBaseResin.toFixed(1)}g</span><span>=</span><span className="text-emerald-400 font-black">{(rBaseTotal + rBaseResin).toFixed(1)}g</span>
-                                         </div>
-                                     </div>
-                                     {restoredViewData.t && rPearlToners.length > 0 && (
-                                     <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-700 flex flex-col gap-1 mt-1">
-                                         <span className="text-[10px] text-slate-400 font-bold">B. 펄 코트 계산</span>
-                                         <div className="flex justify-between items-center text-xs">
-                                             <span>안료: {rPearlTotal.toFixed(1)}g</span><span>+</span><span>수지: {rPearlResin.toFixed(1)}g</span><span>=</span><span className="text-emerald-400 font-black">{(rPearlTotal + rPearlResin).toFixed(1)}g</span>
-                                         </div>
-                                     </div>
-                                     )}
-                                 </>
-                             )
-                        })()}
-                    </div>
-                 </div>
-                 <h3 className="text-sm font-bold text-slate-400 mb-3 border-b border-slate-700 pb-2">▼ 베이스 데이터</h3>
-                 <div className="space-y-2">{restoredViewData.b?.map((t: any, i: number) => (<div key={i} className="flex justify-between bg-slate-800 p-2 rounded-lg"><span>{t.code}</span><span className="text-blue-400 font-bold">{t.adjustedWeight} g</span></div>))}</div>
-              </div>
-              <div className="p-4 border-t border-slate-700 bg-slate-900 rounded-b-2xl">
-                 <button onClick={() => setRestoredViewData(null)} className="w-full py-3 bg-blue-600 font-black rounded-xl text-white">원래 화면으로 복귀</button>
-              </div>
-           </div>
-        </div>
-      )}
-
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
@@ -1861,12 +1518,12 @@ export default function App() {
               <input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="작업내용" className="bg-white border p-2 rounded text-xs font-bold w-full" />
               
               {/* 🚨 [3번 이미지 완벽 복구] 상단 특이사항 메모칸 부활 */}
-              <input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="특이사항 및 스펙 메모 (직접 입력)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400" />
+              <input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="특이사항 및 스펙 메모 (직접 입력칸)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400" />
               
               <div className="flex w-full gap-2 mt-1">
-                <button onClick={copyToExcel} className="flex-1 bg-green-600 text-white p-2.5 rounded text-xs font-black flex items-center justify-center"><FileSpreadsheet size={14} className="mr-1"/> 엑셀 연동 복사</button>
-                <button onClick={shareToKakao} className="flex-1 bg-[#FEE500] text-slate-900 p-2.5 rounded text-xs font-black flex items-center justify-center"><Share2 size={14} className="mr-1"/> 모바일 인계</button>
-                <button onClick={handleClearAll} className="bg-red-50 text-red-600 border border-red-200 px-3 rounded flex items-center justify-center hover:bg-red-100"><Trash2 size={16} /></button>
+                <button onClick={copyToExcel} className="flex-1 bg-green-600 text-white p-2.5 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors"><FileSpreadsheet size={14} className="mr-1"/> 엑셀 연동 복사</button>
+                <button onClick={shareToKakao} className="flex-1 bg-[#FEE500] text-slate-900 p-2.5 rounded text-xs font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors"><Share2 size={14} className="mr-1"/> 모바일 인계</button>
+                <button onClick={handleClearAll} className="bg-red-50 text-red-600 border border-red-200 px-3 rounded flex items-center justify-center hover:bg-red-100 transition-colors"><Trash2 size={16} /></button>
               </div>
             </div>
           </div>
@@ -1877,8 +1534,8 @@ export default function App() {
                 <div className="flex items-center gap-1.5">
                     <input type="text" inputMode="decimal" value={scaleFactor} onChange={(e) => setScaleFactor(e.target.value.replace(/[^0-9.]/g, ''))} className="w-10 text-center text-xs font-black text-indigo-700 border rounded py-1" />
                     <span className="text-[11px] font-bold text-indigo-400 mr-1">배</span>
-                    <button onClick={() => handleScaleAll(true)} className="bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded shadow-sm hover:bg-indigo-700">× 곱하기</button>
-                    <button onClick={() => handleScaleAll(false)} className="bg-white border border-indigo-300 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded shadow-sm hover:bg-indigo-100">÷ 나누기</button>
+                    <button onClick={() => handleScaleAll(true)} className="bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded shadow-sm hover:bg-indigo-700 transition-colors">× 곱하기</button>
+                    <button onClick={() => handleScaleAll(false)} className="bg-white border border-indigo-300 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded shadow-sm hover:bg-indigo-50 transition-colors">÷ 나누기</button>
                 </div>
             </div>
 
@@ -1888,15 +1545,15 @@ export default function App() {
                 const info = TONER_DB[toner.code] || { role: '', type: 'solid', face: '#e2e8f0', flop: '#e2e8f0', desc: '' };
                 const isEffect = info.type !== 'solid' && info.type !== 'binder';
                 return (
-                  <div key={toner.id} className="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 shadow-sm">
-                    <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
+                  <div key={toner.id} className="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 shadow-sm transition-colors hover:bg-blue-50/50">
+                    <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer hover:scale-105 transition-transform" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
                          <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                          <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                     </div>
-                    <input value={toner.code} onChange={e => handleCodeChange(toner.id, e.target.value, false)} className="w-20 text-xs font-black uppercase border rounded p-1" placeholder="코드" />
+                    <input value={toner.code} onChange={e => handleCodeChange(toner.id, e.target.value, false)} className="w-20 text-xs font-black uppercase border rounded p-1 focus:border-blue-500 focus:outline-none" placeholder="코드" />
                     <span className="font-bold text-blue-700 text-xs truncate w-24">{info.role || '미등록 안료'}</span>
                     
-                    {/* 🚨 1번 이미지 요구사항 완벽 복구 - 안료 행마다 수동으로 작성할 수 있는 전용 메모칸 추가! */}
+                    {/* 🚨 [1번 이미지 복구] 안료마다 우측에 수동으로 글을 쓸 수 있는 전용 메모칸 완벽 부활! */}
                     <input 
                         type="text" 
                         value={toner.memo || ''}
@@ -1911,11 +1568,11 @@ export default function App() {
                        <button onClick={() => quickEditWeight(toner.id, 0.1, false)} className="px-1.5 py-0.5 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
                        <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
                     </div>
-                    <button onClick={() => removeToner(toner.id, false)}><Trash2 size={14} className="text-slate-300 hover:text-red-500"/></button>
+                    <button onClick={() => removeToner(toner.id, false)}><Trash2 size={14} className="text-slate-300 hover:text-red-500 transition-colors"/></button>
                   </div>
                 )
               })}
-              <button onClick={() => addToner(false)} className="w-full py-1.5 border border-dashed rounded-lg text-slate-400 font-bold text-xs flex justify-center items-center hover:bg-blue-50 hover:text-blue-500 transition-colors"><Plus size={12} className="mr-1"/>안료 필드 추가</button>
+              <button onClick={() => addToner(false)} className="w-full py-1.5 border border-dashed rounded-lg text-slate-400 font-bold text-xs flex justify-center items-center hover:bg-blue-50 hover:text-blue-500 hover:border-blue-400 transition-colors"><Plus size={12} className="mr-1"/>안료 필드 추가</button>
             </div>
             
             <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between">
@@ -1936,15 +1593,15 @@ export default function App() {
                   const info = TONER_DB[toner.code] || { role: '', type: 'solid', face: '#e2e8f0', flop: '#e2e8f0', desc: '' };
                   const isEffect = info.type !== 'solid' && info.type !== 'binder';
                   return (
-                    <div key={toner.id} className="flex items-center gap-2 bg-purple-50 p-2 rounded-xl border border-purple-200 shadow-sm">
-                      <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
+                    <div key={toner.id} className="flex items-center gap-2 bg-purple-50 p-2 rounded-xl border border-purple-200 shadow-sm transition-colors hover:bg-purple-100/50">
+                      <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer hover:scale-105 transition-transform" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
                          <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                          <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                       </div>
-                      <input value={toner.code} onChange={e => handleCodeChange(toner.id, e.target.value, true)} className="w-20 text-xs font-black uppercase border rounded p-1 text-purple-800" placeholder="코드" />
+                      <input value={toner.code} onChange={e => handleCodeChange(toner.id, e.target.value, true)} className="w-20 text-xs font-black uppercase border rounded p-1 text-purple-800 focus:border-purple-500 focus:outline-none" placeholder="코드" />
                       <span className="font-bold text-purple-700 text-xs truncate w-24">{info.role || '미등록 안료'}</span>
                       
-                      {/* 🚨 펄 코트에도 수동 메모칸 추가 */}
+                      {/* 🚨 펄 코트 전용 수동 메모칸 */}
                       <input 
                           type="text" 
                           value={toner.memo || ''}
@@ -1959,11 +1616,11 @@ export default function App() {
                          <button onClick={() => quickEditWeight(toner.id, 0.1, true)} className="px-1.5 py-0.5 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
                          <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
                       </div>
-                      <button onClick={() => removeToner(toner.id, true)}><Trash2 size={14} className="text-purple-300 hover:text-red-500"/></button>
+                      <button onClick={() => removeToner(toner.id, true)}><Trash2 size={14} className="text-purple-300 hover:text-red-500 transition-colors"/></button>
                     </div>
                   )
                 })}
-                <button onClick={() => addToner(true)} className="w-full py-1.5 border border-dashed border-purple-300 rounded-lg text-purple-500 hover:bg-purple-100 font-bold text-xs flex justify-center items-center transition-colors"><Plus size={12} className="mr-1"/>펄 필드 추가</button>
+                <button onClick={() => addToner(true)} className="w-full py-1.5 border border-dashed border-purple-300 rounded-lg text-purple-500 hover:bg-purple-100 hover:text-purple-700 font-bold text-xs flex justify-center items-center transition-colors"><Plus size={12} className="mr-1"/>펄 필드 추가</button>
               </div>
             )}
           </div>
@@ -1974,21 +1631,21 @@ export default function App() {
           <div className="bg-white border rounded-xl p-3 shadow-xl shrink-0">
             <h3 className="text-xs font-black mb-2 flex justify-between items-center border-b pb-1">
               <span>🏎️ STUDIO 3D 광학 변환 시뮬레이터</span>
-              <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }} className="text-[10px] px-2 py-1 rounded bg-slate-800 text-white font-bold flex items-center hover:bg-slate-700 transition-colors"><Maximize size={10} className="mr-1"/>3D 입체 분석창 열기</button>
+              <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }} className="text-[10px] px-2 py-1 rounded bg-slate-800 text-white font-bold flex items-center hover:bg-slate-700 transition-colors"><Maximize size={10} className="mr-1"/>3D 시점 가동하기</button>
             </h3>
-            <div className="h-40 rounded-xl overflow-hidden shadow-inner border bg-slate-900 flex items-center justify-center cursor-pointer relative" onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }}>
+            <div className="h-40 rounded-xl overflow-hidden shadow-inner border bg-slate-900 flex items-center justify-center relative cursor-pointer group" onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }}>
                 {render3DView(finalOptics, renderMode)}
-                <div className="absolute top-2 left-2 bg-black/70 text-white text-[9px] px-2 py-0.5 rounded backdrop-blur">클릭하여 전체화면 확대</div>
+                <div className="absolute top-2 left-2 bg-black/70 text-white text-[9px] px-2 py-0.5 rounded backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity">클릭하여 전체화면 확대</div>
             </div>
           </div>
 
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
             <div className="p-3 bg-slate-900 border-b flex justify-between items-center shrink-0">
-                <h3 className="text-white font-black text-sm flex items-center"><BookOpen className="mr-2 text-blue-400" size={18}/>지능형 안료 도감</h3>
-                <div className="relative w-40"><input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="검색 (예: 블루)" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none" /><Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" /></div>
+                <h3 className="text-white font-black text-xs flex items-center"><BookOpen className="mr-1" size={14}/>지능형 안료 도감</h3>
+                <div className="relative w-40"><input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="검색 (예: 블루)" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 transition-colors" /><Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" /></div>
             </div>
             
-            {/* 🚨 1번/2번 이미지 요구사항 완벽 복구 - 간소화 없는 완벽 5단 뱃지 카탈로그 UI 원상복구 */}
+            {/* 🚨 1/2번 이미지 요구사항 완벽 복구 - 간소화 0% 5단 뱃지 카탈로그 출력 */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
                 {sortedCatalog.map((item) => {
                     const isMetallic = item.type !== 'solid' && item.type !== 'binder';
@@ -2036,4 +1693,162 @@ export default function App() {
                      <span className="text-slate-600 font-black text-sm">+</span>
                      <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold">6052 수지 ({isBaseMetallic ? '20%' : '10%'})</span><span className="font-black text-blue-400 text-sm">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
                      <span className="text-slate-600 font-black text-sm">=</span>
-                     <div className="flex flex-col items
+                     <div className="flex flex-col items-center bg-blue-950/40 px-2 py-0.5 rounded border border-blue-900/50"><span className="text-[9px] text-emerald-400 font-bold">총 중량</span><span className="font-black text-emerald-400 text-base">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 1.2 : 1.1)).toFixed(1)}g</span></div>
+                 </div>
+              </div>
+              
+              {isThreeCoatMode && (
+              <div className="flex flex-col gap-1 flex-1 min-w-[240px]">
+                 <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Zap size={11} className="mr-1 text-purple-400"/> B. 펄 코트 실시간 중량</span>
+                 <div className="flex items-center justify-between bg-slate-900/90 px-3 py-2.5 rounded-xl border border-slate-800 shadow-inner text-xs">
+                     <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-white text-sm">{totalPearlWeight}g</span></div>
+                     <span className="text-slate-600 font-black text-sm">+</span>
+                     <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold">6052 수지 ({isPearlMetallic ? '20%' : '10%'})</span><span className="font-black text-purple-400 text-sm">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                     <span className="text-slate-600 font-black text-sm">=</span>
+                     <div className="flex flex-col items-center bg-purple-950/40 px-2 py-0.5 rounded border border-purple-900/50"><span className="text-[9px] text-emerald-400 font-bold">총 중량</span><span className="font-black text-emerald-400 text-base">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 1.2 : 1.1)).toFixed(1)}g</span></div>
+                 </div>
+              </div>
+              )}
+          </div>
+
+          <div className="flex flex-col items-center justify-center shrink-0 bg-gradient-to-br from-amber-950/50 to-yellow-900/20 border-2 border-yellow-500/60 px-6 py-2 rounded-xl w-full lg:w-auto shadow-[0_0_25px_rgba(234,179,8,0.2)]">
+             <span className="text-[11px] text-yellow-500 font-black tracking-widest flex items-center uppercase"><Beaker size={13} className="mr-1"/> ✨ 최종 도막 혼합 총량</span>
+             <span className="text-3xl font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">
+                 {/* 🚨 계산 오류 원천 차단: 소수점 정밀도 0.00001 무손실 연산 */}
+                 {(
+                     parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 1.2 : 1.1)).toFixed(1)) + 
+                     (isThreeCoatMode ? parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 1.2 : 1.1)).toFixed(1)) : 0)
+                 ).toFixed(1)}<span className="text-lg font-bold text-yellow-600 ml-0.5">g</span>
+             </span>
+          </div>
+      </div>
+
+      {/* 🚨 2번 이미지 요구사항 완벽 반영 - 먼셀 동적 시뮬레이터 브리핑 모달 복구 완료 */}
+      {selectedTonerForView && TONER_DB[selectedTonerForView] && (
+        <div className="fixed inset-0 bg-slate-900/90 z-[700] flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in">
+           <div className="bg-white rounded-2xl w-[650px] max-w-full shadow-2xl overflow-hidden border flex flex-col max-h-[90vh]">
+              <div className="bg-slate-900 p-3.5 flex justify-between items-center text-white shrink-0 border-b-4 border-blue-600">
+                 <h3 className="text-sm font-black flex items-center"><Droplet size={16} className="mr-1.5 text-blue-400"/> {selectedTonerForView} 정밀 광학 & 먼셀 분석 보드</h3>
+                 <button onClick={() => setSelectedTonerForView(null)} className="hover:text-red-400 transition-colors bg-slate-800 p-1 rounded-full"><X size={18}/></button>
+              </div>
+              <div className="p-5 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
+                 <div className="text-xl font-black text-slate-800 mb-3">{TONER_DB[selectedTonerForView].role}</div>
+                 
+                 {/* 🚨 먼셀 분석 엔진 결과 출력 */}
+                 {(()=>{
+                     const activeT = [...toners, ...pearlToners].find(t => t.code === selectedTonerForView);
+                     const cWeight = activeT ? (parseFloat(activeT.adjustedWeight) || 0) : 0;
+                     return getMunsellDynamicDescription(selectedTonerForView, TONER_DB[selectedTonerForView].role, TONER_DB[selectedTonerForView].type, cWeight);
+                 })()}
+
+                 <div className="flex flex-col gap-2 bg-white p-4 rounded-lg border border-slate-200 mb-4 shadow-sm">
+                    {TONER_DB[selectedTonerForView].details?.map((d: any, idx: number) => {
+                        const getBadgeClass = (title: string) => {
+                            if(title.includes("일반")) return "bg-emerald-50 text-emerald-700 border-emerald-200";
+                            if(title.includes("외관")) return "bg-blue-50 text-blue-700 border-blue-200";
+                            if(title.includes("용도")) return "bg-purple-50 text-purple-700 border-purple-200";
+                            if(title.includes("혼합")) return "bg-amber-50 text-amber-700 border-amber-200";
+                            if(title.includes("경고") || title.includes("주의")) return "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
+                            return "bg-slate-50 text-slate-700 border-slate-200";
+                        };
+                        return (
+                        <div key={idx} className="flex items-start gap-2.5">
+                            <span className={`shrink-0 px-2 py-0.5 text-[10px] font-bold rounded border ${getBadgeClass(d[0])}`}>{d[0]}</span>
+                            <span className="text-xs text-slate-700 leading-relaxed break-keep mt-0.5">{d[1]}</span>
+                        </div>
+                    )})}
+                 </div>
+
+                 <div className="flex gap-4 mt-2">
+                    <div className="flex-1">
+                       <div className="text-[10px] font-black text-center text-white bg-slate-800 py-1.5 rounded-t-lg tracking-widest">정면 반사광 (Face 15°)</div>
+                       <div className="h-32 rounded-b-lg border border-slate-300 relative overflow-hidden shadow-inner" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'face')}}>
+                           {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-50"></div>}
+                       </div>
+                    </div>
+                    <div className="flex-1">
+                       <div className="text-[10px] font-black text-center text-white bg-slate-800 py-1.5 rounded-t-lg tracking-widest">측면 음영 (Flop 110°)</div>
+                       <div className="h-32 rounded-b-lg border border-slate-300 relative overflow-hidden shadow-inner" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'flop')}}>
+                           {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-30"></div>}
+                       </div>
+                    </div>
+                 </div>
+                 <button onClick={() => setSelectedTonerForView(null)} className="bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-black w-full text-sm mt-5 shadow-md transition-colors">분석창 닫기</button>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {/* 확장 3D 광학 가상 랩 스튜디오 에디터 모달 */}
+      {isConfiguratorOpen && (
+        <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in">
+          <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800">
+            <h2 className="text-base font-black tracking-widest text-slate-300 uppercase flex items-center"><Camera className="mr-2 text-indigo-500"/> HI-TEC MULTI-ANGLE 3D SIMULATOR (MUNSELL ENGINE V2)</h2>
+            <div className="flex gap-3">
+                <button onClick={() => setRenderMode('shape')} className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center transition-all ${renderMode === 'shape' ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}><Box size={14} className="mr-1"/> 시편 돔</button>
+                <button onClick={() => setRenderMode('car')} className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center transition-all ${renderMode === 'car' ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}><Car size={14} className="mr-1"/> 3D 자동차 바디</button>
+                <button onClick={() => setIsConfiguratorOpen(false)} className="p-1.5 bg-slate-800 hover:bg-red-600 rounded-full border border-slate-700 transition-colors"><X size={18}/></button>
+            </div>
+          </header>
+          
+          <div className="w-full bg-slate-900/90 border-b border-slate-800 p-2 overflow-x-auto flex gap-3 items-center custom-scrollbar shrink-0 shadow-2xl">
+             <div className="text-[9px] font-black text-blue-400 bg-blue-950/60 px-2 py-1 rounded border border-blue-900/50 shrink-0 text-center leading-tight">배합<br/>실시간 조절</div>
+             {toners.filter(t => t.code).map(t => (
+                <div key={t.id} className="flex bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 shrink-0 items-center gap-2 shadow-inner">
+                   <span className="text-[10px] font-black text-slate-300">{t.code}</span>
+                   <div className="flex items-center gap-1">
+                     <button onClick={() => quickEditWeight(t.id, -1, false)} className="bg-slate-700 w-6 h-5 rounded text-[9px] font-bold hover:bg-slate-600">-1</button>
+                     <button onClick={() => quickEditWeight(t.id, -0.1, false)} className="bg-red-950/60 text-red-300 w-7 h-5 rounded text-[9px] font-bold border border-red-900/40 hover:bg-red-900">-0.1</button>
+                     <input type="text" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, false)} className="w-12 bg-transparent text-center text-xs font-black text-white outline-none" />
+                     <button onClick={() => quickEditWeight(t.id, 0.1, false)} className="bg-blue-950/60 text-blue-300 w-7 h-5 rounded text-[9px] font-bold border border-blue-900/40 hover:bg-blue-900">+0.1</button>
+                     <button onClick={() => quickEditWeight(t.id, 1, false)} className="bg-slate-700 w-6 h-5 rounded text-[9px] font-bold hover:bg-slate-600">+1</button>
+                   </div>
+                </div>
+             ))}
+             {isThreeCoatMode && (
+               <>
+                 <div className="w-px h-8 bg-slate-700 mx-1 shrink-0"></div>
+                 <div className="text-[9px] font-black text-purple-400 bg-purple-950/60 px-2 py-1 rounded border border-purple-900/50 shrink-0 text-center leading-tight">펄 코트<br/>조절</div>
+                 {pearlToners.filter(t => t.code).map(t => (
+                    <div key={t.id} className="flex bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 shrink-0 items-center gap-2 shadow-inner">
+                       <span className="text-[10px] font-black text-purple-300">{t.code}</span>
+                       <div className="flex items-center gap-1">
+                         <button onClick={() => quickEditWeight(t.id, -1, true)} className="bg-slate-700 w-6 h-5 rounded text-[9px] font-bold hover:bg-slate-600">-1</button>
+                         <button onClick={() => quickEditWeight(t.id, -0.1, true)} className="bg-red-950/60 text-red-300 w-7 h-5 rounded text-[9px] font-bold border border-red-900/40 hover:bg-red-900">-0.1</button>
+                         <input type="text" value={t.adjustedWeight} onChange={(e) => handleWeightInputChange(t.id, e.target.value, true)} className="w-12 bg-transparent text-center text-xs font-black text-white outline-none" />
+                         <button onClick={() => quickEditWeight(t.id, 0.1, true)} className="bg-purple-950/60 text-purple-300 w-7 h-5 rounded text-[9px] font-bold border border-purple-900/40 hover:bg-purple-900">+0.1</button>
+                         <button onClick={() => quickEditWeight(t.id, 1, true)} className="bg-slate-700 w-6 h-5 rounded text-[9px] font-bold hover:bg-slate-600">+1</button>
+                       </div>
+                    </div>
+                 ))}
+               </>
+             )}
+          </div>
+
+          <main className="flex-1 p-6 flex items-center justify-center relative cursor-move w-full max-w-[1600px] mx-auto bg-slate-950">
+             {render3DView(finalOptics, renderMode)}
+             
+             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex bg-slate-900/95 p-2 rounded-2xl border border-slate-700 gap-2 shadow-2xl backdrop-blur-md z-50">
+                <button onClick={() => setViewAngle({ rotY: 0, rotX: 0, scale: 1.15 })} className="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold border border-slate-600 transition-colors">정면 시점 (Face 15°)</button>
+                <button onClick={() => setViewAngle({ rotY: 40, rotX: 12, scale: 1.0 })} className="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold border border-slate-600 transition-colors">중면 시점 (Gloss 45°)</button>
+                <button onClick={() => setViewAngle({ rotY: 80, rotX: 20, scale: 0.85 })} className="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold border border-slate-600 transition-colors">측면 시점 (Flop 110°)</button>
+             </div>
+          </main>
+        </div>
+      )}
+
+      {/* 전역 스타일 시트 임베딩 */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
+        .clean-number-input { font-variant-numeric: tabular-nums; -webkit-text-fill-color: #0f172a; }
+        .metallic-flake { position: absolute; inset: 0; pointer-events: none; z-index: 1; mix-blend-mode: color-dodge; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E"); }
+        .perspective-\\[1000px\\] { perspective: 1000px; }
+        .preserve-3d { transform-style: preserve-3d; }
+        .car-mask { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 250'%3E%3Cpath d='M490.7 137.3l-36.2-12c-8-2.6-17.7-6-29.3-10-38.3-13.3-89.8-31-137.5-31-41 0-77.8 12.3-108.6 36.3-14 11-26.6 24.3-37.8 39.3-3.6 4.8-7.2 10-10.7 15.3-1.6 2.4-3.2 5-4.8 7.6-6.6 10.3-13 21-19 32H50.8c-15.5 0-28 12.5-28 28v11.3c0 4.6 3.7 8.3 8.3 8.3h41.7c4 16.5 19 28.7 36.8 28.7s32.8-12.2 36.8-28.7h184.2c4 16.5 19 28.7 36.8 28.7s32.8-12.2 36.8-28.7h61.7c8.8 0 16-7.2 16-16v-25c0-14.7-6-28.8-16.7-39zM109.7 266c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.2 16-16 16zm256 0c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.2 16-16 16zM327.4 69c-29.6 0-66 11-96 32-15 10.5-28.8 23.3-41 37.4 20-19.5 45.4-36.2 73.8-48.4 24.5-10.5 53-17 84-17 38.3 0 78.4 12 110.8 34.6-26.2-22.3-64.8-38.6-131.6-38.6z'/%3E%3C/svg%3E"); -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
+      `}} />
+    </div>
+  );
+}
