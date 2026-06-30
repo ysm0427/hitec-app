@@ -1881,8 +1881,7 @@ export default function App() {
            </div>
         </div>
       )}
-
-      {/* 💡 1:1:1:1 최적화된 다중 색상 혼합 랩 스튜디오 (원본 믹싱 규격 적용) */}
+{/* 💡 1:1:1:1 최적화된 다중 색상 혼합 랩 스튜디오 (4분할 레이아웃 & 보색 화살표 강화) */}
       {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-auto custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
@@ -1892,16 +1891,17 @@ export default function App() {
           
           <main className="flex-1 p-6 md:p-10 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950">
              
-             <div className="w-full max-w-[1400px] grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8 items-start">
+             {/* 💡 4분할 (2x2) 완벽 대칭 레이아웃 적용 */}
+             <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-12 mb-8 items-center">
                  
-                 {/* 좌측: 먼셀 20색상환 & 혼합 비율 결과 */}
-                 <div className="lg:col-span-7 flex flex-col items-center relative w-full">
-                     <h3 className="text-lg font-black text-white mb-8 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg"><Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)</h3>
-                     <div className="relative flex justify-center items-center w-[360px] h-[360px] md:w-[480px] md:h-[480px]">
+                 {/* 1사분면 (좌측 상단): 먼셀 20 색상환 */}
+                 <div className="flex flex-col items-center relative w-full h-full justify-center">
+                     <h3 className="text-lg font-black text-white mb-6 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg"><Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)</h3>
+                     <div className="relative flex justify-center items-center w-[360px] h-[360px] md:w-[420px] md:h-[420px]">
                         <svg className="w-full h-full drop-shadow-[0_0_50px_rgba(0,0,0,0.8)]" viewBox="0 0 400 400">
                             <defs>
                                 <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                    <polygon points="0 0, 10 3.5, 0 7" fill="#ffffff" />
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
                                 </marker>
                             </defs>
 
@@ -1941,148 +1941,147 @@ export default function App() {
                                 );
                             })}
 
-                            {/* 💡 보색 화살표 애니메이션 */}
-                            {selectedWheelIndex !== null && (
-                                <line 
-                                    x1={polarToCartesian(200, 200, 90, selectedWheelIndex * 18 + 8.5).x} 
-                                    y1={polarToCartesian(200, 200, 90, selectedWheelIndex * 18 + 8.5).y} 
-                                    x2={polarToCartesian(200, 200, 90, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).x} 
-                                    y2={polarToCartesian(200, 200, 90, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).y} 
-                                    stroke="#ffffff" 
-                                    strokeWidth="2.5" 
-                                    strokeDasharray="4 4"
-                                    markerEnd="url(#arrowhead)" 
-                                    className="drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] pointer-events-none opacity-80"
-                                />
-                            )}
-
+                            {/* 중앙 원 장식 */}
                             <circle cx="200" cy="200" r="98" fill="#0f172a" stroke="#1e293b" strokeWidth="2" />
                             <text x="200" y="195" fill="#94a3b8" fontSize="14" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" className="tracking-widest">MUNSELL</text>
                             <text x="200" y="215" fill="#ffffff" fontSize="16" fontWeight="900" textAnchor="middle" dominantBaseline="middle">표준 색상환</text>
-                        </svg>
-                     </div>
 
-                     {/* 💡 [원본 믹싱 규격 적용됨] 색상환 조색 가이드 */}
-                     <div className="w-full flex flex-col items-center mt-6">
-                        {selectedWheelIndex !== null ? (
-                            <div className="bg-slate-800 p-6 rounded-2xl border border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.3)] w-full max-w-md text-center animate-in fade-in zoom-in duration-300">
-                                <h4 className="text-base font-black text-white mb-4 flex items-center justify-center gap-2">
-                                    <span className="w-5 h-5 rounded-full shadow-md border border-slate-400" style={{backgroundColor: MUNSELL_WHEEL_COLORS[selectedWheelIndex].hex}}></span>
-                                    {MUNSELL_WHEEL_COLORS[selectedWheelIndex].name} ({MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol}) 배합 규격
-                                </h4>
-                                <div className="flex justify-center items-center gap-4 bg-slate-900 py-4 px-2 rounded-xl border border-slate-700">
-                                    {(() => {
-                                        const symbol = MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol;
-                                        const mixInfo = MIXING_DATA[symbol];
-                                        
-                                        return (
-                                            <>
-                                                <div className="flex flex-col items-center gap-2">
-                                                    <div className="w-10 h-10 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: mixInfo.h1}}></div>
-                                                    <span className="text-slate-300 font-bold text-[11px]">{mixInfo.c1}</span>
-                                                    <span className="text-white font-black text-2xl">{mixInfo.r1}%</span>
-                                                </div>
-                                                {mixInfo.c2 && (
-                                                    <>
-                                                        <span className="text-slate-600 font-black text-xl">+</span>
-                                                        <div className="flex flex-col items-center gap-2">
-                                                            <div className="w-10 h-10 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: mixInfo.h2}}></div>
-                                                            <span className="text-slate-300 font-bold text-[11px]">{mixInfo.c2}</span>
-                                                            <span className="text-white font-black text-2xl">{mixInfo.r2}%</span>
-                                                        </div>
-                                                    </>
-                                                )}
-                                            </>
-                                        );
-                                    })()}
-                                </div>
-                                <p className="text-[10px] text-slate-500 mt-3 font-medium">* 제공된 기술 보고서 기준의 단일 원색 정밀 조색 데이터입니다.</p>
-                            </div>
-                        ) : (
-                            <div className="bg-slate-800/40 p-4 rounded-xl border border-slate-700 border-dashed w-full max-w-md text-center text-slate-500 flex items-center justify-center gap-3">
-                                <Sun className="text-slate-600" size={16} />
-                                <p className="text-xs font-bold">위 색상을 클릭하면 원색 조색 배율 가이드가 나타납니다.</p>
-                            </div>
-                        )}
+                            {/* 💡 요청하신 보색 화살표 (중앙 원 위로 렌더링되며 빨간색으로 강조) */}
+                            {selectedWheelIndex !== null && (
+                                <line 
+                                    x1={polarToCartesian(200, 200, 80, selectedWheelIndex * 18 + 8.5).x} 
+                                    y1={polarToCartesian(200, 200, 80, selectedWheelIndex * 18 + 8.5).y} 
+                                    x2={polarToCartesian(200, 200, 80, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).x} 
+                                    y2={polarToCartesian(200, 200, 80, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).y} 
+                                    stroke="#ef4444" 
+                                    strokeWidth="3.5" 
+                                    markerEnd="url(#arrowhead)" 
+                                    className="drop-shadow-[0_0_12px_rgba(239,68,68,1)] pointer-events-none"
+                                />
+                            )}
+                        </svg>
                      </div>
                  </div>
 
-                 {/* 우측: CMYK vs RGB 고정 다이어그램 */}
-                 <div className="lg:col-span-5 flex flex-col items-center w-full">
-                    <h3 className="text-lg font-black text-white mb-8 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg"><BookOpen className="mr-2 text-emerald-400" size={20}/> CMYK VS RGB</h3>
-                    
-                    <div className="w-full flex flex-col gap-6">
-                        {/* RGB 패널 (빛의 혼합 / 가산혼합) */}
-                        <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full">
-                            <h4 className="text-xl font-black text-white mb-4 tracking-widest">RGB <span className="text-xs text-slate-500 ml-2 font-normal">Additive Color (빛의 혼합)</span></h4>
-                            <div className="w-48 h-48 md:w-56 md:h-56 relative">
-                                <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
-                                    <circle cx="75" cy="75" r="55" fill="#0000FF" style={{ mixBlendMode: 'screen' }} />
-                                    <circle cx="125" cy="75" r="55" fill="#FF0000" style={{ mixBlendMode: 'screen' }} />
-                                    <circle cx="100" cy="120" r="55" fill="#00FF00" style={{ mixBlendMode: 'screen' }} />
-                                    
-                                    <g stroke="#ffffff" strokeWidth="1" strokeOpacity="0.5">
-                                        <line x1="75" y1="75" x2="30" y2="40" />
-                                        <line x1="125" y1="75" x2="170" y2="40" />
-                                        <line x1="100" y1="120" x2="100" y2="175" />
-                                        <line x1="100" y1="55" x2="100" y2="25" /> 
-                                        <line x1="75" y1="105" x2="30" y2="130" /> 
-                                        <line x1="125" y1="105" x2="170" y2="130" /> 
-                                        <line x1="100" y1="90" x2="150" y2="90" /> 
-                                    </g>
-                                    <g fill="#ffffff" fontSize="10" fontWeight="bold" textAnchor="middle" className="drop-shadow-md">
-                                        <text x="25" y="35">Blue</text>
-                                        <text x="175" y="35">Red</text>
-                                        <text x="100" y="185">Green</text>
-                                        <text x="100" y="20" fill="#FF00FF">Magenta</text>
-                                        <text x="25" y="140" fill="#00FFFF">Cyan</text>
-                                        <text x="175" y="140" fill="#FFFF00">Yellow</text>
-                                        <rect x="155" y="82" width="30" height="14" fill="#ffffff" rx="2" />
-                                        <text x="170" y="93" fill="#000000">White</text>
-                                    </g>
-                                </svg>
-                            </div>
-                        </div>
-
-                        {/* CMYK 패널 (물감의 혼합 / 감산혼합) */}
-                        <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full">
-                            <h4 className="text-xl font-black text-slate-900 mb-4 tracking-widest">CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color (물감의 혼합)</span></h4>
-                            <div className="w-48 h-48 md:w-56 md:h-56 relative">
-                                <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
-                                    <circle cx="75" cy="75" r="55" fill="#00FFFF" style={{ mixBlendMode: 'multiply' }} />
-                                    <circle cx="125" cy="75" r="55" fill="#FF00FF" style={{ mixBlendMode: 'multiply' }} />
-                                    <circle cx="100" cy="120" r="55" fill="#FFFF00" style={{ mixBlendMode: 'multiply' }} />
-                                    
-                                    <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
-                                        <line x1="75" y1="75" x2="30" y2="40" />
-                                        <line x1="125" y1="75" x2="170" y2="40" />
-                                        <line x1="100" y1="120" x2="100" y2="175" />
-                                        <line x1="100" y1="55" x2="100" y2="25" /> 
-                                        <line x1="75" y1="105" x2="30" y2="130" /> 
-                                        <line x1="125" y1="105" x2="170" y2="130" /> 
-                                        <line x1="100" y1="90" x2="150" y2="90" /> 
-                                    </g>
-                                    <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle">
-                                        <text x="25" y="35">Cyan</text>
-                                        <text x="175" y="35">Magenta</text>
-                                        <text x="100" y="185">Yellow</text>
-                                        <text x="100" y="20" fill="#0000FF">Blue</text>
-                                        <text x="25" y="140" fill="#008000">Green</text>
-                                        <text x="175" y="140" fill="#FF0000">Red</text>
-                                        <rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" />
-                                        <text x="170" y="93" fill="#ffffff">Black</text>
-                                    </g>
-                                </svg>
-                            </div>
+                 {/* 2사분면 (우측 상단): RGB 혼합 */}
+                 <div className="flex flex-col items-center w-full h-full justify-center">
+                    <div className="bg-[#111111] rounded-3xl p-8 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[420px] mx-auto h-full min-h-[360px] justify-center">
+                        <h4 className="text-xl font-black text-white mb-8 tracking-widest flex items-center"><BookOpen className="mr-2 text-blue-400" size={20}/>RGB <span className="text-xs text-slate-500 ml-2 font-normal">Additive Color (빛의 혼합)</span></h4>
+                        <div className="w-56 h-56 relative">
+                            <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
+                                <circle cx="75" cy="75" r="55" fill="#0000FF" style={{ mixBlendMode: 'screen' }} />
+                                <circle cx="125" cy="75" r="55" fill="#FF0000" style={{ mixBlendMode: 'screen' }} />
+                                <circle cx="100" cy="120" r="55" fill="#00FF00" style={{ mixBlendMode: 'screen' }} />
+                                
+                                <g stroke="#ffffff" strokeWidth="1" strokeOpacity="0.5">
+                                    <line x1="75" y1="75" x2="30" y2="40" />
+                                    <line x1="125" y1="75" x2="170" y2="40" />
+                                    <line x1="100" y1="120" x2="100" y2="175" />
+                                    <line x1="100" y1="55" x2="100" y2="25" /> 
+                                    <line x1="75" y1="105" x2="30" y2="130" /> 
+                                    <line x1="125" y1="105" x2="170" y2="130" /> 
+                                    <line x1="100" y1="90" x2="150" y2="90" /> 
+                                </g>
+                                <g fill="#ffffff" fontSize="10" fontWeight="bold" textAnchor="middle" className="drop-shadow-md">
+                                    <text x="25" y="35">Blue</text>
+                                    <text x="175" y="35">Red</text>
+                                    <text x="100" y="185">Green</text>
+                                    <text x="100" y="20" fill="#FF00FF">Magenta</text>
+                                    <text x="25" y="140" fill="#00FFFF">Cyan</text>
+                                    <text x="175" y="140" fill="#FFFF00">Yellow</text>
+                                    <rect x="155" y="82" width="30" height="14" fill="#ffffff" rx="2" />
+                                    <text x="170" y="93" fill="#000000">White</text>
+                                </g>
+                            </svg>
                         </div>
                     </div>
                  </div>
+
+                 {/* 3사분면 (좌측 하단): 조색 가이드 결과 */}
+                 <div className="flex flex-col items-center w-full h-full justify-center">
+                    {selectedWheelIndex !== null ? (
+                        <div className="bg-slate-800 p-8 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] mx-auto min-h-[360px] flex flex-col justify-center text-center animate-in fade-in zoom-in duration-300">
+                            <h4 className="text-xl font-black text-white mb-8 flex items-center justify-center gap-3">
+                                <span className="w-6 h-6 rounded-full shadow-md border border-slate-400" style={{backgroundColor: MUNSELL_WHEEL_COLORS[selectedWheelIndex].hex}}></span>
+                                {MUNSELL_WHEEL_COLORS[selectedWheelIndex].name} ({MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol}) 배합 규격
+                            </h4>
+                            <div className="flex justify-center items-center gap-6 bg-slate-900 py-8 px-4 rounded-xl border border-slate-700">
+                                {(() => {
+                                    const symbol = MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol;
+                                    const mixInfo = MIXING_DATA[symbol];
+                                    
+                                    return (
+                                        <>
+                                            <div className="flex flex-col items-center gap-3">
+                                                <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: mixInfo.h1}}></div>
+                                                <span className="text-slate-300 font-bold text-sm">{mixInfo.c1}</span>
+                                                <span className="text-white font-black text-3xl">{mixInfo.r1}%</span>
+                                            </div>
+                                            {mixInfo.c2 && (
+                                                <>
+                                                    <span className="text-slate-600 font-black text-2xl">+</span>
+                                                    <div className="flex flex-col items-center gap-3">
+                                                        <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: mixInfo.h2}}></div>
+                                                        <span className="text-slate-300 font-bold text-sm">{mixInfo.c2}</span>
+                                                        <span className="text-white font-black text-3xl">{mixInfo.r2}%</span>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </>
+                                    );
+                                })()}
+                            </div>
+                            <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
+                        </div>
+                    ) : (
+                        <div className="bg-slate-800/40 p-8 rounded-3xl border border-slate-700 border-dashed w-full max-w-[420px] mx-auto min-h-[360px] flex flex-col items-center justify-center gap-4 text-center text-slate-500">
+                            <Sun className="text-slate-600 mb-2" size={40} />
+                            <p className="text-base font-bold text-slate-400">색상환에서 컬러를 클릭하세요.</p>
+                            <p className="text-sm">선택된 색상의 원색 조색 배율이<br/>이곳에 표시됩니다.</p>
+                        </div>
+                    )}
+                 </div>
+
+                 {/* 4사분면 (우측 하단): CMYK 혼합 */}
+                 <div className="flex flex-col items-center w-full h-full justify-center">
+                    <div className="bg-[#f8f9fa] rounded-3xl p-8 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[420px] mx-auto h-full min-h-[360px] justify-center">
+                        <h4 className="text-xl font-black text-slate-900 mb-8 tracking-widest flex items-center"><BookOpen className="mr-2 text-pink-500" size={20}/>CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color (물감의 혼합)</span></h4>
+                        <div className="w-56 h-56 relative">
+                            <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
+                                <circle cx="75" cy="75" r="55" fill="#00FFFF" style={{ mixBlendMode: 'multiply' }} />
+                                <circle cx="125" cy="75" r="55" fill="#FF00FF" style={{ mixBlendMode: 'multiply' }} />
+                                <circle cx="100" cy="120" r="55" fill="#FFFF00" style={{ mixBlendMode: 'multiply' }} />
+                                
+                                <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
+                                    <line x1="75" y1="75" x2="30" y2="40" />
+                                    <line x1="125" y1="75" x2="170" y2="40" />
+                                    <line x1="100" y1="120" x2="100" y2="175" />
+                                    <line x1="100" y1="55" x2="100" y2="25" /> 
+                                    <line x1="75" y1="105" x2="30" y2="130" /> 
+                                    <line x1="125" y1="105" x2="170" y2="130" /> 
+                                    <line x1="100" y1="90" x2="150" y2="90" /> 
+                                </g>
+                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle">
+                                    <text x="25" y="35">Cyan</text>
+                                    <text x="175" y="35">Magenta</text>
+                                    <text x="100" y="185">Yellow</text>
+                                    <text x="100" y="20" fill="#0000FF">Blue</text>
+                                    <text x="25" y="140" fill="#008000">Green</text>
+                                    <text x="175" y="140" fill="#FF0000">Red</text>
+                                    <rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" />
+                                    <text x="170" y="93" fill="#ffffff">Black</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                 </div>
+
              </div>
 
              {/* 하단 닫기 버튼 */}
-             <div className="mt-8 pb-12 w-full flex justify-center">
-                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2">
-                    <X size={20} /> 믹싱 스튜디오 닫기
+             <div className="mt-4 pb-12 w-full flex justify-center">
+                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg">
+                    <X size={24} /> 믹싱 스튜디오 닫기
                 </button>
              </div>
           </main>
