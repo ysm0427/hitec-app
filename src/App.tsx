@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sliders, Trash2, Plus, Minus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet, History
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket
 } from 'lucide-react';
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
@@ -555,7 +555,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['색상 및 외관 변화', '표준 흑색(WT323)을 썼을 때 생길 수 있는 탁해짐(Dirty) 현상 없이 맑음을 유지하며 명도만 미세하게 낮춥니다.'],
       ['용도 및 적용 컬러', '민감한 라이트 실버, 연한 샴페인 골드 등 색상이 쉽게 무너지는 밝은 메탈릭 컬러의 마지막 미세 명도 조절제로 씁니다.'],
       ['배합 및 혼합 비율', '표준 흑색인 WT323 안료 대비 [WT350 : WT323 = 2.89 : 1] 의 배합 농도비를 가집니다.'],
-      ['경고 및 주의사항', '완전한 다크 솔리드 도장을 하려는 경우 본 제품으로는 은폐가 불가능하므로 표준 흑색 안료를 사용해야 합니다.']
+      ['경고 및 주의사항', '완전한 다크 솔리드 도장을 하려는 경우 본 제품로는 은폐가 불가능하므로 표준 흑색 안료를 사용해야 합니다.']
     ]
   },
   'WT 351': {
@@ -1231,26 +1231,26 @@ export const unpackToners = (str: string) => { if (!str) return []; return str.s
 
 // --- 💡 [먼셀 20색상환 전용 데이터] 💡 ---
 const MUNSELL_WHEEL_COLORS = [
-    { name: '빨강(R)', hex: '#E60012' },
-    { name: '다홍(yR)', hex: '#EB6100' },
-    { name: '주황(YR)', hex: '#F39800' },
-    { name: '귤색(rY)', hex: '#FCC800' },
-    { name: '노랑(Y)', hex: '#FFF100' },
-    { name: '노랑연두(gY)', hex: '#CFDB00' },
-    { name: '연두(GY)', hex: '#8FC31F' },
-    { name: '풀색(yG)', hex: '#22AC38' },
-    { name: '녹색(G)', hex: '#009944' },
-    { name: '초록(bG)', hex: '#009B6B' },
-    { name: '청록(BG)', hex: '#009E96' },
-    { name: '바다색(gB)', hex: '#00A0C1' },
-    { name: '파랑(B)', hex: '#00A0E9' },
-    { name: '감청(pB)', hex: '#0086D1' },
-    { name: '남색(PB)', hex: '#0068B7' },
-    { name: '남보라(bP)', hex: '#00479D' },
-    { name: '보라(P)', hex: '#1D2088' },
-    { name: '붉은보라(rP)', hex: '#601986' },
-    { name: '자주(RP)', hex: '#920783' },
-    { name: '연지(pR)', hex: '#BE0081' },
+    { name: '빨강', symbol: 'R', hex: '#E60012' },
+    { name: '다홍', symbol: 'yR', hex: '#EB6100' },
+    { name: '주황', symbol: 'YR', hex: '#F39800' },
+    { name: '귤색', symbol: 'rY', hex: '#FCC800' },
+    { name: '노랑', symbol: 'Y', hex: '#FFF100' },
+    { name: '노랑연두', symbol: 'gY', hex: '#CFDB00' },
+    { name: '연두', symbol: 'GY', hex: '#8FC31F' },
+    { name: '풀색', symbol: 'yG', hex: '#22AC38' },
+    { name: '녹색', symbol: 'G', hex: '#009944' },
+    { name: '초록', symbol: 'bG', hex: '#009B6B' },
+    { name: '청록', symbol: 'BG', hex: '#009E96' },
+    { name: '바다색', symbol: 'gB', hex: '#00A0C1' },
+    { name: '파랑', symbol: 'B', hex: '#00A0E9' },
+    { name: '감청', symbol: 'pB', hex: '#0086D1' },
+    { name: '남색', symbol: 'PB', hex: '#0068B7' },
+    { name: '남보라', symbol: 'bP', hex: '#00479D' },
+    { name: '보라', symbol: 'P', hex: '#1D2088' },
+    { name: '붉은보라', symbol: 'rP', hex: '#601986' },
+    { name: '자주', symbol: 'RP', hex: '#920783' },
+    { name: '연지', symbol: 'pR', hex: '#BE0081' },
 ];
 
 const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
@@ -1281,13 +1281,12 @@ const hexToRgb = (hex: string) => {
     return [parseInt(h.substring(0,2), 16), parseInt(h.substring(2,4), 16), parseInt(h.substring(4,6), 16)];
 };
 
-// 💡 [수정됨] 실제 페인트 감산혼합 (CMY) 엔진
+// 💡 실제 페인트 감산혼합 (CMY) 엔진
 const mixPaintSubtractive = (drops: { id: string, color: any, value: number }[]) => {
     if (!drops || drops.length === 0) return 'transparent';
     let c = 0, m = 0, y = 0, total = 0;
     drops.forEach(d => {
         const [r, g, b] = hexToRgb(d.color.hex);
-        // CMY(Cyan, Magenta, Yellow) 비율 추출
         c += (1 - r / 255) * d.value;
         m += (1 - g / 255) * d.value;
         y += (1 - b / 255) * d.value;
@@ -1297,14 +1296,13 @@ const mixPaintSubtractive = (drops: { id: string, color: any, value: number }[])
     if (total === 0) return 'transparent';
     c /= total; m /= total; y /= total;
     
-    // 다시 RGB로 변환
     let finalR = (1 - c) * 255;
     let finalG = (1 - m) * 255;
     let finalB = (1 - y) * 255;
     
-    // 탁색(Muddying) 현상 구현: 페인트는 섞일수록 어두워지고 회색빛을 띱니다.
+    // 탁색(Muddying) 현상 구현
     const minCMY = Math.min(c, m, y); 
-    const muddyFactor = 1 - (minCMY * 0.7); // 어두워지는 강도 계수
+    const muddyFactor = 1 - (minCMY * 0.75); 
     
     finalR = Math.max(0, Math.min(255, Math.round(finalR * muddyFactor)));
     finalG = Math.max(0, Math.min(255, Math.round(finalG * muddyFactor)));
@@ -1343,10 +1341,8 @@ export default function App() {
       setMixDrops(prev => {
           const existing = prev.find(d => d.color.name === clickedColor.name);
           if (existing) {
-              // 이미 있으면 값 1 증가 (최대 10)
               return prev.map(d => d.id === existing.id ? { ...d, value: Math.min(10, d.value + 1) } : d);
           } else {
-              // 없으면 새로 추가
               return [...prev, { id: `drop_${Date.now()}`, color: clickedColor, value: 1 }];
           }
       });
@@ -1355,7 +1351,7 @@ export default function App() {
   const updateDropValue = (id: string, delta: number) => {
       setMixDrops(prev => prev.map(d => {
           if (d.id === id) {
-              const newVal = Math.max(1, Math.min(10, d.value + delta)); // 1~10 제한
+              const newVal = Math.max(1, Math.min(10, d.value + delta));
               return { ...d, value: newVal };
           }
           return d;
@@ -1919,109 +1915,186 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 [대대적 개편] 다중 색상 혼합 랩 스튜디오 (감산혼합 물방울 누적 가이드) */}
+      {/* 💡 [대대적 개편] 다중 색상 혼합 랩 스튜디오 */}
       {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-auto custom-scrollbar">
-          <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-10">
+          <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
             <h2 className="text-base font-black tracking-widest text-slate-300 uppercase flex items-center"><Beaker className="mr-2 text-indigo-500"/> 먼셀 컬러 믹싱 스튜디오 (Munsell Mixing Lab)</h2>
             <button onClick={() => setIsConfiguratorOpen(false)} className="p-2 bg-slate-800 hover:bg-red-600 rounded-full border border-slate-700 transition-colors"><X size={18}/></button>
           </header>
           
-          <main className="flex-1 p-6 md:p-12 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950">
+          <main className="flex-1 p-6 md:p-10 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950">
              
-             {/* 💡 [수정1] 이미지 1번 형태의 "먼셀 20색상환" 완벽 구현 (SVG 방식) */}
-             <div className="mb-16 relative flex justify-center items-center mt-4 w-[360px] h-[360px] md:w-[480px] md:h-[480px]">
-                
-                <svg className="w-full h-full drop-shadow-[0_0_50px_rgba(0,0,0,0.8)]" viewBox="0 0 400 400">
-                    <defs>
-                        {/* 화살표 머리 정의 */}
-                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                            <polygon points="0 0, 10 3.5, 0 7" fill="#ffffff" />
-                        </marker>
-                    </defs>
-
-                    {/* 20 분할 아크 그리기 */}
-                    {MUNSELL_WHEEL_COLORS.map((color, index) => {
-                        const startAngle = index * 18;
-                        const endAngle = (index + 1) * 18;
-                        const pathData = describeArc(200, 200, 100, 180, startAngle, endAngle);
-                        const isSelected = selectedWheelIndex === index;
+             {/* 상단 2분할 영역: 먼셀 색상환 vs 색채학 그래픽 */}
+             <div className="w-full max-w-[1400px] grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16 items-start">
+                 
+                 {/* 좌측: 먼셀 20색상환 */}
+                 <div className="lg:col-span-7 flex flex-col items-center relative">
+                     <h3 className="text-lg font-black text-white mb-8 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg"><Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)</h3>
+                     <div className="relative flex justify-center items-center w-[360px] h-[360px] md:w-[480px] md:h-[480px]">
                         
-                        return (
-                            <path 
-                                key={index} 
-                                d={pathData} 
-                                fill={color.hex} 
-                                stroke="#1e293b" 
-                                strokeWidth="1"
-                                className={`cursor-pointer transition-all duration-300 hover:opacity-80 ${isSelected ? 'stroke-white stroke-[3px] z-10 relative' : ''}`}
-                                onClick={() => handleWheelClick(index)}
-                                style={{ transformOrigin: '200px 200px', transform: isSelected ? 'scale(1.05)' : 'scale(1)' }}
-                            />
-                        );
-                    })}
+                        <svg className="w-full h-full drop-shadow-[0_0_50px_rgba(0,0,0,0.8)]" viewBox="0 0 400 400">
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#ffffff" />
+                                </marker>
+                            </defs>
 
-                    {/* 텍스트 라벨 배치 */}
-                    {MUNSELL_WHEEL_COLORS.map((color, index) => {
-                        const midAngle = index * 18 + 9;
-                        const pos = polarToCartesian(200, 200, 210, midAngle);
-                        
-                        // 텍스트 각도 조정 (너무 뒤집어지지 않게)
-                        let textRotation = midAngle;
-                        if (midAngle > 90 && midAngle < 270) textRotation += 180;
+                            {/* 20 분할 아크 그리기 (Gap 적용) */}
+                            {MUNSELL_WHEEL_COLORS.map((color, index) => {
+                                const startAngle = index * 18;
+                                const endAngle = (index + 1) * 18 - 1; // 1도 차이로 갭(Gap) 생성
+                                const pathData = describeArc(200, 200, 100, 170, startAngle, endAngle); // 외부 반지름 170으로 축소하여 텍스트 공간 확보
+                                const isSelected = selectedWheelIndex === index;
+                                
+                                return (
+                                    <path 
+                                        key={index} 
+                                        d={pathData} 
+                                        fill={color.hex} 
+                                        stroke={isSelected ? "#ffffff" : "transparent"} 
+                                        strokeWidth={isSelected ? "3" : "0"}
+                                        className={`cursor-pointer transition-all duration-300 hover:opacity-80 ${isSelected ? 'z-10 relative' : ''}`}
+                                        onClick={() => handleWheelClick(index)}
+                                        style={{ transformOrigin: '200px 200px', transform: isSelected ? 'scale(1.05)' : 'scale(1)' }}
+                                    />
+                                );
+                            })}
 
-                        return (
-                            <text 
-                                key={`label_${index}`}
-                                x={pos.x} 
-                                y={pos.y} 
-                                fill="#cbd5e1" 
-                                fontSize="11" 
-                                fontWeight="bold" 
-                                textAnchor="middle" 
-                                dominantBaseline="middle"
-                                className="pointer-events-none drop-shadow-md"
-                                transform={`rotate(${textRotation}, ${pos.x}, ${pos.y})`}
-                            >
-                                {color.name}
-                            </text>
-                        );
-                    })}
+                            {/* 텍스트 라벨 배치 (외부) */}
+                            {MUNSELL_WHEEL_COLORS.map((color, index) => {
+                                const midAngle = index * 18 + 8.5; // 중간 각도
+                                const pos = polarToCartesian(200, 200, 185, midAngle); // 외부 185 위치
+                                
+                                // 텍스트 각도 조정 (너무 뒤집어지지 않게)
+                                let textRotation = midAngle;
+                                if (midAngle > 90 && midAngle < 270) textRotation += 180;
 
-                    {/* 💡 [수정2] 보색 화살표 (선택된 색상이 있을 경우 반대편 180도 색상으로 화살표 그림) */}
-                    {selectedWheelIndex !== null && (
-                        <line 
-                            x1={polarToCartesian(200, 200, 90, selectedWheelIndex * 18 + 9).x} 
-                            y1={polarToCartesian(200, 200, 90, selectedWheelIndex * 18 + 9).y} 
-                            x2={polarToCartesian(200, 200, 90, ((selectedWheelIndex + 10) % 20) * 18 + 9).x} 
-                            y2={polarToCartesian(200, 200, 90, ((selectedWheelIndex + 10) % 20) * 18 + 9).y} 
-                            stroke="#ffffff" 
-                            strokeWidth="3" 
-                            markerEnd="url(#arrowhead)" 
-                            className="drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] pointer-events-none"
-                        />
-                    )}
+                                return (
+                                    <g key={`label_${index}`} transform={`rotate(${textRotation}, ${pos.x}, ${pos.y})`}>
+                                        <text x={pos.x} y={pos.y - 4} fill="#cbd5e1" fontSize="10" fontWeight="bold" textAnchor="middle" className="pointer-events-none drop-shadow-md">{color.name}</text>
+                                        <text x={pos.x} y={pos.y + 6} fill="#64748b" fontSize="8" fontWeight="normal" textAnchor="middle" className="pointer-events-none">({color.symbol})</text>
+                                    </g>
+                                );
+                            })}
 
-                    {/* 중앙 원 장식 */}
-                    <circle cx="200" cy="200" r="100" fill="#0f172a" stroke="#1e293b" strokeWidth="2" />
-                    <text x="200" y="195" fill="#94a3b8" fontSize="14" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" className="tracking-widest">MUNSELL</text>
-                    <text x="200" y="215" fill="#ffffff" fontSize="16" fontWeight="900" textAnchor="middle" dominantBaseline="middle">표준 색상환</text>
-                </svg>
+                            {/* 💡 보색 화살표 애니메이션 */}
+                            {selectedWheelIndex !== null && (
+                                <line 
+                                    x1={polarToCartesian(200, 200, 90, selectedWheelIndex * 18 + 8.5).x} 
+                                    y1={polarToCartesian(200, 200, 90, selectedWheelIndex * 18 + 8.5).y} 
+                                    x2={polarToCartesian(200, 200, 90, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).x} 
+                                    y2={polarToCartesian(200, 200, 90, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).y} 
+                                    stroke="#ffffff" 
+                                    strokeWidth="2.5" 
+                                    strokeDasharray="4 4"
+                                    markerEnd="url(#arrowhead)" 
+                                    className="drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] pointer-events-none opacity-80"
+                                />
+                            )}
+
+                            {/* 중앙 원 장식 */}
+                            <circle cx="200" cy="200" r="98" fill="#0f172a" stroke="#1e293b" strokeWidth="2" />
+                            <text x="200" y="195" fill="#94a3b8" fontSize="14" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" className="tracking-widest">MUNSELL</text>
+                            <text x="200" y="215" fill="#ffffff" fontSize="16" fontWeight="900" textAnchor="middle" dominantBaseline="middle">표준 색상환</text>
+                        </svg>
+                     </div>
+                     <p className="text-xs text-slate-500 mt-6 bg-slate-900/50 px-4 py-2 rounded-lg">* 밖의 색상을 클릭하면 혼합 팔레트에 안료가 추가됩니다.</p>
+                 </div>
+
+                 {/* 우측: CMYK vs RGB 고정 다이어그램 */}
+                 <div className="lg:col-span-5 flex flex-col items-center w-full">
+                    <h3 className="text-lg font-black text-white mb-8 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg"><BookOpen className="mr-2 text-emerald-400" size={20}/> CMYK VS RGB</h3>
+                    
+                    <div className="w-full flex flex-col gap-6">
+                        {/* RGB 패널 (빛의 혼합 / 가산혼합) */}
+                        <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full">
+                            <h4 className="text-xl font-black text-white mb-4 tracking-widest">RGB <span className="text-xs text-slate-500 ml-2 font-normal">Additive Color (빛의 혼합)</span></h4>
+                            <div className="w-48 h-48 md:w-56 md:h-56 relative">
+                                <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
+                                    {/* 원본 이미지 4번에 맞춘 RGB 배치: Blue(TL), Red(TR), Green(Bot) */}
+                                    <circle cx="75" cy="75" r="55" fill="#0000FF" style={{ mixBlendMode: 'screen' }} />
+                                    <circle cx="125" cy="75" r="55" fill="#FF0000" style={{ mixBlendMode: 'screen' }} />
+                                    <circle cx="100" cy="120" r="55" fill="#00FF00" style={{ mixBlendMode: 'screen' }} />
+                                    
+                                    {/* 지시선 및 라벨 */}
+                                    <g stroke="#ffffff" strokeWidth="1" strokeOpacity="0.5">
+                                        <line x1="75" y1="75" x2="30" y2="40" />
+                                        <line x1="125" y1="75" x2="170" y2="40" />
+                                        <line x1="100" y1="120" x2="100" y2="175" />
+                                        {/* 중간 혼합색 라벨 선 */}
+                                        <line x1="100" y1="55" x2="100" y2="25" /> {/* Blue+Red = Magenta */}
+                                        <line x1="75" y1="105" x2="30" y2="130" /> {/* Blue+Green = Cyan */}
+                                        <line x1="125" y1="105" x2="170" y2="130" /> {/* Red+Green = Yellow */}
+                                        <line x1="100" y1="90" x2="150" y2="90" /> {/* Center = White */}
+                                    </g>
+                                    <g fill="#ffffff" fontSize="10" fontWeight="bold" textAnchor="middle" className="drop-shadow-md">
+                                        <text x="25" y="35">Blue</text>
+                                        <text x="175" y="35">Red</text>
+                                        <text x="100" y="185">Green</text>
+                                        <text x="100" y="20" fill="#FF00FF">Magenta</text>
+                                        <text x="25" y="140" fill="#00FFFF">Cyan</text>
+                                        <text x="175" y="140" fill="#FFFF00">Yellow</text>
+                                        <rect x="155" y="82" width="30" height="14" fill="#ffffff" rx="2" />
+                                        <text x="170" y="93" fill="#000000">White</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+
+                        {/* CMYK 패널 (물감의 혼합 / 감산혼합) */}
+                        <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full">
+                            <h4 className="text-xl font-black text-slate-900 mb-4 tracking-widest">CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color (물감의 혼합)</span></h4>
+                            <div className="w-48 h-48 md:w-56 md:h-56 relative">
+                                <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
+                                    {/* 원본 이미지 4번에 맞춘 CMYK 배치: Cyan(TL), Magenta(TR), Yellow(Bot) */}
+                                    <circle cx="75" cy="75" r="55" fill="#00FFFF" style={{ mixBlendMode: 'multiply' }} />
+                                    <circle cx="125" cy="75" r="55" fill="#FF00FF" style={{ mixBlendMode: 'multiply' }} />
+                                    <circle cx="100" cy="120" r="55" fill="#FFFF00" style={{ mixBlendMode: 'multiply' }} />
+                                    
+                                    {/* 지시선 및 라벨 */}
+                                    <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
+                                        <line x1="75" y1="75" x2="30" y2="40" />
+                                        <line x1="125" y1="75" x2="170" y2="40" />
+                                        <line x1="100" y1="120" x2="100" y2="175" />
+                                        {/* 중간 혼합색 라벨 선 */}
+                                        <line x1="100" y1="55" x2="100" y2="25" /> {/* Cyan+Magenta = Blue */}
+                                        <line x1="75" y1="105" x2="30" y2="130" /> {/* Cyan+Yellow = Green */}
+                                        <line x1="125" y1="105" x2="170" y2="130" /> {/* Magenta+Yellow = Red */}
+                                        <line x1="100" y1="90" x2="150" y2="90" /> {/* Center = Black */}
+                                    </g>
+                                    <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle">
+                                        <text x="25" y="35">Cyan</text>
+                                        <text x="175" y="35">Magenta</text>
+                                        <text x="100" y="185">Yellow</text>
+                                        <text x="100" y="20" fill="#0000FF">Blue</text>
+                                        <text x="25" y="140" fill="#008000">Green</text>
+                                        <text x="175" y="140" fill="#FF0000">Red</text>
+                                        <rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" />
+                                        <text x="170" y="93" fill="#ffffff">Black</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
              </div>
 
              {/* 💡 [수정3] 직관적이고 깔끔한 물방울(Drop) 믹싱 가이드 */}
              <div className="w-full max-w-5xl flex flex-col items-center">
-                <h3 className="text-xl font-black text-white mb-6 flex items-center tracking-wide"><Droplet className="mr-2 text-blue-400"/> 실전 조색 가이드 (1~10 단위 배합)</h3>
+                <h3 className="text-xl font-black text-white mb-6 flex items-center tracking-wide"><PaintBucket className="mr-2 text-blue-400"/> 실전 조색 시뮬레이터 (1~10 단위 배합)</h3>
 
-                <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 bg-slate-900/60 p-6 md:p-8 rounded-3xl border border-slate-700 shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full">
+                <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 bg-slate-900/80 p-6 md:p-8 rounded-3xl border border-slate-700 shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full relative overflow-hidden">
                     
                     {mixDrops.length === 0 && (
-                        <p className="text-slate-500 font-bold p-8">위 색상환을 클릭하여 안료를 추가하세요.</p>
+                        <p className="text-slate-400 font-bold p-12 text-center w-full">
+                            위의 <span className="text-yellow-400">먼셀 20색상환</span>에서 원하는 색상을 클릭하면<br/>이곳에 물감이 추가됩니다.
+                        </p>
                     )}
 
                     {mixDrops.map((d, index) => (
                         <React.Fragment key={d.id}>
-                            <div className="flex flex-col items-center group relative w-24 md:w-28 transition-transform hover:-translate-y-1">
+                            <div className="flex flex-col items-center group relative w-20 md:w-24 transition-transform hover:-translate-y-1">
                                 {/* 삭제 버튼 */}
                                 <button onClick={() => removeDrop(d.id)} className="absolute -top-2 -right-2 bg-slate-800 text-slate-500 hover:text-red-500 border border-slate-600 rounded-full p-1.5 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-10"><X size={14}/></button>
 
@@ -2034,9 +2107,9 @@ export default function App() {
 
                                 {/* 커스텀 수량 조절 버튼 (1~10) */}
                                 <div className="flex items-center justify-between w-full bg-slate-950 rounded-lg border border-slate-700 p-1 shadow-inner">
-                                    <button onClick={() => updateDropValue(d.id, -1)} className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded"><Minus size={14}/></button>
-                                    <span className="text-sm font-black text-yellow-400">{d.value}</span>
-                                    <button onClick={() => updateDropValue(d.id, 1)} className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded"><Plus size={14}/></button>
+                                    <button onClick={() => updateDropValue(d.id, -1)} className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded"><Minus size={12}/></button>
+                                    <span className="text-sm font-black text-yellow-400 w-6 text-center">{d.value}</span>
+                                    <button onClick={() => updateDropValue(d.id, 1)} className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded"><Plus size={12}/></button>
                                 </div>
                             </div>
 
@@ -2054,7 +2127,7 @@ export default function App() {
 
                             {/* 🧪 최종 시뮬레이션 결과 (실제 감산 혼합) */}
                             <div className="flex flex-col items-center bg-slate-800 p-4 rounded-2xl border border-slate-600 shadow-xl">
-                                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full shadow-[0_0_30px_rgba(0,0,0,0.6),inset_0_-10px_20px_rgba(0,0,0,0.7)] mb-3 flex items-center justify-center border-4 border-slate-700 relative overflow-hidden transition-colors duration-500" style={{ backgroundColor: mixPaintSubtractive(mixDrops) }}>
+                                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full shadow-[0_0_30px_rgba(0,0,0,0.6),inset_0_-10px_20px_rgba(0,0,0,0.7)] mb-3 flex items-center justify-center border-[5px] border-slate-700 relative overflow-hidden transition-colors duration-500" style={{ backgroundColor: mixPaintSubtractive(mixDrops) }}>
                                     <div className="absolute inset-0 bg-gradient-to-tr from-black/30 via-transparent to-white/30 mix-blend-overlay"></div>
                                 </div>
                                 <span className="text-xs font-black text-emerald-400 tracking-widest uppercase">Result</span>
@@ -2067,7 +2140,7 @@ export default function App() {
         </div>
       )}
 
-     {/* CSS 스타일 태그 누락 방지를 위한 안전한 마감 */}
+      {/* CSS 스타일 태그 누락 방지를 위한 안전한 마감 */}
       <style dangerouslySetInnerHTML={{__html: `
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); border-radius: 10px; }
