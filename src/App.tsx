@@ -6,7 +6,7 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 공식 안료 데이터베이스 (원본 상세 설명 100% 완벽 복구)
+// 💡 공식 안료 데이터베이스 (100% 상세 원본 복구 완료)
 export const TONER_DB: Record<string, TonerData> = {
   'WT 144': {
     role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1',
@@ -1295,6 +1295,52 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
     "Z"
   ].join(" ");
 };
+
+const hexToRgb = (hex: string) => {
+    const h = hex.replace('#', '');
+    return [parseInt(h.substring(0,2), 16), parseInt(h.substring(2,4), 16), parseInt(h.substring(4,6), 16)];
+};
+
+const getNearestMunsellName = (rgbString: string) => {
+    if (rgbString === 'transparent') return '결과 대기중';
+    const match = rgbString.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    if (!match) return '알 수 없음';
+    const [r, g, b] = [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+    if (r < 50 && g < 50 && b < 50) return '검정 (Black)';
+    if (Math.abs(r-g)<20 && Math.abs(g-b)<20 && Math.abs(r-b)<20) return '무채색 (Gray)';
+    let minDistance = Infinity;
+    let closestName = '탁색 (Muddy)';
+    MUNSELL_WHEEL_COLORS.forEach(c => {
+        const [cr, cg, cb] = hexToRgb(c.hex);
+        const dist = Math.sqrt(Math.pow(r - cr, 2) + Math.pow(g - cg, 2) + Math.pow(b - cb, 2));
+        if (dist < minDistance) { minDistance = dist; closestName = c.name; }
+    });
+    if (minDistance > 130) return '탁색 (Muddy)';
+    return closestName;
+};
+
+const mixPaintSubtractive = (drops: { id: string, color: any, value: number }[]) => {
+    if (!drops || drops.length === 0) return 'transparent';
+    let c = 0, m = 0, y = 0, total = 0;
+    drops.forEach(d => {
+        const [r, g, b] = hexToRgb(d.color.hex);
+        c += (1 - r / 255) * d.value;
+        m += (1 - g / 255) * d.value;
+        y += (1 - b / 255) * d.value;
+        total += d.value;
+    });
+    if (total === 0) return 'transparent';
+    c /= total; m /= total; y /= total;
+    let finalR = (1 - c) * 255;
+    let finalG = (1 - m) * 255;
+    let finalB = (1 - y) * 255;
+    const minCMY = Math.min(c, m, y); 
+    const muddyFactor = 1 - (minCMY * 0.75); 
+    finalR = Math.max(0, Math.min(255, Math.round(finalR * muddyFactor)));
+    finalG = Math.max(0, Math.min(255, Math.round(finalG * muddyFactor)));
+    finalB = Math.max(0, Math.min(255, Math.round(finalB * muddyFactor)));
+    return `rgb(${finalR}, ${finalG}, ${finalB})`;
+};
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: 'WT 318', adjustedWeight: "0.3", history: [], memo: "" }, { id: `b_next`, code: 'WT 144', adjustedWeight: "4.0", history: [], memo: "" }]);
@@ -1603,7 +1649,8 @@ export default function App() {
                                    <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                                    <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                               </div>
-                              <input value={toner.code} onChange={e => handleCodeChange(toner.id, e.target.value, false)} className="w-20 text-sm font-black uppercase border border-slate-300 rounded p-1 focus:border-blue-500 focus:outline-none shadow-inner" placeholder="코드" />
+                              {/* 💡 [오류해결 1] 베이스 리스트에서도 엔터 클릭 시 정상적으로 포커스 이동을 위해 ref 코드를 추가했습니다 */}
+                              <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code} onChange={e => handleCodeChange(toner.id, e.target.value, false)} className="w-20 text-sm font-black uppercase border border-slate-300 rounded p-1 focus:border-blue-500 focus:outline-none shadow-inner" placeholder="코드" />
                               <span className="font-bold text-blue-700 text-sm truncate">{info.role || '미등록 안료'}</span>
                           </div>
                           
@@ -1881,7 +1928,8 @@ export default function App() {
            </div>
         </div>
       )}
-{/* 💡 1:1:1:1 최적화된 다중 색상 혼합 랩 스튜디오 (4분할 레이아웃 & 보색 화살표 강화) */}
+
+      {/* 💡 1:1:1:1 최적화된 다중 색상 혼합 랩 스튜디오 (4분할 레이아웃 & 보색 화살표 강화) */}
       {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-auto custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
@@ -1998,6 +2046,7 @@ export default function App() {
                  </div>
 
                  {/* 3사분면 (좌측 하단): 조색 가이드 결과 */}
+                 {/* 💡 [오류해결 2] 데이터를 불러오는 동안 에러가 발생해도 절대 튕기지 않게 방어막 적용 */}
                  <div className="flex flex-col items-center w-full h-full justify-center">
                     {selectedWheelIndex !== null ? (
                         <div className="bg-slate-800 p-8 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] mx-auto min-h-[360px] flex flex-col justify-center text-center animate-in fade-in zoom-in duration-300">
@@ -2007,9 +2056,14 @@ export default function App() {
                             </h4>
                             <div className="flex justify-center items-center gap-6 bg-slate-900 py-8 px-4 rounded-xl border border-slate-700">
                                 {(() => {
-                                    const symbol = MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol;
-                                    const mixInfo = MIXING_DATA[symbol];
+                                    const symbol = MUNSELL_WHEEL_COLORS[selectedWheelIndex]?.symbol;
+                                    // MIXING_DATA를 불러오지 못하더라도 앱이 튕기지 않도록 방어 코드 추가
+                                    const mixInfo = typeof MIXING_DATA !== 'undefined' ? MIXING_DATA[symbol] : null;
                                     
+                                    if (!mixInfo) {
+                                        return <div className="text-white text-sm font-bold">데이터를 불러오는 중 오류가 발생했습니다.</div>;
+                                    }
+
                                     return (
                                         <>
                                             <div className="flex flex-col items-center gap-3">
