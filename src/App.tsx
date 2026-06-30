@@ -1281,6 +1281,35 @@ const hexToRgb = (hex: string) => {
     return [parseInt(h.substring(0,2), 16), parseInt(h.substring(2,4), 16), parseInt(h.substring(4,6), 16)];
 };
 
+// 💡 가장 가까운 색상명 찾기
+const getNearestMunsellName = (rgbString: string) => {
+    if (rgbString === 'transparent') return '결과 대기중';
+    const match = rgbString.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    if (!match) return '알 수 없음';
+    const [r, g, b] = [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+    
+    // 명도가 극단적으로 낮으면 탁색/검정으로 판정
+    if (r < 50 && g < 50 && b < 50) return '검정 (Black)';
+    if (Math.abs(r-g)<20 && Math.abs(g-b)<20 && Math.abs(r-b)<20) return '무채색 (Gray)';
+    
+    let minDistance = Infinity;
+    let closestName = '탁색 (Muddy)';
+    
+    MUNSELL_WHEEL_COLORS.forEach(c => {
+        const [cr, cg, cb] = hexToRgb(c.hex);
+        // 유클리디안 거리 계산 (간단한 색상 거리)
+        const dist = Math.sqrt(Math.pow(r - cr, 2) + Math.pow(g - cg, 2) + Math.pow(b - cb, 2));
+        if (dist < minDistance) {
+            minDistance = dist;
+            closestName = c.name;
+        }
+    });
+    
+    // 거리가 너무 멀면 탁색으로 표기
+    if (minDistance > 130) return '탁색 (Muddy)';
+    return closestName;
+};
+
 // 💡 실제 페인트 감산혼합 (CMY) 엔진
 const mixPaintSubtractive = (drops: { id: string, color: any, value: number }[]) => {
     if (!drops || drops.length === 0) return 'transparent';
@@ -2082,73 +2111,4 @@ export default function App() {
 
              {/* 💡 [수정3] 직관적이고 깔끔한 물방울(Drop) 믹싱 가이드 */}
              <div className="w-full max-w-5xl flex flex-col items-center">
-                <h3 className="text-xl font-black text-white mb-6 flex items-center tracking-wide"><PaintBucket className="mr-2 text-blue-400"/> 실전 조색 시뮬레이터 (1~10 단위 배합)</h3>
-
-                <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 bg-slate-900/80 p-6 md:p-8 rounded-3xl border border-slate-700 shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full relative overflow-hidden">
-                    
-                    {mixDrops.length === 0 && (
-                        <p className="text-slate-400 font-bold p-12 text-center w-full">
-                            위의 <span className="text-yellow-400">먼셀 20색상환</span>에서 원하는 색상을 클릭하면<br/>이곳에 물감이 추가됩니다.
-                        </p>
-                    )}
-
-                    {mixDrops.map((d, index) => (
-                        <React.Fragment key={d.id}>
-                            <div className="flex flex-col items-center group relative w-20 md:w-24 transition-transform hover:-translate-y-1">
-                                {/* 삭제 버튼 */}
-                                <button onClick={() => removeDrop(d.id)} className="absolute -top-2 -right-2 bg-slate-800 text-slate-500 hover:text-red-500 border border-slate-600 rounded-full p-1.5 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-10"><X size={14}/></button>
-
-                                {/* 물방울 그래픽 */}
-                                <div className="w-14 h-14 md:w-16 md:h-16 rounded-[50%_50%_50%_50%/60%_60%_40%_40%] shadow-[inset_0_-5px_15px_rgba(0,0,0,0.5),0_10px_20px_rgba(0,0,0,0.4)] mb-3 flex items-center justify-center relative overflow-hidden border border-white/20" style={{ backgroundColor: d.color.hex }}>
-                                    <div className="absolute top-1 left-2 w-3 h-3 bg-white/50 rounded-full blur-[2px]"></div>
-                                </div>
-
-                                <span className="text-[11px] font-bold text-slate-300 mb-2 truncate w-full text-center">{d.color.name}</span>
-
-                                {/* 커스텀 수량 조절 버튼 (1~10) */}
-                                <div className="flex items-center justify-between w-full bg-slate-950 rounded-lg border border-slate-700 p-1 shadow-inner">
-                                    <button onClick={() => updateDropValue(d.id, -1)} className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded"><Minus size={12}/></button>
-                                    <span className="text-sm font-black text-yellow-400 w-6 text-center">{d.value}</span>
-                                    <button onClick={() => updateDropValue(d.id, 1)} className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded"><Plus size={12}/></button>
-                                </div>
-                            </div>
-
-                            {/* 더하기 기호 */}
-                            {index < mixDrops.length - 1 && (
-                                <span className="text-2xl md:text-3xl font-black text-slate-600 drop-shadow-md">+</span>
-                            )}
-                        </React.Fragment>
-                    ))}
-
-                    {mixDrops.length > 0 && (
-                        <>
-                            {/* 이퀄(결과) 기호 */}
-                            <span className="text-3xl md:text-4xl font-black text-slate-500 mx-2 md:mx-4 drop-shadow-lg">=</span>
-
-                            {/* 🧪 최종 시뮬레이션 결과 (실제 감산 혼합) */}
-                            <div className="flex flex-col items-center bg-slate-800 p-4 rounded-2xl border border-slate-600 shadow-xl">
-                                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full shadow-[0_0_30px_rgba(0,0,0,0.6),inset_0_-10px_20px_rgba(0,0,0,0.7)] mb-3 flex items-center justify-center border-[5px] border-slate-700 relative overflow-hidden transition-colors duration-500" style={{ backgroundColor: mixPaintSubtractive(mixDrops) }}>
-                                    <div className="absolute inset-0 bg-gradient-to-tr from-black/30 via-transparent to-white/30 mix-blend-overlay"></div>
-                                </div>
-                                <span className="text-xs font-black text-emerald-400 tracking-widest uppercase">Result</span>
-                            </div>
-                        </>
-                    )}
-                </div>
-             </div>
-          </main>
-        </div>
-      )}
-
-      {/* CSS 스타일 태그 누락 방지를 위한 안전한 마감 */}
-      <style dangerouslySetInnerHTML={{__html: `
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
-        .clean-number-input { font-variant-numeric: tabular-nums; -webkit-text-fill-color: #0f172a; }
-        .metallic-flake { position: absolute; inset: 0; pointer-events: none; z-index: 1; mix-blend-mode: color-dodge; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E"); }
-      `}} />
-    </div>
-  );
-}
+                <h3 className="text-xl font-black text-white mb-6 flex items-center tracking-wide"><PaintBucket className="mr-2 text-blue-
