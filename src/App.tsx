@@ -2109,6 +2109,89 @@ export default function App() {
                  </div>
              </div>
 
-             {/* 💡 [수정3] 직관적이고 깔끔한 물방울(Drop) 믹싱 가이드 */}
-             <div className="w-full max-w-5xl flex flex-col items-center">
-                <h3 className="text-xl font-black text-white mb-6 flex items-center tracking-wide"><PaintBucket className="mr-2 text-blue-
+             {/* 💡 [요청하신 기능] 색상환 클릭 시에만 나타나는 혼합 비율 가이드 */}
+             <div className="w-full max-w-5xl flex flex-col items-center mt-10">
+                <h3 className="text-xl font-black text-white mb-6 flex items-center tracking-wide">
+                    <PaintBucket className="mr-2 text-blue-400" size={24}/>
+                    선택된 색상 혼합 시뮬레이션
+                </h3>
+
+                {/* selectedWheelIndex가 null이 아닐 때(클릭했을 때)만 하단 UI가 렌더링됩니다 */}
+                {selectedWheelIndex !== null ? (
+                    <div className="bg-slate-800 p-8 rounded-2xl border border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.3)] w-full max-w-2xl text-center animate-in fade-in zoom-in duration-300">
+                        <h4 className="text-xl font-black text-white mb-6 flex items-center justify-center gap-3">
+                            <span className="w-6 h-6 rounded-full shadow-md border border-slate-400" style={{backgroundColor: MUNSELL_WHEEL_COLORS[selectedWheelIndex].hex}}></span>
+                            {MUNSELL_WHEEL_COLORS[selectedWheelIndex].name} ({MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol}) 예상 조색 비율
+                        </h4>
+                        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 bg-slate-900 p-6 rounded-xl border border-slate-700">
+
+                            {/* 요청하신 파란색/보라색 계열 선택 시 네이비/인디고 혼합비 노출 로직 */}
+                            {MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol.includes('B') ? (
+                                <>
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-14 h-14 rounded-full bg-[#1e3a8a] border-2 border-slate-500 shadow-inner"></div>
+                                        <span className="text-slate-300 font-bold text-sm">네이비 파랑</span>
+                                        <span className="text-blue-400 font-black text-3xl">2</span>
+                                    </div>
+                                    <span className="text-slate-600 font-black text-3xl">+</span>
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-14 h-14 rounded-full bg-[#020617] border-2 border-slate-500 shadow-inner"></div>
+                                        <span className="text-slate-300 font-bold text-sm">검정 (블랙)</span>
+                                        <span className="text-slate-400 font-black text-3xl">8</span>
+                                    </div>
+                                </>
+                            ) : MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol.includes('P') ? (
+                                <>
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-14 h-14 rounded-full bg-[#3b82f6] border-2 border-slate-500 shadow-inner"></div>
+                                        <span className="text-slate-300 font-bold text-sm">인디고 파랑</span>
+                                        <span className="text-indigo-400 font-black text-3xl">3</span>
+                                    </div>
+                                    <span className="text-slate-600 font-black text-3xl">+</span>
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-14 h-14 rounded-full bg-[#020617] border-2 border-slate-500 shadow-inner"></div>
+                                        <span className="text-slate-300 font-bold text-sm">검정 (블랙)</span>
+                                        <span className="text-slate-400 font-black text-3xl">7</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: MUNSELL_WHEEL_COLORS[selectedWheelIndex].hex}}></div>
+                                        <span className="text-slate-300 font-bold text-sm">메인 원색</span>
+                                        <span className="text-emerald-400 font-black text-3xl">6</span>
+                                    </div>
+                                    <span className="text-slate-600 font-black text-3xl">+</span>
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-14 h-14 rounded-full bg-[#e2e8f0] border-2 border-slate-500 shadow-inner"></div>
+                                        <span className="text-slate-300 font-bold text-sm">화이트/조색제</span>
+                                        <span className="text-slate-400 font-black text-3xl">4</span>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                        <p className="text-xs text-slate-500 mt-5 bg-slate-900/50 py-3 rounded-lg font-medium">
+                            * 위 비율은 해당 먼셀 색상을 구현하기 위한 가상의 현장 조색 가이드입니다.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700 border-dashed w-full max-w-2xl text-center text-slate-500 flex flex-col items-center gap-3">
+                        <Sun className="text-slate-600" size={32} />
+                        <p className="font-bold">보고자 할 때만 나타납니다.</p>
+                        <p className="text-sm">위의 먼셀 20색상환에서 원하시는 컬러를 클릭하시면 하단에 혼합 비율이 표시됩니다.</p>
+                    </div>
+                )}
+             </div>
+
+             {/* 하단 닫기 버튼 */}
+             <div className="mt-16 pb-12 w-full flex justify-center">
+                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2">
+                    <X size={20} /> 믹싱 스튜디오 닫기
+                </button>
+             </div>
+          </main>
+        </div>
+      )}
+    </div>
+  );
+}
