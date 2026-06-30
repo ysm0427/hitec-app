@@ -145,7 +145,7 @@ export const TONER_DB: Record<string, TonerData> = {
     desc: '탁함이 없는 매우 맑고 선명한 주황색 조색제입니다.',
     details: [
       ['일반 특성', '탁함이 전혀 없는 매우 맑고 선명한 주황색 조색제입니다.'],
-      ['색상 및 외관 변화', '높은 투명도로 인해 빛을 그대로 투과시키며 채도 높은 화사한 오렌지빛을 발산합니다.'],
+      ['색상 및 외관 변화', '높은 투명도로 인해 빛을 그대로 투과시키며 채도 높은 화사한 오렌지빛 발산합니다.'],
       ['용도 및 적용 컬러', '투명한 발색 특성 때문에 솔리드 컬러보다는 주로 알루미늄이나 펄이 혼합되는 이펙트 컬러의 화려함을 살릴 때 주로 사용됩니다.'],
       ['배합 및 혼합 비율', '조색 프로그램의 표준 데이터 배합 비율을 따릅니다.'],
       ['경고 및 주의사항', '은폐력(바탕색을 가리는 능력)이 심각하게 떨어지므로, 솔리드 단독 도장 시 바탕에 전용 프라이머나 서페이서를 반드시 도포해야 합니다.']
@@ -258,7 +258,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['색상 및 외관 변화', '솔리드에 적용 시 전체 명도를 밝히고 파스텔톤으로 유도하며, 이펙트 적용 시 15도는 어둡게, 측면은 밝게 하는 백탁 현상을 일으킵니다.'],
       ['용도 및 적용 컬러', '모든 솔리드 컬러의 밝기 조절 및 화이트 베이스코트의 메인 성분으로 절대적으로 사용됩니다.'],
       ['배합 및 혼합 비율', '단독 도장부터 소량 첨가까지 배합표에 따라 매우 광범위한 비율로 사용됩니다.'],
-      ['경고 및 주의사항', '이펙트(메탈릭/펄) 컬러에 임의로 추가 시 금속 입자의 반짝임(스파클링)을 완전히 죽여 탁하게 만들 수 있으므로 극소량만 신중히 사용해야 합니다.']
+      ['경고 및 주의사항', '이펙트(메탈릭/펄) 컬러에 임의로 추가 시 금속 입자의 반짝임(스파클링)을 완전히 죽여 탁하게 만들 수 있으니 극소량만 신중히 사용해야 합니다.']
     ]
   },
   'WT 322': {
@@ -410,7 +410,7 @@ export const TONER_DB: Record<string, TonerData> = {
     details: [
       ['일반 특성', '어두운 갈색(Brownish) 빛이 오묘하게 도는 선명한 반투명 적색 조색제입니다.'],
       ['색상 및 외관 변화', '이펙트 입자 위로 색이 투과되어 깊고 선명하면서도 차분한 검붉은 반사광을 연출합니다.'],
-      ['용도 및 적용 컬러', '빛 반사를 죽이지 않고 깊이감을 더해야 하는 특수 펄/메탈릭 레드 색상에 한정하여 조색 첨가제로 사용합니다.'],
+      ['용도 및 적용 컬러', '빛 반사를 죽이지 않고 깊이감이 더해야 하는 특수 펄/메탈릭 레드 색상에 한정하여 조색 첨가제로 사용합니다.'],
       ['배합 및 혼합 비율', '배합 프로그램의 반투명 안료 첨가 가이드라인에 맞게 극소량 단위로 계량합니다.'],
       ['경고 및 주의사항', '반투명 성질이므로 솔리드 컬러 조색에 은폐용으로 사용하는 것은 절대 금지됩니다.']
     ]
@@ -621,7 +621,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['색상 및 외관 변화', '너무 곱지도, 거칠지도 않은 가장 대중적이고 안정적인 중간 톤의 회은색 금속성 반사광을 형성합니다.'],
       ['용도 및 적용 컬러', '범용성이 극히 뛰어나 시중 80% 이상의 일반적인 실버 메탈릭, 그레이 메탈릭 조색 시 가장 핵심적인 메인 베이스로 사용됩니다.'],
       ['배합 및 혼합 비율', '대부분의 은색 조색에서 가장 큰 부피와 비중을 차지하므로 정확한 대용량 정밀 계량이 요구됩니다.'],
-      ['경고 및 주의사항', '범용 안료이나, 투명 클리어코트 마감 전에는 입자가 얼룩지기 쉬우므로 드롭코트(Drop Coat)를 통해 입자를 균일하게 배열해야 합니다.']
+      ['경고 및 주의사항', '범용 안료 일지라도, 투명 클리어코트 마감 전에는 입자가 얼룩지기 쉬우므로 드롭코트(Drop Coat)를 통해 입자를 균일하게 배열해야 합니다.']
     ]
   },
   'WT 357': {
@@ -1242,7 +1242,6 @@ export const getOptics = (tonersList: any[]) => {
 export const packToners = (tonerList: any[]) => { return tonerList.filter((t: any) => t.code).map((t: any) => { const c = t.code.replace('WT ', '').trim(); const w = t.adjustedWeight || ''; const h = (t.history || []).join(','); return `${c}_${w}_${h}`; }).join('*'); };
 export const unpackToners = (str: string) => { if (!str) return []; return str.split('*').map((t, i) => { const [c, w, h] = t.split('_'); return { id: `restored_${Date.now()}_${i}`, code: c ? `WT ${c}` : '', adjustedWeight: w || '', history: h ? h.split(',') : [], memo: '' }; }); };
 
-// 🚨 [4번 이미지 요구사항] 색상 HSL -> RGB 변환 및 혼합기 함수 구현
 export const h2rgb = (h: number) => {
     const f = (n: number) => {
         const k = (n + h / 30) % 12;
@@ -1251,11 +1250,17 @@ export const h2rgb = (h: number) => {
     return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
 };
 
-export const mixHues = (h1: number, h2: number) => {
-    const c1 = h2rgb(h1); const c2 = h2rgb(h2);
-    // 혼합된 최종 RGB 값 산출
-    return `rgb(${Math.round((c1[0]+c2[0])/2)}, ${Math.round((c1[1]+c2[1])/2)}, ${Math.round((c1[2]+c2[2])/2)})`;
+// 💡 [수정된 부분] 여러 개의 색상을 입력받아 하나의 RGB로 합쳐주는 멀티 믹싱 함수
+export const mixHuesMulti = (...hues: number[]) => {
+    let r = 0, g = 0, b = 0;
+    hues.forEach(h => {
+        const c = h2rgb(h);
+        r += c[0]; g += c[1]; b += c[2];
+    });
+    const len = hues.length;
+    return `rgb(${Math.round(r/len)}, ${Math.round(g/len)}, ${Math.round(b/len)})`;
 };
+
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: 'WT 318', adjustedWeight: "0.3", history: [], memo: "" }, { id: `b_next`, code: 'WT 144', adjustedWeight: "4.0", history: [], memo: "" }]);
@@ -1274,10 +1279,12 @@ export default function App() {
   const [renderMode, setRenderMode] = useState<'shape' | 'car'>('car');
   const [viewAngle, setViewAngle] = useState({ rotY: 15, rotX: 5, scale: 1.1 });
 
-  // 💡 3번/4번 이미지 요구사항: 팝업창 수동 메모 및 수동 보색 혼합 상태
+  // 💡 [수정된 부분] 4가지 색상(A, B, C, D)을 각각 관리하기 위한 상태 추가
   const [tonerMemos, setTonerMemos] = useState<Record<string, string>>({});
-  const [hue1, setHue1] = useState<number>(0);
-  const [hue2, setHue2] = useState<number>(60);
+  const [hueA, setHueA] = useState<number>(0);
+  const [hueB, setHueB] = useState<number>(60);
+  const [hueC, setHueC] = useState<number>(120);
+  const [hueD, setHueD] = useState<number>(240);
 
   const tonersRef = useRef<any[]>([]); const pearlTonersRef = useRef<any[]>([]); const isThreeCoatModeRef = useRef<boolean>(true);
 
@@ -1400,7 +1407,6 @@ export default function App() {
     }));
   };
 
-  // 🚨 1번 이미지 핵심 요구사항: 각 안료별 작업자 수동 메모 핸들러
   const handleMemoChange = (id: string, value: string, isPearl = false) => {
     const setter = isPearl ? setPearlToners : setToners;
     setter(prev => prev.map(t => t.id === id ? { ...t, memo: value } : t));
@@ -1419,7 +1425,6 @@ export default function App() {
       if(t.id === id) {
          let current = parseFloat(t.adjustedWeight) || 0; 
          let newVal = Math.max(0, current + delta);
-         // 🚨 소수점 강제 반올림 오류 차단: 정밀도 손실 없이 문자열 변환
          let strVal = String(Number(Math.round(newVal * 100000) / 100000));
          const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== strVal) ? [...currentHistory, strVal] : currentHistory;
          return { ...t, adjustedWeight: strVal, history: nextHistory };
@@ -1428,12 +1433,10 @@ export default function App() {
     }));
   };
 
-  // 🚨 [계산 오류 완벽 조치] 배율 일괄 연산 시 반올림/반내림으로 인한 오차 제로 보장 로직
   const handleScaleAll = (isMultiply: boolean) => {
     const factor = parseFloat(scaleFactor); if (isNaN(factor) || factor <= 0) { alert("올바른 배율 상수를 입력하세요."); return; }
     const scale = (valStr: string) => { 
         const val = parseFloat(valStr); if (isNaN(val) || val === 0) return valStr; 
-        // 자바스크립트 부동소수점 오차(예: 0.3000000004) 방지를 위해 10만 단위 곱산 후 분할 처리
         const calcVal = isMultiply ? (val * 100000 * factor) / 100000 : (val * 100000) / (factor * 100000);
         return String(Number(Math.round(calcVal * 100000) / 100000)); 
     };
@@ -1521,7 +1524,7 @@ export default function App() {
       <div className="flex-1 p-3 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         <div className="lg:col-span-7 flex flex-col bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden">
           <div className="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3">
-            <div className="flex items-center justify-between"><h2 className="text-sm font-bold text-slate-800 flex items-center"><Sliders className="text-blue-600 mr-2" size={16} />공식 배합 워크 시트</h2></div>
+            <div className="flex items-center justify-between"><h2 className="text-sm font-bold text-slate-800 flex items-center"><Sliders className="text-blue-600 mr-2" size={16} />공식 배합 워 시트</h2></div>
             <div className="flex flex-col gap-2">
               <div className="flex gap-2">
                 <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="차량번호" className="bg-white border p-2 rounded text-xs font-bold w-1/3" />
@@ -1559,7 +1562,6 @@ export default function App() {
                 return (
                   <div key={toner.id} className="flex flex-col bg-slate-50 hover:bg-blue-50/50 p-2.5 mb-1.5 rounded-xl border border-slate-200 shadow-sm transition-colors">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center w-full">
-                      {/* 🚨 1번 이미지 요구사항 완벽 복구: 안료 행별 디테일 설명과 이력 표시 부활 */}
                       <div className="flex flex-col flex-1 w-full">
                           <div className="flex items-center gap-2 mb-1">
                               <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
@@ -1570,7 +1572,6 @@ export default function App() {
                               <span className="font-bold text-blue-700 text-sm truncate">{info.role || '미등록 안료'}</span>
                           </div>
                           
-                          {/* 1번 이미지: 안료 설명 2줄 표시 */}
                           {info.details && info.details.length > 0 ? (
                               <div className="flex flex-col gap-0.5 mt-1 ml-[64px]">
                                   {info.details.slice(0, 2).map((d: any, idx: number) => (
@@ -1582,7 +1583,6 @@ export default function App() {
                               </div>
                           ) : <p className="text-[11px] text-slate-500 leading-tight break-keep ml-[64px]">{info.desc}</p>}
 
-                          {/* 1번 이미지: 안료 작업 이력 표시 */}
                           {toner.history && toner.history.length > 0 && (
                               <div className="flex items-center gap-1.5 mt-2 ml-[64px] text-[10px] text-slate-500 bg-slate-100 px-2 py-1 rounded">
                                   <span className="font-bold">이력 ({toner.history.length}회):</span>
@@ -1639,7 +1639,6 @@ export default function App() {
                                 <span className="font-bold text-purple-700 text-sm truncate">{info.role || '미등록 안료'}</span>
                             </div>
                             
-                            {/* 펄 코트: 1번 이미지 요구사항 반영 */}
                             {info.details && info.details.length > 0 ? (
                                 <div className="flex flex-col gap-0.5 mt-1 ml-[64px]">
                                     {info.details.slice(0, 2).map((d: any, idx: number) => (
@@ -1695,12 +1694,10 @@ export default function App() {
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
             <div className="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0">
                 <h3 className="text-white font-black text-sm flex items-center"><BookOpen className="mr-2 text-blue-400" size={18}/>지능형 안료 도감</h3>
-                {/* 🚨 1번 이미지 영역 설명 문구 추가 */}
                 <span className="text-[10px] text-slate-500 hidden sm:block mx-auto flex-1 text-center font-bold">전체 안료 데이터 열람 영역</span>
                 <div className="relative w-40"><input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="검색 (예: 블루)" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 transition-colors" /><Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" /></div>
             </div>
             
-            {/* 🚨 2번 이미지 요구사항 완벽 반영 - 간소화 0% 5단 뱃지 카탈로그 출력 */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
                 {sortedCatalog.map((item) => {
                     const isMetallic = item.type !== 'solid' && item.type !== 'binder';
@@ -1738,7 +1735,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* 💡 화면 최하단 무조건 수평 상시 고정형 실시간 연산 대시보드 */}
       <div className="fixed bottom-0 left-0 w-full p-3 sm:p-4 bg-slate-950 text-slate-100 flex flex-col lg:flex-row justify-between items-center z-[500] border-t-4 border-indigo-900 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] gap-4 backdrop-blur-md">
           <div className="flex w-full lg:w-auto gap-4 flex-col sm:flex-row justify-between lg:justify-start">
               <div className="flex flex-col gap-1 flex-1 min-w-[240px]">
@@ -1769,7 +1765,6 @@ export default function App() {
           <div className="flex flex-col items-center justify-center shrink-0 bg-gradient-to-br from-amber-950/50 to-yellow-900/20 border-2 border-yellow-500/60 px-6 py-2 rounded-xl w-full lg:w-auto shadow-[0_0_25px_rgba(234,179,8,0.2)]">
              <span className="text-[11px] text-yellow-500 font-black tracking-widest flex items-center uppercase"><Beaker size={13} className="mr-1"/> ✨ 최종 도막 혼합 총량</span>
              <span className="text-3xl font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">
-                 {/* 🚨 계산 오류 원천 차단: 소수점 정밀 제어 */}
                  {(
                      parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 1.2 : 1.1)).toFixed(1)) + 
                      (isThreeCoatMode ? parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 1.2 : 1.1)).toFixed(1)) : 0)
@@ -1778,7 +1773,6 @@ export default function App() {
           </div>
       </div>
 
-      {/* 🚨 3번 이미지 요구사항 완벽 반영 - 수동 메모칸이 포함된 먼셀 동적 시뮬레이터 팝업 모달 */}
       {selectedTonerForView && TONER_DB[selectedTonerForView] && (
         <div className="fixed inset-0 bg-slate-900/90 z-[700] flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in">
            <div className="bg-white rounded-2xl w-[650px] max-w-full shadow-2xl overflow-hidden border flex flex-col max-h-[90vh]">
@@ -1789,7 +1783,6 @@ export default function App() {
               <div className="p-5 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
                  <div className="text-xl font-black text-slate-800 mb-3">{TONER_DB[selectedTonerForView].role}</div>
                  
-                 {/* 🚨 먼셀 분석 엔진 결과 출력 */}
                  {(()=>{
                      const activeT = [...toners, ...pearlToners].find(t => t.code === selectedTonerForView);
                      const cWeight = activeT ? (parseFloat(activeT.adjustedWeight) || 0) : 0;
@@ -1814,7 +1807,6 @@ export default function App() {
                     )})}
                  </div>
 
-                 {/* 🚨 3번 이미지 핵심 요구사항: 5단 뱃지 아래 빨간 박스 위치에 작업자용 수동 메모칸(textarea) 추가! */}
                  <div className="mb-4">
                      <div className="text-[10px] font-black text-slate-500 mb-1 flex items-center"><Search size={10} className="mr-1"/> 수동 특이사항 메모 (자동 저장)</div>
                      <textarea
@@ -1845,120 +1837,135 @@ export default function App() {
         </div>
       )}
 
-      {/* 🚨 4번 이미지 기능 전격 추가: 3D 가상 랩 스튜디오 확장 (수동 보색 체커 및 색상 혼합기) */}
+      {/* 💡 [수정된 부분] 4개의 색상(A, B, C, D)을 각각 선택하여 하나씩 믹싱 컬러를 확인하고, 마지막에 모두 섞은 컬러가 나오도록 개편 */}
       {isConfiguratorOpen && (
-        <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in">
-          <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0">
-            <h2 className="text-base font-black tracking-widest text-slate-300 uppercase flex items-center"><Camera className="mr-2 text-indigo-500"/> HI-TEC COLOR MIXING & COMPLEMENTARY LAB</h2>
+        <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-auto custom-scrollbar">
+          <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-10">
+            <h2 className="text-base font-black tracking-widest text-slate-300 uppercase flex items-center"><Camera className="mr-2 text-indigo-500"/> HI-TEC 4-COLOR MIXING STUDIO</h2>
             <button onClick={() => setIsConfiguratorOpen(false)} className="p-2 bg-slate-800 hover:bg-red-600 rounded-full border border-slate-700 transition-colors"><X size={18}/></button>
           </header>
           
-          <div className="flex flex-1 overflow-hidden">
-              {/* 메인: 대형 색상 혼합 및 보색 체커 UI (2번 이미지 자동차 제거됨) */}
-              <main className="flex-1 p-8 flex flex-col items-center justify-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950 overflow-y-auto custom-scrollbar">
-                 <h3 className="text-3xl font-black text-white mb-10 flex items-center"><Beaker className="mr-3 text-blue-500" size={32}/> 색상 혼합 및 보색 분석 스튜디오</h3>
+          <main className="flex-1 p-8 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950">
+             <h3 className="text-3xl font-black text-white mb-10 flex items-center"><Beaker className="mr-3 text-blue-500" size={32}/> 색상 혼합 랩 스튜디오 (4 Color Mix)</h3>
+             
+             {/* 상단: 4개의 개별 색상 선택기 */}
+             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 w-full max-w-[1400px] gap-6 items-start justify-center">
                  
-                 <div className="flex flex-col md:flex-row w-full max-w-5xl gap-6 md:gap-12 items-center justify-center">
-                     
-                     {/* 색상 A (수동 선택) */}
-                     <div className="flex-1 bg-slate-800/80 p-6 rounded-3xl border border-slate-700 shadow-2xl flex flex-col items-center w-full max-w-sm">
-                         <h4 className="text-blue-400 font-black text-lg mb-6 tracking-widest border-b border-blue-900/50 pb-2 w-full text-center">COLOR A</h4>
-                         
-                         <div className="w-48 h-48 rounded-full border-4 border-slate-600 mb-6 relative shadow-[0_0_30px_rgba(0,0,0,0.5)]" 
-                              style={{background: 'conic-gradient(from 90deg, red, #ff8000, yellow, #80ff00, lime, #00ff80, cyan, #0080ff, blue, #8000ff, magenta, #ff0080, red)'}}>
-                             <div className="absolute inset-0 m-auto w-full h-0.5" style={{ transform: `rotate(${hue1}deg)` }}>
-                                 <div className="absolute right-0 top-1/2 -translate-y-1/2 w-5 h-5 bg-white rounded-full border-4 border-slate-900 shadow"></div>
-                             </div>
-                         </div>
-                         
-                         <div className="w-full flex flex-col gap-2 mb-6">
-                             <div className="flex justify-between text-[10px] text-slate-400 font-bold px-1"><span>0° (Red)</span><span>180° (Cyan)</span><span>360°</span></div>
-                             <input type="range" min="0" max="360" value={hue1} onChange={(e) => setHue1(Number(e.target.value))} className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
-                         </div>
-
-                         <div className="flex w-full gap-4">
-                             <div className="flex-1 flex flex-col items-center">
-                                 <span className="text-xs font-bold text-slate-400 mb-1.5">선택 색상 ({hue1}°)</span>
-                                 <div className="w-full h-16 rounded-xl shadow-inner border border-slate-600" style={{backgroundColor: `hsl(${hue1}, 100%, 50%)`}}></div>
-                             </div>
-                             <div className="flex-1 flex flex-col items-center">
-                                 <span className="text-xs font-bold text-slate-400 mb-1.5">보색 ({(hue1+180)%360}°)</span>
-                                 <div className="w-full h-16 rounded-xl shadow-inner border border-slate-600" style={{backgroundColor: `hsl(${(hue1+180)%360}, 100%, 50%)`}}></div>
-                             </div>
+                 {/* Color A */}
+                 <div className="bg-slate-800/80 p-6 rounded-3xl border border-slate-700 shadow-2xl flex flex-col items-center">
+                     <h4 className="text-blue-400 font-black text-lg mb-6 tracking-widest border-b border-blue-900/50 pb-2 w-full text-center">COLOR A</h4>
+                     <div className="w-40 h-40 rounded-full border-4 border-slate-600 mb-6 relative shadow-[0_0_30px_rgba(0,0,0,0.5)]" style={{background: 'conic-gradient(from 90deg, red, #ff8000, yellow, #80ff00, lime, #00ff80, cyan, #0080ff, blue, #8000ff, magenta, #ff0080, red)'}}>
+                         <div className="absolute inset-0 m-auto w-full h-0.5" style={{ transform: `rotate(${hueA}deg)` }}>
+                             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-slate-900 shadow"></div>
                          </div>
                      </div>
-
-                     {/* 플러스 아이콘 */}
-                     <div className="hidden md:flex items-center justify-center shrink-0">
-                         <Plus size={48} className="text-slate-500" />
+                     <div className="w-full flex flex-col gap-2 mb-6">
+                         <div className="flex justify-between text-[10px] text-slate-400 font-bold px-1"><span>0°</span><span>180°</span><span>360°</span></div>
+                         <input type="range" min="0" max="360" value={hueA} onChange={(e) => setHueA(Number(e.target.value))} className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
                      </div>
-                     <div className="md:hidden my-2 text-slate-500"><Plus size={32} /></div>
-
-                     {/* 색상 B (수동 선택) */}
-                     <div className="flex-1 bg-slate-800/80 p-6 rounded-3xl border border-slate-700 shadow-2xl flex flex-col items-center w-full max-w-sm">
-                         <h4 className="text-red-400 font-black text-lg mb-6 tracking-widest border-b border-red-900/50 pb-2 w-full text-center">COLOR B</h4>
-                         
-                         <div className="w-48 h-48 rounded-full border-4 border-slate-600 mb-6 relative shadow-[0_0_30px_rgba(0,0,0,0.5)]" 
-                              style={{background: 'conic-gradient(from 90deg, red, #ff8000, yellow, #80ff00, lime, #00ff80, cyan, #0080ff, blue, #8000ff, magenta, #ff0080, red)'}}>
-                             <div className="absolute inset-0 m-auto w-full h-0.5" style={{ transform: `rotate(${hue2}deg)` }}>
-                                 <div className="absolute right-0 top-1/2 -translate-y-1/2 w-5 h-5 bg-white rounded-full border-4 border-slate-900 shadow"></div>
-                             </div>
-                         </div>
-                         
-                         <div className="w-full flex flex-col gap-2 mb-6">
-                             <div className="flex justify-between text-[10px] text-slate-400 font-bold px-1"><span>0° (Red)</span><span>180° (Cyan)</span><span>360°</span></div>
-                             <input type="range" min="0" max="360" value={hue2} onChange={(e) => setHue2(Number(e.target.value))} className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500" />
-                         </div>
-
-                         <div className="flex w-full gap-4">
-                             <div className="flex-1 flex flex-col items-center">
-                                 <span className="text-xs font-bold text-slate-400 mb-1.5">선택 색상 ({hue2}°)</span>
-                                 <div className="w-full h-16 rounded-xl shadow-inner border border-slate-600" style={{backgroundColor: `hsl(${hue2}, 100%, 50%)`}}></div>
-                             </div>
-                             <div className="flex-1 flex flex-col items-center">
-                                 <span className="text-xs font-bold text-slate-400 mb-1.5">보색 ({(hue2+180)%360}°)</span>
-                                 <div className="w-full h-16 rounded-xl shadow-inner border border-slate-600" style={{backgroundColor: `hsl(${(hue2+180)%360}, 100%, 50%)`}}></div>
-                             </div>
-                         </div>
+                     <div className="flex-1 flex flex-col items-center w-full">
+                         <span className="text-xs font-bold text-slate-400 mb-1.5">선택 색상 ({hueA}°)</span>
+                         <div className="w-full h-16 rounded-xl shadow-inner border border-slate-600" style={{backgroundColor: `hsl(${hueA}, 100%, 50%)`}}></div>
                      </div>
                  </div>
 
-                 {/* 이퀄스 아이콘 */}
-                 <div className="my-8 text-yellow-500 opacity-80">
-                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="9" x2="19" y2="9"></line><line x1="5" y1="15" x2="19" y2="15"></line></svg>
+                 {/* Color B */}
+                 <div className="bg-slate-800/80 p-6 rounded-3xl border border-slate-700 shadow-2xl flex flex-col items-center">
+                     <h4 className="text-green-400 font-black text-lg mb-6 tracking-widest border-b border-green-900/50 pb-2 w-full text-center">COLOR B</h4>
+                     <div className="w-40 h-40 rounded-full border-4 border-slate-600 mb-6 relative shadow-[0_0_30px_rgba(0,0,0,0.5)]" style={{background: 'conic-gradient(from 90deg, red, #ff8000, yellow, #80ff00, lime, #00ff80, cyan, #0080ff, blue, #8000ff, magenta, #ff0080, red)'}}>
+                         <div className="absolute inset-0 m-auto w-full h-0.5" style={{ transform: `rotate(${hueB}deg)` }}>
+                             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-slate-900 shadow"></div>
+                         </div>
+                     </div>
+                     <div className="w-full flex flex-col gap-2 mb-6">
+                         <div className="flex justify-between text-[10px] text-slate-400 font-bold px-1"><span>0°</span><span>180°</span><span>360°</span></div>
+                         <input type="range" min="0" max="360" value={hueB} onChange={(e) => setHueB(Number(e.target.value))} className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
+                     </div>
+                     <div className="flex-1 flex flex-col items-center w-full">
+                         <span className="text-xs font-bold text-slate-400 mb-1.5">선택 색상 ({hueB}°)</span>
+                         <div className="w-full h-16 rounded-xl shadow-inner border border-slate-600" style={{backgroundColor: `hsl(${hueB}, 100%, 50%)`}}></div>
+                     </div>
                  </div>
 
-                 {/* 혼합 결과 도막 패널 */}
-                 <div className="w-full max-w-2xl bg-gradient-to-br from-yellow-900/30 to-amber-900/10 p-8 rounded-3xl border border-yellow-500/40 shadow-[0_0_50px_rgba(234,179,8,0.15)] flex flex-col items-center text-center">
-                     <h4 className="text-yellow-400 font-black text-2xl mb-2 flex items-center"><Zap className="mr-2"/> 혼합 결과 예상 컬러</h4>
-                     <p className="text-sm text-slate-300 mb-6">색상 A와 색상 B가 도막에서 혼합되었을 때 생성되는 시뮬레이션 컬러입니다.</p>
-                     
-                     <div className="w-full h-32 rounded-2xl shadow-2xl border-2 border-white/20 relative overflow-hidden" style={{backgroundColor: mixHues(hue1, hue2)}}>
-                         {/* 빛 반사 효과 추가 */}
-                         <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/30 mix-blend-overlay"></div>
+                 {/* Color C */}
+                 <div className="bg-slate-800/80 p-6 rounded-3xl border border-slate-700 shadow-2xl flex flex-col items-center">
+                     <h4 className="text-yellow-400 font-black text-lg mb-6 tracking-widest border-b border-yellow-900/50 pb-2 w-full text-center">COLOR C</h4>
+                     <div className="w-40 h-40 rounded-full border-4 border-slate-600 mb-6 relative shadow-[0_0_30px_rgba(0,0,0,0.5)]" style={{background: 'conic-gradient(from 90deg, red, #ff8000, yellow, #80ff00, lime, #00ff80, cyan, #0080ff, blue, #8000ff, magenta, #ff0080, red)'}}>
+                         <div className="absolute inset-0 m-auto w-full h-0.5" style={{ transform: `rotate(${hueC}deg)` }}>
+                             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-slate-900 shadow"></div>
+                         </div>
                      </div>
-                     
-                     <div className="mt-6 flex flex-col sm:flex-row gap-4 text-sm font-bold w-full justify-center">
-                         <div className="bg-black/50 px-4 py-2 rounded-lg text-slate-200 border border-slate-700 flex flex-col items-center">
-                             <span className="text-[10px] text-slate-400 mb-1">Color A ({(hue1).toFixed(0)}°)</span>
-                             <span style={{color: `hsl(${hue1}, 100%, 70%)`}}>■ RGB 변환</span>
-                         </div>
-                         <div className="bg-black/50 px-4 py-2 rounded-lg text-slate-200 border border-slate-700 flex flex-col items-center">
-                             <span className="text-[10px] text-slate-400 mb-1">Color B ({(hue2).toFixed(0)}°)</span>
-                             <span style={{color: `hsl(${hue2}, 100%, 70%)`}}>■ RGB 변환</span>
-                         </div>
-                         <div className="bg-yellow-500/20 px-6 py-2 rounded-lg text-yellow-300 border border-yellow-500/50 flex flex-col items-center shadow-inner">
-                             <span className="text-[10px] text-yellow-500/80 mb-1">Result Mix</span>
-                             <span className="tracking-widest">{mixHues(hue1, hue2).toUpperCase()}</span>
-                         </div>
+                     <div className="w-full flex flex-col gap-2 mb-6">
+                         <div className="flex justify-between text-[10px] text-slate-400 font-bold px-1"><span>0°</span><span>180°</span><span>360°</span></div>
+                         <input type="range" min="0" max="360" value={hueC} onChange={(e) => setHueC(Number(e.target.value))} className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-yellow-500" />
+                     </div>
+                     <div className="flex-1 flex flex-col items-center w-full">
+                         <span className="text-xs font-bold text-slate-400 mb-1.5">선택 색상 ({hueC}°)</span>
+                         <div className="w-full h-16 rounded-xl shadow-inner border border-slate-600" style={{backgroundColor: `hsl(${hueC}, 100%, 50%)`}}></div>
                      </div>
                  </div>
-              </main>
-          </div>
+
+                 {/* Color D */}
+                 <div className="bg-slate-800/80 p-6 rounded-3xl border border-slate-700 shadow-2xl flex flex-col items-center">
+                     <h4 className="text-purple-400 font-black text-lg mb-6 tracking-widest border-b border-purple-900/50 pb-2 w-full text-center">COLOR D</h4>
+                     <div className="w-40 h-40 rounded-full border-4 border-slate-600 mb-6 relative shadow-[0_0_30px_rgba(0,0,0,0.5)]" style={{background: 'conic-gradient(from 90deg, red, #ff8000, yellow, #80ff00, lime, #00ff80, cyan, #0080ff, blue, #8000ff, magenta, #ff0080, red)'}}>
+                         <div className="absolute inset-0 m-auto w-full h-0.5" style={{ transform: `rotate(${hueD}deg)` }}>
+                             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-slate-900 shadow"></div>
+                         </div>
+                     </div>
+                     <div className="w-full flex flex-col gap-2 mb-6">
+                         <div className="flex justify-between text-[10px] text-slate-400 font-bold px-1"><span>0°</span><span>180°</span><span>360°</span></div>
+                         <input type="range" min="0" max="360" value={hueD} onChange={(e) => setHueD(Number(e.target.value))} className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+                     </div>
+                     <div className="flex-1 flex flex-col items-center w-full">
+                         <span className="text-xs font-bold text-slate-400 mb-1.5">선택 색상 ({hueD}°)</span>
+                         <div className="w-full h-16 rounded-xl shadow-inner border border-slate-600" style={{backgroundColor: `hsl(${hueD}, 100%, 50%)`}}></div>
+                     </div>
+                 </div>
+             </div>
+
+             <div className="my-10 text-yellow-500 opacity-80 flex flex-col items-center">
+                 <span className="text-xs tracking-widest mb-2 text-slate-400">MIX ALL 4 COLORS</span>
+                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+             </div>
+
+             {/* 하단: 4가지 색상을 전부 혼합한 최종 결과 패널 */}
+             <div className="w-full max-w-4xl bg-gradient-to-br from-yellow-900/30 to-amber-900/10 p-8 rounded-3xl border border-yellow-500/40 shadow-[0_0_50px_rgba(234,179,8,0.15)] flex flex-col items-center text-center mb-10">
+                 <h4 className="text-yellow-400 font-black text-2xl mb-2 flex items-center"><Zap className="mr-2"/> 4가지 전체 혼합 결과 (A + B + C + D)</h4>
+                 <p className="text-sm text-slate-300 mb-6">4개의 개별 색상이 동일한 비율로 도막에서 혼합되었을 때 생성되는 시뮬레이션 결과입니다.</p>
+                 
+                 <div className="w-full h-40 rounded-2xl shadow-2xl border-2 border-white/20 relative overflow-hidden" style={{backgroundColor: mixHuesMulti(hueA, hueB, hueC, hueD)}}>
+                     <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/30 mix-blend-overlay"></div>
+                 </div>
+                 
+                 <div className="mt-8 flex flex-wrap gap-4 text-sm font-bold w-full justify-center">
+                     <div className="bg-black/50 px-4 py-2 rounded-lg text-slate-200 border border-slate-700 flex flex-col items-center">
+                         <span className="text-[10px] text-slate-400 mb-1">Color A ({(hueA).toFixed(0)}°)</span>
+                         <span style={{color: `hsl(${hueA}, 100%, 70%)`}}>■ RGB</span>
+                     </div>
+                     <div className="bg-black/50 px-4 py-2 rounded-lg text-slate-200 border border-slate-700 flex flex-col items-center">
+                         <span className="text-[10px] text-slate-400 mb-1">Color B ({(hueB).toFixed(0)}°)</span>
+                         <span style={{color: `hsl(${hueB}, 100%, 70%)`}}>■ RGB</span>
+                     </div>
+                     <div className="bg-black/50 px-4 py-2 rounded-lg text-slate-200 border border-slate-700 flex flex-col items-center">
+                         <span className="text-[10px] text-slate-400 mb-1">Color C ({(hueC).toFixed(0)}°)</span>
+                         <span style={{color: `hsl(${hueC}, 100%, 70%)`}}>■ RGB</span>
+                     </div>
+                     <div className="bg-black/50 px-4 py-2 rounded-lg text-slate-200 border border-slate-700 flex flex-col items-center">
+                         <span className="text-[10px] text-slate-400 mb-1">Color D ({(hueD).toFixed(0)}°)</span>
+                         <span style={{color: `hsl(${hueD}, 100%, 70%)`}}>■ RGB</span>
+                     </div>
+                     
+                     <div className="bg-yellow-500/20 px-6 py-2 rounded-lg text-yellow-300 border border-yellow-500/50 flex flex-col items-center shadow-inner ml-0 md:ml-4">
+                         <span className="text-[10px] text-yellow-500/80 mb-1">Final Result</span>
+                         <span className="tracking-widest text-lg">{mixHuesMulti(hueA, hueB, hueC, hueD).toUpperCase()}</span>
+                     </div>
+                 </div>
+             </div>
+          </main>
         </div>
       )}
 
-      {/* 🚨 마지막 에러(Unterminated string)를 유발했던 CSS 태그 영역! 이제 안전하게 닫혔습니다. */}
       <style dangerouslySetInnerHTML={{__html: `
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); border-radius: 10px; }
