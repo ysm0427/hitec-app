@@ -6,7 +6,7 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 공식 안료 데이터베이스 (간소화 0%, 마스터님의 1400줄 원본 데이터 100% 복구)
+// 💡 공식 안료 데이터베이스 (간소화 0%)
 export const TONER_DB: Record<string, TonerData> = {
   'WT 144': {
     role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1',
@@ -808,7 +808,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['색상 및 외관 변화', '시야 각도별 교차가 화려합니다. 정면(15도)에서는 맑고 시원한 청녹색(에메랄드), 측면에서는 반전되는 따뜻한 황적색(오렌지)을 나타냅니다.'],
       ['용도 및 적용 컬러', '시각적 재미와 다이내믹함이 필요한 커스텀 카멜레온 도장이나 복합적인 이색(Two-tone)을 지닌 최신 OEM 펄 컬러 매칭에 제한적으로 씁니다.'],
       ['배합 및 혼합 비율', '고기능성 특수 펄이므로 조색표에 명시된 극소량의 0.1g 정밀 계량 수치까지 정확히 지켜 첨가합니다.'],
-      ['경고 및 주의사항', '측면에서 붉은 황색이 강하게 올라오므로, 맑은 단색의 청녹색을 원할 경우 이 펄을 오용하면 도장이 완전히 망가질 수 있습니다.']
+      ['경고 및 주의사항', '측면에서 붉은 황색 강하게 올라오므로, 맑은 단색의 청녹색을 원할 경우 이 펄을 오용하면 도장이 완전히 망가질 수 있습니다.']
     ]
   },
   'WT 375': {
@@ -1050,8 +1050,7 @@ export const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
   return { code, ...data, labelCategory, badgeColor };
 });
 
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-const lerpHue = (a: number, b: number, t: number) => { let d = b - a; if (d > 180) d -= 360; if (d < -180) d += 360; let h = a + d * t; if (h < 0) h += 360; if (h >= 360) h -= 360; return h; };
+export const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
 const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스') || r.includes('대체용'); }
 
 const textureCache: Record<string, React.CSSProperties> = {};
@@ -1091,18 +1090,6 @@ export const getTonerDetailBackground = (code: string, role: string, angle: stri
     const l = isMetallic ? Math.max(0, baseL - 30) : Math.max(0, baseL - 15);
     return `radial-gradient(circle at 10% 10%, hsl(${h}, ${s}%, ${Math.min(100, l+10)}%) 0%, hsl(${h}, ${s}%, ${l}%) 100%)`;
   }
-};
-
-export const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
-
-export const getMunsellCode = (optics: any) => {
-    if(!optics || isNaN(optics.h)) return "N/A";
-    const hNorm = (optics.h / 360) * 100; const hueIdx = Math.floor(hNorm / 10) % 10; const hueSub = Math.max(0.1, (hNorm % 10)).toFixed(1);
-    const munsellHues = ['R', 'YR', 'Y', 'GY', 'G', 'BG', 'B', 'PB', 'P', 'RP'];
-    const M_H = `${hueSub}${munsellHues[hueIdx]}`;
-    const M_V = Math.max(0.1, (optics.l / 10)).toFixed(1);
-    const M_C = Math.max(0.1, (optics.s / 100 * 14)).toFixed(1);
-    return `${M_H} ${M_V}/${M_C}`;
 };
 
 export const getMunsellDynamicDescription = (code: string, role: string, type: string, cWeight: number) => {
@@ -1250,7 +1237,40 @@ export const h2rgb = (h: number) => {
     return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
 };
 
-// 💡 [수정] 여러 안료가 각각의 '중량(Weight)'에 비례하여 섞이도록 가중치 혼합 연산기 구축
+// 💡 [핵심] 먼셀 보색 변환 알고리즘 추가
+// RGB의 단순 180도 반전이 아닌, 실제 안료의 보색 관계(빨강<->청록, 노랑<->남색, 녹색<->자주)를 반영
+export const getMunsellComplement = (hue: number) => {
+    let h = hue % 360;
+    if (h < 0) h += 360;
+    
+    // 먼셀 색상환 기준 HSL 좌표 매핑 테이블
+    const map = [
+        [0, 180],    // Red -> Blue-Green
+        [30, 210],   // Orange -> Blue
+        [60, 255],   // Yellow -> Purple-Blue
+        [90, 285],   // Yellow-Green -> Purple
+        [120, 330],  // Green -> Red-Purple
+        [150, 345],
+        [180, 360],  // Blue-Green -> Red
+        [210, 390],  // Blue -> Orange (30+360)
+        [255, 420],  // Purple-Blue -> Yellow (60+360)
+        [285, 450],  // Purple -> Yellow-Green (90+360)
+        [330, 480],  // Red-Purple -> Green (120+360)
+        [360, 540]   // Red -> Blue-Green (180+360)
+    ];
+
+    for (let i = 0; i < map.length - 1; i++) {
+        if (h >= map[i][0] && h <= map[i+1][0]) {
+            const rangeX = map[i+1][0] - map[i][0];
+            const fraction = (h - map[i][0]) / rangeX;
+            let comp = map[i][1] + fraction * (map[i+1][1] - map[i][1]);
+            return comp % 360;
+        }
+    }
+    return (h + 180) % 360;
+};
+
+// 다중 가중치 믹싱 함수
 export const mixWeightedHuesMulti = (colors: { hue: number, weight: number }[]) => {
     let r = 0, g = 0, b = 0, totalWeight = 0;
     const validColors = colors.filter(c => c.weight > 0);
@@ -1287,12 +1307,12 @@ export default function App() {
   const [viewAngle, setViewAngle] = useState({ rotY: 15, rotX: 5, scale: 1.1 });
   const [tonerMemos, setTonerMemos] = useState<Record<string, string>>({});
 
-  // 💡 [핵심 변경] 무한대로 색상환을 추가할 수 있는 동적 배열 State 적용
+  // 색상환 랩 믹싱용 동적 데이터 배열
   const [mixColors, setMixColors] = useState([
-      { id: 'A', name: 'COLOR A', hue: 0, weight: 50 },
-      { id: 'B', name: 'COLOR B', hue: 60, weight: 50 },
-      { id: 'C', name: 'COLOR C', hue: 120, weight: 50 },
-      { id: 'D', name: 'COLOR D', hue: 240, weight: 50 }
+      { id: 'A', name: '색상 A', hue: 0, weight: 50 },
+      { id: 'B', name: '색상 B', hue: 60, weight: 50 },
+      { id: 'C', name: '색상 C', hue: 120, weight: 50 },
+      { id: 'D', name: '색상 D', hue: 240, weight: 50 }
   ]);
 
   const updateMixColor = (id: string, field: 'hue' | 'weight', value: number) => {
@@ -1300,8 +1320,8 @@ export default function App() {
   };
 
   const addMixColor = () => {
-      const nextLetter = String.fromCharCode(65 + mixColors.length); // E, F, G... 생성
-      setMixColors(prev => [...prev, { id: nextLetter, name: `COLOR ${nextLetter}`, hue: Math.floor(Math.random() * 360), weight: 50 }]);
+      const nextLetter = String.fromCharCode(65 + mixColors.length);
+      setMixColors(prev => [...prev, { id: nextLetter, name: `색상 ${nextLetter}`, hue: Math.floor(Math.random() * 360), weight: 50 }]);
   };
 
   const removeMixColor = (id: string) => {
@@ -1705,11 +1725,11 @@ export default function App() {
           <div className="bg-white border rounded-xl p-3 shadow-xl shrink-0">
             <h3 className="text-xs font-black mb-2 flex justify-between items-center border-b pb-1 text-slate-800">
               <span>🏎️ STUDIO 3D 광학 변환 시뮬레이터</span>
-              <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }} className="text-[10px] px-2 py-1 rounded bg-slate-800 text-white font-bold flex items-center hover:bg-slate-700 transition-colors"><Maximize size={10} className="mr-1"/>색상 혼합 & 3D 랩 열기</button>
+              <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }} className="text-[10px] px-2 py-1 rounded bg-slate-800 text-white font-bold flex items-center hover:bg-slate-700 transition-colors"><Maximize size={10} className="mr-1"/>먼셀 컬러 믹싱 랩</button>
             </h3>
             <div className="h-40 rounded-xl overflow-hidden shadow-inner border bg-slate-900 flex items-center justify-center cursor-pointer relative group" onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }}>
                 {render3DView(finalOptics, renderMode)}
-                <div className="absolute top-2 left-2 bg-black/70 text-white text-[9px] px-2 py-0.5 rounded backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity">클릭하여 전체화면 확대</div>
+                <div className="absolute top-2 left-2 bg-black/70 text-white text-[9px] px-2 py-0.5 rounded backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity">클릭하여 믹싱랩 스튜디오 열기</div>
             </div>
           </div>
 
@@ -1795,6 +1815,7 @@ export default function App() {
           </div>
       </div>
 
+      {/* 안료 분석 모달 */}
       {selectedTonerForView && TONER_DB[selectedTonerForView] && (
         <div className="fixed inset-0 bg-slate-900/90 z-[700] flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in">
            <div className="bg-white rounded-2xl w-[650px] max-w-full shadow-2xl overflow-hidden border flex flex-col max-h-[90vh]">
@@ -1859,21 +1880,24 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 [대대적 개편] 다중 색상 혼합 랩 스튜디오 */}
+      {/* 💡 [대대적 개편] 다중 색상 혼합 랩 스튜디오 (먼셀 보색 적용 및 가중치 혼합) */}
       {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-auto custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-10">
-            <h2 className="text-base font-black tracking-widest text-slate-300 uppercase flex items-center"><Camera className="mr-2 text-indigo-500"/> MULTI-COLOR MIXING LAB 스튜디오</h2>
+            <h2 className="text-base font-black tracking-widest text-slate-300 uppercase flex items-center"><Camera className="mr-2 text-indigo-500"/> 먼셀(Munsell) 컬러 매칭 랩 스튜디오</h2>
             <button onClick={() => setIsConfiguratorOpen(false)} className="p-2 bg-slate-800 hover:bg-red-600 rounded-full border border-slate-700 transition-colors"><X size={18}/></button>
           </header>
           
           <main className="flex-1 p-8 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950">
-             <h3 className="text-3xl font-black text-white mb-10 flex items-center"><Beaker className="mr-3 text-blue-500" size={32}/> 가중치 기반 색상 혼합기 (Weighted Mix)</h3>
+             <h3 className="text-3xl font-black text-white mb-10 flex items-center"><Beaker className="mr-3 text-blue-500" size={32}/> 가중치 기반 색상 혼합기</h3>
              
              {/* 상단: 색상환 블록 그리드 */}
              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 w-full max-w-[1500px] gap-6 items-start justify-center">
                  
-                 {mixColors.map((c) => (
+                 {mixColors.map((c) => {
+                     const munsellCompHue = getMunsellComplement(c.hue);
+
+                     return (
                      <div key={c.id} className="bg-slate-800/80 p-5 rounded-3xl border border-slate-700 shadow-2xl flex flex-col items-center relative group">
                          {/* 블록 삭제 버튼 */}
                          {mixColors.length > 2 && (
@@ -1884,17 +1908,22 @@ export default function App() {
                              {c.name}
                          </h4>
 
-                         {/* 💡 요청 1 & 2: 색상환 + 보색 연결 빨간선(Red Line) UI */}
-                         <div className="w-40 h-40 rounded-full border-4 border-slate-600 mb-6 relative shadow-[0_0_30px_rgba(0,0,0,0.5)]" style={{background: 'conic-gradient(from 90deg, red, #ff8000, yellow, #80ff00, lime, #00ff80, cyan, #0080ff, blue, #8000ff, magenta, #ff0080, red)'}}>
-                             <div className="absolute inset-0 m-auto w-full h-0.5" style={{ transform: `rotate(${c.hue}deg)` }}>
-                                 {/* 선택한 컬러 닷 */}
-                                 <div className="absolute right-[-4px] top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-slate-900 shadow-md z-10"></div>
-                                 
-                                 {/* 보색으로 이어지는 가이드 라인 (빨간선) */}
-                                 <div className="absolute left-[10px] right-[10px] top-1/2 -translate-y-1/2 h-[2px] bg-gradient-to-l from-white via-red-500 to-red-500/50 shadow-[0_0_5px_rgba(255,0,0,0.8)]"></div>
-                                 
-                                 {/* 반대편 보색 컬러 닷 */}
-                                 <div className="absolute left-[-2px] top-1/2 -translate-y-1/2 w-3 h-3 bg-slate-300 rounded-full border-2 border-slate-700 shadow-sm"></div>
+                         {/* 💡 요청 1 & 2: 먼셀 보색 기반 연결 가이드 라인 (Red Line) UI */}
+                         <div className="w-40 h-40 rounded-full border-4 border-slate-600 mb-6 relative shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden" 
+                              style={{background: 'conic-gradient(from 90deg, red 0deg, yellow 60deg, lime 120deg, cyan 180deg, blue 240deg, magenta 300deg, red 360deg)'}}>
+                             
+                             {/* 시작 색상 라인 (중앙에서 시작색상 위치로 뻗어나가는 선) */}
+                             <div className="absolute top-1/2 left-1/2 w-1/2 h-0.5 origin-left bg-gradient-to-r from-transparent to-white shadow-[0_0_5px_rgba(255,255,255,0.8)] z-10" 
+                                  style={{ transform: `translateY(-50%) rotate(${c.hue - 90}deg)` }}>
+                                 {/* 시작 색상 선택 닷 */}
+                                 <div className="absolute right-[-4px] top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-slate-900 shadow-md"></div>
+                             </div>
+
+                             {/* 먼셀 보색 라인 (중앙에서 먼셀 보색 위치로 뻗어나가는 붉은 선) */}
+                             <div className="absolute top-1/2 left-1/2 w-1/2 h-0.5 origin-left bg-gradient-to-r from-red-500/20 to-red-500 shadow-[0_0_5px_rgba(255,0,0,0.8)] z-10" 
+                                  style={{ transform: `translateY(-50%) rotate(${munsellCompHue - 90}deg)` }}>
+                                 {/* 보색 도착 지점 닷 */}
+                                 <div className="absolute right-[-2px] top-1/2 -translate-y-1/2 w-3 h-3 bg-slate-300 rounded-full border-2 border-slate-700 shadow-sm"></div>
                              </div>
                          </div>
                          
@@ -1907,80 +1936,4 @@ export default function App() {
                          {/* 💡 요청 4: 안료 수치(Weight) 스크롤바 */}
                          <div className="w-full flex flex-col gap-1 mb-6">
                              <div className="flex justify-between text-[10px] text-slate-400 font-bold px-1"><span>투입량 0g</span><span className="text-yellow-400">{c.weight}g</span><span>100g</span></div>
-                             <input type="range" min="0" max="100" value={c.weight} onChange={(e) => updateMixColor(c.id, 'weight', Number(e.target.value))} className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-yellow-500" />
-                         </div>
-
-                         {/* 💡 요청 3: [시작컬러] [보색관계] [믹싱컬러] 3분할 프리뷰 박스 */}
-                         <div className="flex w-full gap-2 mt-auto">
-                             <div className="flex-1 flex flex-col items-center bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                                 <span className="text-[9px] font-bold text-slate-400 mb-1.5 whitespace-nowrap">시작 컬러</span>
-                                 <div className="w-full h-8 rounded shadow-inner border border-slate-600" style={{backgroundColor: `hsl(${c.hue}, 100%, 50%)`}}></div>
-                             </div>
-                             <div className="flex-1 flex flex-col items-center bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                                 <span className="text-[9px] font-bold text-slate-400 mb-1.5 whitespace-nowrap">보색 관계</span>
-                                 <div className="w-full h-8 rounded shadow-inner border border-slate-600" style={{backgroundColor: `hsl(${(c.hue+180)%360}, 100%, 50%)`}}></div>
-                             </div>
-                             <div className="flex-1 flex flex-col items-center bg-blue-900/20 p-2 rounded-xl border border-blue-800/50">
-                                 <span className="text-[9px] font-black text-blue-400 mb-1.5 whitespace-nowrap">믹싱 컬러</span>
-                                 <div className="w-full h-8 rounded shadow-inner border border-blue-500/50 flex items-center justify-center text-[11px] text-white font-black" style={{backgroundColor: `hsl(${c.hue}, 100%, 50%)`, opacity: 0.3 + (c.weight/150)}}>
-                                     {c.weight}g
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-                 ))}
-
-                 {/* 💡 요청 5: 무한 색상환 추가 기능 버튼 */}
-                 <div className="bg-slate-800/40 p-6 rounded-3xl border-2 border-dashed border-slate-600 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-800 hover:border-slate-400 transition-all min-h-[460px] group" onClick={addMixColor}>
-                     <div className="bg-slate-700 p-4 rounded-full mb-4 group-hover:scale-110 group-hover:bg-blue-600 transition-all">
-                         <Plus size={40} className="text-white" />
-                     </div>
-                     <span className="text-slate-300 font-bold tracking-widest text-lg group-hover:text-blue-300">+ 새 색상환 추가</span>
-                 </div>
-                 
-             </div>
-
-             <div className="my-10 text-yellow-500 opacity-80 flex flex-col items-center">
-                 <span className="text-xs tracking-widest mb-2 text-slate-400">MIX ALL COLORS</span>
-                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-             </div>
-
-             {/* 하단: 모든 색상을 안료 비율대로 혼합한 가중치 혼합(Weighted Mix) 결과 패널 */}
-             <div className="w-full max-w-5xl bg-gradient-to-br from-yellow-900/30 to-amber-900/10 p-8 rounded-3xl border border-yellow-500/40 shadow-[0_0_50px_rgba(234,179,8,0.15)] flex flex-col items-center text-center mb-10">
-                 <h4 className="text-yellow-400 font-black text-2xl mb-2 flex items-center"><Zap className="mr-2"/> 최종 가중치 혼합 결과 (Total Weighted Mix)</h4>
-                 <p className="text-sm text-slate-300 mb-6">추가된 모든 개별 색상이 각자의 <b>안료 투입량(Weight) 비율</b>에 따라 실제 도막에서 혼합될 때의 시뮬레이션 결과입니다.</p>
-                 
-                 <div className="w-full h-40 rounded-2xl shadow-2xl border-2 border-white/20 relative overflow-hidden" style={{backgroundColor: mixWeightedHuesMulti(mixColors)}}>
-                     <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/30 mix-blend-overlay"></div>
-                 </div>
-                 
-                 <div className="mt-8 flex flex-wrap gap-3 text-sm font-bold w-full justify-center">
-                     {mixColors.map(c => (
-                         <div key={c.id} className="bg-black/50 px-4 py-2 rounded-lg text-slate-200 border border-slate-700 flex flex-col items-center">
-                             <span className="text-[10px] text-slate-400 mb-1">{c.name} ({c.weight}g)</span>
-                             <span style={{color: `hsl(${c.hue}, 100%, 70%)`}}>■ RGB</span>
-                         </div>
-                     ))}
-                     
-                     <div className="bg-yellow-500/20 px-8 py-2 rounded-lg text-yellow-300 border border-yellow-500/50 flex flex-col items-center shadow-inner ml-0 md:ml-4">
-                         <span className="text-[10px] text-yellow-500/80 mb-1">Final Result</span>
-                         <span className="tracking-widest text-lg">{mixWeightedHuesMulti(mixColors).toUpperCase()}</span>
-                     </div>
-                 </div>
-             </div>
-          </main>
-        </div>
-      )}
-      {/* 💡 앞부분 코드는 그대로 유지 */}
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
-        .clean-number-input { font-variant-numeric: tabular-nums; -webkit-text-fill-color: #0f172a; }
-        .metallic-flake { position: absolute; inset: 0; pointer-events: none; z-index: 1; mix-blend-mode: color-dodge; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E"); }
-      `}} />
-    </div>
-  );
-}
+                             <input type="range" min="0" max
