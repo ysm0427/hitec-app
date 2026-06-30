@@ -1879,8 +1879,7 @@ export default function App() {
            </div>
         </div>
       )}
-
-      {/* 💡 [대대적 개편] 다중 색상 혼합 랩 스튜디오 (먼셀 보색 적용 및 가중치 혼합) */}
+ {/* 💡 [대대적 개편] 다중 색상 혼합 랩 스튜디오 (먼셀 보색 적용 및 가중치 혼합) */}
       {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-auto custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-10">
