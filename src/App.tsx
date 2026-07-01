@@ -145,7 +145,7 @@ export const TONER_DB: Record<string, TonerData> = {
     desc: '탁함이 없는 매우 맑고 선명한 주황색 조색제입니다.',
     details: [
       ['일반 특성', '탁함이 전혀 없는 매우 맑고 선명한 주황색 조색제입니다.'],
-      ['색상 및 외관 변화', '높은 투명도로 인해 빛을 그대로 투과시키며 채도 높은 화사한 오렌지빛을 발산합니다.'],
+      ['색상 및 외관 변화', '높은 투명도로 인해 빛을 그대로 투과시키며 채도 높은 화사한 오렌지빛 발산합니다.'],
       ['용도 및 적용 컬러', '이펙트 컬러의 화려함을 살릴 때 주로 사용됩니다.'],
       ['배합 및 혼합 비율', '조색 프로그램의 표준 데이터 배합 비율을 따릅니다.'],
       ['경고 및 주의사항', '은폐력이 심각하게 떨어지므로 솔리드 단독 도장 시 프라이머 도포가 반드시 필요합니다.']
@@ -1006,7 +1006,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['색상 및 외관 변화', '새로 도장한 부위와 기존 도장면 사이의 오버스프레이 먼지를 부드럽게 녹여 이색 경계를 완벽히 지워줍니다.'],
       ['용도 및 적용 컬러', '은색 등 이색이 나기 쉬운 까다로운 메탈릭 차량의 부분 도장 작업 시 필수적으로 전처리 용도로 사용합니다.'],
       ['배합 및 혼합 비율', '마지막 도료를 컵에 남긴 상태에서 본품을 다량 희석하여 경계선에 흩뿌리며 사용합니다.'],
-      ['경고 및 주의사항', '과도하게 두껍게 뿌리면 페인트 입자가 흘러내리거나 테두리에 링마크가 뜰 수 있으므로 얇고 부드럽게 미스트 형태로 분사해야 합니다.']
+      ['경고 및 주의사항', '과도하게 두껍게 뿌리면 링마크가 뜰 수 있으므로 얇고 부드럽게 미스트 형태로 분사해야 합니다.']
     ]
   },
   'WT 1500': {
@@ -1017,7 +1017,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['색상 및 외관 변화', '빛을 완전히 흡수하여 극한의 검은 심연 같은 질감을 연출합니다.'],
       ['용도 및 적용 컬러', '일반 블랙 안료로는 도저히 맞출 수 없는 프리미엄 브랜드의 극한 다크 컬러 배합에만 독점적으로 쓰입니다.'],
       ['배합 및 혼합 비율', '엄격한 배합 한계치(솔리드 5%, 실버 2%, 펄 5%)를 절대적으로 준수해야 합니다.'],
-      ['경고 및 주의사항', '허용 배합 비율 초과 시 염료가 이펙트 입자와 비정상 반응하여 색상이 치명적으로 변질될 수 있으므로 절대 주의하십시오.']
+      ['경고 및 주의사항', '허용 배합 비율 초과 시 색상이 치명적으로 변질될 수 있으므로 절대 주의하십시오.']
     ]
   },
   'WT 455': {
@@ -1025,7 +1025,7 @@ export const TONER_DB: Record<string, TonerData> = {
     desc: '물성을 극적으로 안정화시키는 솔리드 전용 고성능 기능성 유동성 첨가제입니다.',
     details: [
       ['일반 특성', '솔리드 전용 고성능 기능성 유동성 첨가제입니다.'],
-      ['색상 및 외관 변화', '도막의 펴짐성을 극한으로 끌어올려 유리면처럼 매끄러운 고품질 외관을 보장합니다.'],
+      ['색상 및 외관 변화', '매끄러운 고품질 외관을 보장합니다.'],
       ['용도 및 적용 컬러', '이펙트 입자가 없는 솔리드 컬러 도장 작업에만 단독으로 사용됩니다.'],
       ['배합 및 혼합 비율', '솔리드 베이스코트 도료 총 무게를 기준으로 정확히 10% 중량을 추가 계량하여 혼합 및 분사합니다.'],
       ['경고 및 주의사항', '성분 특성 상 이펙트 컬러에는 절대 사용을 금지합니다.']
@@ -1290,8 +1290,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
     "M", startOuter.x, startOuter.y, "A", outerRadius, outerRadius, 0, largeArcFlag, 0, endOuter.x, endOuter.y,
     "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z"
   ].join(" ");
-};
-export default function App() {
+};export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: 'WT 318', adjustedWeight: "0.3", history: [], memo: "" }, { id: `b_next`, code: 'WT 144', adjustedWeight: "4.0", history: [], memo: "" }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "" }]);
@@ -1304,24 +1303,38 @@ export default function App() {
   const [totalBaseWeight, setTotalBaseWeight] = useState("0.00"); 
   const [totalPearlWeight, setTotalPearlWeight] = useState("0.00"); 
   const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
+  const [isBaseConfirmed, setIsBaseConfirmed] = useState(false); 
+  const [scannedImage, setScannedImage] = useState<string | null>(null); 
+  const [isScanning, setIsScanning] = useState(false); 
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
+  
+  // 💡 [에러 해결] 누락되었던 상태 변수들 완벽 복구
+  const [restoredViewData, setRestoredViewData] = useState<any>(null); 
+  const [isTransferTab, setIsTransferTab] = useState(false); 
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
+  
+  const cameraInputRef = useRef<HTMLInputElement>(null); 
+  const viewerRef = useRef<HTMLElement>(null); 
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight'} | null>(null); 
+  const [lightPos, setLightPos] = useState({ x: 50, y: 50 }); 
+  const [isDraggingLight, setIsDraggingLight] = useState(false); 
   const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
+  const [baseOptics, setBaseOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
+  const [pearlOptics, setPearlOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
   const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
+  const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null);
   const [isBaseMetallic, setIsBaseMetallic] = useState(false); 
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
   const [scaleFactor, setScaleFactor] = useState("2");
   const [renderMode, setRenderMode] = useState<'shape' | 'car'>('car');
   
-  // 💡 [에러 원인 해결] 누락되었던 viewAngle 변수를 완벽히 복구했습니다!
+  // 💡 [에러 해결] 3D 회전 각도 변수 복구
   const [viewAngle, setViewAngle] = useState({ rotY: 15, rotX: 5, scale: 1.1 });
   
   const [tonerMemos, setTonerMemos] = useState<Record<string, string>>({});
-  const [isTransferTab, setIsTransferTab] = useState(false);
-  const [restoredViewData, setRestoredViewData] = useState<any>(null);
   const [selectedWheelIndex, setSelectedWheelIndex] = useState<number | null>(null);
 
   const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
@@ -1336,7 +1349,7 @@ export default function App() {
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
-  // 구형(JSON/파이프) 및 신형(Base64) 링크를 모두 해독하여 팝업 복원
+  // 💡 구형/신형 링크 완벽 해독 로직
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search); 
@@ -1348,46 +1361,44 @@ export default function App() {
 
         if (d) {
             try {
-                let parsedData = null;
-                
-                if (d.includes('%7B') || d.includes('{')) {
-                    parsedData = JSON.parse(decodeURIComponent(d));
-                } 
-                else {
-                    let decodedStr = d;
-                    if (!d.includes('|') && !d.includes('%')) {
-                        try { decodedStr = decodeURIComponent(escape(atob(d))); } catch(e) { decodedStr = atob(d); }
-                    } else {
-                        decodedStr = decodeURIComponent(d.replace(/%7C/g, '|'));
-                    }
-                    
-                    const parts = decodedStr.split('|');
-                    if(parts.length >= 6) {
-                        parsedData = {
-                            v: parts[0] || '',
-                            m: parts[1] || '',
-                            c: parts[2] || '',
-                            j: parts[3] || '',
-                            n: parts[4] || '',
-                            b: unpackToners(parts[5]),
-                            p: unpackToners(parts[6]),
-                            t: parts[7] === '1'
-                        };
-                    }
+                let parts: string[] = [];
+                if (!d.includes('|') && !d.includes('%')) {
+                    try { 
+                        const decodedStr = decodeURIComponent(escape(atob(d))); 
+                        parts = decodedStr.split('|');
+                    } catch(e) { console.warn("Base64 해독 실패"); }
                 }
-
-                if (parsedData) {
-                    localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsedData, ts: Date.now() }));
+                if (parts.length === 0) {
+                    const normalizedD = d.replace(/%7C/g, '|');
+                    parts = normalizedD.split('|').map(p => {
+                        try { return decodeURIComponent(p); } catch(e) { return p; }
+                    });
+                }
+                
+                if (parts.length >= 6) {
+                    setVehicleNumber(parts[0] || '');
+                    setCarModel(parts[1] || '');
+                    setTargetColorCode(parts[2] || '');
+                    setJobDescription(parts[3] || '');
+                    setSpecialNotes(parts[4] || '');
+                    const restoredBase = unpackToners(parts[5]);
+                    const restoredPearl = unpackToners(parts[6]);
+                    if (restoredBase.length > 0) setToners(restoredBase);
+                    if (restoredPearl.length > 0) setPearlToners(restoredPearl);
+                    setIsThreeCoatMode(parts[7] === '1');
+                    
+                    const parsed = { v: parts[0]||'', m: parts[1]||'', c: parts[2]||'', j: parts[3]||'', n: parts[4]||'', b: restoredBase, p: restoredPearl, t: parts[7]==='1' };
+                    localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsed, ts: Date.now() }));
                     window.close();
                     setIsTransferTab(true);
                     return;
                 } else {
-                    alert("데이터 형식이 손상되었습니다.");
+                    alert("링크 데이터가 손상되었거나 잘렸습니다.");
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
             } catch (e) { 
                 console.error("URL 파싱 실패", e); 
-                alert("과거 데이터 링크가 손상되어 복원할 수 없습니다.");
+                alert("링크 데이터 해독 중 오류가 발생했습니다.");
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
@@ -1451,6 +1462,39 @@ export default function App() {
   }, [focusTarget, toners, pearlToners]);
 
   const handleClearAll = () => { setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setSelectedTonerForView(null); };
+
+  const processNumbers = useCallback((nums: string[]) => {
+    let nextBase = [...tonersRef.current]; let nextPearl = [...pearlTonersRef.current]; let i = 0;
+    while (i < nums.length) {
+        let codeC = nums[i]; let isCode = !!TONER_DB[`WT ${codeC}`];
+        if (isCode) {
+            let finalCode = `WT ${codeC}`; let weightC = nums[i+1]; let finalWeight = "";
+            if (weightC && TONER_DB[`WT ${weightC}`]) { finalWeight = ""; i++; } 
+            else if (weightC) { let nextNum = nums[i+2]; if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !weightC.includes('.')) { finalWeight = `${weightC}.${nextNum}`; i += 3; } else { finalWeight = weightC; i += 2; } } else { finalWeight = ""; i++; }
+            const isPearlLayer = isThreeCoatModeRef.current && (TONER_DB[finalCode].type === 'pearl' || TONER_DB[finalCode].type === 'xirallic'); const targetList = isPearlLayer ? nextPearl : nextBase;
+            const emptyIndex = targetList.findIndex(t => t.code === '' || (t.code === finalCode && t.adjustedWeight === ''));
+            if (emptyIndex !== -1) targetList[emptyIndex] = { ...targetList[emptyIndex], code: finalCode, adjustedWeight: finalWeight, history: targetList[emptyIndex].history || [], memo: "" }; else targetList.push({ id: `scan_${Date.now()}_${i}`, code: finalCode, adjustedWeight: finalWeight, history: [], memo: "" });
+        } else {
+            let orphanWeight = codeC; let nextNum = nums[i+1]; if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !orphanWeight.includes('.')) { orphanWeight = `${orphanWeight}.${nextNum}`; i += 2; } else { i++; }
+            let found = false;
+            if (isThreeCoatModeRef.current) { for (let j = nextPearl.length - 1; j >= 0; j--) { if (nextPearl[j].code !== '' && (!nextPearl[j].adjustedWeight || nextPearl[j].adjustedWeight === '')) { const currentHistory = nextPearl[j].history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== orphanWeight) ? [...currentHistory, orphanWeight] : currentHistory; nextPearl[j] = { ...nextPearl[j], adjustedWeight: orphanWeight, history: nextHistory }; found = true; break; } } }
+            if (!found) { for (let j = nextBase.length - 1; j >= 0; j--) { if (nextBase[j].code !== '' && (!nextBase[j].adjustedWeight || nextBase[j].adjustedWeight === '')) { const currentHistory = nextBase[j].history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== orphanWeight) ? [...currentHistory, orphanWeight] : currentHistory; nextBase[j] = { ...nextBase[j], adjustedWeight: orphanWeight, history: nextHistory }; found = true; break; } } }
+        }
+    }
+    setToners(nextBase); setPearlToners(nextPearl);
+  }, []);
+
+  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return; const imageUrl = URL.createObjectURL(file); setScannedImage(imageUrl); setIsScanning(true);
+    try {
+      if (typeof window !== 'undefined' && (window as any).Tesseract) {
+        const result = await (window as any).Tesseract.recognize(file, 'eng', { params: { tessedit_pageseg_mode: '6', tessedit_char_whitelist: '0123456789.WT ' } });
+        const text = result.data.text; let norm = text.replace(/:/g, '.').replace(/점/g, '.').replace(/\s*\.\s*/g, '.').replace(/[A-Za-z]/g, ' ');
+        const nums = norm.match(/\d*\.\d+|\d+/g); if (nums && nums.length > 0) processNumbers(nums); else throw new Error("배합 검출 실패");
+      } else throw new Error("OCR 미준비");
+    } catch (error) { alert("스캔 실패: 직접 중량을 입력해 주세요."); }
+    setIsScanning(false);
+  };
 
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
     const formattedCode = newCode.toUpperCase().trim(); const setter = isPearl ? setPearlToners : setToners;
@@ -1534,7 +1578,7 @@ export default function App() {
     const baseDetails = toners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', '); const pearlDetails = isThreeCoatMode ? pearlToners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ') : '해당없음'; const detailStr = isThreeCoatMode ? `[베이스] ${baseDetails} / [펄] ${pearlDetails}` : baseDetails;
     let currentOrigin = localStorage.getItem('hitec_clean_domain'); if (!currentOrigin || currentOrigin.includes('google') || currentOrigin.includes('gemini')) currentOrigin = window.location.origin; 
     
-    // 💡 Base64 암호화 (엑셀 팝업 링크 잘림 방지)
+    // 💡 Base64 암호화
     const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0'].join('|');
     const safeUrlString = btoa(unescape(encodeURIComponent(payloadStr))); 
     const shareUrl = `${currentOrigin}${window.location.pathname}?d=${safeUrlString}`;
@@ -1552,7 +1596,6 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
-  // 전송 화면 렌더링
   if (isTransferTab) {
       return (
           <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6 font-sans">
@@ -1956,7 +1999,6 @@ export default function App() {
           
           <main className="flex-1 p-6 md:p-10 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950">
              
-             {/* 💡 4분할 (2x2) 완벽 대칭 레이아웃 적용 */}
              <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-12 mb-8 items-center">
                  
                  {/* 1사분면 (좌측 상단): 먼셀 20 색상환 */}
