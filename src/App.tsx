@@ -609,33 +609,62 @@ export default function App() {
   };
 
   // 💡 [디자인 수정] 3D 뷰어 자동차 이미지를 멋진 스포츠카 콘셉트로 교체! (mix-blend-multiply 로 자연스러운 채색)
+  // 💡 [디자인 수정] 3D 뷰어 자동차 이미지를 멋진 스포츠카 콘셉트로 교체! (mix-blend-multiply 로 자연스러운 채색)
   const render3DView = (optics: any, mode: 'shape'|'car') => {
-      const getBg = () => {
-          if (!optics || !optics.face || !optics.mid || !optics.flop) return '#f8fafc'; 
-          const h = isNaN(optics.mid.h) ? 0 : Math.round(optics.mid.h); const s = isNaN(optics.mid.s) ? 0 : Math.round(optics.mid.s); const lx = isNaN(optics.mid.l) ? 80 : Math.round(optics.mid.l);
-          const hFlop = isNaN(optics.flop.h) ? h : Math.round(optics.flop.h); const sFlop = isNaN(optics.flop.s) ? s : Math.round(optics.flop.s); const lFlop = isNaN(optics.flop.l) ? Math.max(0, lx-20) : Math.round(optics.flop.l);
-          return `linear-gradient(105deg, hsl(${h}, ${s}%, ${lx}%) 0%, hsl(${hFlop}, ${sFlop}%, ${lFlop}%) 100%)`;
-      };
-      
-      const CAR_IMAGE_URL = "https://cdn.pixabay.com/photo/2012/04/12/23/47/car-30984_1280.png";
+    // 🚗 자동차 이미지 URL
+    const CAR_IMAGE_URL = "https://cdn.pixabay.com/photo/2012/05/07/17/53/car-49033_1280.png";
 
-      return (
-          <div className="w-full h-full perspective-[1000px] flex items-center justify-center relative overflow-hidden bg-transparent">
-              <div className="w-full h-full transition-transform duration-500 transform-gpu relative" style={{ transform: `rotateY(${viewAngle.rotY}deg) rotateX(${viewAngle.rotX}deg) scale(${viewAngle.scale})` }}>
-                  <div className="absolute inset-0 rounded-xl" style={{ background: getBg() }}>
-                      <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-                      
-                      <div className="absolute inset-0 flex items-center justify-center p-4">
-                         <img src={CAR_IMAGE_URL} alt="3D Vehicle" className="w-full h-full object-contain mix-blend-multiply opacity-90 drop-shadow-2xl" />
-                      </div>
+    // 🎨 유저님의 조색 데이터(optics)를 HSL 색상 코드로 안전하게 변환
+    let appliedPaintColor = "#CCCCCC"; // 기본값 (회색)
+    if (optics && optics.mid) {
+      appliedPaintColor = `hsl(${optics.mid.h}, ${optics.mid.s}%, ${optics.mid.l}%)`;
+    }
 
-                      {optics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge opacity-60 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22/></filter><rect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]"></div>}
-                  </div>
-              </div>
-          </div>
-      );
+    return (
+      <div 
+        className="simulator-container"
+        style={{ 
+          position: "relative", 
+          width: "100%", 
+          height: "400px", 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center", 
+          backgroundColor: "transparent", // 배경과 자연스럽게 어울리도록 투명 처리
+          borderRadius: "12px", 
+          overflow: "hidden" 
+        }}
+      >
+        {/* 1. 자동차 뼈대가 되는 기본 이미지 */}
+        <img
+          src={CAR_IMAGE_URL}
+          alt="3D Car Simulator"
+          style={{ 
+            position: "absolute", 
+            width: "80%", 
+            height: "auto", 
+            zIndex: 1,
+            objectFit: "contain"
+          }}
+        />
+        
+        {/* 2. 도색 오버레이 (mix-blend-mode 적용) */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: appliedPaintColor,
+            mixBlendMode: "multiply",
+            zIndex: 2,
+            pointerEvents: "none" // 마우스 클릭 방해 방지
+          }}
+        />
+      </div>
+    );
   };
-
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[220px] lg:pb-[150px]">
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
