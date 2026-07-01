@@ -1296,23 +1296,50 @@ export default function App() {
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: 'WT 318', adjustedWeight: "0.3", history: [], memo: "" }, { id: `b_next`, code: 'WT 144', adjustedWeight: "4.0", history: [], memo: "" }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "" }]);
   const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
-  const [targetColorCode, setTargetColorCode] = useState('UG4'); const [vehicleNumber, setVehicleNumber] = useState('9'); const [carModel, setCarModel] = useState('UN'); const [jobDescription, setJobDescription] = useState(''); const [specialNotes, setSpecialNotes] = useState('');
-  const [totalBaseWeight, setTotalBaseWeight] = useState("0.00"); const [totalPearlWeight, setTotalPearlWeight] = useState("0.00"); const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
+  const [targetColorCode, setTargetColorCode] = useState('UG4'); 
+  const [vehicleNumber, setVehicleNumber] = useState('9'); 
+  const [carModel, setCarModel] = useState('UN'); 
+  const [jobDescription, setJobDescription] = useState(''); 
+  const [specialNotes, setSpecialNotes] = useState('');
+  const [totalBaseWeight, setTotalBaseWeight] = useState("0.00"); 
+  const [totalPearlWeight, setTotalPearlWeight] = useState("0.00"); 
+  const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
+  const [isBaseConfirmed, setIsBaseConfirmed] = useState(false); 
+  const [scannedImage, setScannedImage] = useState<string | null>(null); 
+  const [isScanning, setIsScanning] = useState(false); 
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
-  const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight'} | null>(null); const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
+  
+  // 💡 [에러 해결] 누락되었던 상태 변수 선언들을 완벽하게 복구했습니다!
+  const [restoredViewData, setRestoredViewData] = useState<any>(null); 
+  const [isTransferTab, setIsTransferTab] = useState(false); 
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
+  
+  const cameraInputRef = useRef<HTMLInputElement>(null); 
+  const viewerRef = useRef<HTMLElement>(null); 
+  const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
+  const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight'} | null>(null); 
+  const [lightPos, setLightPos] = useState({ x: 50, y: 50 }); 
+  const [isDraggingLight, setIsDraggingLight] = useState(false); 
+  const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
+  const [baseOptics, setBaseOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
+  const [pearlOptics, setPearlOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
   const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
-  const [isBaseMetallic, setIsBaseMetallic] = useState(false); const [isPearlMetallic, setIsPearlMetallic] = useState(false);
+  const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null);
+  const [isBaseMetallic, setIsBaseMetallic] = useState(false); 
+  const [isPearlMetallic, setIsPearlMetallic] = useState(false);
   const [scaleFactor, setScaleFactor] = useState("2");
   const [renderMode, setRenderMode] = useState<'shape' | 'car'>('car');
+  const [viewAngle, setViewAngle] = useState({ rotY: 15, rotX: 5, scale: 1.1 });
   const [tonerMemos, setTonerMemos] = useState<Record<string, string>>({});
-  const [isTransferTab, setIsTransferTab] = useState(false);
   const [selectedWheelIndex, setSelectedWheelIndex] = useState<number | null>(null);
 
   const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
 
-  const tonersRef = useRef<any[]>([]); const pearlTonersRef = useRef<any[]>([]); const isThreeCoatModeRef = useRef<boolean>(true);
+  const tonersRef = useRef<any[]>([]); 
+  const pearlTonersRef = useRef<any[]>([]); 
+  const isThreeCoatModeRef = useRef<boolean>(true);
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   const sortedCatalog = [...catalogData].sort((a, b) => { 
@@ -1322,7 +1349,7 @@ export default function App() {
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
-  // 💡 [과거 링크 완벽 복원기] 구형 파이프(|) 링크와 신형 Base64 링크를 모두 해독합니다.
+  // 💡 [데이터 복원 로직] 구형 엑셀 링크와 신형 Base64 암호화 링크 모두 호환되도록 처리
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search); 
@@ -1334,20 +1361,23 @@ export default function App() {
 
         if (d) {
             try {
-                let decodedStr = d;
+                let parts: string[] = [];
                 
-                // 구형 링크 (URL 인코딩 방식)
-                if (d.includes('%7C') || d.includes('|')) {
-                    decodedStr = decodeURIComponent(d);
-                } 
-                // 신형 링크 (Base64 방식)
-                else {
-                    try { decodedStr = decodeURIComponent(escape(atob(d))); } 
-                    catch(e) { try { decodedStr = atob(d); } catch(e2) { decodedStr = d; } }
+                if (!d.includes('|') && !d.includes('%')) {
+                    try { 
+                        const decodedStr = decodeURIComponent(escape(atob(d))); 
+                        parts = decodedStr.split('|');
+                    } catch(e) { console.warn("Base64 해독 실패, 구형 확인"); }
                 }
                 
-                const parts = decodedStr.split('|');
-                if(parts.length >= 6) {
+                if (parts.length === 0) {
+                    const normalizedD = d.replace(/%7C/g, '|');
+                    parts = normalizedD.split('|').map(p => {
+                        try { return decodeURIComponent(p); } catch(e) { return p; }
+                    });
+                }
+                
+                if (parts.length >= 6) {
                     setVehicleNumber(parts[0] || '');
                     setCarModel(parts[1] || '');
                     setTargetColorCode(parts[2] || '');
@@ -1364,8 +1394,15 @@ export default function App() {
                     window.close();
                     setIsTransferTab(true);
                     return;
+                } else {
+                    alert("링크 데이터가 손상되었거나 잘렸습니다. 과거에 잘못 복사된 엑셀 행일 수 있습니다.");
+                    window.history.replaceState({}, document.title, window.location.pathname);
                 }
-            } catch (e) { console.error("URL 파싱 실패", e); }
+            } catch (e) { 
+                console.error("URL 파싱 실패", e); 
+                alert("링크 데이터 해독 중 오류가 발생했습니다.");
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         }
 
         const handleStorageChange = (e: StorageEvent) => { if (e.key === 'hitec_broadcast' && e.newValue) { const payload = JSON.parse(e.newValue); setRestoredViewData(payload.data); } };
@@ -1561,6 +1598,7 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
+  // 전송 화면 렌더링
   if (isTransferTab) {
       return (
           <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6 font-sans">
