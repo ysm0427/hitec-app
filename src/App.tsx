@@ -6,9 +6,9 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 공식 안료 데이터베이스 (유저님 오리지널 100% 무손실 복구)
+// 💡 공식 안료 데이터베이스
 export const TONER_DB: Record<string, TonerData> = {
-  'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '정면에서 선명한 적청색(Reddish-Blue) 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다.', details: [['일반 특성', '기존 WT 346 안료를 완벽하게 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'], ['색상 및 외관 변화', '가장 큰 특징은 정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점입니다. (기존 346의 녹청 기운과 뚜렷한 차이)'], ['용도 및 적용 컬러', 'WT 346이 포함된 모든 솔리드 및 이펙트 컬러의 1:1 대체 처방 및 조색 보정용으로 사용됩니다.'], ['배합 및 혼합 비율', '기존 WT 346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용해야 동일한 착색력을 얻습니다.'], ['경고 및 주의사항', '정면의 뚜렷한 적청색 발색으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로, 반드시 시편 대조 후 블랜딩 도장을 권장합니다.']] },
+  'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '정면에서 선명한 적청색(Reddish-Blue) 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다.', details: [['일반 특성', '기존 WT 346 안료를 완벽하게 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'], ['색상 및 외관 변화', '가장 큰 특징은 정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점입니다.'], ['용도 및 적용 컬러', 'WT 346이 포함된 모든 솔리드 및 이펙트 컬러의 1:1 대체 처방 및 조색 보정용으로 사용됩니다.'], ['배합 및 혼합 비율', '기존 WT 346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용해야 동일한 착색력을 얻습니다.'], ['경고 및 주의사항', '정면의 뚜렷한 적청색 발색으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로 반드시 시편 대조 후 블랜딩 도장을 권장합니다.']] },
   'WT 346': { role: '트랜스페어런트 딥 블루 [WT 144 완벽대체]', type: 'solid', face: '#0369a1', flop: '#020617', desc: '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.', details: [['일반 특성', '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.'], ['색상 및 외관 변화', '특히 측면(45도/110도)에서 관찰할 때 전체 청색 조색제 중 녹색빛 반사가 가장 강하게 두드러지는 고유 특징이 있습니다.'], ['용도 및 적용 컬러', '시중 대부분의 이펙트 메탈릭 청색 조색 시 뼈대가 되는 가장 기초적이고 필수적인 투명 파란색입니다.'], ['배합 및 혼합 비율', '다양한 이펙트 처방에서 메인으로 쓰이므로 배합표의 대량 투입 지시를 엄수합니다.'], ['경고 및 주의사항', '이 안료는 신형 WT 144와 상호 대체가 가능합니다. 대체 시 [WT 346 : WT 144 = 1 : 0.9] 비율을 적용하십시오.']] },
   'WT 358': { role: '스페셜 실버 [WT 400 완벽대체]', type: 'silver_fine', face: '#e2e8f0', flop: '#475569', desc: '특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.', details: [['일반 특성', '독자적인 금속 배열 구조를 지녀 특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '일반 실버와 달리 특정 각도에서 빛을 머금었다가 뿜어내는 듯한 오묘한 밝기와 독특한 플롭(Flop) 현상을 일으킵니다.'], ['용도 및 적용 컬러', '일반 조색제로는 절대 색을 맞출 수 없는 특정 수입차 OEM 특수 실버 컬러의 고유 반사각 및 이색 매칭 시 독점적으로 사용됩니다.'], ['배합 및 혼합 비율', '특수 처방 데이터베이스에 명시된 배합비대로만 적용하며 임의 비율 조정 시 실패 확률이 높습니다.'], ['경고 및 주의사항', '동일한 특성을 지닌 WT 400 안료와 1:1로 상호 완벽 대체가 가능합니다. 재고 상황에 따라 교차 사용하십시오.']] },
   'WT 400': { role: '스페셜 실버 대체용 [WT 358 완벽대체]', type: 'silver_fine', face: '#e2e8f0', flop: '#475569', desc: 'WT 358을 1:1로 완벽 대체할 수 있는 특수 밝은 톤 알루미늄입니다.', details: [['일반 특성', 'WT 358과 동일한 특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '일반 실버와 달리 특정 각도에서 빛을 머금었다가 뿜어내는 듯한 오묘한 밝기와 독특한 플롭(Flop) 현상을 일으킵니다.'], ['용도 및 적용 컬러', '특정 수입차 OEM 특수 실버 컬러 조색 시 WT 358을 100% 동일하게 상호 대체하여 사용합니다.'], ['배합 및 혼합 비율', '특수 처방 데이터베이스에 명시된 배합비대로 적용하며 WT 358과 1:1 대체됩니다.'], ['경고 및 주의사항', '기존 WT 358과 상호 대체 가능하므로 재고 상황에 맞게 헷갈리지 않도록 교차 사용하십시오.']] },
@@ -355,9 +355,6 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
     "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z"
   ].join(" ");
 };
-
-// ================== 1부 끝 ==================
-
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: 'WT 318', adjustedWeight: "0.3", history: [], memo: "" }, { id: `b_next`, code: 'WT 144', adjustedWeight: "4.0", history: [], memo: "" }]);
@@ -372,6 +369,7 @@ export default function App() {
   const [totalPearlWeight, setTotalPearlWeight] = useState("0.00"); 
   const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
+  
   const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
   const [restoredViewData, setRestoredViewData] = useState<any>(null); 
   const [isTransferTab, setIsTransferTab] = useState(false); 
@@ -380,10 +378,12 @@ export default function App() {
   const [isScanning, setIsScanning] = useState(false);
   const [lightPos, setLightPos] = useState({ x: 50, y: 50 }); 
   const [isDraggingLight, setIsDraggingLight] = useState(false); 
+
   const cameraInputRef = useRef<HTMLInputElement>(null); 
   const viewerRef = useRef<HTMLElement>(null); 
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight'} | null>(null); 
   const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
@@ -408,7 +408,7 @@ export default function App() {
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
-  // 💡 [데이터 복원 로직] 구형(JSON/파이프) 및 신형(Base64) 링크 완벽 해독
+  // 💡 [과거 링크 호환 100% 해독기] + 팝업 복원 로직
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search); 
@@ -421,26 +421,34 @@ export default function App() {
         if (d) {
             try {
                 let parsedData = null;
-                let decodedStr = decodeURIComponent(d).trim();
                 
-                if (decodedStr.startsWith('{')) {
-                    parsedData = JSON.parse(decodedStr);
+                if (d.includes('%7B') || d.includes('{')) {
+                    parsedData = JSON.parse(decodeURIComponent(d));
                 } else {
-                    try {
-                        let b64Decoded = decodeURIComponent(escape(atob(decodedStr.replace(/\s/g, '+'))));
-                        let parts = b64Decoded.split('|');
-                        if (parts.length >= 6) {
-                            parsedData = { v: parts[0], m: parts[1], c: parts[2], j: parts[3], n: parts[4], b: unpackToners(parts[5]), p: unpackToners(parts[6]||''), t: parts[7]==='1' };
-                        }
-                    } catch(base64Err) {
-                        let parts = decodedStr.split('|');
-                        if (parts.length >= 6) {
-                            parsedData = { v: parts[0], m: parts[1], c: parts[2], j: parts[3], n: parts[4], b: unpackToners(parts[5]), p: unpackToners(parts[6]||''), t: parts[7]==='1' };
-                        }
+                    let decodedStr = d;
+                    if (!d.includes('|') && !d.includes('%')) {
+                        try { decodedStr = decodeURIComponent(escape(atob(d))); } catch(e) { decodedStr = atob(d); }
+                    } else {
+                        decodedStr = decodeURIComponent(d.replace(/%7C/g, '|'));
+                    }
+                    
+                    const parts = decodedStr.split('|');
+                    if(parts.length >= 6) {
+                        parsedData = {
+                            v: parts[0] || '',
+                            m: parts[1] || '',
+                            c: parts[2] || '',
+                            j: parts[3] || '',
+                            n: parts[4] || '',
+                            b: unpackToners(parts[5]),
+                            p: unpackToners(parts[6]),
+                            t: parts[7] === '1'
+                        };
                     }
                 }
 
                 if (parsedData) {
+                    // 과거 데이터는 화면을 덮어쓰지 않고 팝업 모달창으로만 띄웁니다!
                     setRestoredViewData(parsedData);
                     window.history.replaceState({}, document.title, window.location.pathname);
                     loadedFromUrl = true;
@@ -583,7 +591,6 @@ export default function App() {
     const baseDetails = toners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', '); const pearlDetails = isThreeCoatMode ? pearlToners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ') : '해당없음'; const detailStr = isThreeCoatMode ? `[베이스] ${baseDetails} / [펄] ${pearlDetails}` : baseDetails;
     let currentOrigin = localStorage.getItem('hitec_clean_domain'); if (!currentOrigin || currentOrigin.includes('google') || currentOrigin.includes('gemini')) currentOrigin = window.location.origin; 
     
-    // Base64 암호화로 잘림 방지 (엑셀 팝업용)
     const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0'].join('|');
     const safeUrlString = btoa(unescape(encodeURIComponent(payloadStr))); 
     const shareUrl = `${currentOrigin}${window.location.pathname}?d=${safeUrlString}`;
@@ -601,6 +608,7 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
+  // 💡 [디자인 수정] 3D 뷰어 자동차 이미지를 멋진 스포츠카 콘셉트로 교체! (mix-blend-multiply 로 자연스러운 채색)
   const render3DView = (optics: any, mode: 'shape'|'car') => {
       const getBg = () => {
           if (!optics || !optics.face || !optics.mid || !optics.flop) return '#f8fafc'; 
@@ -608,25 +616,21 @@ export default function App() {
           const hFlop = isNaN(optics.flop.h) ? h : Math.round(optics.flop.h); const sFlop = isNaN(optics.flop.s) ? s : Math.round(optics.flop.s); const lFlop = isNaN(optics.flop.l) ? Math.max(0, lx-20) : Math.round(optics.flop.l);
           return `linear-gradient(105deg, hsl(${h}, ${s}%, ${lx}%) 0%, hsl(${hFlop}, ${sFlop}%, ${lFlop}%) 100%)`;
       };
-      const getLightReflection = () => `linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.8) 25%, rgba(255,255,255,0.95) 30%, transparent 35%)`;
+      
+      const CAR_IMAGE_URL = "https://cdn.pixabay.com/photo/2012/04/12/23/47/car-30984_1280.png";
 
       return (
           <div className="w-full h-full perspective-[1000px] flex items-center justify-center relative overflow-hidden bg-transparent">
-              <div className="w-3/4 h-3/4 transition-transform duration-500 transform-gpu relative" style={{ transform: `rotateY(${viewAngle.rotY}deg) rotateX(${viewAngle.rotX}deg) scale(${viewAngle.scale})` }}>
-                  {mode === 'shape' ? (
-                      <div className="absolute inset-0 rounded-[40%_60%_60%_40%/50%_50%_50%_50%] shadow-[inset_15px_15px_40px_rgba(255,255,255,0.6),inset_-15px_-20px_40px_rgba(0,0,0,0.5),0_20px_40px_rgba(0,0,0,0.3)]" style={{ background: getBg() }}>
-                          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay rounded-[inherit]"></div>
-                          {optics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge rounded-[inherit] opacity-60 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22/></filter><rect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]"></div>}
-                          <div className="absolute inset-0 rounded-[inherit] mix-blend-overlay opacity-90 transition-opacity duration-300" style={{ background: getLightReflection() }}></div>
+              <div className="w-full h-full transition-transform duration-500 transform-gpu relative" style={{ transform: `rotateY(${viewAngle.rotY}deg) rotateX(${viewAngle.rotX}deg) scale(${viewAngle.scale})` }}>
+                  <div className="absolute inset-0 rounded-xl" style={{ background: getBg() }}>
+                      <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                      
+                      <div className="absolute inset-0 flex items-center justify-center p-4">
+                         <img src={CAR_IMAGE_URL} alt="3D Vehicle" className="w-full h-full object-contain mix-blend-multiply opacity-90 drop-shadow-2xl" />
                       </div>
-                  ) : (
-                      <div className="w-full h-full relative car-mask shadow-xl" style={{ background: getBg() }}>
-                          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-                          {optics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge opacity-60 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22/></filter><rect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]"></div>}
-                          <div className="absolute inset-0 mix-blend-overlay opacity-90 transition-opacity duration-300" style={{ background: getLightReflection() }}></div>
-                          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.6)_0%,transparent_30%,rgba(0,0,0,0.5)_100%)] mix-blend-multiply"></div>
-                      </div>
-                  )}
+
+                      {optics?.isMetallic && <div className="absolute inset-0 mix-blend-color-dodge opacity-60 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22/></filter><rect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')]"></div>}
+                  </div>
               </div>
           </div>
       );
@@ -637,7 +641,8 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">PERMAHYD HI-TEC</span><span className="text-blue-400 font-normal ml-2">Studio 2026 PRO</span></h1>
+          {/* 💡 [요청사항 반영] 상단 로고 타이틀 변경 완료 */}
+          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">윤성만님을 위한</span><span className="text-blue-400 font-normal ml-2">조색 PRO</span></h1>
         </div>
       </header>
 
@@ -981,7 +986,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 [복구 완료] 과거 데이터를 띄워주는 읽기 전용 팝업창 (구형/신형 변수명 100% 호환) */}
+      {/* 💡 [복구 완료] 과거 데이터를 띄워주는 읽기 전용 팝업창 */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
@@ -1013,6 +1018,7 @@ export default function App() {
                 </div>
                 <div>
                   <div className="text-[10px] text-slate-400 mb-1">작업 내용</div>
+                  {/* 💡 [에러 해결] 과거 버전에 저장되었던 "jobDescription"이라는 긴 변수명까지 100% 가져와서 보여줍니다! */}
                   <div className="text-sm font-bold text-white leading-snug">{restoredViewData.j || restoredViewData.jobDescription || '미입력'}</div>
                 </div>
               </div>
@@ -1069,7 +1075,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 1:1:1:1 최적화된 다중 색상 혼합 랩 스튜디오 (4분할 레이아웃 & 먼셀 튕김 방어) */}
+      {/* 💡 1:1:1:1 최적화된 다중 색상 혼합 랩 스튜디오 (4분할 레이아웃 & 먼셀 튕김 완벽 방어) */}
       {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-auto custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
@@ -1079,6 +1085,7 @@ export default function App() {
           
           <main className="flex-1 p-6 md:p-10 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950">
              
+             {/* 💡 4분할 (2x2) 완벽 대칭 레이아웃 적용 */}
              <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-12 mb-8 items-center">
                  
                  {/* 1사분면 (좌측 상단): 먼셀 20 색상환 */}
@@ -1133,7 +1140,7 @@ export default function App() {
                             <text x="200" y="195" fill="#94a3b8" fontSize="14" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" className="tracking-widest">MUNSELL</text>
                             <text x="200" y="215" fill="#ffffff" fontSize="16" fontWeight="900" textAnchor="middle" dominantBaseline="middle">표준 색상환</text>
 
-                            {/* 💡 보색 화살표 에러 방어 처리 완료 */}
+                            {/* 💡 요청하신 보색 화살표 (중앙 원 위로 렌더링되며 빨간색으로 강조) */}
                             {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] && (
                                 <line 
                                     x1={polarToCartesian(200, 200, 80, selectedWheelIndex * 18 + 8.5).x} 
@@ -1185,7 +1192,7 @@ export default function App() {
                  </div>
 
                  {/* 3사분면 (좌측 하단): 조색 가이드 결과 */}
-                 {/* 💡 [먼셀 튕김 완벽 해결] 에러를 일으키던 괄호를 지우고 안전한 try~catch 로직으로 100% 방어했습니다! */}
+                 {/* 💡 [먼셀 튕김 완벽 방어] 괄호 없이 100% 안전한 try-catch 구문으로 렌더링 에러를 차단했습니다! */}
                  <div className="flex flex-col items-center w-full h-full justify-center">
                     {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
                         <div className="bg-slate-800 p-8 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] mx-auto min-h-[360px] flex flex-col justify-center text-center animate-in fade-in zoom-in duration-300">
