@@ -6,7 +6,7 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 공식 안료 데이터베이스
+// 💡 공식 안료 데이터베이스 (유실 없음)
 export const TONER_DB: Record<string, TonerData> = {
   'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '정면에서 선명한 적청색(Reddish-Blue) 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다.', details: [['일반 특성', '기존 WT 346 안료를 완벽하게 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'], ['색상 및 외관 변화', '가장 큰 특징은 정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점입니다.'], ['용도 및 적용 컬러', 'WT 346이 포함된 모든 솔리드 및 이펙트 컬러의 1:1 대체 처방 및 조색 보정용으로 사용됩니다.'], ['배합 및 혼합 비율', '기존 WT 346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용해야 동일한 착색력을 얻습니다.'], ['경고 및 주의사항', '정면의 뚜렷한 적청색 발색으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로 반드시 시편 대조 후 블랜딩 도장을 권장합니다.']] },
   'WT 346': { role: '트랜스페어런트 딥 블루 [WT 144 완벽대체]', type: 'solid', face: '#0369a1', flop: '#020617', desc: '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.', details: [['일반 특성', '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.'], ['색상 및 외관 변화', '특히 측면(45도/110도)에서 관찰할 때 전체 청색 조색제 중 녹색빛 반사가 가장 강하게 두드러지는 고유 특징이 있습니다.'], ['용도 및 적용 컬러', '시중 대부분의 이펙트 메탈릭 청색 조색 시 뼈대가 되는 가장 기초적이고 필수적인 투명 파란색입니다.'], ['배합 및 혼합 비율', '다양한 이펙트 처방에서 메인으로 쓰이므로 배합표의 대량 투입 지시를 엄수합니다.'], ['경고 및 주의사항', '이 안료는 신형 WT 144와 상호 대체가 가능합니다. 대체 시 [WT 346 : WT 144 = 1 : 0.9] 비율을 적용하십시오.']] },
@@ -37,7 +37,7 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 326': { role: '그리니쉬 옐로우', type: 'solid', face: '#eab308', flop: '#65a30d', desc: '차가운 녹색을 살짝 띠는 매우 맑고 투명한 황색 조색제입니다.', details: [['일반 특성', '차가운 녹색을 살짝 띠는 투명한 황색 조색제입니다.'], ['색상 및 외관 변화', '정면은 맑은 황색, 측면은 선명한 녹황색을 강하게 띱니다.'], ['용도 및 적용 컬러', '맑고 입체적인 이펙트 컬러 전용 조색제로 특화되어 사용됩니다.'], ['배합 및 혼합 비율', '이펙트 계열 배합 중량을 철저히 준수하여 계량합니다.'], ['경고 및 주의사항', '은폐력이 없으므로 일반 솔리드 도장에는 절대 단독으로 사용하지 말아야 합니다.']] },
   'WT 327': { role: '옐로우', type: 'solid', face: '#fde047', flop: '#ca8a04', desc: '약하게 녹색 기운이 감도는 밝고 화사한 기본 황색 조색제입니다.', details: [['일반 특성', '약하게 녹색 기운이 감도는 밝고 화사한 기본 황색 조색제입니다.'], ['색상 및 외관 변화', '은폐력이 뛰어나 색을 선명하게 밀어내며 바탕을 차단합니다.'], ['용도 및 적용 컬러', '솔리드 황색 컬러 조색의 메인 베이스로 쓰입니다.'], ['배합 및 혼합 비율', '높은 비중으로 처방되며 데이터를 준수하여 조색합니다.'], ['경고 및 주의사항', '이펙트 조색 시 과량 투입하면 도막이 탁해질 수 있으니 주의하십시오.']] },
   'WT 328': { role: '오커', type: 'solid', face: '#b45309', flop: '#451a03', desc: '무겁고 탁한 흙빛 황토색의 고은폐력 조색제입니다.', details: [['일반 특성', '흙빛 황토색의 고은폐력 조색제입니다.'], ['색상 및 외관 변화', '채도를 낮추며 묵직하고 탁색 섞인 황갈색 톤을 연출합니다.'], ['용도 및 적용 컬러', '차분한 솔리드 컬러에 주로 사용됩니다.'], ['배합 및 혼합 비율', '지시된 배합 무게를 엄수하여 투입합니다.'], ['경고 및 주의사항', '이펙트 배합에는 가급적 피해야 도장면 투명감이 유지됩니다.']] },
-  'WT 329': { role: '트랜스페어런트 옐로우', type: 'solid', face: '#f59e0b', flop: '#ea580c', desc: '적색이 살짝 가미된 매우 선명하고 맑은 투명 황색 조색제입니다.', details: [['일반 특성', '적색이 살짝 가미된 맑은 투명 황색 조색제입니다.'], ['색상 및 외관 변화', '스테인드글라스처럼 채도 높은 황금빛 옐로우 톤을 씌워줍니다.'], ['용도 및 적용 컬러', '빛을 투과시켜야 고채도 이펙트 메탈릭 컬러에 전용으로 쓰입니다.'], ['배합 및 혼합 비율', '처방 수치를 기준하여 정밀 계량합니다.'], ['경고 및 주의사항', '은폐 목적용으로는 절대 사용해서는 안 됩니다.']] },
+  'WT 329': { role: '트랜스페어런트 옐로우', type: 'solid', face: '#f59e0b', flop: '#ea580c', desc: '적색이 살짝 가미된 매우 선명하고 맑은 투명 황색 조색제입니다.', details: [['일반 특성', '적색이 살짝 가미된 맑은 투명 황색 조색제입니다.'], ['색상 및 외관 변화', '스테인드글라스처럼 채도 높은 황금빛 옐로우 톤을 씌워줍니다.'], ['용도 및 적용 컬러', '빛을 투과시켜야 하는 고채도 이펙트 메탈릭 컬러에 전용으로 쓰입니다.'], ['배합 및 혼합 비율', '처방 수치를 기준하여 정밀 계량합니다.'], ['경고 및 주의사항', '은폐 목적용으로는 절대 사용해서는 안 됩니다.']] },
   'WT 330': { role: '블러드 오렌지', type: 'solid', face: '#ea580c', flop: '#9a3412', desc: '따뜻하고 밝은 기운을 품은 선명한 주황색 수성 조색제입니다.', details: [['일반 특성', '따뜻하고 밝은 선명한 주황색 수성 조색제입니다.'], ['색상 및 외관 변화', '발색력이 우수하여 혼합 시 뚜렷하고 생기 넘치는 오렌지빛 명도를 제공합니다.'], ['용도 및 적용 컬러', '주황 및 밝은 적색 계열의 솔리드 컬러 조색에 쓰입니다.'], ['배합 및 혼합 비율', '배합 데이터를 엄수하여 투입합니다.'], ['경고 및 주의사항', '너무 과도하게 단독 배합하면 은폐 불량이 올 수 있어 타 솔리드와 혼용해야 합니다.']] },
   'WT 331': { role: '트랜스루센트 옥사이드', type: 'solid', face: '#d97706', flop: '#451a03', desc: '산화철 성분을 기반으로 맑은 발색을 내는 반투명 황적색 조색제입니다.', details: [['일반 특성', '산화철 성분 기반의 반투명 황적색 조색제입니다.'], ['색상 및 외관 변화', '이펙트 도막 깊숙이 은은하고 고급스러운 적황색 반사를 일으킵니다.'], ['용도 및 적용 컬러', '캔디톤 오렌지/레드 베이스 조색에 한정되어 사용됩니다.'], ['배합 및 혼합 비율', '정밀 용량만 조심스럽게 첨가합니다.'], ['경고 및 주의사항', '안료 고유의 투명성 때문에 솔리드 컬러에는 절대 사용을 금지합니다.']] },
   'WT 332': { role: '마룬', type: 'solid', face: '#b91c1c', flop: '#7c2d12', desc: '탁하고 짙은 검붉은 톤을 지닌 어두운 적색 조색제입니다.', details: [['일반 특성', '탁하고 짙은 검붉은 톤을 지닌 어두운 적색 조색제입니다.'], ['색상 및 외관 변화', '묵직한 황적색으로 잡아주고 이펙트의 명암을 한층 깊게 눌러줍니다.'], ['용도 및 적용 컬러', '딥 이펙트 컬러 조색 시 명도를 낮추고 차분함을 부여하기 위해 사용됩니다.'], ['배합 및 혼합 비율', '조색기의 지시값에 따라 표준 배합을 준수합니다.'], ['경고 및 주의사항', '밝고 맑은 레드 펄 조색에 실수로 들어갈 경우 색이 탁하게 죽어버립니다.']] },
@@ -588,7 +588,7 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
-  // 💡 [결함 제로 & 튕김 원천차단] 100% 안전한 내장 SVG 스포츠카 렌더러
+  // 💡 [결함 제로 & 이미지 무적 코딩] 외부 핫링크 차단 없는 고해상도 실제 스포츠카 이미지 적용
   const render3DView = (optics: any) => {
     let appliedPaintColor = "#f8fafc";
     if (optics && optics.mid) {
@@ -598,30 +598,27 @@ export default function App() {
       appliedPaintColor = `hsl(${h}, ${s}%, ${l}%)`;
     }
 
+    // 💡 차단(CORS/403) 우회 프록시를 적용한 유저님의 '2번째 진짜 자동차' 이미지 링크!
+    const CAR_IMAGE_URL = "https://wsrv.nl/?url=https://cdn.pixabay.com/photo/2012/05/07/17/53/car-49033_1280.png&output=webp";
+
     return (
-      <div className="w-full h-full flex items-center justify-center relative overflow-hidden bg-slate-200 rounded-xl shadow-inner border border-slate-300">
-        <div className="absolute inset-0 transition-colors duration-500" style={{ backgroundColor: appliedPaintColor }}></div>
-        <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-        <div className="absolute inset-0 flex items-center justify-center p-4 z-10 pointer-events-none">
-           <svg viewBox="0 0 800 400" className="w-full h-full p-4 object-contain mix-blend-multiply opacity-90 drop-shadow-[0_20px_30px_rgba(0,0,0,0.6)] transition-transform duration-500 transform hover:scale-105">
-              <ellipse cx="400" cy="320" rx="280" ry="20" fill="rgba(0,0,0,0.4)" filter="blur(8px)"/>
-              <path d="M 120 250 A 50 50 0 0 1 220 250 L 520 250 A 50 50 0 0 1 620 250 L 700 250 C 740 250 760 230 760 200 L 730 140 C 700 110 650 90 580 90 L 480 70 C 420 60 360 60 300 75 L 200 100 C 150 115 100 140 70 170 C 40 200 30 220 30 240 L 30 250 Z" fill="#ffffff" stroke="#cbd5e1" strokeWidth="2"/>
-              <path d="M 220 115 L 320 85 L 450 85 L 560 110 L 580 140 L 170 160 Z" fill="#0f172a" stroke="#1e293b" strokeWidth="3"/>
-              <path d="M 280 160 L 280 240 M 480 140 L 480 240 M 180 160 L 580 140" stroke="#94a3b8" strokeWidth="2" fill="none" opacity="0.5"/>
-              <path d="M 700 140 L 740 145 L 750 160 L 700 160 Z" fill="#ef4444" />
-              <path d="M 50 175 L 80 165 L 90 185 L 45 190 Z" fill="#facc15" />
-              <circle cx="170" cy="250" r="45" fill="#0f172a" stroke="#334155" strokeWidth="6"/>
-              <circle cx="170" cy="250" r="22" fill="#cbd5e1"/>
-              <circle cx="170" cy="250" r="8" fill="#475569"/>
-              <circle cx="570" cy="250" r="45" fill="#0f172a" stroke="#334155" strokeWidth="6"/>
-              <circle cx="570" cy="250" r="22" fill="#cbd5e1"/>
-              <circle cx="570" cy="250" r="8" fill="#475569"/>
-           </svg>
-        </div>
+      <div 
+        className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-xl shadow-inner border border-slate-300" 
+        style={{ backgroundColor: appliedPaintColor }}
+      >
+        {/* 자동차 이미지는 multiply로 합성되어 흰색 부분이 페인트 색상과 섞임 */}
+        <img
+          src={CAR_IMAGE_URL}
+          alt="3D Car Simulator"
+          className="absolute z-10 w-[85%] h-auto object-contain transition-transform duration-500 transform hover:scale-105 mix-blend-multiply opacity-90"
+        />
+        
+        {/* 메탈릭 펄 질감 */}
         {optics?.isMetallic && (
-            <div className="absolute inset-0 mix-blend-color-dodge opacity-60 z-20 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}></div>
+            <div className="absolute inset-0 mix-blend-color-dodge opacity-60 z-20 pointer-events-none bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E')]"></div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-white/20 pointer-events-none z-30"></div>
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-white/30 pointer-events-none z-30"></div>
       </div>
     );
   };
@@ -811,7 +808,7 @@ export default function App() {
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
             <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
               <h3 className="text-xs font-black mb-2 flex justify-between items-center text-slate-800">
-                <span className="flex items-center"><Sun size={14} className="mr-1 text-orange-500"/> STUDIO 3D 광학 변환 시뮬레이터</span>
+                <span className="flex items-center"><Sun size={14} className="mr-1 text-orange-500"/> ✨ STUDIO 3D 프리미엄 차량 도장 시뮬레이터</span>
                 <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"><Maximize size={10} className="mr-1"/>먼셀 컬러 믹싱 랩</button>
               </h3>
               
@@ -970,7 +967,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 과거 데이터를 불러오는 새 탭 모달 */}
+      {/* 💡 과거 데이터를 불러오는 새 탭 모달 (창닫기 마법 적용 완료) */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
@@ -981,7 +978,7 @@ export default function App() {
               <button 
                 onClick={() => {
                   setRestoredViewData(null);
-                  window.close(); // 💡 엑셀로 열린 새 탭인 경우 여기서 창을 닫아버립니다!
+                  window.close(); // 💡 마법의 브라우저 종료 코드
                 }} 
                 className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"
               >
