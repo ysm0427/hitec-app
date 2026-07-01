@@ -1024,11 +1024,11 @@ export const TONER_DB: Record<string, TonerData> = {
     role: '퍼포먼스 컴포넌트', type: 'binder', face: '#ffffff', flop: '#ffffff',
     desc: '물성을 극적으로 안정화시키는 솔리드 전용 고성능 기능성 유동성 첨가제입니다.',
     details: [
-      ['일반 특성', '수성 페인트의 물성을 극적으로 안정화시키기 위해 독자 개발된 솔리드 전용 고성능 기능성 유동성 첨가제입니다.'],
-      ['색상 및 외관 변화', '안료가 아니므로 색상 자체를 변화시키진 않지만, 도막의 펴짐성을 극한으로 끌어올려 유리면처럼 매끄러운 고품질 외관을 보장합니다.'],
+      ['일반 특성', '솔리드 전용 고성능 기능성 유동성 첨가제입니다.'],
+      ['색상 및 외관 변화', '도막의 펴짐성을 극한으로 끌어올려 유리면처럼 매끄러운 고품질 외관을 보장합니다.'],
       ['용도 및 적용 컬러', '이펙트 입자가 없는 솔리드 컬러 도장 작업에만 단독으로 사용됩니다.'],
       ['배합 및 혼합 비율', '솔리드 베이스코트 도료 총 무게를 기준으로 정확히 10% 중량을 추가 계량하여 혼합 및 분사합니다.'],
-      ['경고 및 주의사항', '성분 특성 상 펄이나 메탈릭 입자가 들어간 이펙트 컬러에는 절대 사용을 금지합니다.']
+      ['경고 및 주의사항', '성분 특성 상 이펙트 컬러에는 절대 사용을 금지합니다.']
     ]
   },
   'WT 3080': {
@@ -1226,8 +1226,8 @@ export const getOptics = (tonersList: any[]) => {
   };
 };
 
-export const packToners = (tonerList: any[]) => { return tonerList.filter((t: any) => t.code).map((t: any) => { const c = t.code.replace('WT ', '').trim(); const w = t.adjustedWeight || ''; const h = (t.history || []).join(','); return `${c}_${w}_${h}`; }).join('*'); };
-export const unpackToners = (str: string) => { if (!str) return []; return str.split('*').map((t, i) => { const [c, w, h] = t.split('_'); return { id: `restored_${Date.now()}_${i}`, code: c ? `WT ${c}` : '', adjustedWeight: w || '', history: h ? h.split(',') : [], memo: '' }; }); };
+export const packToners = (tonerList: any[]) => { return tonerList.filter((t: any) => t.code).map((t: any) => { const c = t.code.replace('WT ', '').trim(); const w = t.adjustedWeight || ''; return `${c}_${w}`; }).join('*'); };
+export const unpackToners = (str: string) => { if (!str) return []; return str.split('*').map((t, i) => { const [c, w] = t.split('_'); return { id: `restored_${Date.now()}_${i}`, code: c ? `WT ${c}` : '', adjustedWeight: w || '', history: [], memo: '' }; }); };
 
 const MUNSELL_WHEEL_COLORS = [
     { name: '빨강', symbol: 'R', hex: '#E60012' },
@@ -1252,7 +1252,6 @@ const MUNSELL_WHEEL_COLORS = [
     { name: '연지', symbol: 'pR', hex: '#BE0081' },
 ];
 
-// 💡 100% 반영된 먼셀 믹싱 비율 규격 데이터베이스
 const MIXING_DATA: Record<string, any> = {
     'R': { c1: '빨강 (R)', h1: '#ff0000', r1: 100 },
     'yR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 },
@@ -1288,58 +1287,9 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
   const endInner = polarToCartesian(x, y, innerRadius, startAngle);
   const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
   return [
-    "M", startOuter.x, startOuter.y,
-    "A", outerRadius, outerRadius, 0, largeArcFlag, 0, endOuter.x, endOuter.y,
-    "L", endInner.x, endInner.y,
-    "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y,
-    "Z"
+    "M", startOuter.x, startOuter.y, "A", outerRadius, outerRadius, 0, largeArcFlag, 0, endOuter.x, endOuter.y,
+    "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z"
   ].join(" ");
-};
-
-const hexToRgb = (hex: string) => {
-    const h = hex.replace('#', '');
-    return [parseInt(h.substring(0,2), 16), parseInt(h.substring(2,4), 16), parseInt(h.substring(4,6), 16)];
-};
-
-const getNearestMunsellName = (rgbString: string) => {
-    if (rgbString === 'transparent') return '결과 대기중';
-    const match = rgbString.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-    if (!match) return '알 수 없음';
-    const [r, g, b] = [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
-    if (r < 50 && g < 50 && b < 50) return '검정 (Black)';
-    if (Math.abs(r-g)<20 && Math.abs(g-b)<20 && Math.abs(r-b)<20) return '무채색 (Gray)';
-    let minDistance = Infinity;
-    let closestName = '탁색 (Muddy)';
-    MUNSELL_WHEEL_COLORS.forEach(c => {
-        const [cr, cg, cb] = hexToRgb(c.hex);
-        const dist = Math.sqrt(Math.pow(r - cr, 2) + Math.pow(g - cg, 2) + Math.pow(b - cb, 2));
-        if (dist < minDistance) { minDistance = dist; closestName = c.name; }
-    });
-    if (minDistance > 130) return '탁색 (Muddy)';
-    return closestName;
-};
-
-const mixPaintSubtractive = (drops: { id: string, color: any, value: number }[]) => {
-    if (!drops || drops.length === 0) return 'transparent';
-    let c = 0, m = 0, y = 0, total = 0;
-    drops.forEach(d => {
-        const [r, g, b] = hexToRgb(d.color.hex);
-        c += (1 - r / 255) * d.value;
-        m += (1 - g / 255) * d.value;
-        y += (1 - b / 255) * d.value;
-        total += d.value;
-    });
-    if (total === 0) return 'transparent';
-    c /= total; m /= total; y /= total;
-    let finalR = (1 - c) * 255;
-    let finalG = (1 - m) * 255;
-    let finalB = (1 - y) * 255;
-    const minCMY = Math.min(c, m, y); 
-    const muddyFactor = 1 - (minCMY * 0.75); 
-    finalR = Math.max(0, Math.min(255, Math.round(finalR * muddyFactor)));
-    finalG = Math.max(0, Math.min(255, Math.round(finalG * muddyFactor)));
-    finalB = Math.max(0, Math.min(255, Math.round(finalB * muddyFactor)));
-    return `rgb(${finalR}, ${finalG}, ${finalB})`;
 };
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -1348,55 +1298,113 @@ export default function App() {
   const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
   const [targetColorCode, setTargetColorCode] = useState('UG4'); const [vehicleNumber, setVehicleNumber] = useState('9'); const [carModel, setCarModel] = useState('UN'); const [jobDescription, setJobDescription] = useState(''); const [specialNotes, setSpecialNotes] = useState('');
   const [totalBaseWeight, setTotalBaseWeight] = useState("0.00"); const [totalPearlWeight, setTotalPearlWeight] = useState("0.00"); const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
-  const [isBaseConfirmed, setIsBaseConfirmed] = useState(false); const [scannedImage, setScannedImage] = useState<string | null>(null); const [isScanning, setIsScanning] = useState(false); const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
-  const [restoredViewData, setRestoredViewData] = useState<any>(null); const [isTransferTab, setIsTransferTab] = useState(false); const [isAboutOpen, setIsAboutOpen] = useState(false);
-  const cameraInputRef = useRef<HTMLInputElement>(null); const viewerRef = useRef<HTMLElement>(null); const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight'} | null>(null); const [lightPos, setLightPos] = useState({ x: 50, y: 50 }); const [isDraggingLight, setIsDraggingLight] = useState(false); const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
+  const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
+  const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight'} | null>(null); const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
-  const [baseOptics, setBaseOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); const [pearlOptics, setPearlOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null);
+  const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
   const [isBaseMetallic, setIsBaseMetallic] = useState(false); const [isPearlMetallic, setIsPearlMetallic] = useState(false);
   const [scaleFactor, setScaleFactor] = useState("2");
   const [renderMode, setRenderMode] = useState<'shape' | 'car'>('car');
   const [viewAngle, setViewAngle] = useState({ rotY: 15, rotX: 5, scale: 1.1 });
   const [tonerMemos, setTonerMemos] = useState<Record<string, string>>({});
-
+  const [isTransferTab, setIsTransferTab] = useState(false);
   const [selectedWheelIndex, setSelectedWheelIndex] = useState<number | null>(null);
 
-  const handleWheelClick = (index: number) => {
-      setSelectedWheelIndex(index);
-  };
+  const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
 
   const tonersRef = useRef<any[]>([]); const pearlTonersRef = useRef<any[]>([]); const isThreeCoatModeRef = useRef<boolean>(true);
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   const sortedCatalog = [...catalogData].sort((a, b) => { 
-      const aActive = activeCodes.includes(a.code); 
-      const bActive = activeCodes.includes(b.code); 
-      if (aActive && !bActive) return -1; 
-      if (!aActive && bActive) return 1; 
-      return 0; 
+      const aActive = activeCodes.includes(a.code); const bActive = activeCodes.includes(b.code); 
+      if (aActive && !bActive) return -1; if (!aActive && bActive) return 1; return 0; 
   }).filter(item => item.code.includes(catalogSearch.toUpperCase()) || item.role.includes(catalogSearch));
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
+  // 💡 [팝업 튕김 해결] 데이터 파싱 안정성 극대화 및 과거 링크 호환성 완벽 지원
   useEffect(() => {
     if (typeof window !== 'undefined') {
-        const urlParams = new URLSearchParams(window.location.search); const d = urlParams.get('d'); const ori = window.location.origin;
-        if (!ori.includes('google') && !ori.includes('gemini') && !ori.includes('usercontent') && !ori.includes('null')) localStorage.setItem('hitec_clean_domain', ori);
+        const urlParams = new URLSearchParams(window.location.search); 
+        const d = urlParams.get('d'); 
+        const ori = window.location.origin;
+        if (!ori.includes('google') && !ori.includes('gemini') && !ori.includes('null')) localStorage.setItem('hitec_clean_domain', ori);
+        
+        let loadedFromUrl = false;
+
         if (d) {
             try {
-                let parsed; if (d.includes('%7B') || d.includes('{')) parsed = JSON.parse(decodeURIComponent(d));
-                else { const parts = d.split('|').map(decodeURIComponent); parsed = { v: parts[0] || '', m: parts[1] || '', c: parts[2] || '', j: parts[3] || '', n: parts[4] || '', b: unpackToners(parts[5]), p: unpackToners(parts[6]), t: parts[7] === '1' }; }
-                localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsed, ts: Date.now() })); window.close(); setIsTransferTab(true); return; 
-            } catch (e) { console.error("URL 파싱 실패", e); }
+                let parts: string[] = [];
+                
+                // 1. 신형 Base64 방식 해독 시도
+                if (!d.includes('|') && !d.includes('%')) {
+                    try { 
+                        const decodedStr = decodeURIComponent(escape(atob(d))); 
+                        parts = decodedStr.split('|');
+                    } catch(e) { console.warn("Base64 해독 실패, 구형 방식으로 전환"); }
+                }
+                
+                // 2. 구형 방식 (파이프 기호 분리) 해독 시도
+                if (parts.length === 0) {
+                    const normalizedD = d.replace(/%7C/g, '|');
+                    parts = normalizedD.split('|').map(p => {
+                        try { return decodeURIComponent(p); } catch(e) { return p; }
+                    });
+                }
+                
+                if (parts.length >= 6) {
+                    setVehicleNumber(parts[0] || '');
+                    setCarModel(parts[1] || '');
+                    setTargetColorCode(parts[2] || '');
+                    setJobDescription(parts[3] || '');
+                    setSpecialNotes(parts[4] || '');
+                    const restoredBase = unpackToners(parts[5]);
+                    const restoredPearl = unpackToners(parts[6]);
+                    if (restoredBase.length > 0) setToners(restoredBase);
+                    if (restoredPearl.length > 0) setPearlToners(restoredPearl);
+                    setIsThreeCoatMode(parts[7] === '1');
+                    
+                    // 💡 [원상복구] 엑셀에서 링크 클릭 시 원래대로 창 닫히고 기존 화면으로 데이터 전송!
+                    const parsed = { v: parts[0]||'', m: parts[1]||'', c: parts[2]||'', j: parts[3]||'', n: parts[4]||'', b: restoredBase, p: restoredPearl, t: parts[7]==='1' };
+                    localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsed, ts: Date.now() }));
+                    window.close();
+                    setIsTransferTab(true);
+                    return;
+                } else {
+                    // 데이터가 엑셀에서 짤려서 손상된 경우
+                    alert("링크 데이터가 손상되었거나 잘렸습니다. 과거에 잘못 복사된 엑셀 행일 수 있습니다.");
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            } catch (e) { 
+                console.error("URL 파싱 실패", e); 
+                alert("링크 데이터 해독 중 오류가 발생했습니다.");
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         }
+
         const handleStorageChange = (e: StorageEvent) => { if (e.key === 'hitec_broadcast' && e.newValue) { const payload = JSON.parse(e.newValue); setRestoredViewData(payload.data); } };
         window.addEventListener('storage', handleStorageChange);
-        const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos');
-        if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
-        setIsLoaded(true); return () => window.removeEventListener('storage', handleStorageChange);
+        
+        if (!loadedFromUrl) {
+            const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos');
+            if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
+        }
+        setIsLoaded(true); 
+        return () => window.removeEventListener('storage', handleStorageChange);
     }
   }, []);
+
+  // 타 탭에서 복원 신호가 왔을 때 상태 업데이트
+  useEffect(() => {
+    if (restoredViewData) {
+        setVehicleNumber(restoredViewData.v || ''); setCarModel(restoredViewData.m || ''); setTargetColorCode(restoredViewData.c || ''); setJobDescription(restoredViewData.j || ''); setSpecialNotes(restoredViewData.n || '');
+        if (restoredViewData.b && restoredViewData.b.length > 0) setToners(restoredViewData.b);
+        if (restoredViewData.p && restoredViewData.p.length > 0) setPearlToners(restoredViewData.p);
+        setIsThreeCoatMode(restoredViewData.t || false);
+        setRestoredViewData(null);
+    }
+  }, [restoredViewData]);
 
   useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search); if (urlParams.get('d')) return;
@@ -1410,23 +1418,32 @@ export default function App() {
   useEffect(() => {
     const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
     setTotalBaseWeight(baseTotal.toFixed(2)); setTotalPearlWeight(pearlTotal.toFixed(2)); setTotalFinalWeight((baseTotal + pearlTotal).toFixed(2));
-    setBaseOptics(getOptics(toners)); setPearlOptics(getOptics(pearlToners)); const activeToners = isThreeCoatMode ? [...toners, ...pearlToners] : toners; 
-    const newFinalOptics = getOptics(activeToners); setFinalOptics(newFinalOptics);
+    const activeToners = isThreeCoatMode ? [...toners, ...pearlToners] : toners; 
+    setFinalOptics(getOptics(activeToners));
     const checkMetallic = (list: any[]) => list.some(t => { const type = TONER_DB[t.code]?.type || ''; return type !== 'solid' && type !== 'binder' && type !== ''; });
     setIsBaseMetallic(checkMetallic(toners)); setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
+  // 💡 [오류 해결 1] 베이스 리스트, 펄 리스트 모두 완벽하게 포커스 이동 (안전망 강화)
   useEffect(() => {
     if (focusTarget) {
-      let attempts = 0; const interval = setInterval(() => {
+      let attempts = 0; 
+      const interval = setInterval(() => {
         const el = focusTarget.type === 'code' ? codeRefs.current[focusTarget.id] : weightRefs.current[focusTarget.id];
-        if (el) { el.focus(); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); clearInterval(interval); setFocusTarget(null); }
-        attempts++; if (attempts > 10) { clearInterval(interval); setFocusTarget(null); }
-      }, 30); return () => clearInterval(interval);
+        if (el) { 
+            el.focus(); 
+            setTimeout(() => { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 30);
+            clearInterval(interval); 
+            setFocusTarget(null); 
+        }
+        attempts++; 
+        if (attempts > 30) { clearInterval(interval); setFocusTarget(null); }
+      }, 20); 
+      return () => clearInterval(interval);
     }
   }, [focusTarget, toners, pearlToners]);
 
-  const handleClearAll = () => { setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setIsBaseConfirmed(false); setScannedImage(null); };
+  const handleClearAll = () => { setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setSelectedTonerForView(null); };
 
   const processNumbers = useCallback((nums: string[]) => {
     let nextBase = [...tonersRef.current]; let nextPearl = [...pearlTonersRef.current]; let i = 0;
@@ -1487,17 +1504,26 @@ export default function App() {
     }));
   };
 
-  const handleMemoChange = (id: string, value: string, isPearl = false) => {
-    const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(t => t.id === id ? { ...t, memo: value } : t));
-  };
-
   const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => {
-      if (e.key === 'Enter') { e.preventDefault(); const newId = `new_${Date.now()}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "" }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); }
+      if (e.key === 'Enter') { 
+          e.preventDefault(); 
+          const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
+          const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "" }; 
+          if (isPearl) setPearlToners([...pearlToners, newToner]); 
+          else setToners([...toners, newToner]); 
+          setFocusTarget({ id: newId, type: 'code' }); 
+      }
   };
   
   const removeToner = (id: string, isPearl = false) => { if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
-  const addToner = (isPearl = false) => { const newId = `new_${Date.now()}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "" }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); };
+  
+  const addToner = (isPearl = false) => { 
+      const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
+      const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "" }; 
+      if (isPearl) setPearlToners([...pearlToners, newToner]); 
+      else setToners([...toners, newToner]); 
+      setFocusTarget({ id: newId, type: 'code' }); 
+  };
 
   const quickEditWeight = (id: string, delta: number, isPearl: boolean) => {
     const setter = isPearl ? setPearlToners : setToners;
@@ -1533,8 +1559,12 @@ export default function App() {
     if (isThreeCoatMode) { const pearlResin = (parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1); pearlStr = `${totalPearlWeight} (수지 ${pearlResin})`; }
     const baseDetails = toners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', '); const pearlDetails = isThreeCoatMode ? pearlToners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ') : '해당없음'; const detailStr = isThreeCoatMode ? `[베이스] ${baseDetails} / [펄] ${pearlDetails}` : baseDetails;
     let currentOrigin = localStorage.getItem('hitec_clean_domain'); if (!currentOrigin || currentOrigin.includes('google') || currentOrigin.includes('gemini')) currentOrigin = window.location.origin; 
-    const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0'].map(s => encodeURIComponent(s || '')).join('|');
-    const shareUrl = `${currentOrigin}${window.location.pathname}?d=${payloadStr}`;
+    
+    // 💡 [오류 해결 2] 하이퍼링크가 잘리지 않도록 안전한 Base64로 압축 암호화
+    const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0'].join('|');
+    const safeUrlString = btoa(unescape(encodeURIComponent(payloadStr))); 
+    const shareUrl = `${currentOrigin}${window.location.pathname}?d=${safeUrlString}`;
+    
     const rowData = ["", vehicleNumber || '미입력', carModel || '미입력', targetColorCode || '미지정', jobDescription || '미입력', specialNotes || '', baseStr, pearlStr, detailStr, shareUrl].join('\t');
     if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(rowData).catch(err => console.error(err));
     else { const textarea = document.createElement('textarea'); textarea.value = rowData; document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); document.body.removeChild(textarea); }
@@ -1548,6 +1578,7 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
+  // 전송 화면 렌더링
   if (isTransferTab) {
       return (
           <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6 font-sans">
@@ -1561,7 +1592,6 @@ export default function App() {
       );
   }
 
-  // 💡 투명 배경 및 글래스모피즘 효과가 들어간 화사한 3D 뷰어
   const render3DView = (optics: any, mode: 'shape'|'car') => {
       const getBg = () => {
           if (!optics || !optics.face || !optics.mid || !optics.flop) return '#f8fafc'; 
@@ -1649,8 +1679,13 @@ export default function App() {
                                    <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                                    <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                               </div>
-                              {/* 💡 [오류해결 1] 베이스 리스트에서도 엔터 클릭 시 정상적으로 포커스 이동을 위해 ref 코드를 추가했습니다 */}
-                              <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code} onChange={e => handleCodeChange(toner.id, e.target.value, false)} className="w-20 text-sm font-black uppercase border border-slate-300 rounded p-1 focus:border-blue-500 focus:outline-none shadow-inner" placeholder="코드" />
+                              <input 
+                                  ref={el => { codeRefs.current[toner.id] = el; }} 
+                                  value={toner.code} 
+                                  onChange={e => handleCodeChange(toner.id, e.target.value, false)} 
+                                  className="w-20 text-sm font-black uppercase border border-slate-300 rounded p-1 focus:border-blue-500 focus:outline-none shadow-inner" 
+                                  placeholder="코드" 
+                              />
                               <span className="font-bold text-blue-700 text-sm truncate">{info.role || '미등록 안료'}</span>
                           </div>
                           
@@ -1679,7 +1714,16 @@ export default function App() {
 
                       <div className="flex items-center self-end sm:self-auto bg-white border rounded-md px-1.5 py-0.5 shrink-0 shadow-sm mt-2 sm:mt-0">
                          <button onClick={() => quickEditWeight(toner.id, -0.1, false)} className="px-1.5 py-0.5 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
-                         <input ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" value={toner.adjustedWeight} onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} onBlur={e => handleWeightBlur(toner.id, e.target.value, false)} onKeyDown={e => handleWeightKeyDown(e, toner.id, false)} className="w-16 text-right text-base font-black text-blue-600 focus:outline-none clean-number-input mx-1" placeholder="0.0" />
+                         <input 
+                             ref={el => { weightRefs.current[toner.id] = el; }} 
+                             inputMode="decimal" 
+                             value={toner.adjustedWeight} 
+                             onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} 
+                             onBlur={e => handleWeightBlur(toner.id, e.target.value, false)} 
+                             onKeyDown={e => handleWeightKeyDown(e, toner.id, false)} 
+                             className="w-16 text-right text-base font-black text-blue-600 focus:outline-none clean-number-input mx-1" 
+                             placeholder="0.0" 
+                         />
                          <button onClick={() => quickEditWeight(toner.id, 0.1, false)} className="px-1.5 py-0.5 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
                          <span className="text-[10px] font-bold text-slate-400 ml-1 mr-1">g</span>
                          <button onClick={() => removeToner(toner.id, false)} className="ml-1"><Trash2 size={16} className="text-slate-300 hover:text-red-500 transition-colors"/></button>
@@ -1763,7 +1807,6 @@ export default function App() {
         {/* 우측 컬럼: 3D 그래픽 엔진 & 카탈로그 */}
         <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
-            {/* 💡 투명 배경이 적용된 화사한 3D 변환 시뮬레이터 */}
             <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
               <h3 className="text-xs font-black mb-2 flex justify-between items-center text-slate-800">
                 <span className="flex items-center"><Sun size={14} className="mr-1 text-orange-500"/> STUDIO 3D 광학 변환 시뮬레이터</span>
@@ -2115,32 +2158,4 @@ export default function App() {
                                     <line x1="125" y1="105" x2="170" y2="130" /> 
                                     <line x1="100" y1="90" x2="150" y2="90" /> 
                                 </g>
-                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle">
-                                    <text x="25" y="35">Cyan</text>
-                                    <text x="175" y="35">Magenta</text>
-                                    <text x="100" y="185">Yellow</text>
-                                    <text x="100" y="20" fill="#0000FF">Blue</text>
-                                    <text x="25" y="140" fill="#008000">Green</text>
-                                    <text x="175" y="140" fill="#FF0000">Red</text>
-                                    <rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" />
-                                    <text x="170" y="93" fill="#ffffff">Black</text>
-                                </g>
-                            </svg>
-                        </div>
-                    </div>
-                 </div>
-
-             </div>
-
-             {/* 하단 닫기 버튼 */}
-             <div className="mt-4 pb-12 w-full flex justify-center">
-                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg">
-                    <X size={24} /> 믹싱 스튜디오 닫기
-                </button>
-             </div>
-          </main>
-        </div>
-      )}
-    </div>
-  );
-}
+                                <g fill="#000000" fontSize="
