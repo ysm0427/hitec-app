@@ -1292,6 +1292,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
   ].join(" ");
 };
 export default function App() {
+export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: 'WT 318', adjustedWeight: "0.3", history: [], memo: "" }, { id: `b_next`, code: 'WT 144', adjustedWeight: "4.0", history: [], memo: "" }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "" }]);
@@ -1306,7 +1307,6 @@ export default function App() {
   const [isBaseMetallic, setIsBaseMetallic] = useState(false); const [isPearlMetallic, setIsPearlMetallic] = useState(false);
   const [scaleFactor, setScaleFactor] = useState("2");
   const [renderMode, setRenderMode] = useState<'shape' | 'car'>('car');
-  const [viewAngle, setViewAngle] = useState({ rotY: 15, rotX: 5, scale: 1.1 });
   const [tonerMemos, setTonerMemos] = useState<Record<string, string>>({});
   const [isTransferTab, setIsTransferTab] = useState(false);
   const [selectedWheelIndex, setSelectedWheelIndex] = useState<number | null>(null);
@@ -1323,7 +1323,7 @@ export default function App() {
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
-  // 💡 [팝업 튕김 해결] 데이터 파싱 안정성 극대화 및 과거 링크 호환성 완벽 지원
+  // 💡 [과거 링크 완벽 복원기] 구형 파이프(|) 링크와 신형 Base64 링크를 모두 해독합니다.
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search); 
@@ -1335,25 +1335,20 @@ export default function App() {
 
         if (d) {
             try {
-                let parts: string[] = [];
+                let decodedStr = d;
                 
-                // 1. 신형 Base64 방식 해독 시도
-                if (!d.includes('|') && !d.includes('%')) {
-                    try { 
-                        const decodedStr = decodeURIComponent(escape(atob(d))); 
-                        parts = decodedStr.split('|');
-                    } catch(e) { console.warn("Base64 해독 실패, 구형 방식으로 전환"); }
+                // 구형 링크 (URL 인코딩 방식)
+                if (d.includes('%7C') || d.includes('|')) {
+                    decodedStr = decodeURIComponent(d);
+                } 
+                // 신형 링크 (Base64 방식)
+                else {
+                    try { decodedStr = decodeURIComponent(escape(atob(d))); } 
+                    catch(e) { try { decodedStr = atob(d); } catch(e2) { decodedStr = d; } }
                 }
                 
-                // 2. 구형 방식 (파이프 기호 분리) 해독 시도
-                if (parts.length === 0) {
-                    const normalizedD = d.replace(/%7C/g, '|');
-                    parts = normalizedD.split('|').map(p => {
-                        try { return decodeURIComponent(p); } catch(e) { return p; }
-                    });
-                }
-                
-                if (parts.length >= 6) {
+                const parts = decodedStr.split('|');
+                if(parts.length >= 6) {
                     setVehicleNumber(parts[0] || '');
                     setCarModel(parts[1] || '');
                     setTargetColorCode(parts[2] || '');
@@ -1365,22 +1360,13 @@ export default function App() {
                     if (restoredPearl.length > 0) setPearlToners(restoredPearl);
                     setIsThreeCoatMode(parts[7] === '1');
                     
-                    // 💡 [원상복구] 엑셀에서 링크 클릭 시 원래대로 창 닫히고 기존 화면으로 데이터 전송!
                     const parsed = { v: parts[0]||'', m: parts[1]||'', c: parts[2]||'', j: parts[3]||'', n: parts[4]||'', b: restoredBase, p: restoredPearl, t: parts[7]==='1' };
                     localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsed, ts: Date.now() }));
                     window.close();
                     setIsTransferTab(true);
                     return;
-                } else {
-                    // 데이터가 엑셀에서 짤려서 손상된 경우
-                    alert("링크 데이터가 손상되었거나 잘렸습니다. 과거에 잘못 복사된 엑셀 행일 수 있습니다.");
-                    window.history.replaceState({}, document.title, window.location.pathname);
                 }
-            } catch (e) { 
-                console.error("URL 파싱 실패", e); 
-                alert("링크 데이터 해독 중 오류가 발생했습니다.");
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
+            } catch (e) { console.error("URL 파싱 실패", e); }
         }
 
         const handleStorageChange = (e: StorageEvent) => { if (e.key === 'hitec_broadcast' && e.newValue) { const payload = JSON.parse(e.newValue); setRestoredViewData(payload.data); } };
@@ -1395,7 +1381,6 @@ export default function App() {
     }
   }, []);
 
-  // 타 탭에서 복원 신호가 왔을 때 상태 업데이트
   useEffect(() => {
     if (restoredViewData) {
         setVehicleNumber(restoredViewData.v || ''); setCarModel(restoredViewData.m || ''); setTargetColorCode(restoredViewData.c || ''); setJobDescription(restoredViewData.j || ''); setSpecialNotes(restoredViewData.n || '');
@@ -1424,7 +1409,6 @@ export default function App() {
     setIsBaseMetallic(checkMetallic(toners)); setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
-  // 💡 [오류 해결 1] 베이스 리스트, 펄 리스트 모두 완벽하게 포커스 이동 (안전망 강화)
   useEffect(() => {
     if (focusTarget) {
       let attempts = 0; 
@@ -1560,7 +1544,7 @@ export default function App() {
     const baseDetails = toners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', '); const pearlDetails = isThreeCoatMode ? pearlToners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ') : '해당없음'; const detailStr = isThreeCoatMode ? `[베이스] ${baseDetails} / [펄] ${pearlDetails}` : baseDetails;
     let currentOrigin = localStorage.getItem('hitec_clean_domain'); if (!currentOrigin || currentOrigin.includes('google') || currentOrigin.includes('gemini')) currentOrigin = window.location.origin; 
     
-    // 💡 [오류 해결 2] 하이퍼링크가 잘리지 않도록 안전한 Base64로 압축 암호화
+    // 💡 Base64 암호화 (엑셀 팝업 링크 잘림 방지)
     const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0'].join('|');
     const safeUrlString = btoa(unescape(encodeURIComponent(payloadStr))); 
     const shareUrl = `${currentOrigin}${window.location.pathname}?d=${safeUrlString}`;
@@ -1578,7 +1562,6 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
-  // 전송 화면 렌더링
   if (isTransferTab) {
       return (
           <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6 font-sans">
@@ -2158,4 +2141,32 @@ export default function App() {
                                     <line x1="125" y1="105" x2="170" y2="130" /> 
                                     <line x1="100" y1="90" x2="150" y2="90" /> 
                                 </g>
-                                <g fill="#000000" fontSize="
+                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle">
+                                    <text x="25" y="35">Cyan</text>
+                                    <text x="175" y="35">Magenta</text>
+                                    <text x="100" y="185">Yellow</text>
+                                    <text x="100" y="20" fill="#0000FF">Blue</text>
+                                    <text x="25" y="140" fill="#008000">Green</text>
+                                    <text x="175" y="140" fill="#FF0000">Red</text>
+                                    <rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" />
+                                    <text x="170" y="93" fill="#ffffff">Black</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                 </div>
+
+             </div>
+
+             {/* 하단 닫기 버튼 */}
+             <div className="mt-4 pb-12 w-full flex justify-center">
+                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg">
+                    <X size={24} /> 믹싱 스튜디오 닫기
+                </button>
+             </div>
+          </main>
+        </div>
+      )}
+    </div>
+  );
+}
