@@ -6,7 +6,7 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 공식 안료 데이터베이스 (100% 상세 원본 복구)
+// 💡 공식 안료 데이터베이스
 export const TONER_DB: Record<string, TonerData> = {
   'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '정면에서 선명한 적청색(Reddish-Blue) 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다.', details: [['일반 특성', '기존 WT 346 안료를 완벽하게 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'], ['색상 및 외관 변화', '가장 큰 특징은 정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점입니다.'], ['용도 및 적용 컬러', 'WT 346이 포함된 모든 솔리드 및 이펙트 컬러의 1:1 대체 처방 및 조색 보정용으로 사용됩니다.'], ['배합 및 혼합 비율', '기존 WT 346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용해야 동일한 착색력을 얻습니다.'], ['경고 및 주의사항', '정면의 뚜렷한 적청색 발색으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로 반드시 시편 대조 후 블랜딩 도장을 권장합니다.']] },
   'WT 346': { role: '트랜스페어런트 딥 블루 [WT 144 완벽대체]', type: 'solid', face: '#0369a1', flop: '#020617', desc: '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.', details: [['일반 특성', '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.'], ['색상 및 외관 변화', '특히 측면(45도/110도)에서 관찰할 때 전체 청색 조색제 중 녹색빛 반사가 가장 강하게 두드러지는 고유 특징이 있습니다.'], ['용도 및 적용 컬러', '시중 대부분의 이펙트 메탈릭 청색 조색 시 뼈대가 되는 가장 기초적이고 필수적인 투명 파란색입니다.'], ['배합 및 혼합 비율', '다양한 이펙트 처방에서 메인으로 쓰이므로 배합표의 대량 투입 지시를 엄수합니다.'], ['경고 및 주의사항', '이 안료는 신형 WT 144와 상호 대체가 가능합니다. 대체 시 [WT 346 : WT 144 = 1 : 0.9] 비율을 적용하십시오.']] },
@@ -355,7 +355,8 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
     "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z"
   ].join(" ");
 };
-export default function App() {export default function App() {
+
+export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: 'WT 318', adjustedWeight: "0.3", history: [], memo: "" }, { id: `b_next`, code: 'WT 144', adjustedWeight: "4.0", history: [], memo: "" }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "" }]);
@@ -371,8 +372,8 @@ export default function App() {export default function App() {
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
   
   const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
-  // 💡 [핵심 해결] 까만 화면(TransferTab) 상태 변수를 아예 삭제하고, 오직 팝업(restoredViewData)만 씁니다!
   const [restoredViewData, setRestoredViewData] = useState<any>(null); 
+  const [isTransferTab, setIsTransferTab] = useState(false); 
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [scannedImage, setScannedImage] = useState<string | null>(null); 
   const [isScanning, setIsScanning] = useState(false);
@@ -408,7 +409,7 @@ export default function App() {export default function App() {
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
-  // 💡 [핵심 복구] 엑셀에서 넘어온 링크를 읽어 무조건 "팝업창"으로 띄우는 완벽한 디코더
+  // 💡 [과거 데이터 복원 디코더] "작업내용" 등 과거 버전의 긴 변수명까지 100% 호환되게 해독합니다.
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search); 
@@ -422,12 +423,9 @@ export default function App() {export default function App() {
             try {
                 let parsedData = null;
                 
-                // 1. 아주 옛날 방식 해독
                 if (d.includes('%7B') || d.includes('{')) {
                     parsedData = JSON.parse(decodeURIComponent(d));
-                } 
-                // 2. 중간 및 최신 방식(Base64) 해독
-                else {
+                } else {
                     let decodedStr = d;
                     if (!d.includes('|') && !d.includes('%')) {
                         try { decodedStr = decodeURIComponent(escape(atob(d))); } catch(e) { decodedStr = atob(d); }
@@ -451,27 +449,53 @@ export default function App() {export default function App() {
                 }
 
                 if (parsedData) {
-                    // 🚨 이제 까만 화면으로 튕기지 않고 무조건 팝업 데이터 변수에 꽂아 넣습니다!
-                    setRestoredViewData(parsedData);
+                    localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsedData, ts: Date.now() }));
+                    window.close();
+                    setIsTransferTab(true);
+                    return;
+                } else {
+                    alert("데이터 형식이 손상되었습니다.");
                     window.history.replaceState({}, document.title, window.location.pathname);
-                    loadedFromUrl = true;
                 }
             } catch (e) { 
                 console.error("URL 파싱 실패", e); 
-                alert("과거 데이터 링크를 해독할 수 없습니다.");
+                alert("과거 데이터 링크가 손상되어 복원할 수 없습니다.");
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
 
+        const handleStorageChange = (e: StorageEvent) => { if (e.key === 'hitec_broadcast' && e.newValue) { const payload = JSON.parse(e.newValue); setRestoredViewData(payload.data); } };
+        window.addEventListener('storage', handleStorageChange);
+        
         if (!loadedFromUrl) {
             const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos');
             if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
         }
         setIsLoaded(true); 
+        return () => window.removeEventListener('storage', handleStorageChange);
     }
   }, []);
 
-  // 원래 화면 백업 로직
+  useEffect(() => {
+    if (restoredViewData) {
+        setVehicleNumber(restoredViewData.v || restoredViewData.vehicleNumber || ''); 
+        setCarModel(restoredViewData.m || restoredViewData.carModel || ''); 
+        setTargetColorCode(restoredViewData.c || restoredViewData.targetColorCode || ''); 
+        setJobDescription(restoredViewData.j || restoredViewData.jobDescription || ''); 
+        setSpecialNotes(restoredViewData.n || restoredViewData.specialNotes || '');
+        
+        const restoredBase = restoredViewData.b || restoredViewData.toners || [];
+        if (restoredBase.length > 0) setToners(restoredBase);
+        
+        const restoredPearl = restoredViewData.p || restoredViewData.pearlToners || [];
+        if (restoredPearl.length > 0) setPearlToners(restoredPearl);
+        
+        const is3Coat = restoredViewData.t !== undefined ? restoredViewData.t : (restoredViewData.isThreeCoatMode || false);
+        setIsThreeCoatMode(is3Coat);
+        setRestoredViewData(null);
+    }
+  }, [restoredViewData]);
+
   useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search); if (urlParams.get('d')) return;
       if (isLoaded && typeof window !== 'undefined') {
@@ -509,6 +533,39 @@ export default function App() {export default function App() {
   }, [focusTarget, toners, pearlToners]);
 
   const handleClearAll = () => { setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setSelectedTonerForView(null); };
+
+  const processNumbers = useCallback((nums: string[]) => {
+    let nextBase = [...tonersRef.current]; let nextPearl = [...pearlTonersRef.current]; let i = 0;
+    while (i < nums.length) {
+        let codeC = nums[i]; let isCode = !!TONER_DB[`WT ${codeC}`];
+        if (isCode) {
+            let finalCode = `WT ${codeC}`; let weightC = nums[i+1]; let finalWeight = "";
+            if (weightC && TONER_DB[`WT ${weightC}`]) { finalWeight = ""; i++; } 
+            else if (weightC) { let nextNum = nums[i+2]; if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !weightC.includes('.')) { finalWeight = `${weightC}.${nextNum}`; i += 3; } else { finalWeight = weightC; i += 2; } } else { finalWeight = ""; i++; }
+            const isPearlLayer = isThreeCoatModeRef.current && (TONER_DB[finalCode].type === 'pearl' || TONER_DB[finalCode].type === 'xirallic'); const targetList = isPearlLayer ? nextPearl : nextBase;
+            const emptyIndex = targetList.findIndex(t => t.code === '' || (t.code === finalCode && t.adjustedWeight === ''));
+            if (emptyIndex !== -1) targetList[emptyIndex] = { ...targetList[emptyIndex], code: finalCode, adjustedWeight: finalWeight, history: targetList[emptyIndex].history || [], memo: "" }; else targetList.push({ id: `scan_${Date.now()}_${i}`, code: finalCode, adjustedWeight: finalWeight, history: [], memo: "" });
+        } else {
+            let orphanWeight = codeC; let nextNum = nums[i+1]; if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !orphanWeight.includes('.')) { orphanWeight = `${orphanWeight}.${nextNum}`; i += 2; } else { i++; }
+            let found = false;
+            if (isThreeCoatModeRef.current) { for (let j = nextPearl.length - 1; j >= 0; j--) { if (nextPearl[j].code !== '' && (!nextPearl[j].adjustedWeight || nextPearl[j].adjustedWeight === '')) { const currentHistory = nextPearl[j].history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== orphanWeight) ? [...currentHistory, orphanWeight] : currentHistory; nextPearl[j] = { ...nextPearl[j], adjustedWeight: orphanWeight, history: nextHistory }; found = true; break; } } }
+            if (!found) { for (let j = nextBase.length - 1; j >= 0; j--) { if (nextBase[j].code !== '' && (!nextBase[j].adjustedWeight || nextBase[j].adjustedWeight === '')) { const currentHistory = nextBase[j].history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== orphanWeight) ? [...currentHistory, orphanWeight] : currentHistory; nextBase[j] = { ...nextBase[j], adjustedWeight: orphanWeight, history: nextHistory }; found = true; break; } } }
+        }
+    }
+    setToners(nextBase); setPearlToners(nextPearl);
+  }, []);
+
+  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return; const imageUrl = URL.createObjectURL(file); setScannedImage(imageUrl); setIsScanning(true);
+    try {
+      if (typeof window !== 'undefined' && (window as any).Tesseract) {
+        const result = await (window as any).Tesseract.recognize(file, 'eng', { params: { tessedit_pageseg_mode: '6', tessedit_char_whitelist: '0123456789.WT ' } });
+        const text = result.data.text; let norm = text.replace(/:/g, '.').replace(/점/g, '.').replace(/\s*\.\s*/g, '.').replace(/[A-Za-z]/g, ' ');
+        const nums = norm.match(/\d*\.\d+|\d+/g); if (nums && nums.length > 0) processNumbers(nums); else throw new Error("배합 검출 실패");
+      } else throw new Error("OCR 미준비");
+    } catch (error) { alert("스캔 실패: 직접 중량을 입력해 주세요."); }
+    setIsScanning(false);
+  };
 
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
     const formattedCode = newCode.toUpperCase().trim(); const setter = isPearl ? setPearlToners : setToners;
@@ -609,6 +666,19 @@ export default function App() {export default function App() {
     if (typeof navigator !== 'undefined' && navigator.share) navigator.share({ title: 'HI-TEC 조색 데이터 인계', text: text }).catch(console.error);
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
+
+  if (isTransferTab) {
+      return (
+          <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6 font-sans">
+              <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 text-center max-w-[500px] shadow-2xl">
+                  <Zap className="text-yellow-400 w-20 h-20 mx-auto mb-6 animate-pulse" />
+                  <h1 className="text-2xl font-black text-blue-400 mb-4">데이터 전송 신호 발사!</h1>
+                  <p className="text-slate-300 text-base mb-6 leading-relaxed">바탕화면에 켜두신 <strong>[조색 Pro 앱]</strong>으로<br/>과거 배합 기록 신호를 성공적으로 쐈습니다.<br/><br/><span className="text-red-400 font-bold">보안상 이 껍데기 창은 자동으로 닫히지 않습니다.</span></p>
+                  <button onClick={() => window.close()} className="bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-8 rounded-xl shadow-[0_0_15px_rgba(220,38,38,0.5)] w-full mb-4 text-lg transition-colors flex items-center justify-center gap-2"><X size={24}/> 이 창을 닫고 원래 하던 작업으로 복귀</button>
+              </div>
+          </div>
+      );
+  }
 
   const render3DView = (optics: any, mode: 'shape'|'car') => {
       const getBg = () => {
@@ -990,11 +1060,10 @@ export default function App() {export default function App() {
         </div>
       )}
 
-      {/* 💡 [복구 완료] 과거 데이터 기록을 띄워주는 읽기 전용 모달창 팝업 */}
+      {/* 💡 [에러 해결] 과거 JSON 방식의 긴 변수명(jobDescription 등)을 읽어서 완벽하게 팝업창에 띄웁니다! */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
-            {/* Header */}
             <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-[#1e293b]">
               <h3 className="text-white font-bold flex items-center gap-2">
                 <History size={18} className="text-blue-400" /> 과거 구성에 따른 구성
@@ -1004,35 +1073,32 @@ export default function App() {export default function App() {
               </button>
             </div>
             
-            {/* Content */}
             <div className="p-6 overflow-y-auto custom-scrollbar max-h-[70vh] bg-[#0f172a] space-y-6">
-              {/* Info Card */}
               <div className="grid grid-cols-2 gap-4 bg-[#1e293b] p-4 rounded-xl border border-slate-700/50">
                 <div>
                   <div className="text-[10px] text-slate-400 mb-1">차량번호</div>
-                  <div className="text-sm font-bold text-white">{restoredViewData.v || '미입력'}</div>
+                  <div className="text-sm font-bold text-white">{restoredViewData.v || restoredViewData.vehicleNumber || '미입력'}</div>
                 </div>
                 <div>
                   <div className="text-[10px] text-slate-400 mb-1">차종</div>
-                  <div className="text-sm font-bold text-white">{restoredViewData.m || '미입력'}</div>
+                  <div className="text-sm font-bold text-white">{restoredViewData.m || restoredViewData.carModel || '미입력'}</div>
                 </div>
                 <div>
                   <div className="text-[10px] text-slate-400 mb-1">컬러코드</div>
-                  <div className="text-sm font-bold text-blue-400 uppercase">{restoredViewData.c || '미지정'}</div>
+                  <div className="text-sm font-bold text-blue-400 uppercase">{restoredViewData.c || restoredViewData.targetColorCode || '미지정'}</div>
                 </div>
                 <div>
                   <div className="text-[10px] text-slate-400 mb-1">작업 내용</div>
-                  <div className="text-sm font-bold text-white leading-snug">{restoredViewData.j || '미입력'}</div>
+                  <div className="text-sm font-bold text-white leading-snug">{restoredViewData.j || restoredViewData.jobDescription || '미입력'}</div>
                 </div>
               </div>
 
-              {/* Ground Coat */}
               <div>
                 <h4 className="text-xs font-bold text-slate-300 mb-3 flex items-center gap-2">
                   <Layers size={14} /> 베이스 코트 (Ground Coat)
                 </h4>
                 <div className="space-y-2">
-                  {restoredViewData.b?.filter((t: any) => t.code).map((t: any, idx: number) => (
+                  {(restoredViewData.b || restoredViewData.toners || [])?.filter((t: any) => t.code).map((t: any, idx: number) => (
                     <div key={idx} className="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-xl border border-slate-700/50">
                       <div className="flex items-center gap-3">
                         <span className="text-white font-bold text-sm">무게 {t.code.replace('WT ', '')}</span>
@@ -1044,14 +1110,13 @@ export default function App() {export default function App() {
                 </div>
               </div>
 
-              {/* Mid Coat */}
-              {restoredViewData.t && restoredViewData.p?.filter((t: any) => t.code).length > 0 && (
+              {(restoredViewData.t !== undefined ? restoredViewData.t : (restoredViewData.isThreeCoatMode || false)) && (restoredViewData.p || restoredViewData.pearlToners || [])?.filter((t: any) => t.code).length > 0 && (
                 <div>
                   <h4 className="text-xs font-bold text-purple-400 mb-3 flex items-center gap-2 mt-2">
                     <Zap size={14} /> 펄코트 (Mid Coat)
                   </h4>
                   <div className="space-y-2">
-                    {restoredViewData.p.filter((t: any) => t.code).map((t: any, idx: number) => (
+                    {(restoredViewData.p || restoredViewData.pearlToners || []).filter((t: any) => t.code).map((t: any, idx: number) => (
                       <div key={idx} className="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-xl border border-purple-900/30">
                         <div className="flex items-center gap-3">
                           <span className="text-white font-bold text-sm">무게 {t.code.replace('WT ', '')}</span>
@@ -1065,7 +1130,6 @@ export default function App() {export default function App() {
               )}
             </div>
 
-            {/* Footer Button */}
             <div className="p-4 bg-[#1e293b] border-t border-slate-700/50">
               <button 
                 onClick={() => setRestoredViewData(null)} 
