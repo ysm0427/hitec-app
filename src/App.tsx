@@ -1290,7 +1290,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
     "M", startOuter.x, startOuter.y, "A", outerRadius, outerRadius, 0, largeArcFlag, 0, endOuter.x, endOuter.y,
     "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z"
   ].join(" ");
-};export default function App() {
+export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: 'WT 318', adjustedWeight: "0.3", history: [], memo: "" }, { id: `b_next`, code: 'WT 144', adjustedWeight: "4.0", history: [], memo: "" }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "" }]);
@@ -1303,38 +1303,23 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
   const [totalBaseWeight, setTotalBaseWeight] = useState("0.00"); 
   const [totalPearlWeight, setTotalPearlWeight] = useState("0.00"); 
   const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
-  const [isBaseConfirmed, setIsBaseConfirmed] = useState(false); 
-  const [scannedImage, setScannedImage] = useState<string | null>(null); 
-  const [isScanning, setIsScanning] = useState(false); 
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
-  
-  // 💡 [에러 해결] 누락되었던 상태 변수들 완벽 복구
-  const [restoredViewData, setRestoredViewData] = useState<any>(null); 
-  const [isTransferTab, setIsTransferTab] = useState(false); 
-  const [isAboutOpen, setIsAboutOpen] = useState(false);
-  
-  const cameraInputRef = useRef<HTMLInputElement>(null); 
-  const viewerRef = useRef<HTMLElement>(null); 
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight'} | null>(null); 
-  const [lightPos, setLightPos] = useState({ x: 50, y: 50 }); 
-  const [isDraggingLight, setIsDraggingLight] = useState(false); 
   const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
-  const [baseOptics, setBaseOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
-  const [pearlOptics, setPearlOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
   const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
-  const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null);
   const [isBaseMetallic, setIsBaseMetallic] = useState(false); 
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
   const [scaleFactor, setScaleFactor] = useState("2");
   const [renderMode, setRenderMode] = useState<'shape' | 'car'>('car');
-  
-  // 💡 [에러 해결] 3D 회전 각도 변수 복구
   const [viewAngle, setViewAngle] = useState({ rotY: 15, rotX: 5, scale: 1.1 });
-  
   const [tonerMemos, setTonerMemos] = useState<Record<string, string>>({});
+  
+  // 💡 [에러 해결] 팝업으로 띄울 과거 데이터를 저장하는 변수
+  const [restoredViewData, setRestoredViewData] = useState<any>(null);
+  
   const [selectedWheelIndex, setSelectedWheelIndex] = useState<number | null>(null);
 
   const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
@@ -1349,7 +1334,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
-  // 💡 구형/신형 링크 완벽 해독 로직
+  // 💡 [핵심 복구 완료] 메인 화면을 덮어쓰지 않고, 오직 '팝업창(3번 이미지)'에만 과거 데이터를 전달합니다!
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search); 
@@ -1361,69 +1346,55 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
 
         if (d) {
             try {
-                let parts: string[] = [];
-                if (!d.includes('|') && !d.includes('%')) {
-                    try { 
-                        const decodedStr = decodeURIComponent(escape(atob(d))); 
-                        parts = decodedStr.split('|');
-                    } catch(e) { console.warn("Base64 해독 실패"); }
-                }
-                if (parts.length === 0) {
-                    const normalizedD = d.replace(/%7C/g, '|');
-                    parts = normalizedD.split('|').map(p => {
-                        try { return decodeURIComponent(p); } catch(e) { return p; }
-                    });
-                }
+                let parsedData = null;
                 
-                if (parts.length >= 6) {
-                    setVehicleNumber(parts[0] || '');
-                    setCarModel(parts[1] || '');
-                    setTargetColorCode(parts[2] || '');
-                    setJobDescription(parts[3] || '');
-                    setSpecialNotes(parts[4] || '');
-                    const restoredBase = unpackToners(parts[5]);
-                    const restoredPearl = unpackToners(parts[6]);
-                    if (restoredBase.length > 0) setToners(restoredBase);
-                    if (restoredPearl.length > 0) setPearlToners(restoredPearl);
-                    setIsThreeCoatMode(parts[7] === '1');
-                    
-                    const parsed = { v: parts[0]||'', m: parts[1]||'', c: parts[2]||'', j: parts[3]||'', n: parts[4]||'', b: restoredBase, p: restoredPearl, t: parts[7]==='1' };
-                    localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsed, ts: Date.now() }));
-                    window.close();
-                    setIsTransferTab(true);
-                    return;
+                // 구형 링크 및 신형 암호화 링크 완벽 호환 디코딩
+                if (d.includes('%7B') || d.includes('{')) {
+                    parsedData = JSON.parse(decodeURIComponent(d));
                 } else {
-                    alert("링크 데이터가 손상되었거나 잘렸습니다.");
+                    let decodedStr = d;
+                    if (!d.includes('|') && !d.includes('%')) {
+                        try { decodedStr = decodeURIComponent(escape(atob(d))); } catch(e) { decodedStr = atob(d); }
+                    } else {
+                        decodedStr = decodeURIComponent(d.replace(/%7C/g, '|'));
+                    }
+                    
+                    const parts = decodedStr.split('|');
+                    if(parts.length >= 6) {
+                        parsedData = {
+                            v: parts[0] || '',
+                            m: parts[1] || '',
+                            c: parts[2] || '',
+                            j: parts[3] || '',
+                            n: parts[4] || '',
+                            b: unpackToners(parts[5]),
+                            p: unpackToners(parts[6]),
+                            t: parts[7] === '1'
+                        };
+                    }
+                }
+
+                if (parsedData) {
+                    // 🚨 메인 덮어쓰기를 멈추고, 팝업창 전용 데이터에만 전달합니다!
+                    setRestoredViewData(parsedData);
                     window.history.replaceState({}, document.title, window.location.pathname);
+                    loadedFromUrl = true;
                 }
             } catch (e) { 
                 console.error("URL 파싱 실패", e); 
-                alert("링크 데이터 해독 중 오류가 발생했습니다.");
+                alert("과거 데이터 링크가 손상되어 복원할 수 없습니다.");
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
 
-        const handleStorageChange = (e: StorageEvent) => { if (e.key === 'hitec_broadcast' && e.newValue) { const payload = JSON.parse(e.newValue); setRestoredViewData(payload.data); } };
-        window.addEventListener('storage', handleStorageChange);
-        
+        // 현재 작업 중인 메인 화면 데이터 유지
         if (!loadedFromUrl) {
             const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos');
             if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
         }
         setIsLoaded(true); 
-        return () => window.removeEventListener('storage', handleStorageChange);
     }
   }, []);
-
-  useEffect(() => {
-    if (restoredViewData) {
-        setVehicleNumber(restoredViewData.v || ''); setCarModel(restoredViewData.m || ''); setTargetColorCode(restoredViewData.c || ''); setJobDescription(restoredViewData.j || ''); setSpecialNotes(restoredViewData.n || '');
-        if (restoredViewData.b && restoredViewData.b.length > 0) setToners(restoredViewData.b);
-        if (restoredViewData.p && restoredViewData.p.length > 0) setPearlToners(restoredViewData.p);
-        setIsThreeCoatMode(restoredViewData.t || false);
-        setRestoredViewData(null);
-    }
-  }, [restoredViewData]);
 
   useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search); if (urlParams.get('d')) return;
@@ -1462,39 +1433,6 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
   }, [focusTarget, toners, pearlToners]);
 
   const handleClearAll = () => { setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setSelectedTonerForView(null); };
-
-  const processNumbers = useCallback((nums: string[]) => {
-    let nextBase = [...tonersRef.current]; let nextPearl = [...pearlTonersRef.current]; let i = 0;
-    while (i < nums.length) {
-        let codeC = nums[i]; let isCode = !!TONER_DB[`WT ${codeC}`];
-        if (isCode) {
-            let finalCode = `WT ${codeC}`; let weightC = nums[i+1]; let finalWeight = "";
-            if (weightC && TONER_DB[`WT ${weightC}`]) { finalWeight = ""; i++; } 
-            else if (weightC) { let nextNum = nums[i+2]; if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !weightC.includes('.')) { finalWeight = `${weightC}.${nextNum}`; i += 3; } else { finalWeight = weightC; i += 2; } } else { finalWeight = ""; i++; }
-            const isPearlLayer = isThreeCoatModeRef.current && (TONER_DB[finalCode].type === 'pearl' || TONER_DB[finalCode].type === 'xirallic'); const targetList = isPearlLayer ? nextPearl : nextBase;
-            const emptyIndex = targetList.findIndex(t => t.code === '' || (t.code === finalCode && t.adjustedWeight === ''));
-            if (emptyIndex !== -1) targetList[emptyIndex] = { ...targetList[emptyIndex], code: finalCode, adjustedWeight: finalWeight, history: targetList[emptyIndex].history || [], memo: "" }; else targetList.push({ id: `scan_${Date.now()}_${i}`, code: finalCode, adjustedWeight: finalWeight, history: [], memo: "" });
-        } else {
-            let orphanWeight = codeC; let nextNum = nums[i+1]; if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !orphanWeight.includes('.')) { orphanWeight = `${orphanWeight}.${nextNum}`; i += 2; } else { i++; }
-            let found = false;
-            if (isThreeCoatModeRef.current) { for (let j = nextPearl.length - 1; j >= 0; j--) { if (nextPearl[j].code !== '' && (!nextPearl[j].adjustedWeight || nextPearl[j].adjustedWeight === '')) { const currentHistory = nextPearl[j].history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== orphanWeight) ? [...currentHistory, orphanWeight] : currentHistory; nextPearl[j] = { ...nextPearl[j], adjustedWeight: orphanWeight, history: nextHistory }; found = true; break; } } }
-            if (!found) { for (let j = nextBase.length - 1; j >= 0; j--) { if (nextBase[j].code !== '' && (!nextBase[j].adjustedWeight || nextBase[j].adjustedWeight === '')) { const currentHistory = nextBase[j].history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== orphanWeight) ? [...currentHistory, orphanWeight] : currentHistory; nextBase[j] = { ...nextBase[j], adjustedWeight: orphanWeight, history: nextHistory }; found = true; break; } } }
-        }
-    }
-    setToners(nextBase); setPearlToners(nextPearl);
-  }, []);
-
-  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; if (!file) return; const imageUrl = URL.createObjectURL(file); setScannedImage(imageUrl); setIsScanning(true);
-    try {
-      if (typeof window !== 'undefined' && (window as any).Tesseract) {
-        const result = await (window as any).Tesseract.recognize(file, 'eng', { params: { tessedit_pageseg_mode: '6', tessedit_char_whitelist: '0123456789.WT ' } });
-        const text = result.data.text; let norm = text.replace(/:/g, '.').replace(/점/g, '.').replace(/\s*\.\s*/g, '.').replace(/[A-Za-z]/g, ' ');
-        const nums = norm.match(/\d*\.\d+|\d+/g); if (nums && nums.length > 0) processNumbers(nums); else throw new Error("배합 검출 실패");
-      } else throw new Error("OCR 미준비");
-    } catch (error) { alert("스캔 실패: 직접 중량을 입력해 주세요."); }
-    setIsScanning(false);
-  };
 
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
     const formattedCode = newCode.toUpperCase().trim(); const setter = isPearl ? setPearlToners : setToners;
@@ -1578,7 +1516,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
     const baseDetails = toners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', '); const pearlDetails = isThreeCoatMode ? pearlToners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ') : '해당없음'; const detailStr = isThreeCoatMode ? `[베이스] ${baseDetails} / [펄] ${pearlDetails}` : baseDetails;
     let currentOrigin = localStorage.getItem('hitec_clean_domain'); if (!currentOrigin || currentOrigin.includes('google') || currentOrigin.includes('gemini')) currentOrigin = window.location.origin; 
     
-    // 💡 Base64 암호화
+    // 💡 Base64 암호화로 잘림 방지 (엑셀 팝업용)
     const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0'].join('|');
     const safeUrlString = btoa(unescape(encodeURIComponent(payloadStr))); 
     const shareUrl = `${currentOrigin}${window.location.pathname}?d=${safeUrlString}`;
@@ -1595,19 +1533,6 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
     if (typeof navigator !== 'undefined' && navigator.share) navigator.share({ title: 'HI-TEC 조색 데이터 인계', text: text }).catch(console.error);
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
-
-  if (isTransferTab) {
-      return (
-          <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6 font-sans">
-              <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 text-center max-w-[500px] shadow-2xl">
-                  <Zap className="text-yellow-400 w-20 h-20 mx-auto mb-6 animate-pulse" />
-                  <h1 className="text-2xl font-black text-blue-400 mb-4">데이터 전송 신호 발사!</h1>
-                  <p className="text-slate-300 text-base mb-6 leading-relaxed">바탕화면에 켜두신 <strong>[조색 Pro 앱]</strong>으로<br/>과거 배합 기록 신호를 성공적으로 쐈습니다.<br/><br/><span className="text-red-400 font-bold">보안상 이 껍데기 창은 자동으로 닫히지 않습니다.</span></p>
-                  <button onClick={() => window.close()} className="bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-8 rounded-xl shadow-[0_0_15px_rgba(220,38,38,0.5)] w-full mb-4 text-lg transition-colors flex items-center justify-center gap-2"><X size={24}/> 이 창을 닫고 원래 하던 작업으로 복귀</button>
-              </div>
-          </div>
-      );
-  }
 
   const render3DView = (optics: any, mode: 'shape'|'car') => {
       const getBg = () => {
@@ -1989,6 +1914,94 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
         </div>
       )}
 
+      {/* 💡 [복구 완료] 과거 구성(3번 이미지)을 띄워주는 모달창 UI */}
+      {restoredViewData && (
+        <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
+            {/* Header */}
+            <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-[#1e293b]">
+              <h3 className="text-white font-bold flex items-center gap-2">
+                <History size={18} className="text-blue-400" /> 과거 구성에 따른 구성
+              </h3>
+              <button onClick={() => setRestoredViewData(null)} className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+            
+            {/* Content */}
+            <div className="p-6 overflow-y-auto custom-scrollbar max-h-[70vh] bg-[#0f172a] space-y-6">
+              {/* Info Card */}
+              <div className="grid grid-cols-2 gap-4 bg-[#1e293b] p-4 rounded-xl border border-slate-700/50">
+                <div>
+                  <div className="text-[10px] text-slate-400 mb-1">차량번호</div>
+                  <div className="text-sm font-bold text-white">{restoredViewData.v || '미입력'}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-slate-400 mb-1">차종</div>
+                  <div className="text-sm font-bold text-white">{restoredViewData.m || '미입력'}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-slate-400 mb-1">컬러코드</div>
+                  <div className="text-sm font-bold text-blue-400 uppercase">{restoredViewData.c || '미지정'}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-slate-400 mb-1">작업 내용</div>
+                  <div className="text-sm font-bold text-white leading-snug">{restoredViewData.j || '미입력'}</div>
+                </div>
+              </div>
+
+              {/* Ground Coat */}
+              <div>
+                <h4 className="text-xs font-bold text-slate-300 mb-3 flex items-center gap-2">
+                  <Layers size={14} /> 베이스 코트 (Ground Coat)
+                </h4>
+                <div className="space-y-2">
+                  {restoredViewData.b?.filter((t: any) => t.code).map((t: any, idx: number) => (
+                    <div key={idx} className="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-xl border border-slate-700/50">
+                      <div className="flex items-center gap-3">
+                        <span className="text-white font-bold text-sm">무게 {t.code.replace('WT ', '')}</span>
+                        <span className="text-xs text-slate-500">{TONER_DB[t.code]?.role || ''}</span>
+                      </div>
+                      <span className="text-blue-400 font-bold">{t.adjustedWeight}g</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mid Coat */}
+              {restoredViewData.t && restoredViewData.p?.filter((t: any) => t.code).length > 0 && (
+                <div>
+                  <h4 className="text-xs font-bold text-purple-400 mb-3 flex items-center gap-2 mt-2">
+                    <Zap size={14} /> 펄코트 (Mid Coat)
+                  </h4>
+                  <div className="space-y-2">
+                    {restoredViewData.p.filter((t: any) => t.code).map((t: any, idx: number) => (
+                      <div key={idx} className="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-xl border border-purple-900/30">
+                        <div className="flex items-center gap-3">
+                          <span className="text-white font-bold text-sm">무게 {t.code.replace('WT ', '')}</span>
+                          <span className="text-xs text-slate-500">{TONER_DB[t.code]?.role || ''}</span>
+                        </div>
+                        <span className="text-purple-400 font-bold">{t.adjustedWeight}g</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Button */}
+            <div className="p-4 bg-[#1e293b] border-t border-slate-700/50">
+              <button 
+                onClick={() => setRestoredViewData(null)} 
+                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
+              >
+                닫기 및 진행중인 작업으로 돌아가기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 💡 1:1:1:1 최적화된 다중 색상 혼합 랩 스튜디오 (4분할 레이아웃 & 보색 화살표 강화) */}
       {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-auto custom-scrollbar">
@@ -1999,6 +2012,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
           
           <main className="flex-1 p-6 md:p-10 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950">
              
+             {/* 💡 4분할 (2x2) 완벽 대칭 레이아웃 적용 */}
              <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-12 mb-8 items-center">
                  
                  {/* 1사분면 (좌측 상단): 먼셀 20 색상환 */}
@@ -2053,7 +2067,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
                             <text x="200" y="195" fill="#94a3b8" fontSize="14" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" className="tracking-widest">MUNSELL</text>
                             <text x="200" y="215" fill="#ffffff" fontSize="16" fontWeight="900" textAnchor="middle" dominantBaseline="middle">표준 색상환</text>
 
-{/* 💡 요청하신 보색 화살표 (중앙 원 위로 렌더링되며 빨간색으로 강조) */}
+                            {/* 💡 요청하신 보색 화살표 (중앙 원 위로 렌더링되며 빨간색으로 강조) */}
                             {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] && (
                                 <line 
                                     x1={polarToCartesian(200, 200, 80, selectedWheelIndex * 18 + 8.5).x} 
@@ -2065,7 +2079,8 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
                                     markerEnd="url(#arrowhead)" 
                                     className="drop-shadow-[0_0_12px_rgba(239,68,68,1)] pointer-events-none"
                                 />
-                            )}vg>
+                            )}
+                        </svg>
                      </div>
                  </div>
 
@@ -2104,44 +2119,35 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
                  </div>
 
                  {/* 3사분면 (좌측 하단): 조색 가이드 결과 */}
-                 {/* 💡 [오류해결 2] 데이터를 불러오는 동안 에러가 발생해도 절대 튕기지 않게 방어막 적용 */}
                  <div className="flex flex-col items-center w-full h-full justify-center">
-                    {selectedWheelIndex !== null ? (
+                    {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
                         <div className="bg-slate-800 p-8 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] mx-auto min-h-[360px] flex flex-col justify-center text-center animate-in fade-in zoom-in duration-300">
                             <h4 className="text-xl font-black text-white mb-8 flex items-center justify-center gap-3">
                                 <span className="w-6 h-6 rounded-full shadow-md border border-slate-400" style={{backgroundColor: MUNSELL_WHEEL_COLORS[selectedWheelIndex].hex}}></span>
                                 {MUNSELL_WHEEL_COLORS[selectedWheelIndex].name} ({MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol}) 배합 규격
                             </h4>
                             <div className="flex justify-center items-center gap-6 bg-slate-900 py-8 px-4 rounded-xl border border-slate-700">
-                                {(() => {
-                                    const symbol = MUNSELL_WHEEL_COLORS[selectedWheelIndex]?.symbol;
-                                    // MIXING_DATA를 불러오지 못하더라도 앱이 튕기지 않도록 방어 코드 추가
-                                    const mixInfo = typeof MIXING_DATA !== 'undefined' ? MIXING_DATA[symbol] : null;
-                                    
-                                    if (!mixInfo) {
-                                        return <div className="text-white text-sm font-bold">데이터를 불러오는 중 오류가 발생했습니다.</div>;
-                                    }
-
-                                    return (
-                                        <>
-                                            <div className="flex flex-col items-center gap-3">
-                                                <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: mixInfo.h1}}></div>
-                                                <span className="text-slate-300 font-bold text-sm">{mixInfo.c1}</span>
-                                                <span className="text-white font-black text-3xl">{mixInfo.r1}%</span>
-                                            </div>
-                                            {mixInfo.c2 && (
-                                                <>
-                                                    <span className="text-slate-600 font-black text-2xl">+</span>
-                                                    <div className="flex flex-col items-center gap-3">
-                                                        <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: mixInfo.h2}}></div>
-                                                        <span className="text-slate-300 font-bold text-sm">{mixInfo.c2}</span>
-                                                        <span className="text-white font-black text-3xl">{mixInfo.r2}%</span>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </>
-                                    );
-                                })()}
+                                {MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol] ? (
+                                    <>
+                                        <div className="flex flex-col items-center gap-3">
+                                            <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].h1}}></div>
+                                            <span className="text-slate-300 font-bold text-sm">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c1}</span>
+                                            <span className="text-white font-black text-3xl">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].r1}%</span>
+                                        </div>
+                                        {MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c2 && (
+                                            <>
+                                                <span className="text-slate-600 font-black text-2xl">+</span>
+                                                <div className="flex flex-col items-center gap-3">
+                                                    <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].h2}}></div>
+                                                    <span className="text-slate-300 font-bold text-sm">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c2}</span>
+                                                    <span className="text-white font-black text-3xl">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].r2}%</span>
+                                                </div>
+                                            </>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="text-red-400 text-sm font-bold">배합 데이터를 불러올 수 없습니다.</div>
+                                )}
                             </div>
                             <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
                         </div>
