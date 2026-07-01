@@ -355,7 +355,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
     "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z"
   ].join(" ");
 };
-export default function App() {
+export default function App() {export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: 'WT 318', adjustedWeight: "0.3", history: [], memo: "" }, { id: `b_next`, code: 'WT 144', adjustedWeight: "4.0", history: [], memo: "" }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "" }]);
@@ -370,10 +370,9 @@ export default function App() {
   const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
   
-  // 💡 [에러 해결] 누락되었던 모든 상태 변수를 100% 복구하여 TS2304 에러를 원천 차단했습니다.
   const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
+  // 💡 [핵심 해결] 까만 화면(TransferTab) 상태 변수를 아예 삭제하고, 오직 팝업(restoredViewData)만 씁니다!
   const [restoredViewData, setRestoredViewData] = useState<any>(null); 
-  const [isTransferTab, setIsTransferTab] = useState(false); 
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [scannedImage, setScannedImage] = useState<string | null>(null); 
   const [isScanning, setIsScanning] = useState(false);
@@ -409,7 +408,7 @@ export default function App() {
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
-  // 💡 구형(JSON/파이프) 및 신형(Base64) 링크를 모두 해독하여 팝업 복원
+  // 💡 [핵심 복구] 엑셀에서 넘어온 링크를 읽어 무조건 "팝업창"으로 띄우는 완벽한 디코더
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search); 
@@ -423,9 +422,12 @@ export default function App() {
             try {
                 let parsedData = null;
                 
+                // 1. 아주 옛날 방식 해독
                 if (d.includes('%7B') || d.includes('{')) {
                     parsedData = JSON.parse(decodeURIComponent(d));
-                } else {
+                } 
+                // 2. 중간 및 최신 방식(Base64) 해독
+                else {
                     let decodedStr = d;
                     if (!d.includes('|') && !d.includes('%')) {
                         try { decodedStr = decodeURIComponent(escape(atob(d))); } catch(e) { decodedStr = atob(d); }
@@ -449,43 +451,27 @@ export default function App() {
                 }
 
                 if (parsedData) {
-                    localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsedData, ts: Date.now() }));
-                    window.close();
-                    setIsTransferTab(true);
-                    return;
-                } else {
-                    alert("데이터 형식이 손상되었습니다.");
+                    // 🚨 이제 까만 화면으로 튕기지 않고 무조건 팝업 데이터 변수에 꽂아 넣습니다!
+                    setRestoredViewData(parsedData);
                     window.history.replaceState({}, document.title, window.location.pathname);
+                    loadedFromUrl = true;
                 }
             } catch (e) { 
                 console.error("URL 파싱 실패", e); 
-                alert("과거 데이터 링크가 손상되어 복원할 수 없습니다.");
+                alert("과거 데이터 링크를 해독할 수 없습니다.");
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
 
-        const handleStorageChange = (e: StorageEvent) => { if (e.key === 'hitec_broadcast' && e.newValue) { const payload = JSON.parse(e.newValue); setRestoredViewData(payload.data); } };
-        window.addEventListener('storage', handleStorageChange);
-        
         if (!loadedFromUrl) {
             const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos');
             if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
         }
         setIsLoaded(true); 
-        return () => window.removeEventListener('storage', handleStorageChange);
     }
   }, []);
 
-  useEffect(() => {
-    if (restoredViewData) {
-        setVehicleNumber(restoredViewData.v || ''); setCarModel(restoredViewData.m || ''); setTargetColorCode(restoredViewData.c || ''); setJobDescription(restoredViewData.j || ''); setSpecialNotes(restoredViewData.n || '');
-        if (restoredViewData.b && restoredViewData.b.length > 0) setToners(restoredViewData.b);
-        if (restoredViewData.p && restoredViewData.p.length > 0) setPearlToners(restoredViewData.p);
-        setIsThreeCoatMode(restoredViewData.t || false);
-        setRestoredViewData(null);
-    }
-  }, [restoredViewData]);
-
+  // 원래 화면 백업 로직
   useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search); if (urlParams.get('d')) return;
       if (isLoaded && typeof window !== 'undefined') {
@@ -523,39 +509,6 @@ export default function App() {
   }, [focusTarget, toners, pearlToners]);
 
   const handleClearAll = () => { setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setSelectedTonerForView(null); };
-
-  const processNumbers = useCallback((nums: string[]) => {
-    let nextBase = [...tonersRef.current]; let nextPearl = [...pearlTonersRef.current]; let i = 0;
-    while (i < nums.length) {
-        let codeC = nums[i]; let isCode = !!TONER_DB[`WT ${codeC}`];
-        if (isCode) {
-            let finalCode = `WT ${codeC}`; let weightC = nums[i+1]; let finalWeight = "";
-            if (weightC && TONER_DB[`WT ${weightC}`]) { finalWeight = ""; i++; } 
-            else if (weightC) { let nextNum = nums[i+2]; if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !weightC.includes('.')) { finalWeight = `${weightC}.${nextNum}`; i += 3; } else { finalWeight = weightC; i += 2; } } else { finalWeight = ""; i++; }
-            const isPearlLayer = isThreeCoatModeRef.current && (TONER_DB[finalCode].type === 'pearl' || TONER_DB[finalCode].type === 'xirallic'); const targetList = isPearlLayer ? nextPearl : nextBase;
-            const emptyIndex = targetList.findIndex(t => t.code === '' || (t.code === finalCode && t.adjustedWeight === ''));
-            if (emptyIndex !== -1) targetList[emptyIndex] = { ...targetList[emptyIndex], code: finalCode, adjustedWeight: finalWeight, history: targetList[emptyIndex].history || [], memo: "" }; else targetList.push({ id: `scan_${Date.now()}_${i}`, code: finalCode, adjustedWeight: finalWeight, history: [], memo: "" });
-        } else {
-            let orphanWeight = codeC; let nextNum = nums[i+1]; if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !orphanWeight.includes('.')) { orphanWeight = `${orphanWeight}.${nextNum}`; i += 2; } else { i++; }
-            let found = false;
-            if (isThreeCoatModeRef.current) { for (let j = nextPearl.length - 1; j >= 0; j--) { if (nextPearl[j].code !== '' && (!nextPearl[j].adjustedWeight || nextPearl[j].adjustedWeight === '')) { const currentHistory = nextPearl[j].history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== orphanWeight) ? [...currentHistory, orphanWeight] : currentHistory; nextPearl[j] = { ...nextPearl[j], adjustedWeight: orphanWeight, history: nextHistory }; found = true; break; } } }
-            if (!found) { for (let j = nextBase.length - 1; j >= 0; j--) { if (nextBase[j].code !== '' && (!nextBase[j].adjustedWeight || nextBase[j].adjustedWeight === '')) { const currentHistory = nextBase[j].history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== orphanWeight) ? [...currentHistory, orphanWeight] : currentHistory; nextBase[j] = { ...nextBase[j], adjustedWeight: orphanWeight, history: nextHistory }; found = true; break; } } }
-        }
-    }
-    setToners(nextBase); setPearlToners(nextPearl);
-  }, []);
-
-  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; if (!file) return; const imageUrl = URL.createObjectURL(file); setScannedImage(imageUrl); setIsScanning(true);
-    try {
-      if (typeof window !== 'undefined' && (window as any).Tesseract) {
-        const result = await (window as any).Tesseract.recognize(file, 'eng', { params: { tessedit_pageseg_mode: '6', tessedit_char_whitelist: '0123456789.WT ' } });
-        const text = result.data.text; let norm = text.replace(/:/g, '.').replace(/점/g, '.').replace(/\s*\.\s*/g, '.').replace(/[A-Za-z]/g, ' ');
-        const nums = norm.match(/\d*\.\d+|\d+/g); if (nums && nums.length > 0) processNumbers(nums); else throw new Error("배합 검출 실패");
-      } else throw new Error("OCR 미준비");
-    } catch (error) { alert("스캔 실패: 직접 중량을 입력해 주세요."); }
-    setIsScanning(false);
-  };
 
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
     const formattedCode = newCode.toUpperCase().trim(); const setter = isPearl ? setPearlToners : setToners;
@@ -639,7 +592,7 @@ export default function App() {
     const baseDetails = toners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', '); const pearlDetails = isThreeCoatMode ? pearlToners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ') : '해당없음'; const detailStr = isThreeCoatMode ? `[베이스] ${baseDetails} / [펄] ${pearlDetails}` : baseDetails;
     let currentOrigin = localStorage.getItem('hitec_clean_domain'); if (!currentOrigin || currentOrigin.includes('google') || currentOrigin.includes('gemini')) currentOrigin = window.location.origin; 
     
-    // 💡 Base64 암호화로 잘림 방지 (엑셀 팝업용)
+    // Base64 압축 (주소 잘림 방지)
     const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0'].join('|');
     const safeUrlString = btoa(unescape(encodeURIComponent(payloadStr))); 
     const shareUrl = `${currentOrigin}${window.location.pathname}?d=${safeUrlString}`;
@@ -656,20 +609,6 @@ export default function App() {
     if (typeof navigator !== 'undefined' && navigator.share) navigator.share({ title: 'HI-TEC 조색 데이터 인계', text: text }).catch(console.error);
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
-
-  // 전송 화면 렌더링
-  if (isTransferTab) {
-      return (
-          <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6 font-sans">
-              <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 text-center max-w-[500px] shadow-2xl">
-                  <Zap className="text-yellow-400 w-20 h-20 mx-auto mb-6 animate-pulse" />
-                  <h1 className="text-2xl font-black text-blue-400 mb-4">데이터 전송 신호 발사!</h1>
-                  <p className="text-slate-300 text-base mb-6 leading-relaxed">바탕화면에 켜두신 <strong>[조색 Pro 앱]</strong>으로<br/>과거 배합 기록 신호를 성공적으로 쐈습니다.<br/><br/><span className="text-red-400 font-bold">보안상 이 껍데기 창은 자동으로 닫히지 않습니다.</span></p>
-                  <button onClick={() => window.close()} className="bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-8 rounded-xl shadow-[0_0_15px_rgba(220,38,38,0.5)] w-full mb-4 text-lg transition-colors flex items-center justify-center gap-2"><X size={24}/> 이 창을 닫고 원래 하던 작업으로 복귀</button>
-              </div>
-          </div>
-      );
-  }
 
   const render3DView = (optics: any, mode: 'shape'|'car') => {
       const getBg = () => {
@@ -1256,6 +1195,7 @@ export default function App() {
                  </div>
 
                  {/* 3사분면 (좌측 하단): 조색 가이드 결과 */}
+                 {/* 💡 [에러 해결] 데이터를 불러오지 못하더라도 앱 전체가 죽지 않게 렌더링 방어 추가 */}
                  <div className="flex flex-col items-center w-full h-full justify-center">
                     {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
                         <div className="bg-slate-800 p-8 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] mx-auto min-h-[360px] flex flex-col justify-center text-center animate-in fade-in zoom-in duration-300">
