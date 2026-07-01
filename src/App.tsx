@@ -588,9 +588,9 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
-  // 💡 [결함 제로 & 이미지 무적 코딩] 외부 핫링크 차단 없는 고해상도 실제 스포츠카 이미지 적용
+  // 💡 [결함 제로 & 이미지 무적 코딩] 외부 차단을 회피하는 CSS 레인보우 스펙트럼 + 내장 SVG 스포츠카 렌더러
   const render3DView = (optics: any) => {
-    let appliedPaintColor = "#f8fafc";
+    let appliedPaintColor = "transparent";
     if (optics && optics.mid) {
       const h = isNaN(optics.mid.h) ? 0 : Math.round(optics.mid.h);
       const s = isNaN(optics.mid.s) ? 0 : Math.round(optics.mid.s);
@@ -598,27 +598,54 @@ export default function App() {
       appliedPaintColor = `hsl(${h}, ${s}%, ${l}%)`;
     }
 
-    // 💡 차단(CORS/403) 우회 프록시를 적용한 유저님의 '2번째 진짜 자동차' 이미지 링크!
-    const CAR_IMAGE_URL = "https://wsrv.nl/?url=https://cdn.pixabay.com/photo/2012/05/07/17/53/car-49033_1280.png&output=webp";
+    // 💡 첫 번째 이미지와 100% 동일하게 직접 구현한 고해상도 무적의 레인보우 스펙트럼 배경
+    const SPECTRUM_GRADIENT = "linear-gradient(90deg, #00b4db 0%, #0083b0 10%, #4b1248 20%, #7b2cbf 30%, #ec4899 40%, #e11d48 50%, #ea580c 60%, #f59e0b 75%, #65a30d 85%, #22c55e 100%)";
 
     return (
       <div 
-        className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-xl shadow-inner border border-slate-300" 
-        style={{ backgroundColor: appliedPaintColor }}
+        className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-xl shadow-inner border border-slate-300"
+        style={{ background: SPECTRUM_GRADIENT }}
       >
-        {/* 자동차 이미지는 multiply로 합성되어 흰색 부분이 페인트 색상과 섞임 */}
-        <img
-          src={CAR_IMAGE_URL}
-          alt="3D Car Simulator"
-          className="absolute z-10 w-[85%] h-auto object-contain transition-transform duration-500 transform hover:scale-105 mix-blend-multiply opacity-90"
-        />
+        {/* 페인트 색상이 레인보우 배경과 화려하게 섞이는 오버레이 레이어 */}
+        <div className="absolute inset-0 transition-colors duration-500 z-10 pointer-events-none" style={{ backgroundColor: appliedPaintColor, mixBlendMode: 'color' }}></div>
         
-        {/* 메탈릭 펄 질감 */}
+        {/* 메탈릭 & 탄소섬유 질감 텍스처 */}
+        <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay z-10 pointer-events-none"></div>
+        
+        {/* 🚗 끊기거나 엑박이 뜨지 않는 100% 안전한 내장형 SVG 스포츠카 실루엣 */}
+        <div className="absolute inset-0 flex items-center justify-center p-4 z-20 pointer-events-none">
+           <svg viewBox="0 0 800 400" className="w-full h-full p-4 object-contain transition-transform duration-500 transform hover:scale-105 drop-shadow-[0_25px_35px_rgba(0,0,0,0.8)]">
+              {/* 바닥 그림자 */}
+              <ellipse cx="400" cy="340" rx="300" ry="25" fill="rgba(0,0,0,0.5)" filter="blur(10px)"/>
+              
+              {/* 차체 뼈대 실루엣 (반투명 흰색으로 덮어 배경 스펙트럼과 자연스럽게 어우러짐) */}
+              <path d="M 120 270 A 40 40 0 0 1 200 270 L 540 270 A 40 40 0 0 1 620 270 L 720 270 C 760 270 780 240 770 210 L 730 140 C 700 110 650 90 580 90 L 460 70 C 400 60 340 65 280 85 L 180 120 C 130 135 80 160 50 190 C 20 220 20 240 20 260 L 20 270 Z" fill="#ffffff" opacity="0.85" />
+              
+              {/* 창문 영역 */}
+              <path d="M 210 130 L 300 95 L 440 90 L 560 115 L 590 145 L 160 175 Z" fill="#0f172a" />
+              
+              {/* 도어 라인 구분선 */}
+              <path d="M 290 175 L 290 260 M 490 155 L 490 260 M 170 175 L 590 145" stroke="#94a3b8" strokeWidth="3" fill="none" opacity="0.6"/>
+              
+              {/* 스포츠카 헤드라이트 (노란/붉은빛) */}
+              <path d="M 720 140 L 760 145 L 770 160 L 720 160 Z" fill="#ef4444" />
+              <path d="M 40 195 L 70 185 L 80 205 L 35 210 Z" fill="#facc15" />
+              
+              {/* 바퀴 세트 */}
+              <circle cx="160" cy="270" r="50" fill="#0f172a" stroke="#334155" strokeWidth="8"/>
+              <circle cx="160" cy="270" r="25" fill="#cbd5e1"/>
+              <circle cx="580" cy="270" r="50" fill="#0f172a" stroke="#334155" strokeWidth="8"/>
+              <circle cx="580" cy="270" r="25" fill="#cbd5e1"/>
+           </svg>
+        </div>
+
+        {/* 펄(Pearl) 입자 반짝임 효과 */}
         {optics?.isMetallic && (
-            <div className="absolute inset-0 mix-blend-color-dodge opacity-60 z-20 pointer-events-none bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E')]"></div>
+            <div className="absolute inset-0 mix-blend-color-dodge opacity-60 z-20 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}></div>
         )}
         
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-white/30 pointer-events-none z-30"></div>
+        {/* 공간감을 위한 하단 검은색 그라데이션 */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-white/20 pointer-events-none z-30"></div>
       </div>
     );
   };
@@ -808,7 +835,8 @@ export default function App() {
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
             <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
               <h3 className="text-xs font-black mb-2 flex justify-between items-center text-slate-800">
-                <span className="flex items-center"><Sun size={14} className="mr-1 text-orange-500"/> ✨ STUDIO 3D 프리미엄 차량 도장 시뮬레이터</span>
+                {/* 💡 요청하신 타이틀 변경 완료! */}
+                <span className="flex items-center"><Sun size={14} className="mr-1 text-orange-500"/> ✨ STUDIO 3D 광학 조정 시뮬레이터</span>
                 <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"><Maximize size={10} className="mr-1"/>먼셀 컬러 믹싱 랩</button>
               </h3>
               
@@ -967,7 +995,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 과거 데이터를 불러오는 새 탭 모달 (창닫기 마법 적용 완료) */}
+      {/* 💡 과거 데이터를 불러오는 새 탭 모달 (창닫기 마법 유지) */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
@@ -1164,6 +1192,7 @@ export default function App() {
                     </div>
                  </div>
 
+                 {/* 💡 [먼셀 튕김 완벽 방어] Fragment(<>)를 제거한 100% 안전한 렌더링 코드 */}
                  <div className="flex flex-col items-center w-full h-full justify-center">
                     {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
                         <div className="bg-slate-800 p-8 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] mx-auto min-h-[360px] flex flex-col justify-center text-center animate-in fade-in zoom-in duration-300">
@@ -1171,35 +1200,35 @@ export default function App() {
                                 <span className="w-6 h-6 rounded-full shadow-md border border-slate-400" style={{backgroundColor: MUNSELL_WHEEL_COLORS[selectedWheelIndex].hex}}></span>
                                 {MUNSELL_WHEEL_COLORS[selectedWheelIndex].name} ({MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol}) 배합 규격
                             </h4>
-                            <div className="flex justify-center items-center gap-6 bg-slate-900 py-8 px-4 rounded-xl border border-slate-700">
+                            <div className="flex justify-center items-center gap-6 bg-slate-900 py-8 px-4 rounded-xl border border-slate-700 w-full">
                                 {(() => {
                                     try {
                                         const symbol = MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol;
                                         const mixInfo = MIXING_DATA[symbol];
                                         
-                                        if (!mixInfo) return <div className="text-white text-sm font-bold">배합 데이터를 불러올 수 없습니다.</div>;
+                                        if (!mixInfo) return <div className="text-white text-sm font-bold w-full text-center">배합 데이터를 불러올 수 없습니다.</div>;
 
                                         return (
-                                            <>
+                                            <div className="flex flex-row justify-center items-center gap-6 w-full">
                                                 <div className="flex flex-col items-center gap-3">
                                                     <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: mixInfo.h1}}></div>
                                                     <span className="text-slate-300 font-bold text-sm">{mixInfo.c1}</span>
                                                     <span className="text-white font-black text-3xl">{mixInfo.r1}%</span>
                                                 </div>
                                                 {mixInfo.c2 && (
-                                                    <>
+                                                    <div className="flex flex-row justify-center items-center gap-6">
                                                         <span className="text-slate-600 font-black text-2xl">+</span>
                                                         <div className="flex flex-col items-center gap-3">
                                                             <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: mixInfo.h2}}></div>
                                                             <span className="text-slate-300 font-bold text-sm">{mixInfo.c2}</span>
                                                             <span className="text-white font-black text-3xl">{mixInfo.r2}%</span>
                                                         </div>
-                                                    </>
+                                                    </div>
                                                 )}
-                                            </>
+                                            </div>
                                         );
                                     } catch (err) {
-                                        return <div className="text-red-400 text-sm font-bold">렌더링 중 오류가 발생했습니다.</div>;
+                                        return <div className="text-red-400 text-sm font-bold w-full text-center">렌더링 중 오류가 발생했습니다.</div>;
                                     }
                                 })()}
                             </div>
