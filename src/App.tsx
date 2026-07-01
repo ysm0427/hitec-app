@@ -2053,8 +2053,8 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
                             <text x="200" y="195" fill="#94a3b8" fontSize="14" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" className="tracking-widest">MUNSELL</text>
                             <text x="200" y="215" fill="#ffffff" fontSize="16" fontWeight="900" textAnchor="middle" dominantBaseline="middle">표준 색상환</text>
 
-                            {/* 💡 요청하신 보색 화살표 (중앙 원 위로 렌더링되며 빨간색으로 강조) */}
-                            {selectedWheelIndex !== null && (
+{/* 💡 요청하신 보색 화살표 (중앙 원 위로 렌더링되며 빨간색으로 강조) */}
+                            {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] && (
                                 <line 
                                     x1={polarToCartesian(200, 200, 80, selectedWheelIndex * 18 + 8.5).x} 
                                     y1={polarToCartesian(200, 200, 80, selectedWheelIndex * 18 + 8.5).y} 
@@ -2065,8 +2065,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
                                     markerEnd="url(#arrowhead)" 
                                     className="drop-shadow-[0_0_12px_rgba(239,68,68,1)] pointer-events-none"
                                 />
-                            )}
-                        </svg>
+                            )}vg>
                      </div>
                  </div>
 
