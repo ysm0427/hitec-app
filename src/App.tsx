@@ -1315,6 +1315,10 @@ export default function App() {
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
   const [scaleFactor, setScaleFactor] = useState("2");
   const [renderMode, setRenderMode] = useState<'shape' | 'car'>('car');
+  
+  // 💡 [에러 원인 해결] 누락되었던 viewAngle 변수를 완벽히 복구했습니다!
+  const [viewAngle, setViewAngle] = useState({ rotY: 15, rotX: 5, scale: 1.1 });
+  
   const [tonerMemos, setTonerMemos] = useState<Record<string, string>>({});
   const [isTransferTab, setIsTransferTab] = useState(false);
   const [restoredViewData, setRestoredViewData] = useState<any>(null);
@@ -1332,7 +1336,7 @@ export default function App() {
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
-  // 💡 [핵심 복구 완료] 구형 링크(JSON, 파이프)와 신형 링크(Base64)를 모두 완벽하게 해독하여 팝업을 띄웁니다!
+  // 구형(JSON/파이프) 및 신형(Base64) 링크를 모두 해독하여 팝업 복원
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search); 
@@ -1346,11 +1350,9 @@ export default function App() {
             try {
                 let parsedData = null;
                 
-                // 1. 아주 옛날 방식 (JSON 포맷)
                 if (d.includes('%7B') || d.includes('{')) {
                     parsedData = JSON.parse(decodeURIComponent(d));
                 } 
-                // 2. 중간 및 최신 방식 (파이프 | 또는 Base64 암호화)
                 else {
                     let decodedStr = d;
                     if (!d.includes('|') && !d.includes('%')) {
@@ -1550,6 +1552,7 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
+  // 전송 화면 렌더링
   if (isTransferTab) {
       return (
           <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6 font-sans">
