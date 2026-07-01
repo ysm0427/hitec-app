@@ -1304,42 +1304,25 @@ export default function App() {
   const [totalBaseWeight, setTotalBaseWeight] = useState("0.00"); 
   const [totalPearlWeight, setTotalPearlWeight] = useState("0.00"); 
   const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
-  const [isBaseConfirmed, setIsBaseConfirmed] = useState(false); 
-  const [scannedImage, setScannedImage] = useState<string | null>(null); 
-  const [isScanning, setIsScanning] = useState(false); 
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
-  
-  // 💡 [에러 해결] 누락되었던 상태 변수 선언들을 완벽하게 복구했습니다!
-  const [restoredViewData, setRestoredViewData] = useState<any>(null); 
-  const [isTransferTab, setIsTransferTab] = useState(false); 
-  const [isAboutOpen, setIsAboutOpen] = useState(false);
-  
-  const cameraInputRef = useRef<HTMLInputElement>(null); 
-  const viewerRef = useRef<HTMLElement>(null); 
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight'} | null>(null); 
-  const [lightPos, setLightPos] = useState({ x: 50, y: 50 }); 
-  const [isDraggingLight, setIsDraggingLight] = useState(false); 
   const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
-  const [baseOptics, setBaseOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
-  const [pearlOptics, setPearlOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
   const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
-  const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null);
   const [isBaseMetallic, setIsBaseMetallic] = useState(false); 
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
   const [scaleFactor, setScaleFactor] = useState("2");
   const [renderMode, setRenderMode] = useState<'shape' | 'car'>('car');
-  const [viewAngle, setViewAngle] = useState({ rotY: 15, rotX: 5, scale: 1.1 });
   const [tonerMemos, setTonerMemos] = useState<Record<string, string>>({});
+  const [isTransferTab, setIsTransferTab] = useState(false);
+  const [restoredViewData, setRestoredViewData] = useState<any>(null);
   const [selectedWheelIndex, setSelectedWheelIndex] = useState<number | null>(null);
 
   const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
 
-  const tonersRef = useRef<any[]>([]); 
-  const pearlTonersRef = useRef<any[]>([]); 
-  const isThreeCoatModeRef = useRef<boolean>(true);
+  const tonersRef = useRef<any[]>([]); const pearlTonersRef = useRef<any[]>([]); const isThreeCoatModeRef = useRef<boolean>(true);
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   const sortedCatalog = [...catalogData].sort((a, b) => { 
@@ -1349,7 +1332,7 @@ export default function App() {
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
-  // 💡 [데이터 복원 로직] 구형 엑셀 링크와 신형 Base64 암호화 링크 모두 호환되도록 처리
+  // 💡 [핵심 복구 완료] 구형 링크(JSON, 파이프)와 신형 링크(Base64)를 모두 완벽하게 해독하여 팝업을 띄웁니다!
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search); 
@@ -1361,46 +1344,48 @@ export default function App() {
 
         if (d) {
             try {
-                let parts: string[] = [];
+                let parsedData = null;
                 
-                if (!d.includes('|') && !d.includes('%')) {
-                    try { 
-                        const decodedStr = decodeURIComponent(escape(atob(d))); 
-                        parts = decodedStr.split('|');
-                    } catch(e) { console.warn("Base64 해독 실패, 구형 확인"); }
-                }
-                
-                if (parts.length === 0) {
-                    const normalizedD = d.replace(/%7C/g, '|');
-                    parts = normalizedD.split('|').map(p => {
-                        try { return decodeURIComponent(p); } catch(e) { return p; }
-                    });
-                }
-                
-                if (parts.length >= 6) {
-                    setVehicleNumber(parts[0] || '');
-                    setCarModel(parts[1] || '');
-                    setTargetColorCode(parts[2] || '');
-                    setJobDescription(parts[3] || '');
-                    setSpecialNotes(parts[4] || '');
-                    const restoredBase = unpackToners(parts[5]);
-                    const restoredPearl = unpackToners(parts[6]);
-                    if (restoredBase.length > 0) setToners(restoredBase);
-                    if (restoredPearl.length > 0) setPearlToners(restoredPearl);
-                    setIsThreeCoatMode(parts[7] === '1');
+                // 1. 아주 옛날 방식 (JSON 포맷)
+                if (d.includes('%7B') || d.includes('{')) {
+                    parsedData = JSON.parse(decodeURIComponent(d));
+                } 
+                // 2. 중간 및 최신 방식 (파이프 | 또는 Base64 암호화)
+                else {
+                    let decodedStr = d;
+                    if (!d.includes('|') && !d.includes('%')) {
+                        try { decodedStr = decodeURIComponent(escape(atob(d))); } catch(e) { decodedStr = atob(d); }
+                    } else {
+                        decodedStr = decodeURIComponent(d.replace(/%7C/g, '|'));
+                    }
                     
-                    const parsed = { v: parts[0]||'', m: parts[1]||'', c: parts[2]||'', j: parts[3]||'', n: parts[4]||'', b: restoredBase, p: restoredPearl, t: parts[7]==='1' };
-                    localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsed, ts: Date.now() }));
+                    const parts = decodedStr.split('|');
+                    if(parts.length >= 6) {
+                        parsedData = {
+                            v: parts[0] || '',
+                            m: parts[1] || '',
+                            c: parts[2] || '',
+                            j: parts[3] || '',
+                            n: parts[4] || '',
+                            b: unpackToners(parts[5]),
+                            p: unpackToners(parts[6]),
+                            t: parts[7] === '1'
+                        };
+                    }
+                }
+
+                if (parsedData) {
+                    localStorage.setItem('hitec_broadcast', JSON.stringify({ data: parsedData, ts: Date.now() }));
                     window.close();
                     setIsTransferTab(true);
                     return;
                 } else {
-                    alert("링크 데이터가 손상되었거나 잘렸습니다. 과거에 잘못 복사된 엑셀 행일 수 있습니다.");
+                    alert("데이터 형식이 손상되었습니다.");
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
             } catch (e) { 
                 console.error("URL 파싱 실패", e); 
-                alert("링크 데이터 해독 중 오류가 발생했습니다.");
+                alert("과거 데이터 링크가 손상되어 복원할 수 없습니다.");
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
@@ -1464,39 +1449,6 @@ export default function App() {
   }, [focusTarget, toners, pearlToners]);
 
   const handleClearAll = () => { setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setSelectedTonerForView(null); };
-
-  const processNumbers = useCallback((nums: string[]) => {
-    let nextBase = [...tonersRef.current]; let nextPearl = [...pearlTonersRef.current]; let i = 0;
-    while (i < nums.length) {
-        let codeC = nums[i]; let isCode = !!TONER_DB[`WT ${codeC}`];
-        if (isCode) {
-            let finalCode = `WT ${codeC}`; let weightC = nums[i+1]; let finalWeight = "";
-            if (weightC && TONER_DB[`WT ${weightC}`]) { finalWeight = ""; i++; } 
-            else if (weightC) { let nextNum = nums[i+2]; if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !weightC.includes('.')) { finalWeight = `${weightC}.${nextNum}`; i += 3; } else { finalWeight = weightC; i += 2; } } else { finalWeight = ""; i++; }
-            const isPearlLayer = isThreeCoatModeRef.current && (TONER_DB[finalCode].type === 'pearl' || TONER_DB[finalCode].type === 'xirallic'); const targetList = isPearlLayer ? nextPearl : nextBase;
-            const emptyIndex = targetList.findIndex(t => t.code === '' || (t.code === finalCode && t.adjustedWeight === ''));
-            if (emptyIndex !== -1) targetList[emptyIndex] = { ...targetList[emptyIndex], code: finalCode, adjustedWeight: finalWeight, history: targetList[emptyIndex].history || [], memo: "" }; else targetList.push({ id: `scan_${Date.now()}_${i}`, code: finalCode, adjustedWeight: finalWeight, history: [], memo: "" });
-        } else {
-            let orphanWeight = codeC; let nextNum = nums[i+1]; if (nextNum && nextNum.length === 1 && !TONER_DB[`WT ${nextNum}`] && !orphanWeight.includes('.')) { orphanWeight = `${orphanWeight}.${nextNum}`; i += 2; } else { i++; }
-            let found = false;
-            if (isThreeCoatModeRef.current) { for (let j = nextPearl.length - 1; j >= 0; j--) { if (nextPearl[j].code !== '' && (!nextPearl[j].adjustedWeight || nextPearl[j].adjustedWeight === '')) { const currentHistory = nextPearl[j].history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== orphanWeight) ? [...currentHistory, orphanWeight] : currentHistory; nextPearl[j] = { ...nextPearl[j], adjustedWeight: orphanWeight, history: nextHistory }; found = true; break; } } }
-            if (!found) { for (let j = nextBase.length - 1; j >= 0; j--) { if (nextBase[j].code !== '' && (!nextBase[j].adjustedWeight || nextBase[j].adjustedWeight === '')) { const currentHistory = nextBase[j].history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== orphanWeight) ? [...currentHistory, orphanWeight] : currentHistory; nextBase[j] = { ...nextBase[j], adjustedWeight: orphanWeight, history: nextHistory }; found = true; break; } } }
-        }
-    }
-    setToners(nextBase); setPearlToners(nextPearl);
-  }, []);
-
-  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; if (!file) return; const imageUrl = URL.createObjectURL(file); setScannedImage(imageUrl); setIsScanning(true);
-    try {
-      if (typeof window !== 'undefined' && (window as any).Tesseract) {
-        const result = await (window as any).Tesseract.recognize(file, 'eng', { params: { tessedit_pageseg_mode: '6', tessedit_char_whitelist: '0123456789.WT ' } });
-        const text = result.data.text; let norm = text.replace(/:/g, '.').replace(/점/g, '.').replace(/\s*\.\s*/g, '.').replace(/[A-Za-z]/g, ' ');
-        const nums = norm.match(/\d*\.\d+|\d+/g); if (nums && nums.length > 0) processNumbers(nums); else throw new Error("배합 검출 실패");
-      } else throw new Error("OCR 미준비");
-    } catch (error) { alert("스캔 실패: 직접 중량을 입력해 주세요."); }
-    setIsScanning(false);
-  };
 
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
     const formattedCode = newCode.toUpperCase().trim(); const setter = isPearl ? setPearlToners : setToners;
@@ -1598,7 +1550,6 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
-  // 전송 화면 렌더링
   if (isTransferTab) {
       return (
           <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6 font-sans">
