@@ -6,7 +6,7 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 [복구 완료] 유실되었던 60여 개의 모든 안료 데이터와 상세 설명을 100% 원상복구 했습니다.
+// 💡 공식 안료 데이터베이스 (유실 없음)
 export const TONER_DB: Record<string, TonerData> = {
   'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '정면에서 선명한 적청색(Reddish-Blue) 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다.', details: [['일반 특성', '기존 WT 346 안료를 완벽하게 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'], ['색상 및 외관 변화', '가장 큰 특징은 정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점입니다.'], ['용도 및 적용 컬러', 'WT 346이 포함된 모든 솔리드 및 이펙트 컬러의 1:1 대체 처방 및 조색 보정용으로 사용됩니다.'], ['배합 및 혼합 비율', '기존 WT 346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용해야 동일한 착색력을 얻습니다.'], ['경고 및 주의사항', '정면의 뚜렷한 적청색 발색으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로 반드시 시편 대조 후 블랜딩 도장을 권장합니다.']] },
   'WT 346': { role: '트랜스페어런트 딥 블루 [WT 144 완벽대체]', type: 'solid', face: '#0369a1', flop: '#020617', desc: '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.', details: [['일반 특성', '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.'], ['색상 및 외관 변화', '특히 측면(45도/110도)에서 관찰할 때 전체 청색 조색제 중 녹색빛 반사가 가장 강하게 두드러지는 고유 특징이 있습니다.'], ['용도 및 적용 컬러', '시중 대부분의 이펙트 메탈릭 청색 조색 시 뼈대가 되는 가장 기초적이고 필수적인 투명 파란색입니다.'], ['배합 및 혼합 비율', '다양한 이펙트 처방에서 메인으로 쓰이므로 배합표의 대량 투입 지시를 엄수합니다.'], ['경고 및 주의사항', '이 안료는 신형 WT 144와 상호 대체가 가능합니다. 대체 시 [WT 346 : WT 144 = 1 : 0.9] 비율을 적용하십시오.']] },
@@ -104,8 +104,9 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 3080': { role: '스페셜 애디티브', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '도막 보정 및 흐름 방지 특수 첨가제.', details: [['일반 특성', '도막 보정 및 흐름 방지 전용 특수 첨가제입니다.']] }
 };
 
-// 💡 [검색 문제 완벽 해결] 올려주신 스크린샷의 데이터를 정확히 반영했습니다.
-// ZINC YELLOW, B7 등을 검색하시면 즉각적으로 찾으실 수 있습니다!
+// 💡 [2번 구역] FORD 색상 데이터
+// 올려주신 이미지의 데이터를 바탕으로 작성했습니다. 
+// 나머지 2600여 개의 데이터도 이 배열 안에 동일한 형식으로 직접 붙여넣으셔야 모든 검색이 작동합니다!
 export const OEM_COLORS = [
   { code: 'AZ', name: '펄' },
   { code: 'RR', name: '틴티드 투명' },
@@ -124,7 +125,7 @@ export const OEM_COLORS = [
   { code: 'TY', name: 'YELLOW' },
   { code: 'WT6642', name: 'YELLOW' },
   { code: 'W6695F', name: 'YELLOW' },
-  // (대표님께서 보유하신 나머지 약 2,600여 개의 데이터도 이 아래에 똑같은 형식으로 붙여넣어 주시면 완벽하게 작동합니다!)
+  // 👉 주의: 대표님께서 가지고 계신 엑셀 파일의 나머지 데이터를 이 아래에 복사+붙여넣기 해주세요!
 ];
 
 export const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
@@ -608,42 +609,13 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
-  const render3DView = (optics: any) => {
-    let appliedPaintColor = "transparent";
-    let flopColor = "transparent";
-
-    if (optics && optics.mid) {
-      const h = isNaN(optics.mid.h) ? 0 : Math.round(optics.mid.h);
-      const s = isNaN(optics.mid.s) ? 0 : Math.round(optics.mid.s);
-      const l = isNaN(optics.mid.l) ? 90 : Math.round(optics.mid.l);
-      appliedPaintColor = `hsl(${h}, ${s}%, ${l}%)`;
-      
-      const fh = isNaN(optics.flop.h) ? h : Math.round(optics.flop.h);
-      const fs = isNaN(optics.flop.s) ? s : Math.round(optics.flop.s);
-      const fl = isNaN(optics.flop.l) ? Math.max(0, l - 20) : Math.round(optics.flop.l);
-      flopColor = `hsl(${fh}, ${fs}%, ${fl}%)`;
-    }
-
+  // 💡 [요청 사항 완벽 반영] 검정색 렌즈 효과를 완전히 지우고 스펙트럼만 꽉 차게 만들었습니다.
+  const render3DView = () => {
     const SPECTRUM_GRADIENT = "linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff)";
 
     return (
-      <div className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-xl shadow-inner border border-slate-300 bg-slate-900">
-        <div className="absolute inset-0 opacity-90" style={{ background: SPECTRUM_GRADIENT }}></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.6)_100%)] z-10 pointer-events-none"></div>
-
-        <div className="z-20 w-[80%] h-[70%] rounded-2xl border border-white/30 shadow-[0_15px_35px_rgba(0,0,0,0.5)] flex items-center justify-center backdrop-blur-md relative overflow-hidden"
-             style={{ background: `linear-gradient(135deg, ${appliedPaintColor} 0%, ${flopColor} 100%)` }}>
-             
-             {optics?.isMetallic && (
-                <div className="absolute inset-0 mix-blend-color-dodge opacity-60 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}></div>
-             )}
-             
-             <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/40 to-transparent pointer-events-none"></div>
-             
-             <div className="w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center shadow-lg bg-black/10 backdrop-blur-sm z-30">
-                <ScanLine className="text-white" size={28} />
-             </div>
-        </div>
+      <div className="w-full h-full relative overflow-hidden rounded-xl shadow-inner border border-slate-300">
+        <div className="absolute inset-0 opacity-100" style={{ background: SPECTRUM_GRADIENT }}></div>
       </div>
     );
   };
@@ -839,7 +811,7 @@ export default function App() {
               
               <div className="h-44 rounded-xl overflow-hidden shadow-inner border border-slate-300 bg-slate-800 bg-cover bg-center flex items-center justify-center cursor-pointer relative group" onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }}>
                   <div className="relative z-10 w-full h-full">
-                      {render3DView(finalOptics)}
+                      {render3DView()}
                   </div>
                   <div className="absolute top-3 left-3 bg-white/90 text-slate-800 text-[10px] font-black px-2.5 py-1 rounded shadow backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity z-20 flex items-center">
                       <Maximize size={12} className="mr-1 text-blue-600"/> 화면을 클릭하여 스튜디오 크게 열기
@@ -856,7 +828,7 @@ export default function App() {
                         <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료 검색 (예: 블루)" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" />
                     </div>
-                    {/* FORD 전용 검색창 추가 */}
+                    {/* FORD 전용 검색창 */}
                     <div className="relative flex-1 sm:w-48">
                         <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value)} placeholder="FORD 색상 검색" className="w-full bg-slate-800 border border-yellow-500/50 text-yellow-300 text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-yellow-400 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-1.5 text-blue-400" />
