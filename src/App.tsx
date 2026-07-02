@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sliders, Trash2, Plus, Minus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket, Car
 } from 'lucide-react';
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
@@ -17,7 +17,7 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 197': { role: '실크 실버 울트라 파인', type: 'silver_fine', face: '#e2e8f0', flop: '#64748b', desc: '특수 초미립 알루미늄 조색제입니다.', details: [['일반 특성', '입자 크기가 극도로 미세하게 분쇄된 특수 초미립 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '입자감이 겉으로 도드라지지 않아 마치 비단(Silk)처럼 부드럽고 매끈하며 밀도 높은 금속 질감을 발현합니다.'], ['용도 및 적용 컬러', '프리미엄 세단의 매끄러운 고휘도 은색을 연출할 때 사용되며, 대표적으로 Lexus(1F1), M.Benz(047) 등에 적용됩니다.'], ['배합 및 혼합 비율', '조색 프로그램의 정해진 표준 배합 수치를 엄격히 준수하여 투입합니다.'], ['경고 및 주의사항', '미립자 알루미늄의 특성상 도장 횟수나 에어 압력에 따라 플롭이 크게 달라질 수 있으므로 표준 도장법을 준수해야 합니다.']] },
   'WT 300': { role: '마룬', type: 'solid', face: '#991b1b', flop: '#450a0a', desc: '짙은 밤색 기운이 도는 어두운 적색 수성 조색제입니다.', details: [['일반 특성', '짙은 밤색 기운이 도는 어두운 적색(Maroon) 수성 조색제입니다.'], ['색상 및 외관 변화', '또 다른 마론 안료인 WT332에 비해 채도가 더 높으며, 측면에서 명도가 급격히 어두워지는 강한 플롭 특성을 보입니다.'], ['용도 및 적용 컬러', '주로 입체감이 깊어야 하는 적색 베이스 이펙트(펄/메탈릭) 컬러 조색 시 톤을 눌러주기 위해 사용됩니다.'], ['배합 및 혼합 비율', '조색 프로그램에 명시된 기본 배합비를 준수하여 첨가합니다.'], ['경고 및 주의사항', '솔리드 적색에 다량 첨가 시 색상이 탁해지고 검붉게 변질될 수 있으므로 한 방울씩 조심스럽게 투입해야 합니다.']] },
   'WT 303': { role: '플래틴 실버 엑스트라 화인', type: 'silver_fine', face: '#d1d5db', flop: '#475569', desc: '고휘도 광휘형 초미립 알루미늄 조색제입니다.', details: [['일반 특성', '빛 반사율이 극대화된 고휘도 광휘형 초미립 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '입자가 가장 작아 거친 느낌 없이 밝고 매끄러운 금속 반사광을 제공합니다.'], ['용도 및 적용 컬러', '고운 입자로 높은 정면 명도를 요구하는 현대적인 실버 메탈릭 컬러나 화이트 펄 바탕색을 조색할 때 사용됩니다.'], ['배합 및 혼합 비율', '배합표의 정량 규정을 엄격하게 준수하여 전자저울로 정밀 계량합니다.'], ['경고 및 주의사항', '입자가 가라앉아 있을 수 있으므로 충분히 교반해야 안정적인 색상을 낼 수 있습니다.']] },
-  'WT 304': { role: '매직 스파클 이펙트', type: 'xirallic', face: '#fef08a', flop: '#475569', desc: '투명한 황색 코팅이 적용된 유리 입자 조색제입니다.', details: [['일반 특성', '투명한 황색 코팅이 적용된 입자 크기가 매우 큰 유리 입자(Glass Flake) 조색제입니다.'], ['색상 및 외관 변화', '도장면에 다이아몬드 가루를 뿌린 듯 다방향으로 강렬하게 튀는 입체적인 스파클링 효과를 부여합니다.'], ['용도 및 적용 컬러', '특수 전시용 컬러나 일부 프리미엄 차종의 특수 펄 컬러 조색에 제한적으로 사용됩니다.'], ['배합 및 혼합 비율', '은폐력이 전무하므로 기본 안료에 소량 첨가하여 효과 부여하는 형태로 처방됩니다.'], ['경고 및 주의사항', '최종 클리어코트 작업 시 두껍게 도장하여 표면을 평활하게 잡아주어야 합니다.']] },
+  'WT 304': { role: '매직 스파클 이펙트', type: 'xirallic', face: '#fef08a', flop: '#475569', desc: '투명한 황색 코팅이 적용된 유리 입자 조색제입니다.', details: [['일반 특성', '투명한 황색 코팅이 적용된 입자 크기가 매우 큰 유리 입자(Glass Flake) 조색제입니다.'], ['색상 및 외관 변화', '도장면에 다이아몬드 가루를 뿌린 듯 다방향으로 강렬하게 튀는 입체적인 스파클링 효과를 부여합니다.'], ['용도 및 적용 컬러', '특수 전시용 컬러나 일부 프리미엄 차종의 특수 펄 컬러 조색에 제한적으로 사용됩니다.'], ['배합 및 혼합 비율', '은폐력이 전무하므로 기본 안료에 소량 첨가하여 효과를 부여하는 형태로 처방됩니다.'], ['경고 및 주의사항', '최종 클리어코트 작업 시 두껍게 도장하여 표면을 평활하게 잡아주어야 합니다.']] },
   'WT 305': { role: '울트라 화인 실버', type: 'silver_fine', face: '#cbd5e1', flop: '#334155', desc: '반짝임이 부드러운 특수 미립자 알루미늄 수성 조색제입니다.', details: [['일반 특성', '반짝임이 매우 부드러운 특수 미립자 알루미늄 수성 조색제입니다.'], ['색상 및 외관 변화', '일반 메탈릭처럼 입자가 눈에 띄지 않으며 은은하고 매끈한 금속광택 베이스를 형성합니다.'], ['용도 및 적용 컬러', '매끈한 느낌의 하이엔드 은색을 연출할 때 메인으로 사용됩니다.'], ['배합 및 혼합 비율', 'TDS 및 조색 프로그램의 중량 데이터를 기반으로 계량합니다.'], ['경고 및 주의사항', '도장 기법에 따라 색상 톤이 민감하게 변할 수 있으므로 보카시 작업에 각별히 유의해야 합니다.']] },
   'WT 307': { role: '프리즈마 실버', type: 'xirallic', face: '#e2e8f0', flop: '#a855f7', desc: '빛을 분산시키는 홀로그램 특성의 조색제입니다.', details: [['일반 특성', '빛을 파장별로 분산시키는 홀로그램 특성을 지닌 특수 광학 조색제입니다.'], ['색상 및 외관 변화', '빛의 굴절 및 관찰 각도에 따라 표면에 무지개색 효과가 나타납니다.'], ['용도 및 적용 컬러', '럭셔리 라인업의 특수 홀로그램 컬러 배합에 독점적으로 사용됩니다.'], ['배합 및 혼합 비율', '단가가 매우 높은 특수 안료이므로 조색표에 지시된 필요 최소량만 정확하게 계량하여 사용합니다.'], ['경고 및 주의사항', '일반 실버와 혼합 시 프리즘 효과가 쉽게 죽어버리므로 임의로 다른 컬러에 섞어 사용하지 마십시오.']] },
   'WT 308': { role: '브라이트 오렌지', type: 'solid', face: '#ea580c', flop: '#7c2d12', desc: '탁함이 없는 매우 맑고 선명한 주황색 조색제입니다.', details: [['일반 특성', '탁함이 전혀 없는 매우 맑고 선명한 주황색 조색제입니다.'], ['색상 및 외관 변화', '높은 투명도로 인해 빛을 그대로 투과시키며 채도 높은 화사한 오렌지빛을 발산합니다.'], ['용도 및 적용 컬러', '이펙트 컬러의 화려함을 살릴 때 주로 사용됩니다.'], ['배합 및 혼합 비율', '조색 프로그램의 표준 데이터 배합 비율을 따릅니다.'], ['경고 및 주의사항', '은폐력이 심각하게 떨어지므로 솔리드 단독 도장 시 프라이머 도포가 반드시 필요합니다.']] },
@@ -41,7 +41,7 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 330': { role: '블러드 오렌지', type: 'solid', face: '#ea580c', flop: '#9a3412', desc: '따뜻하고 밝은 기운을 품은 선명한 주황색 수성 조색제입니다.', details: [['일반 특성', '따뜻하고 밝은 선명한 주황색 수성 조색제입니다.'], ['색상 및 외관 변화', '발색력이 우수하여 혼합 시 뚜렷하고 생기 넘치는 오렌지빛 명도를 제공합니다.'], ['용도 및 적용 컬러', '주황 및 밝은 적색 계열의 솔리드 컬러 조색에 쓰입니다.'], ['배합 및 혼합 비율', '배합 데이터를 엄수하여 투입합니다.'], ['경고 및 주의사항', '너무 과도하게 단독 배합하면 은폐 불량이 올 수 있어 타 솔리드와 혼용해야 합니다.']] },
   'WT 331': { role: '트랜스루센트 옥사이드', type: 'solid', face: '#d97706', flop: '#451a03', desc: '산화철 성분을 기반으로 맑은 발색을 내는 반투명 황적색 조색제입니다.', details: [['일반 특성', '산화철 성분 기반의 반투명 황적색 조색제입니다.'], ['색상 및 외관 변화', '이펙트 도막 깊숙이 은은하고 고급스러운 적황색 반사를 일으킵니다.'], ['용도 및 적용 컬러', '캔디톤 오렌지/레드 베이스 조색에 한정되어 사용됩니다.'], ['배합 및 혼합 비율', '정밀 용량만 조심스럽게 첨가합니다.'], ['경고 및 주의사항', '안료 고유의 투명성 때문에 솔리드 컬러에는 절대 사용을 금지합니다.']] },
   'WT 332': { role: '마룬', type: 'solid', face: '#b91c1c', flop: '#7c2d12', desc: '탁하고 짙은 검붉은 톤을 지닌 어두운 적색 조색제입니다.', details: [['일반 특성', '탁하고 짙은 검붉은 톤을 지닌 어두운 적색 조색제입니다.'], ['색상 및 외관 변화', '묵직한 황적색으로 잡아주고 이펙트의 명암을 한층 깊게 눌러줍니다.'], ['용도 및 적용 컬러', '딥 이펙트 컬러 조색 시 명도를 낮추고 차분함을 부여하기 위해 사용됩니다.'], ['배합 및 혼합 비율', '조색기의 지시값에 따라 표준 배합을 준수합니다.'], ['경고 및 주의사항', '밝고 맑은 레드 펄 조색에 실수로 들어갈 경우 색이 탁하게 죽어버립니다.']] },
-  'WT 333': { role: '그라나다 레드', type: 'solid', face: '#991b1b', flop: '#450a0a', desc: '가장 표준적이며 맑고 밝은 기본 고농축 적색 조색제입니다.', details: [['일반 특성', '가장 표준적이며 맑고 밝은 기본 고농축 적색 조색제입니다.'], ['색상 및 외관 변화', '선명도와 은폐력이 매우 우수하여 강렬하고 깨끗한 솔리드 색감을 표현합니다.'], ['용도 및 적용 컬러', '모든 레드 계열 솔리드 컬러 조색의 메인 안료입니다.'], ['배합 및 혼합 비율', '큰 비중을 차지하므로 규정 데이터에 맞춰 계량합니다.'], ['경고 및 주의사항', '메탈릭에 투입 시 알루미늄 입자를 가릴 수 있으므로 이펙트 조색 시 투입량 통제에 주의하십시오.']] },
+  'WT 333': { role: '그라나다 레드', type: 'solid', face: '#991b1b', flop: '#450a0a', desc: '가장 표준적이며 맑고 밝은 기본 고농축 적색 조색제입니다.', details: [['일반 특성', '가장 표준적이며 맑고 밝은 기본 고농축 적색 조색제입니다.'], ['색상 및 외관 변화', '선명도와 은폐력이 매우 우수하여 강렬하고 깨끗한 솔리드 색감이 표현합니다.'], ['용도 및 적용 컬러', '모든 레드 계열 솔리드 컬러 조색의 메인 안료입니다.'], ['배합 및 혼합 비율', '큰 비중을 차지하므로 규정 데이터에 맞춰 계량합니다.'], ['경고 및 주의사항', '메탈릭에 투입 시 알루미늄 입자를 가릴 수 있으므로 이펙트 조색 시 투입량 통제에 주의하십시오.']] },
   'WT 334': { role: '옥사이드 레드', type: 'solid', face: '#7f1d1d', flop: '#450a0a', desc: '적벽돌과 유사한 묵직하고 탁한 산화철 계열의 적색 조색제입니다.', details: [['일반 특성', '적벽돌과 유사한 묵직하고 탁한 산화철 계열의 적색 조색제입니다.'], ['색상 및 외관 변화', '무겁고 차분한 황적색 톤을 발현합니다.'], ['용도 및 적용 컬러', '은폐가 안 되는 적색 도장 전 바탕 하도(Undercoat) 조색용으로 특화되어 쓰입니다.'], ['배합 및 혼합 비율', '하도 베이스 코팅용 배합 지침에 따라 처방합니다.'], ['경고 및 주의사항', '일반 상도(Topcoat) 컬러 배합에는 치명적인 탁색을 유발하므로 사용을 제한해야 합니다.']] },
   'WT 335': { role: '다크 옐로우', type: 'solid', face: '#d97706', flop: '#78350f', desc: '적색 기운이 미세하게 감도는 차분하면서 밝은 솔리드 황색입니다.', details: [['일반 특성', '적색 기운이 미세하게 감도는 밝은 톤의 솔리드 황색 조색제입니다.'], ['색상 및 외관 변화', '은폐력이 매우 우수하여 온화하고 부드러운 노란색 질감을 형성합니다.'], ['용도 및 적용 컬러', '택시 컬러 등 은폐가 중요한 솔리드 옐로우의 핵심 베이스로 사용됩니다.'], ['배합 및 혼합 비율', '지시된 솔리드 황색 배합 데이터를 철저히 따릅니다.'], ['경고 및 주의사항', '고형분이 많아 침전 우려가 있으므로 사용 직전 교반 작업을 필수적으로 진행해야 합니다.']] },
   'WT 336': { role: '트랜스루센트 레드', type: 'solid', face: '#7c2d12', flop: '#450a0a', desc: '어두운 갈색 빛이 오묘하게 도는 반투명 적색 조색제입니다.', details: [['일반 특성', '어두운 갈색 빛이 오묘하게 도는 선명한 반투명 적색 조색제입니다.'], ['색상 및 외관 변화', '이펙트 입자 위로 색이 투과되어 깊고 차분한 검붉은 반사광을 연출합니다.'], ['용도 및 적용 컬러', '빛 반사를 죽이지 않고 깊이감이 더해야 하는 특수 펄 레드 색상에 한정하여 조색 첨가제로 사용합니다.'], ['배합 및 혼합 비율', '반투명 첨가 가이드라인에 맞게 극소량 단위로 계량합니다.'], ['경고 및 주의사항', '반투명 성질이므로 솔리드 컬러 조색에 은폐용으로 사용하는 것은 금지됩니다.']] },
@@ -114,1145 +114,2095 @@ export const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
   return { code, ...data, labelCategory, badgeColor };
 });
 
-export const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
-const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스') || r.includes('대체용'); }
-
-const textureCache: Record<string, React.CSSProperties> = {};
-export const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
-    if (!isMetallic || type === 'binder' || type === 'solid') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
-    const key = `${type}_${faceColor}_${flopColor}`; if (textureCache[key]) return textureCache[key];
-    let baseFreq = '0.5', alphaMult = '4', surfaceScale = '2', specConst = '1.2';
-    if (type === 'xirallic') { baseFreq = '0.8'; alphaMult = '10'; surfaceScale = '5'; specConst = '2.0'; }
-    else if (type === 'pearl') { baseFreq = '0.4'; alphaMult = '6'; surfaceScale = '3'; specConst = '1.5'; }
-    else if (type === 'silver_fine') { baseFreq = '1.2'; alphaMult = '3'; surfaceScale = '1.5'; specConst = '1.0'; }
-    else if (type === 'silver_coarse') { baseFreq = '0.2'; alphaMult = '8'; surfaceScale = '4'; specConst = '1.8'; }
-    const safeFaceColor = faceColor || '#ffffff'; const safeFlopColor = flopColor || '#ffffff';
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="3"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${alphaMult} -1"/><feSpecularLighting surfaceScale="${surfaceScale}" specularConstant="${specConst}" specularExponent="20" lighting-color="%23ffffff"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting></filter><rect width="100%25" height="100%25" fill="${encodeURIComponent(safeFaceColor)}"/><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.4"/></svg>`;
-    const result = { backgroundColor: safeFaceColor, backgroundImage: `url("data:image/svg+xml;utf8,${svg}"), linear-gradient(135deg, ${safeFaceColor} 0%, ${safeFlopColor} 100%)`, backgroundBlendMode: 'overlay, normal' as any, boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)' };
-    textureCache[key] = result; return result;
-};
-
-export const getTonerDetailBackground = (code: string, role: string, angle: string) => {
-  const r = role || ''; let h = 0; let s = 0; let baseL = 50;
-  if (code.includes('144')) { h = 230; s = 85; baseL = 35; } 
-  else if (r.includes('블루') || r.includes('청')) { h = 210; s = 80; baseL = 40; }
-  else if (r.includes('레드') || r.includes('마젠타') || r.includes('적') || r.includes('마룬')) { h = 350; s = 80; baseL = 40; }
-  else if (r.includes('그린') || r.includes('녹')) { h = 140; s = 80; baseL = 35; }
-  else if (r.includes('옐로우') || r.includes('황')) { h = 40; s = 80; baseL = 50; }
-  else if (r.includes('오커')) { h = 30; s = 60; baseL = 40; }
-  else if (r.includes('오렌지')) { h = 20; s = 90; baseL = 50; }
-  else if (r.includes('바이올렛')) { h = 270; s = 80; baseL = 40; }
-  else if (r.includes('화이트') || r.includes('백')) { h = 0; s = 0; baseL = 90; }
-  else if (r.includes('블랙') || r.includes('흑')) { h = 0; s = 0; baseL = 15; }
-  else if (r.includes('실버') || r.includes('알루미늄') || code.includes('400')) { h = 210; s = 10; baseL = 60; }
-  else { h=0; s=0; baseL=95; } 
-  const isMetallic = isTonerMetallic(r) || code.includes('400');
-  if (angle === 'face') {
-    const l = isMetallic ? Math.min(100, baseL + 25) : Math.min(100, baseL + 10);
-    return `radial-gradient(circle at 40% 40%, hsl(${h}, ${s}%, ${Math.min(100, l+20)}%) 0%, hsl(${h}, ${s}%, ${l}%) 60%, hsl(${h}, ${s}%, ${Math.max(0, l-15)}%) 100%)`;
-  } else {
-    const l = isMetallic ? Math.max(0, baseL - 30) : Math.max(0, baseL - 15);
-    return `radial-gradient(circle at 10% 10%, hsl(${h}, ${s}%, ${Math.min(100, l+10)}%) 0%, hsl(${h}, ${s}%, ${l}%) 100%)`;
-  }
-};
-
-export const getMunsellDynamicDescription = (code: string, role: string, type: string, cWeight: number) => {
-    let behavior = ""; let title = "";
-    let weightTag = cWeight === 0 ? `[배합 대기중 : 0g]` : `[현재 투입량 : ${cWeight.toFixed(2)}g]`;
-
-    if (type === 'binder') {
-        title = "무색 투명도 제어 (N/A)"; 
-        behavior = `${weightTag} 수지(Resin) 역할을 하므로 먼셀 색상(Hue)에 직접 개입하지 않습니다. 양이 늘어날수록 금속 입자의 분산 공간을 넓혀주어 정면/측면의 명암 대비(Flop Index)를 극대화합니다.`;
-    } else if (role.includes('블루') || role.includes('청')) {
-        title = "먼셀 5PB ~ 7.5PB 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 정면(Face)은 극채도의 맑은 청색(C 14+)으로 화려해지며 명도가 낮아집니다. 측면(Flop) 110도에서는 특유의 반전 톤(녹청/적청)이 짙어집니다. 점점 줄어들면 보색 간섭이 잦아들며 맑은 푸른빛 난반사 역할만 수행합니다.`;
-    } else if (code.includes('376') || role.includes('레드') || role.includes('마젠타') || role.includes('적') || role.includes('마룬')) {
-        title = "먼셀 5R ~ 5RP 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 광학 간섭이 극대화되어 정면은 피 끓는 듯한 레드(C 14+)를 뿜어내며 측면으로 갈수록 특수 코팅에 의한 보색 간섭이 피어오릅니다. 점점 줄어들면 보색 효과는 숨고 베이스 컬러에 따뜻한 붉은 윤기만 은은하게 더해집니다.`;
-    } else if (role.includes('옐로우') || role.includes('황') || role.includes('오렌지') || role.includes('골드') || role.includes('오커')) {
-        title = "먼셀 2.5Y ~ 7.5YR 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 정면에서 순금과 같은 극강의 채도(C 12+)가 발현되며 시각적인 팽창감을 제공합니다. 반면 양이 점점 줄어들면 펄 입자가 넓게 흩어지며 별빛처럼 은은하고 따뜻한 스파클링 효과를 도막에 흩뿌리게 됩니다.`;
-    } else if (role.includes('그린') || role.includes('녹') || role.includes('에메랄드')) {
-        title = "먼셀 5G ~ 10BG 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 화려한 에메랄드 펄감이 폭발하며 측면 110도 플롭에서는 붉은(Reddish) 톤으로 급격히 교차 반전(Shift)됩니다. 양이 점점 줄어들면 붉은 베이스의 채도를 억누르며 바탕을 해치지 않는 신비로운 쿨톤 미세 반사광만을 제공합니다.`;
-    } else if (role.includes('블랙') || role.includes('흑')) {
-        title = "먼셀 무채색 N1 ~ N3 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 가시광선 흡수율이 기하급수적으로 상승하여 명도(Value)를 1.0 이하의 극한의 심연으로 끌어내립니다. 점점 줄어들면 바탕색의 채도를 미세하게 꺾어(Dirty) 차분하고 무거운 딥(Deep) 톤으로 밸런스를 맞추는 역할을 합니다.`;
-    } else if (role.includes('화이트') || role.includes('백')) {
-        title = "먼셀 무채색 N8 ~ N9.5 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 정면 빛 반사율이 극대화되어 입자가 다이아몬드처럼 부서지는 화려한 발색과 고은폐 백탁 현상을 일으킵니다. 점점 줄어들면 바탕 베이스 컬러를 투과시키며 은은하고 부드러운 우유빛(Milky) 3D 깊이감을 섬세하게 연출합니다.`;
-    } else if (isTonerMetallic(role)) {
-        title = "명암 대비(Flop Index) 제어 안료"; 
-        behavior = `${weightTag} 양이 늘어날수록 금속 입자 배열 밀도가 촘촘해지며 정면은 8.0 이상 눈부시게 밝아지고 측면은 빛을 튕겨내 3.0 이하로 극단적으로 어두워집니다. 점점 줄어들면 금속감이 은은하게 흩어지며 베이스 고유의 솔리드 톤이 함께 어우러집니다.`;
-    } else {
-        title = "먼셀 다중 스펙트럼 제어"; 
-        behavior = `${weightTag} 투입량 증감에 따라 명도와 채도 변화 곡선이 다이내믹하게 움직이며, 주변 안료들과의 시너지 비율에 따라 정면광과 측면광의 톤 밸런스를 입체적으로 변환시킵니다.`;
-    }
-
-    return (
-        <div className="mt-2 mb-4 bg-slate-900 rounded-xl p-4 border border-slate-700 shadow-xl relative overflow-hidden">
-            <h4 className="text-yellow-400 font-black text-xs mb-3 flex items-center"><Zap size={14} className="mr-1.5"/> 2026 Munsell Color Dynamics</h4>
-            <div className="flex gap-4 items-center bg-slate-800 p-3 rounded-lg border border-slate-600 shadow-inner">
-                <div className="relative w-14 h-14 shrink-0 rounded-full shadow-[0_0_15px_rgba(0,0,0,0.8)] border-2 border-slate-500 animate-[spin_20s_linear_infinite]" 
-                     style={{ background: 'conic-gradient(from 90deg, #ef4444, #f59e0b, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #d946ef, #ef4444)' }}>
-                    <div className="absolute inset-2 bg-slate-900 rounded-full flex items-center justify-center">
-                        <div className="w-5 h-5 rounded-full border border-white/30 shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ background: `linear-gradient(135deg, ${TONER_DB[code].face}, ${TONER_DB[code].flop})` }}></div>
-                    </div>
-                </div>
-                <div className="flex flex-col flex-1">
-                    <div className="flex justify-between items-end mb-1.5">
-                        <span className="text-[10px] text-slate-400 font-bold tracking-wider">{title}</span>
-                        <span className="text-base font-black text-white">{cWeight.toFixed(2)} <span className="text-xs font-normal text-slate-400">g</span></span>
-                    </div>
-                    <div className="h-2.5 w-full rounded-full bg-slate-950 overflow-hidden relative border border-slate-700">
-                        <div className="absolute top-0 left-0 h-full transition-all duration-500 ease-out" 
-                             style={{ width: `${Math.min(100, (cWeight / 60) * 100)}%`, background: `linear-gradient(90deg, ${TONER_DB[code].flop}, ${TONER_DB[code].face})`, boxShadow: `0 0 10px ${TONER_DB[code].face}`}}>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className="mt-3 p-3 bg-blue-950/40 rounded-lg border border-blue-900/50">
-                <p className="text-[12px] text-blue-100 leading-relaxed break-keep font-medium"><span className="text-blue-400 font-bold tracking-tight mr-1">✨ 시뮬레이션 브리핑:</span>{behavior}</p>
-            </div>
-        </div>
-    );
-};
-
-export const getOptics = (tonersList: any[]) => {
-  const colorToners = tonersList.filter(t => t.code && TONER_DB[t.code]);
-  const sumW = colorToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
-  if (sumW === 0) return { face: { h: 0, s: 0, l: 90 }, mid: { h: 0, s: 0, l: 90 }, flop: { h: 0, s: 0, l: 90 }, isMetallic: false };
-
-  let rBlue=0; let rGreen=0; let rRed=0; let rYellow=0; let rViolet=0;
-  let wSilver=0; let wWhite=0; let wBlack=0; let wPearl=0; let wBinder=0; let interferenceColor: string | null = null;
-
-  colorToners.forEach(t => {
-    const w = safeNum(parseFloat(t.adjustedWeight)); if (w <= 0) return;
-    const role = TONER_DB[t.code]?.role || ''; const code = t.code || ''; let strength = 1.0;
-    if (code.includes('341') || code.includes('300') || code.includes('338')) strength = 2.5;
-
-    if (role.includes('컴포넌트') || role.includes('바인더') || role.includes('애디티브') || ['WT 385', 'WT 387', 'WT 386', 'WT 400', 'WT 3080', 'WT 310'].some(c => code.includes(c.replace('WT ', '')))) wBinder += w;
-    else if (role.includes('블랙') || code.includes('323') || code.includes('388') || code.includes('188') || code.includes('1500')) wBlack += w;
-    else if (role.includes('실버') || role.includes('알루미늄') || code.includes('362') || code.includes('357') || code.includes('197') || code.includes('303') || code.includes('305') || code.includes('307') || code.includes('400')) wSilver += w;
-    else if (role.includes('화이트') || code.includes('321') || code.includes('328') || code.includes('322')) wWhite += w;
-    else if (role.includes('펄') || role.includes('이펙트') || role.includes('스파클') || code.includes('304') || code.includes('377') || code.includes('381')) {
-      wPearl += w;
-      if (role.includes('블루') || code.includes('381')) { interferenceColor = 'blue'; rBlue += w * 0.15; }
-      else if (role.includes('레드') || role.includes('마젠타')) { interferenceColor = 'red'; rRed += w * 0.15; }
-      else if (role.includes('그린') || code.includes('380')) { interferenceColor = 'green'; rGreen += w * 0.15; }
-      else if (role.includes('골드') || code.includes('304') || code.includes('382')) { interferenceColor = 'yellow'; rYellow += w * 0.15; }
-      else if (role.includes('화이트') || code.includes('377')) interferenceColor = 'white';
-    } 
-    else if (code.includes('144')) { rBlue += w * 2.5; rRed += (w * 2.5) * 0.4; } 
-    else if (role.includes('블루') || role.includes('청')) { rBlue += w * strength; rGreen += (w * strength) * 0.5; }
-    else if (code.includes('339') || role.includes('바이올렛')) rViolet += w * strength;
-    else if (code.includes('353') || code.includes('309') || role.includes('마젠타')) { rRed += w * strength; rViolet += (w * strength) * 0.5; }
-    else if (code.includes('300') || role.includes('마룬') || role.includes('적')) rRed += w * strength;
-    else if (code.includes('308') || role.includes('오렌지')) { rRed += w * strength; rYellow += (w * strength) * 0.5; }
-    else if (role.includes('옐로우') || role.includes('황') || code.includes('350')) rYellow += w * strength;
-    else if (role.includes('그린') || role.includes('녹')) rGreen += w * strength;
-  });
-
-  const colorWeight = (rBlue + rGreen + rRed + rYellow + rViolet);
-  const effectiveW = wWhite + wBlack + wSilver + wPearl + colorWeight;
-  const totalForRatio = effectiveW > 0 ? effectiveW : 1;
-  const pSilver = wSilver / totalForRatio; const pWhite = wWhite / totalForRatio;
-  const pBlack = wBlack / totalForRatio; const pPearl = wPearl / totalForRatio; const pColor = colorWeight / totalForRatio;
-
-  let baseL = (pWhite * 96) + (pSilver * 65) + (pPearl * 85); if (effectiveW === 0 && wBinder > 0) baseL = 90; 
-  let blackImpact = Math.pow(pBlack, 0.45) * 60; if (pWhite > 0.6) blackImpact = blackImpact * 0.15; 
-  const colorImpactL = Math.pow(pColor, 0.5) * 30; baseL = Math.max(4, baseL - blackImpact - colorImpactL);
-  let l15 = baseL + (Math.pow(pSilver + pPearl, 0.6) * 45); 
-  let l110 = Math.max(2, baseL - 30 - (pSilver * 40) - (pBlack * 20));
-  if (pWhite > 0.6) { l110 = Math.max(83, baseL - 8); l15 = Math.min(99, baseL + (pPearl > 0 ? 10 : 3)); }
-
-  let x = rRed + (rYellow * 0.5) - (rGreen * 0.5) - rBlue - (rViolet * 0.5);
-  let y = (rYellow * 0.866) + (rGreen * 0.866) - (rBlue * 0.866) - (rViolet * 0.866);
-  let hue = Math.atan2(y, x) * (180 / Math.PI); if (hue < 0) hue += 360;
-  
-  let sat = colorWeight > 0 ? Math.min(100, Math.pow((colorWeight / (colorWeight + wWhite + wSilver + Math.max(wBlack * 2, 0))), 0.4) * 150) : 0;
-  if (pWhite > 0.6) sat = sat * 0.3; 
-
-  let flopHue = hue; let faceHue = hue;
-  if (interferenceColor === 'blue') { faceHue = 210; flopHue = 230; }
-  else if (interferenceColor === 'red') { faceHue = 340; flopHue = 350; }
-  else if (interferenceColor === 'green') { faceHue = 120; flopHue = 140; }
-  else if (interferenceColor === 'yellow') { faceHue = 50; flopHue = 60; }
-  let faceSat = Math.min(100, sat + (pPearl * (interferenceColor === 'white' ? 5 : 20)));
-  let flopSat = Math.min(100, sat + (pPearl * (interferenceColor === 'white' ? 2 : 12)));
-  if (colorWeight === 0 && wPearl === 0) { hue = 0; flopHue = 0; faceHue = 0; sat = 0; faceSat = 0; flopSat = 0; }
-
-  return {
-    face: { h: safeNum(Math.round(faceHue)), s: safeNum(Math.round(faceSat)), l: safeNum(Math.round(Math.min(99, Math.max(5, l15)))) },
-    mid:  { h: safeNum(Math.round(hue)), s: safeNum(Math.round(sat)), l: safeNum(Math.round(Math.min(98, Math.max(5, baseL)))) },
-    flop: { h: safeNum(Math.round(wPearl > 0 ? flopHue : hue)), s: safeNum(Math.round(flopSat)), l: safeNum(Math.round(Math.min(98, Math.max(2, l110)))) },
-    isMetallic: (wSilver > 0 || wPearl > 0)
-  };
-};
-
-export const packToners = (tonerList: any[]) => { return tonerList.filter((t: any) => t.code).map((t: any) => { const c = t.code.replace('WT ', '').trim(); const w = t.adjustedWeight || ''; return `${c}_${w}`; }).join('*'); };
-export const unpackToners = (str: string) => { if (!str) return []; return str.split('*').map((t, i) => { const [c, w] = t.split('_'); return { id: `restored_${Date.now()}_${i}`, code: c ? `WT ${c}` : '', adjustedWeight: w || '', history: [], memo: '' }; }); };
-
-const MUNSELL_WHEEL_COLORS = [
-    { name: '빨강', symbol: 'R', hex: '#E60012' },
-    { name: '다홍', symbol: 'yR', hex: '#EB6100' },
-    { name: '주황', symbol: 'YR', hex: '#F39800' },
-    { name: '귤색', symbol: 'rY', hex: '#FCC800' },
-    { name: '노랑', symbol: 'Y', hex: '#FFF100' },
-    { name: '노랑연두', symbol: 'gY', hex: '#CFDB00' },
-    { name: '연두', symbol: 'GY', hex: '#8FC31F' },
-    { name: '풀색', symbol: 'yG', hex: '#22AC38' },
-    { name: '녹색', symbol: 'G', hex: '#009944' },
-    { name: '초록', symbol: 'bG', hex: '#009B6B' },
-    { name: '청록', symbol: 'BG', hex: '#009E96' },
-    { name: '바다색', symbol: 'gB', hex: '#00A0C1' },
-    { name: '파랑', symbol: 'B', hex: '#00A0E9' },
-    { name: '감청', symbol: 'pB', hex: '#0086D1' },
-    { name: '남색', symbol: 'PB', hex: '#0068B7' },
-    { name: '남보라', symbol: 'bP', hex: '#00479D' },
-    { name: '보라', symbol: 'P', hex: '#1D2088' },
-    { name: '붉은보라', symbol: 'rP', hex: '#601986' },
-    { name: '자주', symbol: 'RP', hex: '#920783' },
-    { name: '연지', symbol: 'pR', hex: '#BE0081' },
-];
-
-const MIXING_DATA: Record<string, any> = {
-    'R': { c1: '빨강 (R)', h1: '#ff0000', r1: 100 },
-    'yR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 },
-    'YR': { c1: '빨강 (R)', h1: '#ff0000', r1: 50, c2: '노랑 (Y)', h2: '#ffff00', r2: 50 },
-    'rY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 75, c2: '빨강 (R)', h2: '#ff0000', r2: 25 },
-    'Y': { c1: '노랑 (Y)', h1: '#ffff00', r1: 100 },
-    'gY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 75, c2: '녹색 (G)', h2: '#009900', r2: 25 },
-    'GY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 50, c2: '녹색 (G)', h2: '#009900', r2: 50 },
-    'yG': { c1: '녹색 (G)', h1: '#009900', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 },
-    'G': { c1: '녹색 (G)', h1: '#009900', r1: 100 },
-    'bG': { c1: '녹색 (G)', h1: '#009900', r1: 75, c2: '파랑 (B)', h2: '#0000ff', r2: 25 },
-    'BG': { c1: '녹색 (G)', h1: '#009900', r1: 50, c2: '파랑 (B)', h2: '#0000ff', r2: 50 },
-    'gB': { c1: '파랑 (B)', h1: '#0000ff', r1: 75, c2: '녹색 (G)', h2: '#009900', r2: 25 },
-    'B': { c1: '파랑 (B)', h1: '#0000ff', r1: 100 },
-    'pB': { c1: '파랑 (B)', h1: '#0000ff', r1: 75, c2: '보라 (P)', h2: '#700070', r2: 25 },
-    'PB': { c1: '파랑 (B)', h1: '#0000ff', r1: 50, c2: '보라 (P)', h2: '#700070', r2: 50 },
-    'bP': { c1: '보라 (P)', h1: '#700070', r1: 75, c2: '파랑 (B)', h2: '#0000ff', r2: 25 },
-    'P': { c1: '보라 (P)', h1: '#700070', r1: 100 },
-    'rP': { c1: '보라 (P)', h1: '#700070', r1: 75, c2: '빨강 (R)', h2: '#ff0000', r2: 25 },
-    'RP': { c1: '보라 (P)', h1: '#700070', r1: 50, c2: '빨강 (R)', h2: '#ff0000', r2: 50 },
-    'pR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '보라 (P)', h2: '#700070', r2: 25 },
-};
-
-const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
-  const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
-  return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) };
-};
-
-const describeArc = (x: number, y: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number) => {
-  const startOuter = polarToCartesian(x, y, outerRadius, endAngle);
-  const endOuter = polarToCartesian(x, y, outerRadius, startAngle);
-  const startInner = polarToCartesian(x, y, innerRadius, endAngle);
-  const endInner = polarToCartesian(x, y, innerRadius, startAngle);
-  const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-  return [
-    "M", startOuter.x, startOuter.y, "A", outerRadius, outerRadius, 0, largeArcFlag, 0, endOuter.x, endOuter.y,
-    "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z"
-  ].join(" ");
-};
-
-export default function App() {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: 'WT 318', adjustedWeight: "0.3", history: [], memo: "" }, { id: `b_next`, code: 'WT 144', adjustedWeight: "4.0", history: [], memo: "" }]);
-  const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "" }]);
-  const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
-  const [targetColorCode, setTargetColorCode] = useState('UG4'); 
-  const [vehicleNumber, setVehicleNumber] = useState('9'); 
-  const [carModel, setCarModel] = useState('UN'); 
-  const [jobDescription, setJobDescription] = useState(''); 
-  const [specialNotes, setSpecialNotes] = useState('');
-  const [totalBaseWeight, setTotalBaseWeight] = useState("0.00"); 
-  const [totalPearlWeight, setTotalPearlWeight] = useState("0.00"); 
-  const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
-  const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
-  
-  const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
-  const [restoredViewData, setRestoredViewData] = useState<any>(null); 
-  
-  const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
-  const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  
-  const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight'} | null>(null); 
-  const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
-  const [catalogSearch, setCatalogSearch] = useState('');
-  const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
-  const [isBaseMetallic, setIsBaseMetallic] = useState(false); 
-  const [isPearlMetallic, setIsPearlMetallic] = useState(false);
-  const [scaleFactor, setScaleFactor] = useState("2");
-  const [tonerMemos, setTonerMemos] = useState<Record<string, string>>({});
-  const [selectedWheelIndex, setSelectedWheelIndex] = useState<number | null>(null);
-
-  const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
-
-  const tonersRef = useRef<any[]>([]); const pearlTonersRef = useRef<any[]>([]); const isThreeCoatModeRef = useRef<boolean>(true);
-
-  const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
-  const sortedCatalog = [...catalogData].sort((a, b) => { 
-      const aActive = activeCodes.includes(a.code); const bActive = activeCodes.includes(b.code); 
-      if (aActive && !bActive) return -1; if (!aActive && bActive) return 1; return 0; 
-  }).filter(item => item.code.includes(catalogSearch.toUpperCase()) || item.role.includes(catalogSearch));
-
-  useEffect(() => { document.title = "조색 Pro"; }, []);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-        const urlParams = new URLSearchParams(window.location.search); 
-        const d = urlParams.get('d'); 
-        const ori = window.location.origin;
-        if (!ori.includes('google') && !ori.includes('gemini') && !ori.includes('null')) localStorage.setItem('hitec_clean_domain', ori);
-        
-        let loadedFromUrl = false;
-
-        if (d) {
-            try {
-                let parsedData = null;
-                if (d.includes('%7B') || d.includes('{')) {
-                    parsedData = JSON.parse(decodeURIComponent(d));
-                } else {
-                    let decodedStr = d;
-                    if (!d.includes('|') && !d.includes('%')) {
-                        try { decodedStr = decodeURIComponent(escape(atob(d))); } catch(e) { decodedStr = atob(d); }
-                    } else {
-                        decodedStr = decodeURIComponent(d.replace(/%7C/g, '|'));
-                    }
-                    const parts = decodedStr.split('|');
-                    if(parts.length >= 6) {
-                        parsedData = {
-                            v: parts[0] || '', m: parts[1] || '', c: parts[2] || '', j: parts[3] || '', n: parts[4] || '', b: unpackToners(parts[5]), p: unpackToners(parts[6]), t: parts[7] === '1'
-                        };
-                    }
-                }
-
-                if (parsedData) {
-                    setRestoredViewData(parsedData);
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    loadedFromUrl = true;
-                }
-            } catch (e) { 
-                console.error("URL 파싱 실패", e); 
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-        
-        if (!loadedFromUrl) {
-            const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos');
-            if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
-        }
-        setIsLoaded(true); 
-    }
-  }, []);
-
-  useEffect(() => {
-      const urlParams = new URLSearchParams(window.location.search); if (urlParams.get('d')) return;
-      if (isLoaded && typeof window !== 'undefined') {
-          localStorage.setItem('hitec_base', JSON.stringify(toners)); localStorage.setItem('hitec_pearl', JSON.stringify(pearlToners)); localStorage.setItem('hitec_code', targetColorCode); localStorage.setItem('hitec_mode', JSON.stringify(isThreeCoatMode)); localStorage.setItem('hitec_vehicle', vehicleNumber); localStorage.setItem('hitec_carmodel', carModel); localStorage.setItem('hitec_job', jobDescription); localStorage.setItem('hitec_notes', specialNotes); localStorage.setItem('hitec_toner_memos', JSON.stringify(tonerMemos));
-      }
-  }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, tonerMemos, isLoaded]);
-
-  useEffect(() => { tonersRef.current = toners; pearlTonersRef.current = pearlToners; isThreeCoatModeRef.current = isThreeCoatMode; }, [toners, pearlToners, isThreeCoatMode]);
-
-  useEffect(() => {
-    const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
-    setTotalBaseWeight(baseTotal.toFixed(2)); setTotalPearlWeight(pearlTotal.toFixed(2)); setTotalFinalWeight((baseTotal + pearlTotal).toFixed(2));
-    const activeToners = isThreeCoatMode ? [...toners, ...pearlToners] : toners; 
-    setFinalOptics(getOptics(activeToners));
-    const checkMetallic = (list: any[]) => list.some(t => { const type = TONER_DB[t.code]?.type || ''; return type !== 'solid' && type !== 'binder' && type !== ''; });
-    setIsBaseMetallic(checkMetallic(toners)); setIsPearlMetallic(checkMetallic(pearlToners));
-  }, [toners, pearlToners, isThreeCoatMode]);
-
-  useEffect(() => {
-    if (focusTarget) {
-      let attempts = 0; 
-      const interval = setInterval(() => {
-        const el = focusTarget.type === 'code' ? codeRefs.current[focusTarget.id] : weightRefs.current[focusTarget.id];
-        if (el) { 
-            el.focus(); 
-            setTimeout(() => { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 30);
-            clearInterval(interval); 
-            setFocusTarget(null); 
-        }
-        attempts++; 
-        if (attempts > 30) { clearInterval(interval); setFocusTarget(null); }
-      }, 20); 
-      return () => clearInterval(interval);
-    }
-  }, [focusTarget, toners, pearlToners]);
-
-  const handleClearAll = () => { setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setSelectedTonerForView(null); };
-
-  const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
-    const formattedCode = newCode.toUpperCase().trim(); const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(toner => {
-      if (toner.id === id) {
-        let finalCode = formattedCode; const numMatch = formattedCode.match(/\d+/);
-        if (numMatch && numMatch[0].length >= 3) { const testCode = `WT ${numMatch[0]}`; if (TONER_DB[testCode]) { finalCode = testCode; setFocusTarget({ id: id, type: 'weight' }); } }
-        return { ...toner, code: finalCode };
-      }
-      return toner;
-    }));
-  };
-
-  const handleWeightInputChange = (id: string, rawValue: string, isPearl = false) => {
-    let val = rawValue.replace(/[^0-9.]/g, ''); const parts = val.split('.'); if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
-    if (val === '') val = ''; else if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, ''); else if (val.startsWith('.')) val = '0' + val; 
-    if (isPearl) setPearlToners(pearlToners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t)); else setToners(toners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
-  };
-
-  const handleWeightBlur = (id: string, value: string, isPearl = false) => {
-    if (!value) return; const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(t => {
-      if (t.id === id) { const currentHistory = t.history || []; if (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== value) return { ...t, history: [...currentHistory, value] }; }
-      return t;
-    }));
-  };
-
-  const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => {
-      if (e.key === 'Enter') { 
-          e.preventDefault(); 
-          const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
-          const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "" }; 
-          if (isPearl) setPearlToners([...pearlToners, newToner]); 
-          else setToners([...toners, newToner]); 
-          setFocusTarget({ id: newId, type: 'code' }); 
-      }
-  };
-  
-  const removeToner = (id: string, isPearl = false) => { if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
-  
-  const addToner = (isPearl = false) => { 
-      const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
-      const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "" }; 
-      if (isPearl) setPearlToners([...pearlToners, newToner]); 
-      else setToners([...toners, newToner]); 
-      setFocusTarget({ id: newId, type: 'code' }); 
-  };
-
-  const quickEditWeight = (id: string, delta: number, isPearl: boolean) => {
-    const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(t => {
-      if(t.id === id) {
-         let current = parseFloat(t.adjustedWeight) || 0; 
-         let newVal = Math.max(0, current + delta);
-         let strVal = String(Number(Math.round(newVal * 100000) / 100000));
-         const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== strVal) ? [...currentHistory, strVal] : currentHistory;
-         return { ...t, adjustedWeight: strVal, history: nextHistory };
-      }
-      return t;
-    }));
-  };
-
-  const handleScaleAll = (isMultiply: boolean) => {
-    const factor = parseFloat(scaleFactor); if (isNaN(factor) || factor <= 0) { alert("올바른 배율 상수를 입력하세요."); return; }
-    const scale = (valStr: string) => { 
-        const val = parseFloat(valStr); if (isNaN(val) || val === 0) return valStr; 
-        const calcVal = isMultiply ? (val * 100000 * factor) / 100000 : (val * 100000) / (factor * 100000);
-        return String(Number(Math.round(calcVal * 100000) / 100000)); 
-    };
-    const applyScale = (list: any[]) => list.map(t => {
-        if (!t.adjustedWeight) return t; const newVal = scale(t.adjustedWeight);
-        const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== newVal) ? [...currentHistory, newVal] : currentHistory;
-        return { ...t, adjustedWeight: newVal, history: nextHistory };
-    });
-    setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
-  };
-
-  const copyToExcel = () => {
-    const baseResin = (parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1); const baseStr = `${totalBaseWeight} (수지 ${baseResin})`; let pearlStr = "해당없음";
-    if (isThreeCoatMode) { const pearlResin = (parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1); pearlStr = `${totalPearlWeight} (수지 ${pearlResin})`; }
-    const baseDetails = toners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', '); const pearlDetails = isThreeCoatMode ? pearlToners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ') : '해당없음'; const detailStr = isThreeCoatMode ? `[베이스] ${baseDetails} / [펄] ${pearlDetails}` : baseDetails;
-    let currentOrigin = localStorage.getItem('hitec_clean_domain'); if (!currentOrigin || currentOrigin.includes('google') || currentOrigin.includes('gemini')) currentOrigin = window.location.origin; 
-    
-    const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0'].join('|');
-    const safeUrlString = btoa(unescape(encodeURIComponent(payloadStr))); 
-    const shareUrl = `${currentOrigin}${window.location.pathname}?d=${safeUrlString}`;
-    
-    const rowData = ["", vehicleNumber || '미입력', carModel || '미입력', targetColorCode || '미지정', jobDescription || '미입력', specialNotes || '', baseStr, pearlStr, detailStr, shareUrl].join('\t');
-    if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(rowData).catch(err => console.error(err));
-    else { const textarea = document.createElement('textarea'); textarea.value = rowData; document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); document.body.removeChild(textarea); }
-  };
-
-  const shareToKakao = () => {
-    let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}g`).join('\n');
-    let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}g`).join('\n');
-    const text = `[PERMAHYD HI-TEC 배합 지시서]\n================================\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 차종: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트 (Ground)]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지제원: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트 (Mid-coat)]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 코트 합계: ${totalPearlWeight}g\n▶ 6052 수지제원: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}g\n================================`;
-    if (typeof navigator !== 'undefined' && navigator.share) navigator.share({ title: 'HI-TEC 조색 데이터 인계', text: text }).catch(console.error);
-    else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
-  };
-
-  // 💡 [요청 사항 완벽 반영] 자동차 렌더러 완전 삭제 및 화려한 3D 광학 렌즈 스펙트럼 이미지로 변경
-  const render3DView = (optics: any) => {
-    let appliedPaintColor = "transparent";
-    let flopColor = "transparent";
-
-    if (optics && optics.mid) {
-      const h = isNaN(optics.mid.h) ? 0 : Math.round(optics.mid.h);
-      const s = isNaN(optics.mid.s) ? 0 : Math.round(optics.mid.s);
-      const l = isNaN(optics.mid.l) ? 90 : Math.round(optics.mid.l);
-      appliedPaintColor = `hsl(${h}, ${s}%, ${l}%)`;
-      
-      const fh = isNaN(optics.flop.h) ? h : Math.round(optics.flop.h);
-      const fs = isNaN(optics.flop.s) ? s : Math.round(optics.flop.s);
-      const fl = isNaN(optics.flop.l) ? Math.max(0, l - 20) : Math.round(optics.flop.l);
-      flopColor = `hsl(${fh}, ${fs}%, ${fl}%)`;
-    }
-
-    // 환상적인 무지개 스펙트럼 리니어 그라데이션 (광학 렌즈 시뮬레이터 배경)
-    const SPECTRUM_GRADIENT = "linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff)";
-
-    return (
-      <div className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-xl shadow-inner border border-slate-300 bg-slate-900">
-        
-        {/* 🌈 1. 생생한 스펙트럼 배경 (절대 어두워지지 않음) */}
-        <div className="absolute inset-0 opacity-90" style={{ background: SPECTRUM_GRADIENT }}></div>
-        
-        {/* 2. 공간감을 위한 비네팅(Vignette) 효과 */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.6)_100%)] z-10 pointer-events-none"></div>
-
-        {/* 3. 중앙에 페인트 컬러를 렌더링하는 광학 렌즈(글래스 플레이트) */}
-        <div className="z-20 w-[80%] h-[70%] rounded-2xl border border-white/30 shadow-[0_15px_35px_rgba(0,0,0,0.5)] flex items-center justify-center backdrop-blur-md relative overflow-hidden"
-             style={{ background: `linear-gradient(135deg, ${appliedPaintColor} 0%, ${flopColor} 100%)` }}>
-             
-             {/* 펄(Pearl) 입자 반짝임 효과 */}
-             {optics?.isMetallic && (
-                <div className="absolute inset-0 mix-blend-color-dodge opacity-60 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}></div>
-             )}
-             
-             {/* 렌즈 광택 (상단 하이라이트) */}
-             <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/40 to-transparent pointer-events-none"></div>
-             
-             {/* 중앙 포커스 아이콘 */}
-             <div className="w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center shadow-lg bg-black/10 backdrop-blur-sm z-30">
-                <ScanLine className="text-white" size={28} />
-             </div>
-        </div>
-      </div>
-    );
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[220px] lg:pb-[150px]">
-      <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-xl font-semibold hidden md:block"><span className="text-white tracking-wide">윤성만님을 위한</span><span className="text-blue-400 font-normal ml-2">조색 PRO</span></h1>
-        </div>
-      </header>
-
-      <div className="flex-1 p-3 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        <div className="lg:col-span-7 flex flex-col bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden">
-          <div className="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3">
-            <div className="flex items-center justify-between"><h2 className="text-sm font-bold text-slate-800 flex items-center"><Sliders className="text-blue-600 mr-2" size={16} />공식 배합 워크 시트</h2></div>
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
-                <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="차량번호" className="bg-white border p-2 rounded text-xs font-bold w-1/3" />
-                <input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="차종" className="bg-white border p-2 rounded text-xs font-bold w-1/3" />
-                <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="컬러코드" className="bg-white border p-2 rounded text-xs font-bold w-1/3 uppercase" />
-              </div>
-              <input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="작업내용" className="bg-white border p-2 rounded text-xs font-bold w-full" />
-              <input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="특이사항 및 스펙 메모 (직접 입력)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400" />
-              
-              <div className="flex w-full gap-2 mt-1">
-                <button onClick={copyToExcel} className="flex-1 bg-green-600 text-white p-2.5 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors"><FileSpreadsheet size={14} className="mr-1"/> 엑셀 연동 복사</button>
-                <button onClick={shareToKakao} className="flex-1 bg-[#FEE500] text-slate-900 p-2.5 rounded text-xs font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors"><Share2 size={14} className="mr-1"/> 모바일 인계</button>
-                <button onClick={handleClearAll} className="bg-red-50 text-red-600 border border-red-200 px-3 rounded flex items-center justify-center hover:bg-red-100 transition-colors"><Trash2 size={16} /></button>
-              </div>
-            </div>
-          </div>
-          
-          <div className="p-3 bg-white">
-            <div className="mb-4 bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg flex items-center justify-between shadow-sm">
-                <div className="flex items-center gap-2"><Beaker size={14} className="text-indigo-600" /><span className="text-xs font-bold text-indigo-800">현장 실시간 용량 배율 변환기</span></div>
-                <div className="flex items-center gap-1.5">
-                    <input type="text" inputMode="decimal" value={scaleFactor} onChange={(e) => setScaleFactor(e.target.value.replace(/[^0-9.]/g, ''))} className="w-10 text-center text-xs font-black text-indigo-700 border rounded py-1" />
-                    <span className="text-[11px] font-bold text-indigo-400 mr-1">배</span>
-                    <button onClick={() => handleScaleAll(true)} className="bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded shadow-sm hover:bg-indigo-700 transition-colors">× 곱하기</button>
-                    <button onClick={() => handleScaleAll(false)} className="bg-white border border-indigo-300 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded shadow-sm hover:bg-indigo-50 transition-colors">÷ 나누기</button>
-                </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-xs font-black text-slate-400 flex justify-between border-b pb-1"><span>▼ 베이스 원색 리스트 (Ground Coat)</span></div>
-              {toners.map((toner) => {
-                const info = TONER_DB[toner.code] || { role: '', type: 'solid', face: '#e2e8f0', flop: '#e2e8f0', desc: '' };
-                const isEffect = info.type !== 'solid' && info.type !== 'binder';
-                return (
-                  <div key={toner.id} className="flex flex-col bg-slate-50 hover:bg-blue-50/50 p-2.5 mb-1.5 rounded-xl border border-slate-200 shadow-sm transition-colors">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center w-full">
-                      <div className="flex flex-col flex-1 w-full">
-                          <div className="flex items-center gap-2 mb-1">
-                              <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
-                                   <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
-                                   <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
-                              </div>
-                              <input 
-                                  ref={el => { codeRefs.current[toner.id] = el; }} 
-                                  value={toner.code} 
-                                  onChange={e => handleCodeChange(toner.id, e.target.value, false)} 
-                                  className="w-20 text-sm font-black uppercase border border-slate-300 rounded p-1 focus:border-blue-500 focus:outline-none shadow-inner" 
-                                  placeholder="코드" 
-                              />
-                              <span className="font-bold text-blue-700 text-sm truncate">{info.role || '미등록 안료'}</span>
-                          </div>
-                          
-                          {info.details && info.details.length > 0 ? (
-                              <div className="flex flex-col gap-0.5 mt-1 ml-[64px]">
-                                  {info.details.slice(0, 2).map((d: any, idx: number) => (
-                                      <div key={idx} className="flex items-start gap-1.5">
-                                          <span className="shrink-0 text-[10px] font-bold text-slate-500 leading-none mt-0.5">[{d[0]}]</span>
-                                          <span className="text-[11px] text-slate-600 leading-tight break-keep">{d[1]}</span>
-                                      </div>
-                                  ))}
-                              </div>
-                          ) : <p className="text-[11px] text-slate-500 leading-tight break-keep ml-[64px]">{info.desc}</p>}
-
-                          {toner.history && toner.history.length > 0 && (
-                              <div className="flex items-center gap-1.5 mt-2 ml-[64px] text-[10px] text-slate-500 bg-slate-100 px-2 py-1 rounded">
-                                  <span className="font-bold">이력 ({toner.history.length}회):</span>
-                                  <div className="flex gap-1 flex-wrap">
-                                      {toner.history.map((hVal: string, hIdx: number) => (
-                                          <button key={hIdx} onClick={() => quickEditWeight(toner.id, parseFloat(hVal) - parseFloat(toner.adjustedWeight||'0'), false)} className="hover:text-blue-600 hover:font-bold transition-colors">{hIdx + 1}({hVal}g)</button>
-                                      ))}
-                                  </div>
-                              </div>
-                          )}
-                      </div>
-
-                      <div className="flex items-center self-end sm:self-auto bg-white border rounded-md px-1.5 py-0.5 shrink-0 shadow-sm mt-2 sm:mt-0">
-                         <button onClick={() => quickEditWeight(toner.id, -0.1, false)} className="px-1.5 py-0.5 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
-                         <input 
-                             ref={el => { weightRefs.current[toner.id] = el; }} 
-                             inputMode="decimal" 
-                             value={toner.adjustedWeight} 
-                             onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} 
-                             onBlur={e => handleWeightBlur(toner.id, e.target.value, false)} 
-                             onKeyDown={e => handleWeightKeyDown(e, toner.id, false)} 
-                             className="w-16 text-right text-base font-black text-blue-600 focus:outline-none clean-number-input mx-1" 
-                             placeholder="0.0" 
-                         />
-                         <button onClick={() => quickEditWeight(toner.id, 0.1, false)} className="px-1.5 py-0.5 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
-                         <span className="text-[10px] font-bold text-slate-400 ml-1 mr-1">g</span>
-                         <button onClick={() => removeToner(toner.id, false)} className="ml-1"><Trash2 size={16} className="text-slate-300 hover:text-red-500 transition-colors"/></button>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-              <button onClick={() => addToner(false)} className="w-full py-2 border border-dashed rounded-lg text-slate-400 font-bold text-xs flex justify-center items-center hover:bg-blue-50 hover:text-blue-500 hover:border-blue-400 transition-colors"><Plus size={12} className="mr-1"/>베이스 안료 추가</button>
-            </div>
-            
-            <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between">
-                <label className="flex items-center cursor-pointer bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm hover:bg-purple-50 transition-colors">
-                  <span className="mr-2 text-xs font-black text-purple-700">3Coat (펄 추가) 켜기</span>
-                  <div className="relative">
-                    <input type="checkbox" className="sr-only" checked={isThreeCoatMode} onChange={() => setIsThreeCoatMode(!isThreeCoatMode)} />
-                    <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isThreeCoatMode ? 'bg-purple-500' : 'bg-slate-300'}`}></div>
-                    <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isThreeCoatMode ? 'transform translate-x-5' : ''}`}></div>
-                  </div>
-                </label>
-            </div>
-
-            {isThreeCoatMode && (
-              <div className="pt-4 mt-4 border-t border-purple-200 space-y-2 pb-8">
-                <div className="text-xs font-black text-purple-700 flex justify-between border-b pb-1"><span>▼ 펄 코트 (Mid Coat)</span></div>
-                {pearlToners.map((toner) => {
-                  const info = TONER_DB[toner.code] || { role: '', type: 'solid', face: '#e2e8f0', flop: '#e2e8f0', desc: '' };
-                  const isEffect = info.type !== 'solid' && info.type !== 'binder';
-                  return (
-                    <div key={toner.id} className="flex flex-col bg-purple-50 p-2.5 mb-1.5 rounded-xl border border-purple-200 shadow-sm transition-colors hover:bg-purple-100/50">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center w-full">
-                        <div className="flex flex-col flex-1 w-full pl-2">
-                            <div className="flex items-center gap-2 mb-1">
-                                <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
-                                     <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
-                                     <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
-                                </div>
-                                <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code} onChange={e => handleCodeChange(toner.id, e.target.value, true)} inputMode="numeric" pattern="[0-9]*" className="w-24 text-sm font-black uppercase border border-purple-200 rounded px-1.5 py-0.5 text-purple-800 shadow-inner focus:outline-none focus:border-purple-500" placeholder="코드" />
-                                <span className="font-bold text-purple-700 text-sm truncate">{info.role || '미등록 안료'}</span>
-                            </div>
-                            
-                            {info.details && info.details.length > 0 ? (
-                                <div className="flex flex-col gap-0.5 mt-1 ml-[64px]">
-                                    {info.details.slice(0, 2).map((d: any, idx: number) => (
-                                        <div key={idx} className="flex items-start gap-1.5">
-                                            <span className="shrink-0 text-[10px] font-bold text-purple-500 leading-none mt-0.5">[{d[0]}]</span>
-                                            <span className="text-[11px] text-slate-600 leading-tight break-keep">{d[1]}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : <p className="text-[11px] text-slate-500 leading-tight break-keep ml-[64px]">{info.desc}</p>}
-
-                            {toner.history && toner.history.length > 0 && (
-                                <div className="flex items-center gap-1.5 mt-2 ml-[64px] text-[10px] text-purple-500 bg-purple-100 px-2 py-1 rounded">
-                                    <span className="font-bold">이력 ({toner.history.length}회):</span>
-                                    <div className="flex gap-1 flex-wrap">
-                                        {toner.history.map((hVal: string, hIdx: number) => (
-                                            <button key={hIdx} onClick={() => quickEditWeight(toner.id, parseFloat(hVal) - parseFloat(toner.adjustedWeight||'0'), true)} className="hover:text-purple-700 hover:font-bold transition-colors">{hIdx + 1}({hVal}g)</button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        <div className="flex items-center self-end sm:self-auto bg-white border border-purple-100 rounded-md px-1.5 py-0.5 shrink-0 shadow-sm mt-2 sm:mt-0">
-                           <button onClick={() => quickEditWeight(toner.id, -0.1, true)} className="px-1.5 py-0.5 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
-                           <input ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" value={toner.adjustedWeight} onChange={e => handleWeightInputChange(toner.id, e.target.value, true)} onBlur={e => handleWeightBlur(toner.id, e.target.value, true)} onKeyDown={e => handleWeightKeyDown(e, toner.id, true)} className="w-16 text-right text-base font-black text-purple-600 focus:outline-none clean-number-input mx-1" placeholder="0.0" />
-                           <button onClick={() => quickEditWeight(toner.id, 0.1, true)} className="px-1.5 py-0.5 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
-                           <span className="text-[10px] font-bold text-slate-400 ml-1 mr-1">g</span>
-                           <button onClick={() => removeToner(toner.id, true)} className="ml-1"><Trash2 size={16} className="text-purple-300 hover:text-red-500 transition-colors"/></button>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-                <button onMouseDown={(e) => e.preventDefault()} onClick={() => addToner(true)} className="w-full py-2.5 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-md text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-2 shadow-sm"><Plus size={16} /><span>펄 조색제 추가</span></button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 우측 컬럼: 3D 그래픽 엔진 & 카탈로그 */}
-        <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
-          <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
-            <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
-              <h3 className="text-xs font-black mb-2 flex justify-between items-center text-slate-800">
-                <span className="flex items-center"><Sun size={14} className="mr-1 text-orange-500"/> ✨ STUDIO 3D 광학 조정 시뮬레이터</span>
-                <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"><Maximize size={10} className="mr-1"/>먼셀 컬러 믹싱 랩</button>
-              </h3>
-              
-              <div className="h-44 rounded-xl overflow-hidden shadow-inner border border-slate-300 bg-slate-800 bg-cover bg-center flex items-center justify-center cursor-pointer relative group" onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }}>
-                  <div className="relative z-10 w-full h-full">
-                      {render3DView(finalOptics)}
-                  </div>
-                  <div className="absolute top-3 left-3 bg-white/90 text-slate-800 text-[10px] font-black px-2.5 py-1 rounded shadow backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity z-20 flex items-center">
-                      <Maximize size={12} className="mr-1 text-blue-600"/> 화면을 클릭하여 스튜디오 크게 열기
-                  </div>
-              </div>
-            </div>
-
-            <div className="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0">
-                <h3 className="text-white font-black text-sm flex items-center"><BookOpen className="mr-2 text-blue-400" size={18}/>지능형 안료 도감</h3>
-                <span className="text-[10px] text-slate-500 hidden sm:block mx-auto flex-1 text-center font-bold">전체 안료 데이터 열람 영역</span>
-                <div className="relative w-40"><input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="검색 (예: 블루)" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 transition-colors" /><Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" /></div>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
-                {sortedCatalog.map((item) => {
-                    const isMetallic = item.type !== 'solid' && item.type !== 'binder';
-                    const isCurrentlyUsed = activeCodes.includes(item.code);
-                    
-                    const getBadgeClass = (title: string) => {
-                        if(title.includes("일반")) return "bg-emerald-50 text-emerald-700 border-emerald-200";
-                        if(title.includes("외관")) return "bg-blue-50 text-blue-700 border-blue-200";
-                        if(title.includes("용도")) return "bg-purple-50 text-purple-700 border-purple-200";
-                        if(title.includes("혼합")) return "bg-amber-50 text-amber-700 border-amber-200";
-                        if(title.includes("경고") || title.includes("주의")) return "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
-                        return "bg-slate-50 text-slate-700 border-slate-200";
-                    };
-
-                    return (
-                        <div key={item.code} className={`flex flex-col bg-white rounded-xl shadow-sm border overflow-hidden transition-all duration-300 ${isCurrentlyUsed ? 'border-2 border-blue-500 shadow-md transform scale-[1.01]' : 'border-slate-200 hover:border-blue-300 hover:shadow-md cursor-pointer'}`} onClick={() => setSelectedTonerForView(item.code)}>
-                            <div className="h-12 w-full relative transition-all border-b border-slate-200" style={getCachedTexture(item.type, item.face, item.flop, isMetallic)}>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                                <div className="absolute bottom-1.5 left-3 text-white text-sm font-black drop-shadow-md">{item.code} <span className="text-[10px] font-normal opacity-90 ml-1">{item.role}</span></div>
-                                {isCurrentlyUsed && <div className="absolute top-1.5 right-2 bg-blue-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold shadow">배합 중</div>}
-                            </div>
-                            <div className="p-3 flex flex-col gap-1.5">
-                                {item.details?.map((d: any, idx: number) => (
-                                    <div key={idx} className="flex items-start gap-2">
-                                        <span className={`shrink-0 inline-flex px-1.5 py-0.5 text-[9px] font-bold rounded border leading-none mt-0.5 ${getBadgeClass(d[0])}`}>{d[0]}</span>
-                                        <span className="text-[11px] text-slate-700 leading-snug break-keep">{d[1]}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="fixed bottom-0 left-0 w-full p-3 sm:p-4 bg-slate-950 text-slate-100 flex flex-col lg:flex-row justify-between items-center z-[500] border-t-4 border-indigo-900 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] gap-4 backdrop-blur-md">
-          <div className="flex w-full lg:w-auto gap-4 flex-col sm:flex-row justify-between lg:justify-start">
-              <div className="flex flex-col gap-1 flex-1 min-w-[240px]">
-                 <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Layers size={11} className="mr-1 text-blue-400"/> A. 베이스 코트 실시간 중량</span>
-                 <div className="flex items-center justify-between bg-slate-900/90 px-3 py-2.5 rounded-xl border border-slate-800 shadow-inner text-xs">
-                     <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-white text-sm">{totalBaseWeight}g</span></div>
-                     <span className="text-slate-600 font-black text-sm">+</span>
-                     <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold">6052 수지 ({isBaseMetallic ? '20%' : '10%'})</span><span className="font-black text-blue-400 text-sm">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
-                     <span className="text-slate-600 font-black text-sm">=</span>
-                     <div className="flex flex-col items-center bg-blue-950/40 px-2 py-0.5 rounded border border-blue-900/50"><span className="text-[9px] text-emerald-400 font-bold">총 중량</span><span className="font-black text-emerald-400 text-base">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 1.2 : 1.1)).toFixed(1)}g</span></div>
-                 </div>
-              </div>
-              
-              {isThreeCoatMode && (
-              <div className="flex flex-col gap-1 flex-1 min-w-[240px]">
-                 <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Zap size={11} className="mr-1 text-purple-400"/> B. 펄 코트 실시간 중량</span>
-                 <div className="flex items-center justify-between bg-slate-900/90 px-3 py-2.5 rounded-xl border border-slate-800 shadow-inner text-xs">
-                     <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-white text-sm">{totalPearlWeight}g</span></div>
-                     <span className="text-slate-600 font-black text-sm">+</span>
-                     <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold">6052 수지 ({isPearlMetallic ? '20%' : '10%'})</span><span className="font-black text-purple-400 text-sm">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
-                     <span className="text-slate-600 font-black text-sm">=</span>
-                     <div className="flex flex-col items-center bg-purple-950/40 px-2 py-0.5 rounded border border-purple-900/50"><span className="text-[9px] text-emerald-400 font-bold">총 중량</span><span className="font-black text-emerald-400 text-base">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 1.2 : 1.1)).toFixed(1)}g</span></div>
-                 </div>
-              </div>
-              )}
-          </div>
-
-          <div className="flex flex-col items-center justify-center shrink-0 bg-gradient-to-br from-amber-950/50 to-yellow-900/20 border-2 border-yellow-500/60 px-6 py-2 rounded-xl w-full lg:w-auto shadow-[0_0_25px_rgba(234,179,8,0.2)]">
-             <span className="text-[11px] text-yellow-500 font-black tracking-widest flex items-center uppercase"><Beaker size={13} className="mr-1"/> ✨ 최종 도막 혼합 총량</span>
-             <span className="text-3xl font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">
-                 {(
-                     parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 1.2 : 1.1)).toFixed(1)) + 
-                     (isThreeCoatMode ? parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 1.2 : 1.1)).toFixed(1)) : 0)
-                 ).toFixed(1)}<span className="text-lg font-bold text-yellow-600 ml-0.5">g</span>
-             </span>
-          </div>
-      </div>
-
-      {selectedTonerForView && TONER_DB[selectedTonerForView] && (
-        <div className="fixed inset-0 bg-slate-900/90 z-[700] flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in">
-           <div className="bg-white rounded-2xl w-[650px] max-w-full shadow-2xl overflow-hidden border flex flex-col max-h-[90vh]">
-              <div className="bg-slate-900 p-3.5 flex justify-between items-center text-white shrink-0 border-b-4 border-blue-600">
-                 <h3 className="text-sm font-black flex items-center"><Droplet size={16} className="mr-1.5 text-blue-400"/> {selectedTonerForView} 정밀 광학 & 먼셀 분석 보드</h3>
-                 <button onClick={() => setSelectedTonerForView(null)} className="hover:text-red-400 transition-colors bg-slate-800 p-1 rounded-full"><X size={18}/></button>
-              </div>
-              <div className="p-5 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
-                 <div className="text-xl font-black text-slate-800 mb-3">{TONER_DB[selectedTonerForView].role}</div>
-                 
-                 {(()=>{
-                     const activeT = [...toners, ...pearlToners].find(t => t.code === selectedTonerForView);
-                     const cWeight = activeT ? (parseFloat(activeT.adjustedWeight) || 0) : 0;
-                     return getMunsellDynamicDescription(selectedTonerForView, TONER_DB[selectedTonerForView].role, TONER_DB[selectedTonerForView].type, cWeight);
-                 })()}
-
-                 <div className="flex flex-col gap-2 bg-white p-4 rounded-lg border border-slate-200 mb-4 shadow-sm">
-                    {TONER_DB[selectedTonerForView].details?.map((d: any, idx: number) => {
-                        const getBadgeClass = (title: string) => {
-                            if(title.includes("일반")) return "bg-emerald-50 text-emerald-700 border-emerald-200";
-                            if(title.includes("외관")) return "bg-blue-50 text-blue-700 border-blue-200";
-                            if(title.includes("용도")) return "bg-purple-50 text-purple-700 border-purple-200";
-                            if(title.includes("혼합")) return "bg-amber-50 text-amber-700 border-amber-200";
-                            if(title.includes("경고") || title.includes("주의")) return "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
-                            return "bg-slate-50 text-slate-700 border-slate-200";
-                        };
-                        return (
-                        <div key={idx} className="flex items-start gap-2.5">
-                            <span className={`shrink-0 px-2 py-0.5 text-[10px] font-bold rounded border ${getBadgeClass(d[0])}`}>{d[0]}</span>
-                            <span className="text-xs text-slate-700 leading-relaxed break-keep mt-0.5">{d[1]}</span>
-                        </div>
-                    )})}
-                 </div>
-
-                 <div className="mb-4">
-                     <div className="text-[10px] font-black text-slate-500 mb-1 flex items-center"><Search size={10} className="mr-1"/> 수동 특이사항 메모 (자동 저장)</div>
-                     <textarea
-                         value={tonerMemos[selectedTonerForView] || ''}
-                         onChange={(e) => setTonerMemos(prev => ({ ...prev, [selectedTonerForView]: e.target.value }))}
-                         placeholder={`여기에 [${selectedTonerForView}] 안료에 대한 현장 작업 메모나 특이사항을 직접 기록하세요...\n(※ 작성하신 메모는 안료별로 영구 저장됩니다.)`}
-                         className="w-full bg-yellow-50 border border-yellow-300 p-3 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-inner resize-none h-20"
-                     />
-                 </div>
-
-                 <div className="flex gap-4 mt-2">
-                    <div className="flex-1">
-                       <div className="text-[10px] font-black text-center text-white bg-slate-800 py-1.5 rounded-t-lg tracking-widest">정면 반사광 (Face 15°)</div>
-                       <div className="h-32 rounded-b-lg border border-slate-300 relative overflow-hidden shadow-inner" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'face')}}>
-                           {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-50"></div>}
-                       </div>
-                    </div>
-                    <div className="flex-1">
-                       <div className="text-[10px] font-black text-center text-white bg-slate-800 py-1.5 rounded-t-lg tracking-widest">측면 음영 (Flop 110°)</div>
-                       <div className="h-32 rounded-b-lg border border-slate-300 relative overflow-hidden shadow-inner" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'flop')}}>
-                           {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-30"></div>}
-                       </div>
-                    </div>
-                 </div>
-                 <button onClick={() => setSelectedTonerForView(null)} className="bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-black w-full text-sm mt-5 shadow-md transition-colors">분석창 닫기</button>
-              </div>
-           </div>
-        </div>
-      )}
-
-      {/* 💡 과거 데이터를 불러오는 새 탭 모달 */}
-      {restoredViewData && (
-        <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
-            <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-[#1e293b]">
-              <h3 className="text-white font-bold flex items-center gap-2">
-                <History size={18} className="text-blue-400" /> 과거 구성에 따른 구성
-              </h3>
-              <button 
-                onClick={() => { setRestoredViewData(null); window.close(); }} 
-                className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto custom-scrollbar max-h-[70vh] bg-[#0f172a] space-y-6">
-              <div className="grid grid-cols-2 gap-4 bg-[#1e293b] p-4 rounded-xl border border-slate-700/50">
-                <div>
-                  <div className="text-[10px] text-slate-400 mb-1">차량번호</div>
-                  <div className="text-sm font-bold text-white">{restoredViewData.v || restoredViewData.vehicleNumber || '미입력'}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 mb-1">차종</div>
-                  <div className="text-sm font-bold text-white">{restoredViewData.m || restoredViewData.carModel || '미입력'}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 mb-1">컬러코드</div>
-                  <div className="text-sm font-bold text-blue-400 uppercase">{restoredViewData.c || restoredViewData.targetColorCode || '미지정'}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 mb-1">작업 내용</div>
-                  <div className="text-sm font-bold text-white leading-snug">{restoredViewData.j || restoredViewData.jobDescription || '미입력'}</div>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-slate-300 mb-3 flex items-center gap-2">
-                  <Layers size={14} /> 베이스 코트 (Ground Coat)
-                </h4>
-                <div className="space-y-2">
-                  {(restoredViewData.b || restoredViewData.toners || [])?.filter((t: any) => t.code).map((t: any, idx: number) => (
-                    <div key={idx} className="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-xl border border-slate-700/50">
-                      <div className="flex items-center gap-3">
-                        <span className="text-white font-bold text-sm">무게 {t.code.replace('WT ', '')}</span>
-                        <span className="text-xs text-slate-500">{TONER_DB[t.code]?.role || ''}</span>
-                      </div>
-                      <span className="text-blue-400 font-bold">{t.adjustedWeight}g</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {((restoredViewData.t !== undefined ? restoredViewData.t : restoredViewData.isThreeCoatMode)) && (restoredViewData.p || restoredViewData.pearlToners || [])?.filter((t: any) => t.code).length > 0 && (
-                <div>
-                  <h4 className="text-xs font-bold text-purple-400 mb-3 flex items-center gap-2 mt-2">
-                    <Zap size={14} /> 펄코트 (Mid Coat)
-                  </h4>
-                  <div className="space-y-2">
-                    {(restoredViewData.p || restoredViewData.pearlToners || []).filter((t: any) => t.code).map((t: any, idx: number) => (
-                      <div key={idx} className="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-xl border border-purple-900/30">
-                        <div className="flex items-center gap-3">
-                          <span className="text-white font-bold text-sm">무게 {t.code.replace('WT ', '')}</span>
-                          <span className="text-xs text-slate-500">{TONER_DB[t.code]?.role || ''}</span>
-                        </div>
-                        <span className="text-purple-400 font-bold">{t.adjustedWeight}g</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="p-4 bg-[#1e293b] border-t border-slate-700/50">
-              <button 
-                onClick={() => { setRestoredViewData(null); window.close(); }} 
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
-              >
-                닫기 및 진행 중으로 돌아가기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isConfiguratorOpen && (
-        <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-auto custom-scrollbar">
-          <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
-            <h2 className="text-base font-black tracking-widest text-slate-300 uppercase flex items-center"><Beaker className="mr-2 text-indigo-500"/> 먼셀 컬러 믹싱 스튜디오 (Munsell Mixing Lab)</h2>
-            <button onClick={() => setIsConfiguratorOpen(false)} className="p-2 bg-slate-800 hover:bg-red-600 rounded-full border border-slate-700 transition-colors"><X size={18}/></button>
-          </header>
-          
-          <main className="flex-1 p-6 md:p-10 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950">
-             <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-12 mb-8 items-center">
-                 <div className="flex flex-col items-center relative w-full h-full justify-center">
-                     <h3 className="text-lg font-black text-white mb-6 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg"><Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)</h3>
-                     <div className="relative flex justify-center items-center w-[360px] h-[360px] md:w-[420px] md:h-[420px]">
-                        <svg className="w-full h-full drop-shadow-[0_0_50px_rgba(0,0,0,0.8)]" viewBox="0 0 400 400">
-                            <defs>
-                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                    <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
-                                </marker>
-                            </defs>
-
-                            {MUNSELL_WHEEL_COLORS.map((color, index) => {
-                                const startAngle = index * 18;
-                                const endAngle = (index + 1) * 18 - 1; 
-                                const pathData = describeArc(200, 200, 100, 170, startAngle, endAngle); 
-                                const isSelected = selectedWheelIndex === index;
-                                
-                                return (
-                                    <path 
-                                        key={index} 
-                                        d={pathData} 
-                                        fill={color.hex} 
-                                        stroke={isSelected ? "#ffffff" : "transparent"} 
-                                        strokeWidth={isSelected ? "3" : "0"}
-                                        className={`cursor-pointer transition-all duration-300 hover:opacity-80`}
-                                        onClick={(e) => { e.stopPropagation(); handleWheelClick(index); }}
-                                        style={{ transformOrigin: '200px 200px', transform: isSelected ? 'scale(1.05)' : 'scale(1)' }}
-                                    />
-                                );
-                            })}
-
-                            {MUNSELL_WHEEL_COLORS.map((color, index) => {
-                                const midAngle = index * 18 + 8.5; 
-                                const pos = polarToCartesian(200, 200, 185, midAngle); 
-                                let textRotation = midAngle;
-                                if (midAngle > 90 && midAngle < 270) textRotation += 180;
-
-                                return (
-                                    <g key={`label_${index}`} transform={`rotate(${textRotation}, ${pos.x}, ${pos.y})`}>
-                                        <text x={pos.x} y={pos.y - 4} fill="#cbd5e1" fontSize="10" fontWeight="bold" textAnchor="middle" className="pointer-events-none drop-shadow-md">{color.name}</text>
-                                        <text x={pos.x} y={pos.y + 6} fill="#64748b" fontSize="8" fontWeight="normal" textAnchor="middle" className="pointer-events-none">({color.symbol})</text>
-                                    </g>
-                                );
-                            })}
-
-                            <circle cx="200" cy="200" r="98" fill="#0f172a" stroke="#1e293b" strokeWidth="2" />
-                            <text x="200" y="195" fill="#94a3b8" fontSize="14" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" className="tracking-widest">MUNSELL</text>
-                            <text x="200" y="215" fill="#ffffff" fontSize="16" fontWeight="900" textAnchor="middle" dominantBaseline="middle">표준 색상환</text>
-
-                            {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] && (
-                                <line 
-                                    x1={polarToCartesian(200, 200, 80, selectedWheelIndex * 18 + 8.5).x} 
-                                    y1={polarToCartesian(200, 200, 80, selectedWheelIndex * 18 + 8.5).y} 
-                                    x2={polarToCartesian(200, 200, 80, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).x} 
-                                    y2={polarToCartesian(200, 200, 80, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).y} 
-                                    stroke="#ef4444" 
-                                    strokeWidth="3.5" 
-                                    markerEnd="url(#arrowhead)" 
-                                    className="drop-shadow-[0_0_12px_rgba(239,68,68,1)] pointer-events-none"
-                                />
-                            )}
-                        </svg>
-                     </div>
-                 </div>
-
-                 <div className="flex flex-col items-center w-full h-full justify-center">
-                    <div className="bg-[#111111] rounded-3xl p-8 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[420px] mx-auto h-full min-h-[360px] justify-center">
-                        <h4 className="text-xl font-black text-white mb-8 tracking-widest flex items-center"><BookOpen className="mr-2 text-blue-400" size={20}/>RGB <span className="text-xs text-slate-500 ml-2 font-normal">Additive Color (빛의 혼합)</span></h4>
-                        <div className="w-56 h-56 relative">
-                            <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
-                                <circle cx="75" cy="75" r="55" fill="#0000FF" style={{ mixBlendMode: 'screen' }} />
-                                <circle cx="125" cy="75" r="55" fill="#FF0000" style={{ mixBlendMode: 'screen' }} />
-                                <circle cx="100" cy="120" r="55" fill="#00FF00" style={{ mixBlendMode: 'screen' }} />
-                                
-                                <g stroke="#ffffff" strokeWidth="1" strokeOpacity="0.5">
-                                    <line x1="75" y1="75" x2="30" y2="40" />
-                                    <line x1="125" y1="75" x2="170" y2="40" />
-                                    <line x1="100" y1="120" x2="100" y2="175" />
-                                    <line x1="100" y1="55" x2="100" y2="25" /> 
-                                    <line x1="75" y1="105" x2="30" y2="130" /> 
-                                    <line x1="125" y1="105" x2="170" y2="130" /> 
-                                    <line x1="100" y1="90" x2="150" y2="90" /> 
-                                </g>
-                                <g fill="#ffffff" fontSize="10" fontWeight="bold" textAnchor="middle" className="drop-shadow-md">
-                                    <text x="25" y="35">Blue</text>
-                                    <text x="175" y="35">Red</text>
-                                    <text x="100" y="185">Green</text>
-                                    <text x="100" y="20" fill="#FF00FF">Magenta</text>
-                                    <text x="25" y="140" fill="#00FFFF">Cyan</text>
-                                    <text x="175" y="140" fill="#FFFF00">Yellow</text>
-                                    <rect x="155" y="82" width="30" height="14" fill="#ffffff" rx="2" />
-                                    <text x="170" y="93" fill="#000000">White</text>
-                                </g>
-                            </svg>
-                        </div>
-                    </div>
-                 </div>
-
-                 <div className="flex flex-col items-center w-full h-full justify-center">
-                    {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
-                        <div className="bg-slate-800 p-8 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] mx-auto min-h-[360px] flex flex-col justify-center text-center animate-in fade-in zoom-in duration-300">
-                            <h4 className="text-xl font-black text-white mb-8 flex items-center justify-center gap-3">
-                                <span className="w-6 h-6 rounded-full shadow-md border border-slate-400" style={{backgroundColor: MUNSELL_WHEEL_COLORS[selectedWheelIndex].hex}}></span>
-                                {MUNSELL_WHEEL_COLORS[selectedWheelIndex].name} ({MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol}) 배합 규격
-                            </h4>
-                            <div className="flex justify-center items-center gap-6 bg-slate-900 py-8 px-4 rounded-xl border border-slate-700 w-full">
-                                {MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol] ? (
-                                    <div className="flex flex-row justify-center items-center gap-6 w-full">
-                                        <div className="flex flex-col items-center gap-3">
-                                            <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].h1}}></div>
-                                            <span className="text-slate-300 font-bold text-sm">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c1}</span>
-                                            <span className="text-white font-black text-3xl">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].r1}%</span>
-                                        </div>
-                                        {MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c2 && (
-                                            <div className="flex flex-row justify-center items-center gap-6">
-                                                <span className="text-slate-600 font-black text-2xl">+</span>
-                                                <div className="flex flex-col items-center gap-3">
-                                                    <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].h2}}></div>
-                                                    <span className="text-slate-300 font-bold text-sm">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c2}</span>
-                                                    <span className="text-white font-black text-3xl">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].r2}%</span>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="text-red-400 text-sm font-bold w-full text-center">배합 데이터를 불러올 수 없습니다.</div>
-                                )}
-                            </div>
-                            <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
-                        </div>
-                    ) : (
-                        <div className="bg-slate-800/40 p-8 rounded-3xl border border-slate-700 border-dashed w-full max-w-[420px] mx-auto min-h-[360px] flex flex-col items-center justify-center gap-4 text-center text-slate-500">
-                            <Sun className="text-slate-600 mb-2" size={40} />
-                            <p className="text-base font-bold text-slate-400">색상환에서 컬러를 클릭하세요.</p>
-                            <p className="text-sm">선택된 색상의 원색 조색 배율이<br/>이곳에 표시됩니다.</p>
-                        </div>
-                    )}
-                 </div>
-
-                 <div className="flex flex-col items-center w-full h-full justify-center">
-                    <div className="bg-[#f8f9fa] rounded-3xl p-8 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[420px] mx-auto h-full min-h-[360px] justify-center">
-                        <h4 className="text-xl font-black text-slate-900 mb-8 tracking-widest flex items-center"><BookOpen className="mr-2 text-pink-500" size={20}/>CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color (물감의 혼합)</span></h4>
-                        <div className="w-56 h-56 relative">
-                            <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
-                                <circle cx="75" cy="75" r="55" fill="#00FFFF" style={{ mixBlendMode: 'multiply' }} />
-                                <circle cx="125" cy="75" r="55" fill="#FF00FF" style={{ mixBlendMode: 'multiply' }} />
-                                <circle cx="100" cy="120" r="55" fill="#FFFF00" style={{ mixBlendMode: 'multiply' }} />
-                                
-                                <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
-                                    <line x1="75" y1="75" x2="30" y2="40" />
-                                    <line x1="125" y1="75" x2="170" y2="40" />
-                                    <line x1="100" y1="120" x2="100" y2="175" />
-                                    <line x1="100" y1="55" x2="100" y2="25" /> 
-                                    <line x1="75" y1="105" x2="30" y2="130" /> 
-                                    <line x1="125" y1="105" x2="170" y2="130" /> 
-                                    <line x1="100" y1="90" x2="150" y2="90" /> 
-                                </g>
-                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle">
-                                    <text x="25" y="35">Cyan</text>
-                                    <text x="175" y="35">Magenta</text>
-                                    <text x="100" y="185">Yellow</text>
-                                    <text x="100" y="20" fill="#0000FF">Blue</text>
-                                    <text x="25" y="140" fill="#008000">Green</text>
-                                    <text x="175" y="140" fill="#FF0000">Red</text>
-                                    <rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" />
-                                    <text x="170" y="93" fill="#ffffff">Black</text>
-                                </g>
-                            </svg>
-                        </div>
-                    </div>
-                 </div>
-
-             </div>
-
-             <div className="mt-4 pb-12 w-full flex justify-center">
-                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg">
-                    <X size={24} /> 믹싱 스튜디오 닫기
-                </button>
-             </div>
-          </main>
-        </div>
-      )}
-    </div>
-  );
-}
+// 💡 FORD 색상 데이터베이스 (직접 제공해주신 모든 데이터를 포함합니다!)
+export const FORD_COLORS = [
+  { code: 'AZ', name: '펄' },
+  { code: 'RR', name: '틴티드 투명' },
+  { code: 'AZ', name: '바탕' },
+  { code: '6999', name: 'ZINC YELLOW' },
+  { code: 'B7', name: 'ZINC YELLOW' },
+  { code: '7005', name: 'ZINC YELLOW' },
+  { code: '7269', name: 'ZIGZAG BLACK' },
+  { code: '', name: 'ZAFIRO MEDIO' },
+  { code: '7461', name: 'YELLOWSTONE' },
+  { code: 'RH', name: 'YELLOW SPLASH' },
+  { code: 'CB', name: 'YELLOW PEEL' },
+  { code: '', name: 'YELLOW GREEN' },
+  { code: '7238', name: 'YELLOW BLAZE' },
+  { code: '', name: 'YELLOW' },
+  { code: 'V', name: 'YELLOW' },
+  { code: 'X-0820-F', name: 'YELLOW' },
+  { code: '6719D', name: 'YELLOW' },
+  { code: 'TY', name: 'YELLOW' },
+  { code: 'WT6642', name: 'YELLOW' },
+  { code: 'W6695F', name: 'YELLOW' },
+  { code: '5791', name: 'YELLOW' },
+  { code: '6515', name: 'YELLOW' },
+  { code: 'CD', name: 'WOODROSE' },
+  { code: 'M6948D', name: 'WOODLAND GREEN (2)' },
+  { code: '6948', name: 'WOODLAND GREEN' },
+  { code: '6873', name: 'WOODLAND GREEN' },
+  { code: 'WAWEWHA', name: 'WOODLAND GREEN' },
+  { code: '6016', name: 'WINTER WHITE' },
+  { code: '37L', name: 'WINNING BLUE' },
+  { code: '4CC', name: 'WINNING BLUE' },
+  { code: 'WAZA', name: 'WINGREEN' },
+  { code: 'UQ', name: 'WINE RED' },
+  { code: 'P3', name: 'WINDVEIL BLUE' },
+  { code: '5DTAXPD', name: 'WINDVEIL BLUE' },
+  { code: '53W', name: 'WIMBLEDON WHITE N0 2' },
+  { code: 'M', name: 'WIMBLEDON WHITE' },
+  { code: 'N4', name: 'WIMBLEDON WHITE' },
+  { code: 'SD', name: 'WILLOW FROST' },
+  { code: 'SGD', name: 'WILLOW (7)(M)' },
+  { code: 'PN4BW', name: 'WILDTRAK ORANGE' },
+  { code: 'E2', name: 'WILD STRAWBERRY' },
+  { code: '4N', name: 'WILD STRAWBERRY' },
+  { code: 'FC', name: 'WILD GREEN' },
+  { code: '8VJAWHA', name: 'WHITE SUEDE' },
+  { code: '7202', name: 'WHITE SUEDE' },
+  { code: '9VJGWHA', name: 'WHITE PLATINUM' },
+  { code: 'GN', name: 'WHITE GOLD (PALLADIUM GOLD)' },
+  { code: 'PJ6', name: 'WHITE GOLD' },
+  { code: '7362', name: 'WHITE GOLD' },
+  { code: '7VJGWHA', name: 'WHITE CHOCOLATE' },
+  { code: '7180', name: 'WHITE CHOCOLATE' },
+  { code: '3290', name: 'WHITE (7)(M)' },
+  { code: '0046', name: 'WHITE' },
+  { code: 'W', name: 'WHITE' },
+  { code: 'SW', name: 'WHITE' },
+  { code: 'WP', name: 'WHITE' },
+  { code: 'ZTHGWHA', name: 'WHITE' },
+  { code: '6210', name: 'WHITE' },
+  { code: 'YY', name: 'WHITE' },
+  { code: '9D', name: 'WHITE' },
+  { code: 'WT0330', name: 'WHITE' },
+  { code: 'WT0332', name: 'WHITE' },
+  { code: 'M6210', name: 'WHITE' },
+  { code: 'FTKEXWA', name: 'WHISPER' },
+  { code: 'RAPTOR', name: 'WHEEL FLARE GREY' },
+  { code: '6D', name: 'WHEAT' },
+  { code: 'YZ', name: 'WHEAT' },
+  { code: '5941', name: 'WHEAT' },
+  { code: 'MX7001881', name: 'WESTERN NEVADA SUPPLY' },
+  { code: 'MX7001885', name: 'WAXIE BLUE' },
+  { code: '99J385A', name: 'WARM STEEL' },
+  { code: '5856', name: 'WALNUT' },
+  { code: '5922', name: 'WALNUT' },
+  { code: 'PA4', name: 'VOLVO RED' },
+  { code: 'PP', name: 'VIVID CANARY' },
+  { code: 'VT', name: 'VITRO' },
+  { code: 'PPH', name: 'VITREOUS GREEN' },
+  { code: '', name: 'VITAMIN C ORANGE' },
+  { code: 'G9', name: 'VISTA BLUE' },
+  { code: 'PN5', name: 'VIRTUAL BLUE' },
+  { code: 'RC', name: 'VIOLETA MATRIX' },
+  { code: 'T6', name: 'VIOLET GREY' },
+  { code: 'PPHT', name: 'VINTAGE RED' },
+  { code: '7200', name: 'VINTAGE COPPER' },
+  { code: '', name: 'VINO TINT' },
+  { code: 'PCQ', name: 'VIBRANT GREEN' },
+  { code: 'M4215J', name: 'VERY DARK MOCHA (7)(M)' },
+  { code: 'M6845D', name: 'VERMONT GREEN (2)' },
+  { code: 'F7', name: 'VERMONT GREEN' },
+  { code: 'E8', name: 'VERMILLION RED' },
+  { code: 'HN', name: 'VERMILLION RED' },
+  { code: '6D', name: 'VERMILLION RED' },
+  { code: 'M6346A', name: 'VERMILLION (1)(M)' },
+  { code: '6517', name: 'VERMILLION' },
+  { code: '6346', name: 'VERMILLION' },
+  { code: 'F1', name: 'VERMILLION' },
+  { code: '21', name: 'VERMILLION' },
+  { code: '6886', name: 'VERMILION' },
+  { code: '', name: 'VERMELHO WINDSOR PEROL' },
+  { code: '', name: 'VERMELHO TANGER' },
+  { code: '6821.0120', name: 'VERMELHO SEVILHA' },
+  { code: '', name: 'VERMELHO SEVILHA' },
+  { code: '077', name: 'VERMELHO RADIANTE' },
+  { code: '', name: 'VERMELHO OXFORD PEROL' },
+  { code: '203', name: 'VERMELHO MONTEGO' },
+  { code: '', name: 'VERMELHO MONDEGO' },
+  { code: '2086.06846', name: 'VERMELHO MANHATAN PEROL' },
+  { code: '', name: 'VERMELHO MANDARINO P' },
+  { code: '', name: 'VERMELHO MALTA PEROL' },
+  { code: 'E-97', name: 'VERMELHO MALAGA' },
+  { code: '7245', name: 'VERMELHO MAGENTA' },
+  { code: 'FJY', name: 'VERMELHO LUXOR' },
+  { code: '', name: 'VERMELHO LAS VEGAS P' },
+  { code: '4542.5812', name: 'VERMELHO ITAMARY' },
+  { code: 'BRW', name: 'VERMELHO ICARAI' },
+  { code: '1042.09452', name: 'VERMELHO GRANADA' },
+  { code: 'PYE', name: 'VERMELHO FLORIDA' },
+  { code: '8735A', name: 'VERMELHO DINASTIA PEROL' },
+  { code: '1042.06894', name: 'VERMELHO DERBY' },
+  { code: '', name: 'VERMELHO COLONIAL' },
+  { code: '', name: 'VERMELHO CAMBRIDGE PEROL' },
+  { code: '2V', name: 'VERMELHO BRIGHT' },
+  { code: '', name: 'VERMELHO BAVIERA PEROL' },
+  { code: '501', name: 'VERMELHO BARI / BOMBEIRO RED' },
+  { code: 'DCF', name: 'VERMELHO BARI' },
+  { code: '', name: 'VERMELHO BARCELONA PEROL' },
+  { code: 'PWA', name: 'VERMELHO ARPOADOR' },
+  { code: '', name: 'VERMELHO ANTILHAS PEROL' },
+  { code: '', name: 'VERMELHO ALMADA PEROL' },
+  { code: '163', name: 'VERMELHO ALBANY' },
+  { code: '', name: 'VERDE WILLOW P' },
+  { code: 'VV', name: 'VERDE VICTORIA' },
+  { code: '', name: 'VERDE VICTORIA' },
+  { code: '', name: 'VERDE VERMONT' },
+  { code: '9525-A', name: 'VERDE VENEZA' },
+  { code: 'BD', name: 'VERDE TURMALINA' },
+  { code: '9500-A', name: 'VERDE TORTUGA' },
+  { code: '6370.9202', name: 'VERDE TIVOLI' },
+  { code: '065', name: 'VERDE TIROL PEROL' },
+  { code: '5K', name: 'VERDE TAHITI' },
+  { code: '', name: 'VERDE SINTRA' },
+  { code: '5U', name: 'VERDE SINTRA' },
+  { code: 'SHT', name: 'VERDE SAUIPE' },
+  { code: '', name: 'VERDE SAUCE' },
+  { code: '157', name: 'VERDE ROMA PEROL' },
+  { code: '', name: 'VERDE RAVENNA PEROL' },
+  { code: '5Q', name: 'VERDE RAVENNA' },
+  { code: '4542.9880', name: 'VERDE PRIMAVERA' },
+  { code: '5J', name: 'VERDE PINUS' },
+  { code: '', name: 'VERDE PACIFICO PEROL' },
+  { code: '4542.7696', name: 'VERDE OASIS' },
+  { code: 'X7268K', name: 'VERDE MUSGO' },
+  { code: 'MDB', name: 'VERDE MARSELHA' },
+  { code: 'MDB/FAO', name: 'VERDE MARSELHA' },
+  { code: '6GV', name: 'VERDE MARAGOGI' },
+  { code: '', name: 'VERDE MANZANA' },
+  { code: '', name: 'VERDE LINCOLN PEROL' },
+  { code: 'AGR', name: 'VERDE LAGUNA' },
+  { code: '', name: 'VERDE JAMAICA PEROL' },
+  { code: 'SC', name: 'VERDE JALAPENO' },
+  { code: '4542.9900', name: 'VERDE ITAPEVA' },
+  { code: '049', name: 'VERDE HAVAI' },
+  { code: 'VH - DV', name: 'VERDE HACIENDA' },
+  { code: '', name: 'VERDE GRAMADO METALICO' },
+  { code: '4542.9903', name: 'VERDE GRAMADO' },
+  { code: 'AL', name: 'VERDE FILADELFIA PEROL' },
+  { code: 'VT', name: 'VERDE ESTEPA' },
+  { code: 'F03', name: 'VERDE EMERALD P' },
+  { code: '', name: 'VERDE CRISTAL' },
+  { code: '047', name: 'VERDE COPENHAGEN' },
+  { code: '7329', name: 'VERDE COIMBRA - (GREEN ORCHID METALLIC)' },
+  { code: '2086.6382', name: 'VERDE CASSATA' },
+  { code: '', name: 'VERDE CAPRI PEROL' },
+  { code: '041', name: 'VERDE CAPRI' },
+  { code: '2542.07188', name: 'VERDE CAPRI' },
+  { code: '070', name: 'VERDE CAMBRIDGE' },
+  { code: '028', name: 'VERDE CALIPSO PEROL' },
+  { code: '', name: 'VERDE CAIMAN' },
+  { code: '', name: 'VERDE BOSQUE P' },
+  { code: '', name: 'VERDE BOSQUE' },
+  { code: '53', name: 'VERDE BAVARIA' },
+  { code: '4083', name: 'VERDE BALTIMORE' },
+  { code: '2KW', name: 'VERDE BALI' },
+  { code: '', name: 'VERDE AVILA PEROL' },
+  { code: '217-65983', name: 'VERDE AVENTURA' },
+  { code: '9542.9248', name: 'VERDE ATLANTIS' },
+  { code: '9944', name: 'VERDE ASTOR' },
+  { code: 'HB', name: 'VERDE ASPEN' },
+  { code: '', name: 'VERDE ALPINO' },
+  { code: '59', name: 'VERDE ALEXANDRIA' },
+  { code: 'WWA', name: 'VERDE ALEXANDRIA' },
+  { code: '', name: 'VERDE ALAMO P' },
+  { code: '', name: 'VERDE AGUA' },
+  { code: '667-66141', name: 'VERDE ACIDO P' },
+  { code: '', name: 'VERDE' },
+  { code: '', name: 'VENETIAN RED' },
+  { code: '6703', name: 'VENETIAN BLUE' },
+  { code: 'KDREWHA', name: 'VELOCITY BLUE' },
+  { code: '', name: 'VEGAS SILVER' },
+  { code: 'GE', name: 'VAST GREEN' },
+  { code: 'ZY', name: 'VAPOR SILVER' },
+  { code: 'K1', name: 'VAPOR BLUE' },
+  { code: 'BDYEWHA', name: 'VANISH' },
+  { code: '', name: 'VANILLA CREAM' },
+  { code: '7178', name: 'VALENCIA' },
+  { code: 'WT3663', name: 'UPS BROWN' },
+  { code: '', name: 'ULTRAMARINBLAU' },
+  { code: '6615', name: 'ULTRA WHITE' },
+  { code: '6774', name: 'ULTRA WHITE' },
+  { code: 'GN', name: 'ULTRA VIOLET' },
+  { code: 'M6500A', name: 'ULTRA RED (1)' },
+  { code: '6726', name: 'ULTRA RED' },
+  { code: 'WH', name: 'ULTRA RED' },
+  { code: '6551', name: 'ULTRA RED' },
+  { code: 'METEWHA', name: 'ULTRA BLUE' },
+  { code: 'MM', name: 'ULTRA BLUE' },
+  { code: '7433', name: 'TWISTER ORANGE' },
+  { code: 'M6428G', name: 'TWILIGHT BLUE (1)(S)' },
+  { code: 'M6290A', name: 'TWILIGHT BLUE (1)' },
+  { code: 'B', name: 'TWILIGHT BLUE' },
+  { code: '6513', name: 'TWILIGHT BLUE' },
+  { code: 'TB', name: 'TWILIGHT BLUE' },
+  { code: 'BK2', name: 'TWILIGHT BLUE' },
+  { code: 'M2', name: 'TWILIGHT BLUE' },
+  { code: '12K', name: 'TWILIGHT BLUE' },
+  { code: '7295', name: 'TUXEDO BLACK 2' },
+  { code: 'UH', name: 'TUXEDO BLACK' },
+  { code: 'O8', name: 'TUSCANY GOLD' },
+  { code: '9542.9883', name: 'TURQUESA VIENA' },
+  { code: '1042.08405', name: 'TURQUESA MONARCK' },
+  { code: '', name: 'TURQUESA LAGUNA' },
+  { code: 'PSVGFA', name: 'TURINI PURPLE' },
+  { code: '7145', name: 'TUNGSTEN GREY' },
+  { code: '7158', name: 'TUNGSTEN GREY' },
+  { code: 'T8', name: 'TUNGSTEN GREY' },
+  { code: 'PPCN', name: 'TUGELA RED' },
+  { code: 'YEC', name: 'TRUFFLE' },
+  { code: 'A4A', name: 'TRUE RED' },
+  { code: 'KLUEXWA', name: 'TRUE BLUE WATERBASE' },
+  { code: 'KLUEWHA', name: 'TRUE BLUE' },
+  { code: 'O', name: 'TROPICAL TURQUOISE' },
+  { code: 'PPHN', name: 'TROPICA' },
+  { code: '9N8', name: 'TRIVET/LONDON GREY' },
+  { code: 'BV', name: 'TRITON FROST' },
+  { code: 'FEBGWHA', name: 'TRIPLE YELLOW' },
+  { code: '3HCAWHA', name: 'TRACTION GREEN' },
+  { code: 'FD011', name: 'TOURMALLINE GREEN' },
+  { code: 'TG', name: 'TOURMALLARD GREEN' },
+  { code: 'Z5', name: 'TOURMALLARD' },
+  { code: 'XSC2547CM', name: 'TOURMALINE GREEN' },
+  { code: 'TR', name: 'TOREADOR RED' },
+  { code: '6758', name: 'TOREADOR RED' },
+  { code: 'JB', name: 'TOREADOR RED' },
+  { code: 'FJYEXWA', name: 'TOREADOR RED' },
+  { code: '7014', name: 'TOREADOR RED' },
+  { code: 'LC', name: 'TOO GOOD TO BE BLUE' },
+  { code: '3DTC', name: 'TONIC BLUE' },
+  { code: '', name: 'TNT TANGO ORANGE' },
+  { code: 'PD7', name: 'TITANIUM GREY' },
+  { code: 'M6', name: 'TITANIUM GREY' },
+  { code: '30B', name: 'TITANIUM GRAY' },
+  { code: '6534', name: 'TITANIUM FROST' },
+  { code: '6401', name: 'TITANIUM FROST' },
+  { code: 'M6527C', name: 'TITANIUM (1)(M)' },
+  { code: 'M6143G', name: 'TITANIUM (1)(M)' },
+  { code: 'M6345', name: 'TITANIUM (1)' },
+  { code: '4200', name: 'TITANIUM' },
+  { code: '6523', name: 'TITANIUM' },
+  { code: '6117', name: 'TITANIUM' },
+  { code: '6345', name: 'TITANIUM' },
+  { code: 'PG4', name: 'TIN SILVER' },
+  { code: '', name: 'TIMBERLINE GREEN' },
+  { code: 'CU', name: 'TIMBERLINE' },
+  { code: 'PPCJ', name: 'TIMBAUATI TAN' },
+  { code: 'PN4EB', name: 'TIGER EYE' },
+  { code: 'J9', name: 'TIGER EYE' },
+  { code: 'KSE', name: 'THUNDERBIRD BLUE' },
+  { code: 'LY', name: 'THUNDERBIRD BLUE' },
+  { code: '8CNE', name: 'THUNDER GREY' },
+  { code: 'BX', name: 'THROTTLE BLUE' },
+  { code: 'FE95-09610', name: 'THISTLE GREEN' },
+  { code: 'M6783D', name: 'THISTLE (2)' },
+  { code: '6761', name: 'THISTLE' },
+  { code: 'JU', name: 'THISTLE' },
+  { code: 'VA', name: 'TERRAIN' },
+  { code: '8MJEWWA', name: 'TENERE' },
+  { code: '5T', name: 'TECTONIC SILVER' },
+  { code: 'L9', name: 'TECHNO WHITE' },
+  { code: 'P2AD', name: 'TECHNO SILVER' },
+  { code: 'M7528', name: 'TEAL TONIC' },
+  { code: 'M6646D', name: 'TEAL (2)' },
+  { code: 'SK', name: 'TEAL' },
+  { code: '11974', name: 'TEAL' },
+  { code: '6518', name: 'TAUPE' },
+  { code: '5A', name: 'TAUPE' },
+  { code: '1', name: 'TANGO' },
+  { code: 'J8', name: 'TANGIER ORANGE 2' },
+  { code: 'MX706738', name: 'TANGIER ORANGE' },
+  { code: '706738', name: 'TANGIER ORANGE' },
+  { code: 'CN', name: 'TANGERINE' },
+  { code: 'WT3029', name: 'TAN' },
+  { code: 'W3053N', name: 'TAN' },
+  { code: '5441', name: 'TAN' },
+  { code: 'X0113', name: 'TAN' },
+  { code: 'BL', name: 'TAHITIAN' },
+  { code: '7540', name: 'TACTICAL BROWN' },
+  { code: 'M0938', name: 'TACOMA CREAM' },
+  { code: '2DUEXWA', name: 'SVT BLUE' },
+  { code: 'R9', name: 'SURGE BLUE' },
+  { code: '3DREXWA', name: 'SURF RIDER' },
+  { code: 'GW', name: 'SURF BLUE' },
+  { code: 'MX7001820', name: 'SUPER SHUTTLE BLUE' },
+  { code: 'FE95-09320', name: 'SUPER RED EXCELLENT' },
+  { code: '4NVE', name: 'SUPER DARK GREY' },
+  { code: 'RS', name: 'SUNSHINY PURPLE' },
+  { code: '14909', name: 'SUNSET RED' },
+  { code: 'FSQ', name: 'SUNSET AAT' },
+  { code: '7298', name: 'SUNSET' },
+  { code: 'RH', name: 'SUNRISE RED' },
+  { code: '6636', name: 'SUNRISE RED' },
+  { code: '7510', name: 'SUNRISE COPPER' },
+  { code: '7019', name: 'SUNRAY GOLD' },
+  { code: '22V', name: 'SUNLIGHT SILVER' },
+  { code: 'PPCA', name: 'SUNDANCE YELLOW' },
+  { code: 'BP', name: 'SUNBURST GOLD WB' },
+  { code: '7042350', name: 'SUNBELT GREEN' },
+  { code: 'PB2', name: 'SUMMER GREEN/BRIGHT GREEN' },
+  { code: 'PPFX', name: 'SUMMER BLUE' },
+  { code: 'MA902', name: 'SUBLIME' },
+  { code: '15', name: 'SUBLIME' },
+  { code: '6413', name: 'STRAWBERRY RED' },
+  { code: 'MZ', name: 'STRATOSPHERE BLUE' },
+  { code: '32K', name: 'STRATO BLUE' },
+  { code: '6827', name: 'STORM GREY' },
+  { code: 'A0800', name: 'STORM GREY' },
+  { code: '6825', name: 'STORM GRAY' },
+  { code: '7393', name: 'STONE GRAY' },
+  { code: 'D1', name: 'STONE GRAY' },
+  { code: '2026-15', name: 'STILLWATER BLUE' },
+  { code: '7205', name: 'STERLING GREY' },
+  { code: 'SE', name: 'STEEL SILVER' },
+  { code: 'FD103', name: 'STEEL MIST SILVER' },
+  { code: 'WT2823', name: 'STEEL GRAY' },
+  { code: '', name: 'STEEL BLUE' },
+  { code: '7227', name: 'STEEL BLUE' },
+  { code: 'UN', name: 'STEEL BLUE' },
+  { code: 'B9', name: 'STEALTH GRAY' },
+  { code: '', name: 'STATE BLUE' },
+  { code: 'PPH5', name: 'STARLIGHT BLUE' },
+  { code: '7445', name: 'STAR WHITE' },
+  { code: 'BG', name: 'STAR DIAMOND GREEN' },
+  { code: '8GGC', name: 'SQUEEZE' },
+  { code: 'SQ', name: 'SQUEEZE' },
+  { code: '6901', name: 'SPRUCE GREEN' },
+  { code: 'CN', name: 'SPRUCE GREEN' },
+  { code: 'GR', name: 'SPRUCE GREEN' },
+  { code: 'PCTEWHA', name: 'SPRUCE GREEN' },
+  { code: '1955', name: 'SPRINGTIME YELLOW' },
+  { code: '7209', name: 'SPORT BLUE' },
+  { code: 'L1', name: 'SPIRIT BLUE' },
+  { code: '6047', name: 'SPINNAKER BLUE' },
+  { code: 'PN4GH', name: 'SPINEL GREEN' },
+  { code: '9E', name: 'SPECIAL WHITE' },
+  { code: '', name: 'SPARKLING GOLD' },
+  { code: 'PGN', name: 'SPARKLE SILVER' },
+  { code: 'SS', name: 'SPARKLE SILVER' },
+  { code: 'SB', name: 'SPARKLE SILVER' },
+  { code: 'PIM', name: 'SPARKLE GREEN' },
+  { code: 'KG', name: 'SPARKLE GREEN' },
+  { code: 'ENP', name: 'SPANISCHROT' },
+  { code: 'PN4HZ', name: 'SPACE WHITE' },
+  { code: '1006', name: 'SOVEREIGN' },
+  { code: '3YYEWHA', name: 'SONIC BLUE' },
+  { code: '1A', name: 'SOLID RED (2C)' },
+  { code: 'JA6A', name: 'SOLID MATTE BLACK' },
+  { code: 'HE', name: 'SOLAR SILVER' },
+  { code: 'S4', name: 'SOLAR' },
+  { code: 'MX7081285', name: 'SOFT YELLOW' },
+  { code: '25D', name: 'SNOWFLAKE WHITE' },
+  { code: '6JPEWHA', name: 'SMOKESTONE BEIGE' },
+  { code: '7155', name: 'SMOKESTONE BEIGE' },
+  { code: 'TQ', name: 'SMOKED QUARTZ' },
+  { code: '6579', name: 'SMOKE GREY' },
+  { code: 'PN3LS', name: 'SMOKE GREY' },
+  { code: 'M4179H', name: 'SMOKE (7)(M)' },
+  { code: 'M6790', name: 'SMOKE (2)(M)' },
+  { code: '1K', name: 'SMOKE' },
+  { code: '18', name: 'SMOKE' },
+  { code: '6598', name: 'SMOKE' },
+  { code: 'YR', name: 'SMOKE' },
+  { code: '91', name: 'SMOKE' },
+  { code: '6044', name: 'SMOKE' },
+  { code: 'SR', name: 'SIREN RED' },
+  { code: '4480', name: 'SIMBELTON WHITE' },
+  { code: 'PFJ', name: 'SILVERSTONE' },
+  { code: 'M7046A', name: 'SILVERBIRD (1)' },
+  { code: 'YS', name: 'SILVER STONE' },
+  { code: '7422', name: 'SILVER SPRUCE' },
+  { code: '7309', name: 'SILVER SAND' },
+  { code: '5106', name: 'SILVER MOONDUST' },
+  { code: '3P3CWHA', name: 'SILVER LIQUID' },
+  { code: '4', name: 'SILVER JADE' },
+  { code: 'W2813C', name: 'SILVER GRAY' },
+  { code: 'TW', name: 'SILVER FROST' },
+  { code: 'ZJKEWHA', name: 'SILVER FROST' },
+  { code: 'TU', name: 'SILVER FROST' },
+  { code: '7751', name: 'SILVER ECLIPSE' },
+  { code: 'Z6', name: 'SILVER DIAMOND' },
+  { code: 'FE95-09509', name: 'SILVER BLUE' },
+  { code: '3M', name: 'SILVER BLUE' },
+  { code: '2PKEXWA', name: 'SILVER BIRCH' },
+  { code: 'M6909A', name: 'SILVER (1)' },
+  { code: 'ZJMCWHA', name: 'SILVER (1)' },
+  { code: 'C2', name: 'SILVER' },
+  { code: '1056C', name: 'SILVER' },
+  { code: 'ZJJC', name: 'SILVER' },
+  { code: 'ZJQC', name: 'SILVER' },
+  { code: '5299', name: 'SILVER' },
+  { code: '5909', name: 'SILVER' },
+  { code: '5967A', name: 'SILVER' },
+  { code: '6041', name: 'SILVER' },
+  { code: 'Z3', name: 'SILVER' },
+  { code: 'D1', name: 'SILVER' },
+  { code: '1012', name: 'SILVER' },
+  { code: 'M5909A', name: 'SILVER' },
+  { code: 'M5967A', name: 'SILVER' },
+  { code: 'WT2840', name: 'SILVER' },
+  { code: '5299A', name: 'SILVER' },
+  { code: 'M6041A', name: 'SILVER' },
+  { code: '5538', name: 'SILVER' },
+  { code: '14', name: 'SILVER' },
+  { code: '1J', name: 'SILVER' },
+  { code: '1Y', name: 'SILVER' },
+  { code: '15', name: 'SILVER' },
+  { code: '6349', name: 'SILVER' },
+  { code: '3C', name: 'SILVER' },
+  { code: '426', name: 'SILVER' },
+  { code: 'AS', name: 'SILKSTONE GRAY' },
+  { code: '17021', name: 'SIGNAL ORANGE' },
+  { code: '', name: 'SHERWOOD GREEN' },
+  { code: 'WG', name: 'SHERWOOD GREEN' },
+  { code: 'DB', name: 'SHELTER GREEN' },
+  { code: 'PQH', name: 'SHARK BLUE' },
+  { code: '4N5', name: 'SHALE' },
+  { code: 'B', name: 'SHADOW BLUE (7)(M)' },
+  { code: '6048', name: 'SHADOW BLUE' },
+  { code: '6277', name: 'SHADOW BLUE' },
+  { code: 'MF', name: 'SHADOW BLUE' },
+  { code: 'G1', name: 'SHADOW BLACK' },
+  { code: 'DTREWHA', name: 'SHADOW' },
+  { code: 'MX7081238', name: 'SERVICE MASTER YELLOW' },
+  { code: 'CP', name: 'SERENE GREEN' },
+  { code: '5TR', name: 'SEISMIC TAN' },
+  { code: '7419', name: 'SEDONA ORANGE' },
+  { code: '7514', name: 'SEASALT GREEN' },
+  { code: 'MX7001744', name: 'SEARS PARTS AND SERVICE BLUE' },
+  { code: 'NK', name: 'SEAFOAM' },
+  { code: '6DYE', name: 'SEA GREY' },
+  { code: '13854', name: 'SEA GREEN' },
+  { code: 'D6', name: 'SCREAMING YELLOW' },
+  { code: '7121', name: 'SCREAMING YELLOW' },
+  { code: 'M6284', name: 'SCHOOL BUS YELLOW' },
+  { code: 'M4191H', name: 'SCARLET (7)(M)' },
+  { code: 'M-1915A', name: 'SAUTERNE GOLD' },
+  { code: 'SW', name: 'SATIN WHITE' },
+  { code: '5Q4', name: 'SATIN STEEL' },
+  { code: 'TS', name: 'SATIN SILVER' },
+  { code: 'TL', name: 'SATIN SILVER' },
+  { code: 'AQCCXXG', name: 'SATIN NICKEL SILVER' },
+  { code: 'AQCCA', name: 'SATIN GOLD-SILVER NICKEL' },
+  { code: 'T3', name: 'SATELLITE SILVER' },
+  { code: '5QQAXPD', name: 'SATELLITE GREY' },
+  { code: 'M6978D', name: 'SAPPHIRE BLUE' },
+  { code: '8RQEWHA', name: 'SANGRIA RED' },
+  { code: 'PG3', name: 'SANDSTONE BEIGE' },
+  { code: 'XSC2337', name: 'SANDSTONE' },
+  { code: '5707', name: 'SANDSTONE' },
+  { code: '8Z', name: 'SANDLEWOOD' },
+  { code: 'AR', name: 'SANDLEWOOD' },
+  { code: 'M6448A', name: 'SANDALWOOD SPICE' },
+  { code: 'AP', name: 'SANDALWOOD FROST' },
+  { code: '6539', name: 'SANDALWOOD (2)' },
+  { code: 'M6430G', name: 'SANDALWOOD (1)(M)' },
+  { code: 'T', name: 'SAND BEIGE (7)(M)' },
+  { code: '5978', name: 'SAND BEIGE' },
+  { code: '5983', name: 'SAND BEIGE' },
+  { code: 'M5978', name: 'SAND BEIGE' },
+  { code: 'M6302', name: 'SAND BEIGE' },
+  { code: '6106', name: 'SAND BEIGE' },
+  { code: '5676', name: 'SAND' },
+  { code: '5738', name: 'SAND' },
+  { code: '6X0A', name: 'SAND' },
+  { code: 'SD', name: 'SAHARA GOLD' },
+  { code: '11F', name: 'SAHARA GOLD' },
+  { code: 'SH', name: 'SAHARA' },
+  { code: '7498', name: 'SAGE GREEN' },
+  { code: 'DEC', name: 'SADDLE (7)(M)' },
+  { code: 'YFKC', name: 'SABLE SILVER' },
+  { code: 'GU', name: 'SABER' },
+  { code: '686-DT845', name: 'RYDER YELLOW' },
+  { code: '5544', name: 'RUSSET' },
+  { code: 'M4224J', name: 'RUBY RED' },
+  { code: '5R', name: 'RUBY RED' },
+  { code: 'Y', name: 'RUBY' },
+  { code: '702744', name: 'ROYAL TAN' },
+  { code: '7207', name: 'ROYAL RED' },
+  { code: 'M6782D', name: 'ROYAL PLUM (2)(M)' },
+  { code: '6701', name: 'ROYAL PLUM' },
+  { code: '3Y', name: 'ROYAL PLUM' },
+  { code: '58AY', name: 'ROYAL GRAY' },
+  { code: '6746', name: 'ROYAL BLUE' },
+  { code: 'YB', name: 'ROYAL BLUE' },
+  { code: 'KM', name: 'ROYAL BLUE' },
+  { code: 'LE', name: 'ROYAL BLUE' },
+  { code: '6833', name: 'ROYAL BLUE' },
+  { code: '6968', name: 'ROYAL BLUE' },
+  { code: '6188', name: 'ROYAL BLUE' },
+  { code: 'OR', name: 'ROSSO RED' },
+  { code: 'MA495', name: 'ROSSO RED' },
+  { code: '87', name: 'ROSE QUARTZ' },
+  { code: '6254', name: 'ROSE QUARTZ' },
+  { code: '5462', name: 'ROSE' },
+  { code: '5492', name: 'ROSE' },
+  { code: '', name: 'ROJO VINO' },
+  { code: 'RO', name: 'ROJO TERRACOTA' },
+  { code: 'RT', name: 'ROJO TAURINO' },
+  { code: '', name: 'ROJO SPORTY PEROL' },
+  { code: '3D', name: 'ROJO SPORTY (2C)' },
+  { code: 'RR', name: 'ROJO REGIONAL' },
+  { code: 'ECUCWWA', name: 'ROJO PIMIENTA' },
+  { code: 'ECU', name: 'ROJO PARIS' },
+  { code: 'RN', name: 'ROJO NILA' },
+  { code: 'AE', name: 'ROJO MUNICH (2C)' },
+  { code: '3U', name: 'ROJO MONTEGO (2C)' },
+  { code: '', name: 'ROJO MATADOR' },
+  { code: 'AY', name: 'ROJO MALBEC' },
+  { code: 'EB', name: 'ROJO MAGENTA' },
+  { code: '078', name: 'ROJO ITALIA' },
+  { code: '', name: 'ROJO FUTURA' },
+  { code: 'NB', name: 'ROJO FLAMA' },
+  { code: 'QB', name: 'ROJO ETNICO' },
+  { code: 'RD', name: 'ROJO ESTELLO' },
+  { code: 'RE', name: 'ROJO ENCENDIDO' },
+  { code: 'RC', name: 'ROJO CORAL' },
+  { code: '667-66025', name: 'ROJO CORAL' },
+  { code: '3B', name: 'ROJO COLONIAL' },
+  { code: 'AC', name: 'ROJO CAMBRIDGE' },
+  { code: '3X', name: 'ROJO CABERNET' },
+  { code: '3P', name: 'ROJO BORDEAUX' },
+  { code: 'RB', name: 'ROJO BEL' },
+  { code: '042', name: 'ROJO AMBAR PEROL.' },
+  { code: '', name: 'ROJO' },
+  { code: 'MX7001878', name: 'ROCO BLUE' },
+  { code: 'WT7603', name: 'ROCHESTER GREEN' },
+  { code: '7098', name: 'ROBIN\'S EGG BLUE' },
+  { code: '7104', name: 'ROBIN\'S EGG BLUE' },
+  { code: 'W8049H', name: 'ROBIN\'S EGG BLUE' },
+  { code: '', name: 'ROBERTSON RED' },
+  { code: 'D', name: 'RIVERIA TURQUOISE' },
+  { code: 'HN', name: 'RIO RED' },
+  { code: 'PJG', name: 'RIO RED' },
+  { code: 'KRCEWTA', name: 'RICH COPPER' },
+  { code: '7372', name: 'RHAPSODY BLUE' },
+  { code: 'N5', name: 'RHAPSODY BLUE' },
+  { code: 'O4', name: 'REGENCY RED' },
+  { code: '4177', name: 'REGATTA BLUE (7)(M)' },
+  { code: 'M6145A', name: 'REGATTA BLUE (1)' },
+  { code: '6535', name: 'REGATTA BLUE' },
+  { code: '6112', name: 'REGATTA BLUE' },
+  { code: '4QKC', name: 'REFLEX SILVER' },
+  { code: 'SV', name: 'REFINED GRAY' },
+  { code: 'SJ', name: 'REEF GREEN' },
+  { code: 'M6848D', name: 'REEF BLUE (2)' },
+  { code: '6585', name: 'REEF BLUE' },
+  { code: 'PD', name: 'REEF BLUE' },
+  { code: 'PPGJ', name: 'REEF BLUE' },
+  { code: 'WT4640', name: 'RED-ORANGE (2C)' },
+  { code: 'VR', name: 'RED WINE' },
+  { code: '3560', name: 'RED ORANGE' },
+  { code: '6653', name: 'RED NIGHTMIST' },
+  { code: '3SREWHA', name: 'RED FIRE' },
+  { code: 'HY', name: 'RED EMBER' },
+  { code: 'M7293', name: 'RED CANDY 2' },
+  { code: 'DR', name: 'RED CANDY' },
+  { code: '', name: 'RED' },
+  { code: '374', name: 'RED' },
+  { code: 'RM1', name: 'RED' },
+  { code: 'W4560', name: 'RED' },
+  { code: 'GKTAWHA', name: 'REAL STEEL' },
+  { code: 'YNE', name: 'RAVEN BLACK (7)(M)' },
+  { code: '4172', name: 'RAVEN BLACK (7)(M)' },
+  { code: '1936', name: 'RAVEN' },
+  { code: 'RMG', name: 'RAPTOR MATTE GRAY' },
+  { code: '2V', name: 'RANGOON RED' },
+  { code: '5696', name: 'RANGOON RED' },
+  { code: 'OP', name: 'RADIANT RED' },
+  { code: 'P6', name: 'RADIANT RED' },
+  { code: '6434', name: 'RACE YELLOW' },
+  { code: '5H', name: 'RACE RED' },
+  { code: '11914', name: 'PURPLE' },
+  { code: 'BW', name: 'PURE WHITE' },
+  { code: 'PS1', name: 'PURE SILVER' },
+  { code: '6780', name: 'PUMICE SOLID' },
+  { code: '6714', name: 'PUMICE GOLD' },
+  { code: 'M6714J', name: 'PUMICE (7)(M)' },
+  { code: 'M6690C', name: 'PUMICE (1)(M)' },
+  { code: '1059', name: 'PUMICE' },
+  { code: '6740', name: 'PUMICE' },
+  { code: 'DK', name: 'PUMICE' },
+  { code: '7123', name: 'PUEBLO GOLD BEIGE' },
+  { code: '4LLEWHA', name: 'PUEBLO GOLD' },
+  { code: 'PMYHS', name: 'PRIDE ORANGE' },
+  { code: '', name: 'PRETO NOBRE' },
+  { code: '129', name: 'PRETO MADAGASCAR' },
+  { code: 'AB', name: 'PRETO INDY' },
+  { code: '7AY', name: 'PRETO GALES' },
+  { code: '', name: 'PRETO EBONY / LAMP BLACK' },
+  { code: '', name: 'PRETO EBONY' },
+  { code: '', name: 'PRETO EBANO' },
+  { code: '276', name: 'PRETO DAKAR' },
+  { code: '', name: 'PRESTIGE PINK' },
+  { code: '7526', name: 'PRECISION PURPLE' },
+  { code: '', name: 'PRATA TEXAS PEROL' },
+  { code: '081', name: 'PRATA STRATO' },
+  { code: 'XSC2724', name: 'PRATA STARDUST' },
+  { code: '063', name: 'PRATA STARDUST' },
+  { code: '2185', name: 'PRATA QUEBEC' },
+  { code: 'F09', name: 'PRATA MONTREAL' },
+  { code: 'AEN/9531-A', name: 'PRATA MADRID MET' },
+  { code: 'HG', name: 'PRATA GENEBRA' },
+  { code: '353', name: 'PRATA GEADA' },
+  { code: '', name: 'PRATA CONTINENTAL METALICO' },
+  { code: '4542.8277', name: 'PRATA CONTINENTAL' },
+  { code: '112(TC)', name: 'PRATA COLUMBIA' },
+  { code: '069', name: 'PRATA CAIRO' },
+  { code: '', name: 'PRATA ARTICO' },
+  { code: '', name: 'PRATA ANTARES' },
+  { code: '4EL', name: 'PRATA ANGRA' },
+  { code: 'X0116K', name: 'PRATA ALASKA' },
+  { code: '120', name: 'PRATA ALASKA' },
+  { code: 'SM2018D', name: 'POWDER BLUE' },
+  { code: '6623', name: 'PORTOFINO BLUE' },
+  { code: '5DCN', name: 'PORTOFINO BLUE' },
+  { code: 'M4235J', name: 'PORTOFINO (7)(M)' },
+  { code: '6741G', name: 'PORTOFINO' },
+  { code: 'TM', name: 'POP YELLOW' },
+  { code: 'AD', name: 'POLYNESIAN GREEN' },
+  { code: 'S832', name: 'POLYMIMETIC GRAY' },
+  { code: 'E3', name: 'POLICE ONLY ARIZONA BEIGE' },
+  { code: '', name: 'POLARIS SILVER' },
+  { code: 'YA', name: 'POLAR WHITE' },
+  { code: 'YD', name: 'POLAR WHITE' },
+  { code: 'PH', name: 'POLAR WHITE' },
+  { code: '', name: 'POJO IRIS' },
+  { code: '7OVCWWA', name: 'PLUM BLUSH' },
+  { code: '', name: 'PLETTENBERG BLUE' },
+  { code: 'PWT', name: 'PLAY ORANGE' },
+  { code: 'BK', name: 'PLATINUM DUNE' },
+  { code: 'YBWA', name: 'PLATINUM' },
+  { code: 'YB', name: 'PLATINUM' },
+  { code: '3QNCWWA', name: 'PLATINUM' },
+  { code: '7D', name: 'PLATINO' },
+  { code: '', name: 'PLATA SIERRA' },
+  { code: 'PM', name: 'PLATA METALICO' },
+  { code: 'AX', name: 'PLATA LUNAR' },
+  { code: 'MB', name: 'PLATA GALACTICO' },
+  { code: 'PC', name: 'PLATA CRISTAL' },
+  { code: '667-65455', name: 'PLATA CENIZA' },
+  { code: '', name: 'PLATA' },
+  { code: 'YBWAXXX', name: 'PLANTINUM BROWN-GRAY' },
+  { code: '', name: 'PLANTINO MEDIO' },
+  { code: 'FK', name: 'PINK CORAL' },
+  { code: '5652', name: 'PINE OPAL' },
+  { code: '7', name: 'PHOENICIAN YELLOW' },
+  { code: '34N', name: 'PHANTOM PURPLE' },
+  { code: '', name: 'PHANTOM BLUE' },
+  { code: '1E', name: 'PEWTER' },
+  { code: 'HJ', name: 'PEWTER' },
+  { code: '7160', name: 'PEWTER' },
+  { code: 'PNE', name: 'PETROL BLUE' },
+  { code: 'M6685C', name: 'PERFORMANCE WHITE (1)(M)' },
+  { code: '6842', name: 'PERFORMANCE WHITE' },
+  { code: 'WB', name: 'PERFORMANCE WHITE' },
+  { code: 'W1', name: 'PERFORMANCE WHITE' },
+  { code: 'WR', name: 'PERFORMANCE WHITE' },
+  { code: 'HP', name: 'PERFORMANCE WHITE' },
+  { code: 'WP', name: 'PERFORMANCE VIBRANT WHITE' },
+  { code: 'ES', name: 'PERFORMANCE RED WB' },
+  { code: 'M6727D', name: 'PERFORMANCE RED (2)(M)' },
+  { code: '6727', name: 'PERFORMANCE RED' },
+  { code: 'ED', name: 'PERFORMANCE RED' },
+  { code: '6564', name: 'PERFORMANCE RED' },
+  { code: 'EBUAWHA', name: 'PERFORMANCE RED' },
+  { code: 'M7213A', name: 'PERFORMANCE PINK' },
+  { code: '3CVCWWA', name: 'PERFORMANCE BLUE' },
+  { code: '1S', name: 'PEPPER RED' },
+  { code: '', name: 'PEPPER GRAY' },
+  { code: '3T4', name: 'PEBBLE BROWN' },
+  { code: '3TC', name: 'PEBBLE' },
+  { code: '3T3', name: 'PEBBLE' },
+  { code: '3TD', name: 'PEBBLE' },
+  { code: 'KY', name: 'PEAK BLUE' },
+  { code: 'M6577D', name: 'PAWNEE TAN (2)' },
+  { code: '6403', name: 'PAWNEE TAN' },
+  { code: '13', name: 'PASTEL TITANIUM' },
+  { code: 'MB', name: 'PASTEL STEEL BLUE FROST' },
+  { code: '64', name: 'PASTEL SANDALWOOD' },
+  { code: '6005', name: 'PASTEL REGATTA BLUE' },
+  { code: '4E', name: 'PASTEL PINE' },
+  { code: 'P', name: 'PASTEL OXFORD GRAY (7)(M)' },
+  { code: 'Z', name: 'PASTEL MED.SANDLEWD.' },
+  { code: 'D', name: 'PASTEL GRAY' },
+  { code: '5787', name: 'PASTEL FRENCH VANILLA' },
+  { code: '8S', name: 'PASTEL DESERT TAN' },
+  { code: '5891', name: 'PASTEL DESERT SAND' },
+  { code: '5551', name: 'PASTEL CHAMOIS,BEIGE' },
+  { code: '', name: 'PASTEL CHAMOIS' },
+  { code: '5607', name: 'PASTEL CHAMOIS' },
+  { code: '5901', name: 'PASTEL CADET BLUE' },
+  { code: '5364', name: 'PASTEL BLUE' },
+  { code: 'M6392A', name: 'PASTEL ALABASTER (1)' },
+  { code: '6392', name: 'PASTEL ALABASTER' },
+  { code: '6435', name: 'PASTEL ALABASTER' },
+  { code: '6377', name: 'PASTEL ADOBE (2C)' },
+  { code: '6321', name: 'PASTEL ADOBE' },
+  { code: '11L', name: 'PASSION ROSE II' },
+  { code: 'PR', name: 'PASSION RED' },
+  { code: '26N', name: 'PASSION RED' },
+  { code: '22K', name: 'PASSION RED' },
+  { code: '27Y', name: 'PASSION ORANGE' },
+  { code: '3', name: 'PARIS BLUE' },
+  { code: 'FD013', name: 'PAPRIKA RED' },
+  { code: 'FD003', name: 'PANTHER BLACK' },
+  { code: 'B1CI', name: 'PANTHER BLACK' },
+  { code: 'A0805', name: 'PANTHER BLACK' },
+  { code: '4CF', name: 'PANTHER BLACK' },
+  { code: '7235', name: 'PALE ADOBE' },
+  { code: 'GK', name: 'PACIFIC GREEN P' },
+  { code: 'M6732D', name: 'PACIFIC GREEN (2)' },
+  { code: 'P8', name: 'PACIFIC GREEN' },
+  { code: 'PN', name: 'PACIFIC GREEN' },
+  { code: 'J6', name: 'PACIFIC GREEN' },
+  { code: 'PS', name: 'PACIFIC GREEN' },
+  { code: '6880', name: 'PACIFIC GREEN' },
+  { code: '7001865', name: 'PACIFIC GAS AND ELECTRIC BLUE' },
+  { code: '7024', name: 'PACIFIC BLUE' },
+  { code: '2064', name: 'PACIFIC BLUE' },
+  { code: 'PA9', name: 'PACIFIC BLUE' },
+  { code: 'Q', name: 'OYSTER SILVER' },
+  { code: 'PJ2', name: 'OYSTER SILVER' },
+  { code: '472', name: 'OYSTER GREY' },
+  { code: '5920A', name: 'OXFORD WHITE' },
+  { code: '6514', name: 'OXFORD WHITE' },
+  { code: '4163', name: 'OXFORD WHITE' },
+  { code: '9L', name: 'OXFORD WHITE' },
+  { code: '6887', name: 'OXFORD WHITE' },
+  { code: 'Z1', name: 'OXFORD WHITE' },
+  { code: 'C9', name: 'OXFORD WHITE' },
+  { code: 'A9', name: 'OXFORD WHITE' },
+  { code: 'UB', name: 'OXFORD WHITE' },
+  { code: 'B9', name: 'OXFORD WHITE' },
+  { code: 'B8', name: 'OUTRAGEOUS GREEN' },
+  { code: '94949909', name: 'OURO SIERRA' },
+  { code: '9542.5832', name: 'OURO SAVOIA' },
+  { code: '6358', name: 'OURO QUARTZO' },
+  { code: '4942.09962', name: 'OURO MARTINICA' },
+  { code: '6019', name: 'OURO CHAMPAGNE' },
+  { code: '6023', name: 'OURO CALIFORNIA' },
+  { code: 'NL', name: 'ORANGE FURY' },
+  { code: '7181', name: 'ORANGE FROST' },
+  { code: '5N', name: 'ORANGE DARK' },
+  { code: 'GW', name: 'ORANGE CRUSH' },
+  { code: '7119', name: 'ORANGE CRUSH' },
+  { code: '5615', name: 'ORANGE' },
+  { code: 'WT5684', name: 'ORANGE' },
+  { code: 'W5685E', name: 'ORANGE' },
+  { code: 'WT5607', name: 'ORANGE' },
+  { code: 'WT5651', name: 'ORANGE' },
+  { code: '5466', name: 'ORANGE' },
+  { code: 'HERITAGE', name: 'ORANGE' },
+  { code: '7512', name: 'OPALESCENT WHITE' },
+  { code: '6553', name: 'OPAL OPALESCENT' },
+  { code: 'WJ', name: 'OPAL FROST' },
+  { code: '67W', name: 'OPAL (7)(M)' },
+  { code: '6MTA', name: 'ONYX GREY' },
+  { code: '5', name: 'ONYX GREEN' },
+  { code: 'FD002', name: 'ONTARIO BLUE' },
+  { code: '3C', name: 'ONDO BLUE' },
+  { code: 'NJ', name: 'OMAHA ORANGE' },
+  { code: '11010', name: 'OLYMPIC BLUE' },
+  { code: '33G', name: 'OLIVE GOLD' },
+  { code: 'P2', name: 'OIL SLICK BLUE-PURPLE' },
+  { code: '6576', name: 'OFF WHITE' },
+  { code: '', name: 'OEM MULTI TONE' },
+  { code: 'YN', name: 'OEM MULTI TONE' },
+  { code: 'C2', name: 'OEM MULTI TONE' },
+  { code: 'TV', name: 'OEM MULTI TONE' },
+  { code: 'D4', name: 'OEM MULTI TONE' },
+  { code: 'G1', name: 'OEM MULTI TONE' },
+  { code: 'J1', name: 'OEM MULTI TONE' },
+  { code: 'JS', name: 'OEM MULTI TONE' },
+  { code: 'KU', name: 'OEM MULTI TONE' },
+  { code: 'LB', name: 'OEM MULTI TONE' },
+  { code: 'M7', name: 'OEM MULTI TONE' },
+  { code: 'NE', name: 'OEM MULTI TONE' },
+  { code: 'SB', name: 'OEM MULTI TONE' },
+  { code: 'YZ', name: 'OEM MULTI TONE' },
+  { code: '4CTE', name: 'OCTANE' },
+  { code: '7420', name: 'OCHRE BROWN' },
+  { code: '59L28199', name: 'OCEANA BLUE' },
+  { code: 'MJ-1731', name: 'OCEAN TURQUOISE' },
+  { code: 'PLA', name: 'OCEAN GREEN' },
+  { code: '2K', name: 'OCEAN BLUE' },
+  { code: 'PN3F1', name: 'OCEAN' },
+  { code: '4HCEXWA', name: 'OASIS GREEN' },
+  { code: 'FK1', name: 'OASIS BLUE' },
+  { code: 'C0', name: 'NOVA GREEN' },
+  { code: 'FD004', name: 'NOUVEAU RED' },
+  { code: 'W8', name: 'NOTORIOUS' },
+  { code: '', name: 'NORWEGIAN PINE' },
+  { code: '7001855', name: 'NORTHSTAR BLUE' },
+  { code: 'MX7001855', name: 'NORTH STAR BLUE' },
+  { code: '7111', name: 'NORSEA BLUE' },
+  { code: '9TQCWWA', name: 'NOISETTE' },
+  { code: 'C1', name: 'NOCTURNAL BLUE' },
+  { code: 'DW', name: 'NITROUS BLUE' },
+  { code: '6696', name: 'NIMBUS GREY' },
+  { code: 'XSC1801', name: 'NIMBUS GRAY' },
+  { code: '1P', name: 'NIMBUS' },
+  { code: 'K', name: 'NIGHTMIST BLUE' },
+  { code: 'M4239J', name: 'NIGHTMIST (7)(M)' },
+  { code: 'M6671D', name: 'NIGHTMIST (2)(M)' },
+  { code: 'A1T', name: 'NIFTY RED' },
+  { code: '6451', name: 'NEWPORT BLUE' },
+  { code: 'TG', name: 'NEW WARM GRAY' },
+  { code: 'MX7042356', name: 'NEW SERVPRO GREEN' },
+  { code: 'ZK8A', name: 'NEUTRAL GRAY' },
+  { code: 'CD', name: 'NEPTUNE BLUE' },
+  { code: 'NP', name: 'NEGRO PURO' },
+  { code: '1A', name: 'NEGRO ONIX' },
+  { code: 'BH', name: 'NEGRO ONIX' },
+  { code: '', name: 'NEGRO NEW ORLEANS (2C)' },
+  { code: '', name: 'NEGRO MARINO' },
+  { code: '1G', name: 'NEGRO MADAGASCAR' },
+  { code: 'A1A1', name: 'NEGRO EBONY' },
+  { code: '1C', name: 'NEGRO DAKKAR' },
+  { code: '', name: 'NEGRO BRILLANTE' },
+  { code: '', name: 'NEGRO BERLIN' },
+  { code: 'SF', name: 'NEAT GREEN' },
+  { code: 'SB', name: 'NAVY BLUE' },
+  { code: 'AT', name: 'NAUTILUS GREY' },
+  { code: 'UR', name: 'NATURAL NEUTRAL' },
+  { code: '7232', name: 'NATURAL NEUTRAL' },
+  { code: '13873', name: 'NATIVE GREEN' },
+  { code: '33J3A1', name: 'NASSAU BLUE' },
+  { code: 'TC', name: 'NARANJA SOLAR' },
+  { code: 'NA', name: 'NARANJA AUSTRAL' },
+  { code: 'G6', name: 'MYSTICHROME' },
+  { code: '4CS', name: 'MUSTARD OLIVE' },
+  { code: 'SC', name: 'MUSTARD' },
+  { code: '', name: 'MS-RT BLUE' },
+  { code: 'A3806', name: 'MOSS GREEN' },
+  { code: '6H5A', name: 'MOSS GREEN' },
+  { code: 'D2', name: 'MOSS GREEN' },
+  { code: 'FD114', name: 'MORELLO' },
+  { code: '10885', name: 'MOONLIGHT GREY' },
+  { code: 'ML', name: 'MOONLIGHT BLUE' },
+  { code: '61', name: 'MOONDUST SILVER' },
+  { code: 'TY', name: 'MOONDUST SILVER' },
+  { code: 'FD009', name: 'MOON DUST SILVER' },
+  { code: 'PPER', name: 'MOODIE BLUE' },
+  { code: '', name: 'MONZA RED' },
+  { code: 'OM', name: 'MONZA RED' },
+  { code: 'O5M', name: 'MONZA RED' },
+  { code: 'EMZ', name: 'MONUMENT' },
+  { code: '7173', name: 'MONTEREY DARK GREEN' },
+  { code: 'PJ4', name: 'MONTE CARLO BLUE' },
+  { code: 'MG', name: 'MONGOLIA' },
+  { code: 'DJPE5ZA', name: 'MOLTON ORANGE' },
+  { code: 'UY', name: 'MOLTEN ORANGE' },
+  { code: '7506', name: 'MOLTEN MAGENTA' },
+  { code: '7400', name: 'MOLTEN CHROMA GOLD' },
+  { code: '', name: 'MODEL A CLUB COPRA DRAB' },
+  { code: '', name: 'MODEL A CLUB CHICLE DRAB' },
+  { code: 'M6606G', name: 'MOCHA (1)(M)' },
+  { code: '7396', name: 'MOCHA' },
+  { code: 'EI', name: 'MINT GREEN' },
+  { code: '7122', name: 'MINT GREEN' },
+  { code: 'D', name: 'MING GREEN' },
+  { code: 'TK', name: 'MINERAL GREY' },
+  { code: '7026', name: 'MINERAL GREY' },
+  { code: 'ZSTEWHA', name: 'MINERAL GRAY' },
+  { code: 'GY', name: 'MINERAL GRAY' },
+  { code: '1901C', name: 'MINERAL BLUE' },
+  { code: 'A6', name: 'MIMOSA YELLOW' },
+  { code: '66', name: 'MIMOSA' },
+  { code: '16071', name: 'MILD YELLOW' },
+  { code: '6022', name: 'MIDNIGHT WINE' },
+  { code: 'RG', name: 'MIDNIGHT TEAL' },
+  { code: '4CH', name: 'MIDNIGHT SKY' },
+  { code: 'M4241J', name: 'MIDNIGHT SADDLE (7)(M)' },
+  { code: '3U', name: 'MIDNIGHT REGATTA BLUE' },
+  { code: 'EN', name: 'MIDNIGHT RED' },
+  { code: '6566', name: 'MIDNIGHT OPAL' },
+  { code: '72', name: 'MIDNIGHT JADE' },
+  { code: 'ZRYCWHA', name: 'MIDNIGHT GRAY' },
+  { code: 'KY6', name: 'MIDNIGHT DENIM (7)(M)' },
+  { code: 'M6687C', name: 'MIDNIGHT CURRANT RED (1)(M)' },
+  { code: '84', name: 'MIDNIGHT CORDOVAN' },
+  { code: '2J', name: 'MIDNIGHT CANYON RED' },
+  { code: '9Z', name: 'MIDNIGHT CADET BLUE' },
+  { code: 'M4153H', name: 'MIDNIGHT BLUE (7)(M)' },
+  { code: 'M5616A', name: 'MIDNIGHT BLUE (1)' },
+  { code: '3B', name: 'MIDNIGHT BLUE' },
+  { code: '36', name: 'MIDNIGHT BLUE' },
+  { code: '5499', name: 'MIDNIGHT BLUE' },
+  { code: '6078', name: 'MIDNIGHT BLACK' },
+  { code: 'ZA', name: 'MIDNIGHT BLACK' },
+  { code: 'M6409G', name: 'MID. CURRANT RED' },
+  { code: 'KQSEXWA', name: 'MICRO SILVER GREY' },
+  { code: 'FD006', name: 'MICA STONE' },
+  { code: '36C', name: 'METROPOLITAN GREY' },
+  { code: 'SWT', name: 'METEOR GREY' },
+  { code: '', name: 'METALLIC RED' },
+  { code: '3KWEWHA', name: 'MERLOT RED' },
+  { code: 'X5', name: 'MERCURY' },
+  { code: '05', name: 'MELLOW SAND GOLD' },
+  { code: 'WT6675', name: 'MEDIUM YELLOW' },
+  { code: 'SH', name: 'MEDIUM WILLOW' },
+  { code: '34', name: 'MEDIUM WEDGEWOOD BLUE' },
+  { code: 'LDYEWHA', name: 'MEDIUM WEDGEWOOD' },
+  { code: '5858', name: 'MEDIUM WALNUT' },
+  { code: '5W', name: 'MEDIUM VAQUERO' },
+  { code: 'M6282G', name: 'MEDIUM TITANIUM (1)(M)' },
+  { code: 'M6432G', name: 'MEDIUM TITANIUM (1)(M)' },
+  { code: 'M6522G', name: 'MEDIUM TITANIUM (1)(M)' },
+  { code: 'M6442A', name: 'MEDIUM TITANIUM (1)' },
+  { code: 'M6545A', name: 'MEDIUM TITANIUM (1)' },
+  { code: 'YG', name: 'MEDIUM TITANIUM' },
+  { code: '6522G', name: 'MEDIUM TITANIUM' },
+  { code: '2P', name: 'MEDIUM TAUPE' },
+  { code: '8J', name: 'MEDIUM TAN' },
+  { code: '6971', name: 'MEDIUM STEEL BLUE' },
+  { code: 'SP', name: 'MEDIUM STEEL BLUE' },
+  { code: '5D6', name: 'MEDIUM STEEL BLUE' },
+  { code: '5728', name: 'MEDIUM SPRUCE' },
+  { code: 'M6143A', name: 'MEDIUM SMOKE (1)' },
+  { code: '5363', name: 'MEDIUM SLATE BLUE' },
+  { code: '6225', name: 'MEDIUM SHADOW BLUE' },
+  { code: '6180', name: 'MEDIUM SHADOW BLUE' },
+  { code: '77', name: 'MEDIUM SHADOW BLUE' },
+  { code: 'M6478A', name: 'MEDIUM SEAFORM (1)' },
+  { code: 'M6682D', name: 'MEDIUM SEAFOAM (2)' },
+  { code: '2D', name: 'MEDIUM SCARLET' },
+  { code: '2P3', name: 'MEDIUM SATIN NICKEL' },
+  { code: 'M4186', name: 'MEDIUM SANDALWOOD (7)(M)' },
+  { code: 'M6380G', name: 'MEDIUM SANDALWOOD (1)(M)' },
+  { code: 'M6312A', name: 'MEDIUM SANDALWOOD (1)' },
+  { code: '6071', name: 'MEDIUM SANDALWOOD' },
+  { code: '6312', name: 'MEDIUM SANDALWOOD' },
+  { code: 'B8', name: 'MEDIUM SANDALWOOD' },
+  { code: 'M6791D', name: 'MEDIUM SADDLE (2)(M)' },
+  { code: 'LA', name: 'MEDIUM ROYAL BLUE' },
+  { code: 'M6263A', name: 'MEDIUM REGATTA BLUE (1)' },
+  { code: '6536', name: 'MEDIUM RED' },
+  { code: 'EE', name: 'MEDIUM RED' },
+  { code: 'M2008', name: 'MEDIUM RED' },
+  { code: '6153', name: 'MEDIUM RED' },
+  { code: 'A2', name: 'MEDIUM RED' },
+  { code: '6Q', name: 'MEDIUM RATTAN' },
+  { code: 'AX', name: 'MEDIUM PRAIRIE TAN' },
+  { code: 'CR', name: 'MEDIUM PLATINUM II' },
+  { code: 'M6546G', name: 'MEDIUM PLATINUM (1)(M)' },
+  { code: 'M6674A', name: 'MEDIUM PLATINUM (1)' },
+  { code: 'YBWCXXG', name: 'MEDIUM PLATINUM' },
+  { code: '6454', name: 'MEDIUM PLATINUM' },
+  { code: '75', name: 'MEDIUM PINE' },
+  { code: 'M6844D', name: 'MEDIUM PEWTER GREY (2)' },
+  { code: '1K', name: 'MEDIUM PEWTER' },
+  { code: 'HF', name: 'MEDIUM PARCHMENT' },
+  { code: 'M6666D', name: 'MEDIUM PALOMINO (2)(M)' },
+  { code: 'M4221H', name: 'MEDIUM OPAL (7)(M)' },
+  { code: 'M6651', name: 'MEDIUM OPAL (1)(M)' },
+  { code: 'M6501A', name: 'MEDIUM OPAL (1)' },
+  { code: '6602G', name: 'MEDIUM OPAL' },
+  { code: '6501', name: 'MEDIUM OPAL' },
+  { code: '5J', name: 'MEDIUM NUTMEG' },
+  { code: '5867', name: 'MEDIUM MULBERRY' },
+  { code: 'M4213H', name: 'MEDIUM MOCHA (7)(M)' },
+  { code: 'M6570', name: 'MEDIUM MOCHA (2)' },
+  { code: 'M6643C', name: 'MEDIUM MOCHA (1)(M)' },
+  { code: 'M6520G', name: 'MEDIUM MOCHA (1)(M)' },
+  { code: '6570', name: 'MEDIUM MOCHA' },
+  { code: 'M6526C', name: 'MEDIUM LIGHT TITANIUM (1)(M)' },
+  { code: '5845', name: 'MEDIUM LIGHT TEAL' },
+  { code: '1T3', name: 'MEDIUM LIGHT STONE' },
+  { code: '6608', name: 'MEDIUM LIGHT MOCHA' },
+  { code: '38', name: 'MEDIUM LIGHT CADET BLUE' },
+  { code: 'KE', name: 'MEDIUM LAPIS' },
+  { code: '7L', name: 'MEDIUM JADE' },
+  { code: 'FD023', name: 'MEDIUM HARVEST GOLD' },
+  { code: 'ARRCWWA', name: 'MEDIUM HARVEST GOLD' },
+  { code: 'M5965G', name: 'MEDIUM GREY (1)(M)' },
+  { code: '1P', name: 'MEDIUM GREY' },
+  { code: 'TL', name: 'MEDIUM GREEN' },
+  { code: 'Y', name: 'MEDIUM GREEN' },
+  { code: 'TP', name: 'MEDIUM GRAY' },
+  { code: '3F', name: 'MEDIUM GRAPHITE (LOW GLOSS)' },
+  { code: 'ZV', name: 'MEDIUM GRAPHITE' },
+  { code: '6744', name: 'MEDIUM GRAPHITE' },
+  { code: 'TR', name: 'MEDIUM GRAPHITE' },
+  { code: '5624', name: 'MEDIUM GOLD SAND' },
+  { code: 'M6960D', name: 'MEDIUM GOLD (2)' },
+  { code: '6865', name: 'MEDIUM GOLD' },
+  { code: '2NC', name: 'MEDIUM FLINT' },
+  { code: '55', name: 'MEDIUM FAWN' },
+  { code: '87', name: 'MEDIUM FAWN' },
+  { code: '4N3', name: 'MEDIUM DOVE GREY' },
+  { code: 'M6282A', name: 'MEDIUM DARK TITANIUM-M. (1)' },
+  { code: '1T4', name: 'MEDIUM DARK STONE' },
+  { code: 'YBT', name: 'MEDIUM DARK PLATINUM' },
+  { code: '5774', name: 'MEDIUM DARK PEWTER' },
+  { code: 'M6652C', name: 'MEDIUM DARK GREY (1)(M)' },
+  { code: 'M6657', name: 'MEDIUM DARK GRAY (1)' },
+  { code: '2N4', name: 'MEDIUM DARK FLINT' },
+  { code: 'BC', name: 'MEDIUM CYPRESS' },
+  { code: 'EE', name: 'MEDIUM CURRENT RED' },
+  { code: '6537', name: 'MEDIUM CURRANT RED' },
+  { code: '9G', name: 'MEDIUM CURRANT RED' },
+  { code: '5949', name: 'MEDIUM COPPER' },
+  { code: 'V', name: 'MEDIUM CHESTNUT' },
+  { code: 'FD008', name: 'MEDIUM CHARCOAL GREY' },
+  { code: 'M5631', name: 'MEDIUM CHAMPAGNE' },
+  { code: '28', name: 'MEDIUM CANYON RED' },
+  { code: '4T3A', name: 'MEDIUM CAMEL' },
+  { code: '6156', name: 'MEDIUM CABERNET RED' },
+  { code: '2H', name: 'MEDIUM CABERNET RED' },
+  { code: '2G', name: 'MEDIUM CABERNET' },
+  { code: 'M6583G', name: 'MEDIUM BLUE (1)(M)' },
+  { code: 'IB', name: 'MEDIUM BLUE' },
+  { code: '5613', name: 'MEDIUM BLUE' },
+  { code: '3Z', name: 'MEDIUM BLUE' },
+  { code: '37', name: 'MEDIUM BLUE' },
+  { code: '30E', name: 'MEDIUM BLUE' },
+  { code: '5736', name: 'MEDIUM BITTERSWEET' },
+  { code: 'M6503G', name: 'MEDIUM BISQUE (1)(M)' },
+  { code: '4C', name: 'MEDIUM BERYL' },
+  { code: '6707', name: 'MEDIUM BERRY' },
+  { code: 'GA', name: 'MEDIUM AUBERGINE' },
+  { code: 'D', name: 'MEDIUM AQUAMARINE (7)(M)' },
+  { code: '6677', name: 'MEDIUM AQUAMARINE' },
+  { code: '6440', name: 'MEDIUM ADOBE' },
+  { code: 'M6298', name: 'MED.ROSE' },
+  { code: 'MV', name: 'MED.REGATTA BLUE-M. (1)(M)' },
+  { code: 'YE4', name: 'MED.DARK TRUFFLE (7)(M)' },
+  { code: 'M6283A', name: 'MED.DARK TITANIUM (1)' },
+  { code: 'M6645C', name: 'MED.DARK CRYSTAL BLUE (1)(M)' },
+  { code: '6468H', name: 'MED. WOODROSE' },
+  { code: 'M3413', name: 'MED. SCARLET' },
+  { code: 'Z', name: 'MED. SANDALWOOD' },
+  { code: 'M6504G', name: 'MED. ROYAL BLUE (1)(M)' },
+  { code: '5636', name: 'MED. RED' },
+  { code: '5885', name: 'MED. RED' },
+  { code: '5686', name: 'MED. PEWTER' },
+  { code: 'M6450A', name: 'MED. MOCHA (1)' },
+  { code: 'A', name: 'MED. LT TITANIUM (STRIPE)' },
+  { code: '83', name: 'MED. LT DESSERT TAN' },
+  { code: 'G', name: 'MED. LIME' },
+  { code: '1S', name: 'MED. GRAY' },
+  { code: 'M6770G', name: 'MED. GRAPHITE' },
+  { code: '5689', name: 'MED. FAWN' },
+  { code: '5942', name: 'MED. DK WHEAT' },
+  { code: '8L', name: 'MED. DK NUTMEG' },
+  { code: '5804', name: 'MED. DK MULBERRY' },
+  { code: '5890', name: 'MED. DK MULBERRY' },
+  { code: '52', name: 'MED. DK CADET BLUE' },
+  { code: '9H', name: 'MED. DARK TITANIUM' },
+  { code: 'YK', name: 'MED. DARK TITANIUM' },
+  { code: 'DC4', name: 'MED. DARK PUMICE (7)' },
+  { code: '4223', name: 'MED. DARK OPAL (7)(M)' },
+  { code: 'M6299', name: 'MED. BITTERSWEET' },
+  { code: 'M6672G', name: 'MED. AMETHYST (1)(M)' },
+  { code: '6397', name: 'MED WOODROSE' },
+  { code: '2DQCXWA', name: 'MED TRUE BLUE' },
+  { code: 'ACRCWHA', name: 'MED TITANIUM BROWN' },
+  { code: '55', name: 'MED TAUPE' },
+  { code: '1TC', name: 'MED STONE' },
+  { code: 'DN', name: 'MED SONORA' },
+  { code: 'NC', name: 'MED SEAFOAM' },
+  { code: '6247', name: 'MED SANDALWOOD' },
+  { code: '5999', name: 'MED SAND BEIGE' },
+  { code: '4175J', name: 'MED SAND BEIGE' },
+  { code: '5933', name: 'MED SAGE' },
+  { code: '6581', name: 'MED SADDLE' },
+  { code: 'DR', name: 'MED SADDLE' },
+  { code: 'J8', name: 'MED ROYAL BLUE' },
+  { code: '56', name: 'MED ROSEWOOD' },
+  { code: '6096', name: 'MED REGATTA BLUE' },
+  { code: '6263', name: 'MED REGATTA BLUE' },
+  { code: '3Y', name: 'MED REG BLUE' },
+  { code: '5970', name: 'MED REG BLUE' },
+  { code: '27', name: 'MED RED' },
+  { code: 'LM', name: 'MED PORTLAND GREY' },
+  { code: 'RC', name: 'MED PLATNIUM' },
+  { code: '6546G', name: 'MED PLATINUM' },
+  { code: '1DTCXXA', name: 'MED PLATINUM' },
+  { code: 'IR', name: 'MED PINK' },
+  { code: '6822', name: 'MED PEWTER' },
+  { code: 'CB', name: 'MED PALOMINO' },
+  { code: 'WD', name: 'MED OPAL' },
+  { code: 'DC', name: 'MED MOCHA' },
+  { code: '6520', name: 'MED MOCHA' },
+  { code: 'K9', name: 'MED MELINA BLUE' },
+  { code: '6562', name: 'MED LAPIS' },
+  { code: '4238', name: 'MED DK GRAPHITE' },
+  { code: '5945', name: 'MED DK FIRE RED' },
+  { code: '2175', name: 'MED DK CHARCOAL GRAY' },
+  { code: '53', name: 'MED DESERT TAN' },
+  { code: 'BJ4', name: 'MED DARK PARCHMENT' },
+  { code: 'PKTCWHA', name: 'MED CYPRESS GREEN' },
+  { code: '7022', name: 'MED CYPRESS GREEN' },
+  { code: '6444', name: 'MED CRANBERRY' },
+  { code: 'PK', name: 'MED CHESAPEAKE BLUE' },
+  { code: '1B', name: 'MED CHARCOAL' },
+  { code: '5872', name: 'MED CHARCOAL' },
+  { code: '5924', name: 'MED CANYON RED' },
+  { code: '6600', name: 'MED CALYPSO GREEN' },
+  { code: 'PT', name: 'MED CALYPSO GREEN' },
+  { code: '2S', name: 'MED CABERNET' },
+  { code: 'Q', name: 'MED BLUE' },
+  { code: 'NK', name: 'MED BLUE' },
+  { code: '5783', name: 'MED BLUE' },
+  { code: 'AC', name: 'MED BISQUE' },
+  { code: '6649G', name: 'MED AQUAMARINE' },
+  { code: '6559', name: 'MED AQUAMARINE' },
+  { code: '6472', name: 'MED ALABASTER' },
+  { code: '6052', name: 'MED AEGEAN' },
+  { code: '6093', name: 'MED AEGEAN' },
+  { code: '5987', name: 'MD REG BLUE' },
+  { code: 'M6655G', name: 'MAUVE (1)(M)' },
+  { code: 'M6676X', name: 'MAUVE' },
+  { code: 'EI', name: 'MATTER GREY' },
+  { code: 'AO', name: 'MATISSE BLUE' },
+  { code: '2RQ', name: 'MATADOR RED' },
+  { code: '7511', name: 'MARSH GRAY' },
+  { code: '5R', name: 'MARS RED' },
+  { code: '', name: 'MARRON PARDILLO' },
+  { code: '54', name: 'MARRON MEMPHYS' },
+  { code: '', name: 'MARRON AVELLANA' },
+  { code: '1042.09454', name: 'MARROM TABACO' },
+  { code: '9542.6036', name: 'MARROM SANDALO' },
+  { code: '', name: 'MARROM RAVENA' },
+  { code: 'S4', name: 'MARROM MEMPHIS P' },
+  { code: '4542.9901', name: 'MARROM LONTRA' },
+  { code: '', name: 'MARROM GINGER METALICO' },
+  { code: '4542.9879', name: 'MARROM GINGER' },
+  { code: '6198', name: 'MARROM FLORENTINO' },
+  { code: '', name: 'MARROM FLORENCE' },
+  { code: '9201', name: 'MARROM CHILE' },
+  { code: '', name: 'MARROM CHAMPIGNON METALICO' },
+  { code: '9542.6037', name: 'MARROM CHAMPIGNON' },
+  { code: '', name: 'MARROM AMSTERDAM PEROL' },
+  { code: '2J', name: 'MAROON' },
+  { code: 'D', name: 'MAROON' },
+  { code: '2L', name: 'MAROON' },
+  { code: '2Q', name: 'MAROON' },
+  { code: '7SQEWWA', name: 'MARMALADE' },
+  { code: '7L', name: 'MARINE BLUE' },
+  { code: 'PG', name: 'MARINE BLUE' },
+  { code: '6219', name: 'MARINE BLUE' },
+  { code: 'VWL54D', name: 'MARINA BLAU' },
+  { code: '165C', name: 'MARIGOLD ORANGE' },
+  { code: '7515', name: 'MARANA SAND' },
+  { code: '7473', name: 'MANHATTAN GREEN' },
+  { code: 'B6', name: 'MANDARIN COPPER' },
+  { code: '7007', name: 'MANDARIN COPPER' },
+  { code: '', name: 'MAIZE YELLOW' },
+  { code: 'UMW', name: 'MAGNUM GREY' },
+  { code: 'M7325', name: 'MAGNETIC' },
+  { code: '7397', name: 'MAGMA RED' },
+  { code: '2159', name: 'MAGENTA' },
+  { code: 'CJ', name: 'MAGENTA' },
+  { code: '2QTCWWA', name: 'MACHINE SILVER' },
+  { code: '', name: 'M5035-HOT GINGER' },
+  { code: '5974', name: 'M SAND BEIGE' },
+  { code: '3B', name: 'M REGATT BLU' },
+  { code: '4L', name: 'M PRAIR MIST' },
+  { code: '96', name: 'M D TITANIUM' },
+  { code: '5JFS', name: 'LUXE YELLOW' },
+  { code: '7334', name: 'LUXE' },
+  { code: '', name: 'LUCILLE BLUE' },
+  { code: '7443', name: 'LUCID RED' },
+  { code: '6708', name: 'LT WILLOW' },
+  { code: '7037', name: 'LT WEDGEWOOD BLUE' },
+  { code: '3H', name: 'LT WEDGEWOOD BLU' },
+  { code: '6330', name: 'LT TITANIUM' },
+  { code: '6694', name: 'LT SONORA' },
+  { code: '6597', name: 'LT SMOKE' },
+  { code: '6992', name: 'LT SAPPHIRE BLUE' },
+  { code: 'M6841', name: 'LT SADDLE (STRIPE)' },
+  { code: '6803', name: 'LT SADDLE' },
+  { code: '3S', name: 'LT REGATTA BLUE' },
+  { code: 'YBGCWHA', name: 'LT PLATINUM GRAY' },
+  { code: 'V', name: 'LT PEWTER' },
+  { code: '5820', name: 'LT PEWTER' },
+  { code: 'BQ', name: 'LT PARCHMENT GOLD' },
+  { code: 'WM', name: 'LT OPAL' },
+  { code: 'WE', name: 'LT OPAL' },
+  { code: '882', name: 'LT NEUT' },
+  { code: 'M6571', name: 'LT MOCHA' },
+  { code: 'GC', name: 'LT IRIS' },
+  { code: 'IG', name: 'LT GREN' },
+  { code: 'FA', name: 'LT EVERGREEN FROST' },
+  { code: 'BGMCXXG', name: 'LT CYPRESS - FLAT' },
+  { code: '6812', name: 'LT CYPRESS' },
+  { code: '', name: 'LT CHARCOAL' },
+  { code: '83', name: 'LT CHAMOIS' },
+  { code: '2E', name: 'LT CANYON RED' },
+  { code: 'B', name: 'LT BLUE' },
+  { code: '6854', name: 'LT BLUE' },
+  { code: '6555', name: 'LT AUBERGINE' },
+  { code: 'GJ', name: 'LT AMETHYST' },
+  { code: '5614', name: 'LT AMETHYST' },
+  { code: '6673G', name: 'LOW GLOSS SILVER' },
+  { code: '6769', name: 'LOW GLOSS LT GRAPHITE' },
+  { code: '7081280', name: 'LOVE\'S YELLOW' },
+  { code: 'SM1238', name: 'LIQUID RED' },
+  { code: '', name: 'LIQUID GRAY' },
+  { code: '', name: 'LIQUID BLUE' },
+  { code: '6013', name: 'LINCOLN' },
+  { code: '', name: 'LINCE' },
+  { code: 'BY', name: 'LIMITED YELLOW' },
+  { code: '7152', name: 'LIME SORBET' },
+  { code: 'PWV', name: 'LIME GREEN' },
+  { code: '7804', name: 'LIME GOLD' },
+  { code: 'P1', name: 'LIME GOLD' },
+  { code: 'A4J', name: 'LIGHTNING YELLOW' },
+  { code: 'UARC', name: 'LIGHTNING SILVER' },
+  { code: '376', name: 'LIGHT YELLOW' },
+  { code: 'WT6644', name: 'LIGHT YELLOW' },
+  { code: 'M6742G', name: 'LIGHT WILLOW (1)(M)' },
+  { code: '5939', name: 'LIGHT WHEAT' },
+  { code: '7100', name: 'LIGHT TUNDRA GREEN' },
+  { code: 'DV', name: 'LIGHT TUNDRA' },
+  { code: '6330', name: 'LIGHT TITANIUM FROST' },
+  { code: 'H', name: 'LIGHT TITANIUM (7)(M)' },
+  { code: 'M6330A', name: 'LIGHT TITANIUM (1)' },
+  { code: 'M6528A', name: 'LIGHT TITANIUM (1)' },
+  { code: '4J', name: 'LIGHT TITANIUM' },
+  { code: 'A', name: 'LIGHT TITANIUM' },
+  { code: '4W', name: 'LIGHT TEAL' },
+  { code: '45', name: 'LIGHT TEAL' },
+  { code: '6058', name: 'LIGHT TAUPE' },
+  { code: '5W', name: 'LIGHT TAUPE' },
+  { code: '1TB', name: 'LIGHT STONE' },
+  { code: '7B', name: 'LIGHT SPRUCE' },
+  { code: '73', name: 'LIGHT SPRUCE' },
+  { code: 'ZJ', name: 'LIGHT SMOKE' },
+  { code: '1G', name: 'LIGHT SMOKE' },
+  { code: 'SL', name: 'LIGHT SILVER' },
+  { code: 'AN', name: 'LIGHT SIENNA' },
+  { code: 'M7012D', name: 'LIGHT SAPPHIRE BLUE (2)' },
+  { code: 'M6686C', name: 'LIGHT SANTA FE (1)(M)' },
+  { code: 'BRONCO', name: 'LIGHT SANTA FE' },
+  { code: '8R', name: 'LIGHT SANDLEWOOD' },
+  { code: 'Z', name: 'LIGHT SANDALWOOD (7)(M)' },
+  { code: 'M6253A', name: 'LIGHT SANDALWOOD (1)' },
+  { code: '6K', name: 'LIGHT SANDALWOOD' },
+  { code: 'M6170', name: 'LIGHT SANDALWOOD' },
+  { code: 'A8', name: 'LIGHT SANDALWOOD' },
+  { code: 'A5', name: 'LIGHT SANDALWOOD' },
+  { code: '5932', name: 'LIGHT SAGE' },
+  { code: '6NKEWHA', name: 'LIGHT SAGE' },
+  { code: '7157', name: 'LIGHT SAGE' },
+  { code: 'NH', name: 'LIGHT SAGE' },
+  { code: 'M6786D', name: 'LIGHT SADDLE (2)' },
+  { code: '6795G', name: 'LIGHT SADDLE' },
+  { code: '6841', name: 'LIGHT SADDLE' },
+  { code: '6754A', name: 'LIGHT SADDLE' },
+  { code: '2W', name: 'LIGHT ROSE' },
+  { code: '6006', name: 'LIGHT REGATTA BLUE' },
+  { code: '3J', name: 'LIGHT REGATTA BLUE' },
+  { code: 'AYB', name: 'LIGHT PRAIRIE TAN (7)(M)' },
+  { code: '6835', name: 'LIGHT PRAIRIE TAN' },
+  { code: 'BA', name: 'LIGHT PRAIRIE TAN' },
+  { code: '', name: 'LIGHT PRAIRIE TAN' },
+  { code: 'D9', name: 'LIGHT PINE GREEN' },
+  { code: '1J', name: 'LIGHT PEWTER' },
+  { code: '1A', name: 'LIGHT PEWTER' },
+  { code: 'M6973D', name: 'LIGHT PARCHMENT GOLD (2)' },
+  { code: '6973', name: 'LIGHT PARCHMENT GOLD' },
+  { code: 'BJA', name: 'LIGHT PARCHMENT' },
+  { code: '5962', name: 'LIGHT OXFORD GRAY' },
+  { code: 'P', name: 'LIGHT OXFORD GRAY' },
+  { code: '6796', name: 'LIGHT OPAL' },
+  { code: '4U1A', name: 'LIGHT OAK' },
+  { code: 'FD005', name: 'LIGHT NORDIC GREEN' },
+  { code: 'CK3', name: 'LIGHT MOCHA FROST' },
+  { code: 'M6453', name: 'LIGHT MOCHA (STRIPE)' },
+  { code: 'DAB', name: 'LIGHT MOCHA (7)(M)' },
+  { code: 'M6608G', name: 'LIGHT MOCHA (1)' },
+  { code: 'M6661G', name: 'LIGHT MOCHA (1)(M)' },
+  { code: 'DB', name: 'LIGHT MOCHA' },
+  { code: 'M6678', name: 'LIGHT MOCHA' },
+  { code: 'DL', name: 'LIGHT MINK' },
+  { code: 'M7033', name: 'LIGHT MINERAL GRAY' },
+  { code: '5610', name: 'LIGHT MEDIUM PINE' },
+  { code: '7A', name: 'LIGHT JADE' },
+  { code: '5566', name: 'LIGHT JADE' },
+  { code: '2D', name: 'LIGHT ICE BLUE' },
+  { code: '3J', name: 'LIGHT HARBOR' },
+  { code: '3CN', name: 'LIGHT GUNMETAL GREY' },
+  { code: 'M6529D', name: 'LIGHT GREY (2)' },
+  { code: 'MN7AWHA', name: 'LIGHT GREY' },
+  { code: '6529', name: 'LIGHT GREY' },
+  { code: '373', name: 'LIGHT GREY' },
+  { code: '5125', name: 'LIGHT GREEN GOLD' },
+  { code: '6788', name: 'LIGHT GREEN (2)' },
+  { code: 'HG', name: 'LIGHT GREEN' },
+  { code: 'WT7080', name: 'LIGHT GREEN' },
+  { code: 'M6578F', name: 'LIGHT GRAY (1)(M)' },
+  { code: '5100', name: 'LIGHT GRAY' },
+  { code: 'M6776A', name: 'LIGHT GRAPHITE (1)' },
+  { code: 'ZU', name: 'LIGHT GRAPHITE' },
+  { code: '5226', name: 'LIGHT GRABBER BLUE' },
+  { code: '372', name: 'LIGHT GOLD' },
+  { code: '6J', name: 'LIGHT GOLD' },
+  { code: '6K', name: 'LIGHT FRENCH VANILLA' },
+  { code: '2NB', name: 'LIGHT FLINT' },
+  { code: '5730', name: 'LIGHT FAWN' },
+  { code: '5688', name: 'LIGHT FAWN' },
+  { code: '5841', name: 'LIGHT FAWN' },
+  { code: '5934', name: 'LIGHT DESERT TAN' },
+  { code: '9Q', name: 'LIGHT DESERT TAN' },
+  { code: 'M6850D', name: 'LIGHT DENIM BLUE (2)' },
+  { code: 'DB', name: 'LIGHT DENIM BLUE' },
+  { code: '6815', name: 'LIGHT DENIM BLUE' },
+  { code: 'M6847D', name: 'LIGHT CYPRESS (2)' },
+  { code: 'M6328A', name: 'LIGHT CRYSTAL BLUE (1)' },
+  { code: 'M6412A', name: 'LIGHT CRYSTAL BLUE (1)' },
+  { code: 'KC', name: 'LIGHT CRYSTAL BLUE' },
+  { code: '6443', name: 'LIGHT CRANBERRY' },
+  { code: 'M7417', name: 'LIGHT CITRINE YELLOW' },
+  { code: '5Z', name: 'LIGHT CHESTNUT' },
+  { code: '9T', name: 'LIGHT CHESTNUT' },
+  { code: 'M6190', name: 'LIGHT CHESTNUT' },
+  { code: '6586', name: 'LIGHT CHARCOAL' },
+  { code: 'M6670', name: 'LIGHT CHARCOAL' },
+  { code: '5876X', name: 'LIGHT CHARCOAL' },
+  { code: '9V', name: 'LIGHT CHARCOAL' },
+  { code: '52', name: 'LIGHT CHAMPAGNE' },
+  { code: '5D', name: 'LIGHT CHAMPAGNE' },
+  { code: '62', name: 'LIGHT CHAMOIS' },
+  { code: '4T0', name: 'LIGHT CAMEL' },
+  { code: '31', name: 'LIGHT CADET BLUE' },
+  { code: '35', name: 'LIGHT CADET BLUE' },
+  { code: 'UFA', name: 'LIGHT CACTUS (7)(M)' },
+  { code: 'M6731D', name: 'LIGHT BLUE' },
+  { code: '5467', name: 'LIGHT BLUE' },
+  { code: 'AX', name: 'LIGHT BLUE' },
+  { code: '5981', name: 'LIGHT BLUE' },
+  { code: '6328', name: 'LIGHT BLUE' },
+  { code: '8816', name: 'LIGHT BLUE' },
+  { code: '377', name: 'LIGHT BLUE' },
+  { code: '5443', name: 'LIGHT BLUE' },
+  { code: '5778', name: 'LIGHT BLUE' },
+  { code: '3G', name: 'LIGHT BLUE' },
+  { code: '6218', name: 'LIGHT BLUE' },
+  { code: 'GT', name: 'LIGHT BEIGE' },
+  { code: '82', name: 'LIGHT BEIGE' },
+  { code: '6Q', name: 'LIGHT ASPEN' },
+  { code: '7140', name: 'LIGHT ARIZONA BEIGE' },
+  { code: '7Q', name: 'LIGHT AQUA' },
+  { code: '88', name: 'LIGHT APRICOT' },
+  { code: '46', name: 'LIGHT AEGEAN' },
+  { code: '6051', name: 'LIGHT AEGEAN' },
+  { code: 'FE95-09537', name: 'LIGHT AEGEAN' },
+  { code: '6344', name: 'LIGHT ADOBE' },
+  { code: 'JN', name: 'LEAF GREEN' },
+  { code: 'JX', name: 'LEAD FOOT GRAY' },
+  { code: '7229', name: 'LAVA RED' },
+  { code: 'E1', name: 'LASER RED TINT WB' },
+  { code: 'E9', name: 'LASER RED' },
+  { code: 'NX', name: 'LASER RED' },
+  { code: 'AQ', name: 'LASER BLUE' },
+  { code: 'CKP', name: 'LARANJA ORANGE PRL' },
+  { code: '', name: 'LARANJA CALIFORNIA' },
+  { code: 'J', name: 'LAPIS BLUE (7)(M)' },
+  { code: 'KV', name: 'LAPIS BLUE' },
+  { code: 'FE95-09508', name: 'LAPIS BLUE' },
+  { code: 'PJS', name: 'LAGUNE BLUE' },
+  { code: 'GB', name: 'LAGUNA BLUE' },
+  { code: '13851', name: 'LAGOON GREEN' },
+  { code: '37R', name: 'LAGOON BLUE' },
+  { code: '6010', name: 'L SANDLEWOOD' },
+  { code: '6253', name: 'L SANDLEWOOD' },
+  { code: '33', name: 'L REGATA BLU' },
+  { code: 'L6', name: 'KONA BLUE' },
+  { code: '7261', name: 'KODIAK BROWN' },
+  { code: '7174', name: 'KIWI GREEN' },
+  { code: '7GNAXPD', name: 'KIWI GREEN' },
+  { code: '11975', name: 'KING FISHER BLUE' },
+  { code: 'AG', name: 'KHAKI SANDSTONE' },
+  { code: 'PH094', name: 'KENTON BLUE' },
+  { code: 'BR', name: 'KARAT GOLD' },
+  { code: 'AW', name: 'KAPOOR RED' },
+  { code: '66', name: 'JUBILEE GOLD' },
+  { code: '6H', name: 'JONQUIL' },
+  { code: 'XSC2741CM', name: 'JEWEL VIOLET' },
+  { code: 'RR', name: 'JEWEL RED' },
+  { code: '7483', name: 'JEWEL RED' },
+  { code: 'M6516D', name: 'JEWEL GREEN' },
+  { code: 'PAWCXXA', name: 'JEWEL GREEN' },
+  { code: 'WVU', name: 'JET BLACK' },
+  { code: '', name: 'JEANS BLUE' },
+  { code: 'MA494', name: 'JEAN BLUE' },
+  { code: 'FD012', name: 'JAVA BLUE' },
+  { code: 'PMZ', name: 'JASMINE' },
+  { code: 'M6983D', name: 'JALAPENO GREEN (2)' },
+  { code: '6951', name: 'JALAPENO GREEN' },
+  { code: '6002', name: 'JALAPENA RED' },
+  { code: '', name: 'JAIMAICAN BRONZE' },
+  { code: '', name: 'JADE GREEN' },
+  { code: '7373', name: 'JADE' },
+  { code: 'XSC2026', name: 'IVORY WHITE' },
+  { code: 'DW', name: 'IVORY WHITE' },
+  { code: 'JJJGWHA', name: 'IVORY PEARL 3C' },
+  { code: '6974', name: 'IVORY PARCHMENT' },
+  { code: 'BJKGWHA', name: 'IVORY PARCHMENT' },
+  { code: '4247', name: 'IVORY (7)(M)' },
+  { code: 'M6843D', name: 'IVORY (2)' },
+  { code: '6778G', name: 'IVORY' },
+  { code: '6718', name: 'IVORY' },
+  { code: 'HB', name: 'IVORY' },
+  { code: 'PPGL', name: 'IVORY' },
+  { code: 'PPLE', name: 'IRIS PURPLE' },
+  { code: 'M6723D', name: 'IRIS (2)(M)' },
+  { code: 'E4', name: 'IRIS' },
+  { code: 'B7', name: 'INTENSE LIME YELLOW' },
+  { code: 'M7044D', name: 'INSPIRATION YELLOW (2)' },
+  { code: '1FD', name: 'INSPIRATION YELLOW' },
+  { code: '7041', name: 'INSPIRATION YELLOW' },
+  { code: '7CYEWHA', name: 'INK BLUE' },
+  { code: 'W3', name: 'INK BLUE' },
+  { code: 'KP', name: 'INK BLUE' },
+  { code: '4CG', name: 'INGOT SILVER' },
+  { code: 'UX', name: 'INGOT SILVER' },
+  { code: 'FD120', name: 'INFRA RED' },
+  { code: '7462', name: 'INFINITE BLUE/OCEAN BLUE DRIVE' },
+  { code: 'EB', name: 'INDIGO BLUE' },
+  { code: '6616', name: 'INDIGO BLUE' },
+  { code: '6802', name: 'INDIGO BLUE' },
+  { code: 'M6773D', name: 'INDIGO (2)(M)' },
+  { code: '6829', name: 'INDIGO' },
+  { code: '', name: 'INDIANA RED' },
+  { code: 'Y', name: 'INDIAN FIRE' },
+  { code: 'C5', name: 'INCOGNITO GREEN GRAY' },
+  { code: '4FJAWHA', name: 'INCA GOLD' },
+  { code: 'UJ', name: 'imported' },
+  { code: 'J7', name: 'imported' },
+  { code: 'UG', name: 'imported' },
+  { code: 'G1', name: 'imported' },
+  { code: 'UM', name: 'imported' },
+  { code: 'W9', name: 'imported' },
+  { code: 'RR(바탕)', name: 'imported' },
+  { code: 'PPBX', name: 'IMPERIAL RED' },
+  { code: '', name: 'IMPERIAL RED' },
+  { code: 'FD010', name: 'IMPERIAL BLUE' },
+  { code: '5ZRGWHA', name: 'IGNITE ORANGE' },
+  { code: '33Y', name: 'ICY BLUE' },
+  { code: 'LPM', name: 'ICONIC SILVER/SILVER RADIANCE' },
+  { code: '7408', name: 'ICED MOCHA' },
+  { code: 'GP', name: 'ICED BLUE' },
+  { code: '7292', name: 'ICE STORM' },
+  { code: 'PD4', name: 'ICE SILVER' },
+  { code: 'PVV', name: 'ICE BLUE' },
+  { code: 'SA', name: 'HUNTER GREEN' },
+  { code: 'SQ', name: 'HOT RED' },
+  { code: 'HR', name: 'HOT RED' },
+  { code: 'BF', name: 'HOT RED' },
+  { code: '7404', name: 'HOT PEPPER RED' },
+  { code: '5D', name: 'HOLLY GREEN' },
+  { code: 'GV', name: 'HOLLY GREEN' },
+  { code: 'MX7071097', name: 'HILTI RED' },
+  { code: '18G', name: 'HIGHLIGHT SILVER' },
+  { code: '3067', name: 'HIGHLAND GREEN' },
+  { code: '13102', name: 'HIGHLAND GREEN' },
+  { code: '37N', name: 'HIGHLAND GREEN' },
+  { code: '7478', name: 'HERITAGE LIGHT BLUE' },
+  { code: '59L28155', name: 'HERBERTS DARK RED' },
+  { code: 'BJ9', name: 'HEAVY METAL' },
+  { code: 'HM', name: 'HEATHER MIST' },
+  { code: 'FD007', name: 'HEATHER CORAL' },
+  { code: 'B3', name: 'HEATH BROWN' },
+  { code: 'ARQA', name: 'HARVEST GOLD BROWN' },
+  { code: 'B5', name: 'HARVEST GOLD' },
+  { code: 'KHT', name: 'GVZ FEUERWEHR LEMMON' },
+  { code: '38L', name: 'GUNMETAL BLUE' },
+  { code: 'ZW', name: 'GUNMETAL' },
+  { code: '', name: 'GULF HERITAGE ORANGE' },
+  { code: '', name: 'GULF HERITAGE BLUE' },
+  { code: '7138', name: 'GULF BLUE' },
+  { code: '1622', name: 'GUARDSMAN BLUE' },
+  { code: 'F', name: 'GUARDSMAN BLUE' },
+  { code: 'FH7EWHA', name: 'GUARD GREEN' },
+  { code: '7326', name: 'GUARD' },
+  { code: 'LB', name: 'GRIS UMBRAL' },
+  { code: '', name: 'GRIS PIEDRA' },
+  { code: 'GR', name: 'GRIS P' },
+  { code: 'AJ', name: 'GRIS MINA' },
+  { code: '7K', name: 'GRIS MERCURIO' },
+  { code: 'UV', name: 'GRIS LAJA' },
+  { code: 'AD', name: 'GRIS JAGUAR' },
+  { code: '', name: 'GRIS GRAFITO' },
+  { code: '7X', name: 'GRIS ESPACIAL' },
+  { code: '7V', name: 'GRIS CLIPPER' },
+  { code: 'GC - VA', name: 'GRIS CARIBU' },
+  { code: 'BL', name: 'GRIS ANTRACITA' },
+  { code: 'GR', name: 'GRIS' },
+  { code: 'WT7514', name: 'GREY GREEN' },
+  { code: 'M6967D', name: 'GREY (2)' },
+  { code: 'M6343A', name: 'GREY (1)' },
+  { code: '6507', name: 'GREY' },
+  { code: '375', name: 'GREY' },
+  { code: '4N7', name: 'GREY' },
+  { code: 'TD', name: 'GREENISH HILL GRAY' },
+  { code: 'SQ', name: 'GREEN ORCHID' },
+  { code: '7296', name: 'GREEN GEM 2' },
+  { code: 'CGYEWHA', name: 'GREEN GEM' },
+  { code: 'W7515', name: 'GREEN GEM' },
+  { code: 'HD', name: 'GREEN ENVY' },
+  { code: '', name: 'GREEN' },
+  { code: 'R', name: 'GREEN' },
+  { code: '7406', name: 'GREEN' },
+  { code: 'WT7600', name: 'GREEN' },
+  { code: '1B', name: 'GREEN' },
+  { code: 'LN', name: 'GREEN' },
+  { code: 'W7862G', name: 'GREEN' },
+  { code: 'MX7042273', name: 'GREEN' },
+  { code: 'OG', name: 'GREEN' },
+  { code: '1347-DP747', name: 'GRAY ICED JUNIPER' },
+  { code: 'WT8354', name: 'GRAY BLUE (2C)' },
+  { code: 'M6114A', name: 'GRAY (1)' },
+  { code: '6531', name: 'GRAY' },
+  { code: 'XPPA', name: 'GRAY' },
+  { code: '', name: 'GRAY' },
+  { code: 'ZU', name: 'GRAPHITE NIGHTMIST' },
+  { code: 'ZN', name: 'GRAPHITE NIGHTMIST' },
+  { code: 'M6950D', name: 'GRAPHITE BLUE (2)' },
+  { code: '6950', name: 'GRAPHITE BLUE' },
+  { code: 'KCYEWHA', name: 'GRAPHITE BLUE' },
+  { code: 'KZ', name: 'GRAPHITE BLUE' },
+  { code: 'M6739D', name: 'GRAPHITE (2)(M)' },
+  { code: 'M6427G', name: 'GRAPHITE (1)(S)' },
+  { code: 'M6063G', name: 'GRAPHITE (1)(M)' },
+  { code: '6045', name: 'GRAPHITE' },
+  { code: '49', name: 'GRAPHITE' },
+  { code: 'B1', name: 'GRAPHITE' },
+  { code: 'TF', name: 'GRAPHITE' },
+  { code: '6101', name: 'GRAPHIC' },
+  { code: 'M4204H', name: 'GRANITE (7)(M)' },
+  { code: 'I', name: 'GRABBER LIME' },
+  { code: 'F9', name: 'GRABBER LIME' },
+  { code: 'Z', name: 'GRABBER GREEN' },
+  { code: '2GQEWHA', name: 'GRABBER GREEN' },
+  { code: '3657', name: 'GRABBER BLUE' },
+  { code: 'CI', name: 'GRABBER BLUE' },
+  { code: '1DQEWHA', name: 'GRABBER BLUE' },
+  { code: 'PYA', name: 'GOLDEN YELLOW' },
+  { code: '7358', name: 'GOLDEN SANDALWOOD' },
+  { code: 'FD024', name: 'GOLDEN BROWN' },
+  { code: 'V7', name: 'GOLDEN BRONZE' },
+  { code: 'CONCEPT 10.8', name: 'GOLD LEAF' },
+  { code: 'UP', name: 'GOLD LEAF' },
+  { code: 'EES', name: 'GOLD KOREA' },
+  { code: '3FLEWHA', name: 'GOLD ASH' },
+  { code: '', name: 'GOLD' },
+  { code: '5580', name: 'GOLD' },
+  { code: '7385', name: 'GOLD' },
+  { code: '', name: 'GOBI BEIGE' },
+  { code: '28N', name: 'GLOAMING SILVER' },
+  { code: 'GG', name: 'GLIMMER GOLD' },
+  { code: 'BG', name: 'GLIMMER BEIGE' },
+  { code: 'M7530', name: 'GLADWIN GREEN' },
+  { code: '7047', name: 'GLACIER WHITE' },
+  { code: '6406', name: 'GLACIER WHITE' },
+  { code: '7494', name: 'GLACIER GREY' },
+  { code: '', name: 'GLACIER BLUE' },
+  { code: 'XSC2155', name: 'GITANE BLUE' },
+  { code: '5CEM', name: 'GINGER ALE' },
+  { code: 'DJSCWWA', name: 'GINGER ALE' },
+  { code: 'PHC', name: 'GIALLO YELLOW' },
+  { code: '6CW', name: 'GEMSTONE BLUE' },
+  { code: 'E2', name: 'GARNET' },
+  { code: '7489', name: 'GALVANIZED RED' },
+  { code: '682/1212', name: 'GALAXY BLUE' },
+  { code: '4CA', name: 'FROZEN WHITE' },
+  { code: 'P9', name: 'FROSTED GLASS' },
+  { code: '7533', name: 'FROSTED FIG' },
+  { code: '5812', name: 'FRENCH VANILLA' },
+  { code: '6V', name: 'FRENCH VANILLA' },
+  { code: '6F', name: 'FRENCH VANILLA' },
+  { code: 'PPIZ', name: 'FRENCH RACING BLUE' },
+  { code: '2DTEXWA', name: 'FRENCH BLUE WATERB.PRL' },
+  { code: '7061', name: 'FRENCH BLUE' },
+  { code: '7043', name: 'FRENCH BLUE' },
+  { code: '9ATEXXG', name: 'FOUNDRY GRAY' },
+  { code: 'ARQEWHA', name: 'FORT KNOX HARVEST GOLD' },
+  { code: 'X0449', name: 'FORREST GREEN' },
+  { code: '7472', name: 'FORGED GREEN' },
+  { code: '', name: 'FORD RAPTOR BLACK' },
+  { code: '7L', name: 'FORD PERFORMANCE BLUE' },
+  { code: '7431', name: 'FLIGHT BLUE' },
+  { code: 'Z3', name: 'FLARE' },
+  { code: 'Z9', name: 'FIJI BLUE' },
+  { code: 'PPJA', name: 'FERRARI RED' },
+  { code: '89', name: 'FAWN' },
+  { code: '069', name: 'EXPLORER BLUE P' },
+  { code: '6792G', name: 'EVERGREEN FROST LOW GLOSS' },
+  { code: 'M6772D', name: 'EVERGREEN FROST (2)(M)' },
+  { code: 'M6792G', name: 'EVERGREEN FROST (1)' },
+  { code: '6641', name: 'EVERGREEN FROST' },
+  { code: 'M4233J', name: 'EVERGREEN (7)(M)' },
+  { code: 'M6665D', name: 'EVERGREEN (2)' },
+  { code: 'SF', name: 'EVERGLADE GREEN' },
+  { code: 'GG3EWHA', name: 'EVERGLADE' },
+  { code: '7545', name: 'EUCALYPTUS GREEN' },
+  { code: '6972', name: 'ESTATE GREEN' },
+  { code: '6918', name: 'ESTATE GREEN' },
+  { code: '2T5', name: 'ESPRESSO' },
+  { code: 'FA', name: 'ERUPTION GREEN' },
+  { code: 'BA', name: 'ERMINE WHITE' },
+  { code: '1KV', name: 'EQUINOX BRONZE' },
+  { code: 'PPIB', name: 'EMERALD GREEN' },
+  { code: '5Y', name: 'EMBER' },
+  { code: 'YYZ', name: 'ELEGANT VIOLET' },
+  { code: '7329', name: 'ELECTRIC SPICE' },
+  { code: 'UAPC', name: 'ELECTRIC SILVER' },
+  { code: 'ER', name: 'ELECTRIC RED' },
+  { code: 'GH', name: 'ELECTRIC RED' },
+  { code: '73', name: 'ELECTRIC ORANGE' },
+  { code: '6984', name: 'ELECTRIC GREEN' },
+  { code: 'SBYEWHA', name: 'ELECTRIC GREEN' },
+  { code: '6954', name: 'ELECTRIC GREEN' },
+  { code: 'SW', name: 'ELECTRIC GREEN' },
+  { code: '7280', name: 'ELECTRIC GOLD' },
+  { code: 'M6425A', name: 'ELECTRIC CURRENT RED-M. (1)' },
+  { code: '8B', name: 'ELECTRIC CURRANT RED' },
+  { code: 'GF', name: 'ELECTRIC CURRANT RED' },
+  { code: 'YD', name: 'EBONY/MIDNIGHT BLACK' },
+  { code: '6816', name: 'EBONY SATIN' },
+  { code: '6877', name: 'EBONY BLACK' },
+  { code: 'M4205H', name: 'EBONY (7)(M)' },
+  { code: 'UB', name: 'EBONY' },
+  { code: 'UAWAXHA', name: 'EBONY' },
+  { code: '7203', name: 'EARTH BROWN' },
+  { code: '7190', name: 'EARTH' },
+  { code: 'JNZ', name: 'DYNO GREY' },
+  { code: 'A4', name: 'DYNAMIC WHITE' },
+  { code: '3RSE', name: 'DYNAMIC RED' },
+  { code: 'S', name: 'DUSK ROSE' },
+  { code: '', name: 'DUSK GREEN' },
+  { code: 'ND', name: 'DUNE PEARL BEIGE' },
+  { code: '7159', name: 'DUNE' },
+  { code: '', name: 'DUNDEE GREY' },
+  { code: '7NQEWHA', name: 'DRIFTWOOD GREY' },
+  { code: '5B', name: 'DRIFTWOOD' },
+  { code: '6B', name: 'DRIFTWD' },
+  { code: 'PBN', name: 'DRAKENS BLUE' },
+  { code: '690/15221', name: 'DOVER WHITE' },
+  { code: '7137', name: 'DOVE GREY' },
+  { code: '4N1', name: 'DOVE GREY' },
+  { code: '6782.06374', name: 'DOURADO MIRAGE' },
+  { code: '', name: 'DOURADO MARSEILLE' },
+  { code: '', name: 'DOURADO LAREDO' },
+  { code: '', name: 'DOURADO GLASGOW METALICO' },
+  { code: '', name: 'DOURADO ESCOCIA' },
+  { code: 'WT6695', name: 'DOT YELLOW' },
+  { code: 'DS', name: 'DORADO SIAM' },
+  { code: 'FB', name: 'DORADO INSULAR' },
+  { code: 'PJV', name: 'DOLPHIN BLUE' },
+  { code: '6797A', name: 'DK TOURMALINE' },
+  { code: '6831', name: 'DK TOURMALINE' },
+  { code: 'EVYEXWA', name: 'DK TOREADOR' },
+  { code: '6182', name: 'DK TITANIUM' },
+  { code: 'R2', name: 'DK TEAL WB' },
+  { code: '5868', name: 'DK TEAL' },
+  { code: '4J', name: 'DK SPRUCE GREEN' },
+  { code: '5989', name: 'DK ROSEWOOD' },
+  { code: '2S', name: 'DK RED' },
+  { code: '23', name: 'DK RED' },
+  { code: 'UGE', name: 'DK PORTLAND GREY' },
+  { code: 'VP', name: 'DK PLUM' },
+  { code: '5781', name: 'DK PEWTER' },
+  { code: '5N', name: 'DK ORANGE' },
+  { code: 'KN', name: 'DK LAPIS' },
+  { code: 'C', name: 'DK IVY GREEN' },
+  { code: 'PX', name: 'DK HIGHLAND GREEN' },
+  { code: 'YG', name: 'DK GREEN' },
+  { code: 'M6736', name: 'DK ELECTRIC RED (STRIPE)' },
+  { code: '6785', name: 'DK CYPRESS GOLD' },
+  { code: 'BB', name: 'DK CYPRESS GOLD' },
+  { code: 'K', name: 'DK CRYSTAL BLUE (7)(M)' },
+  { code: '6', name: 'DK CORDOVAN' },
+  { code: '1J', name: 'DK CHARCOAL' },
+  { code: '1Y', name: 'DK CHARCOAL' },
+  { code: 'X', name: 'DK BLUE' },
+  { code: 'BA', name: 'DK BLACK' },
+  { code: 'FF', name: 'DK BERRY' },
+  { code: '6762', name: 'DK BALTIC' },
+  { code: 'G7', name: 'DIGITAL CERAMIC SILVER' },
+  { code: 'FK', name: 'DIFFUSED SILVER' },
+  { code: '0B (M5C691)', name: 'DIAMOND WHITE' },
+  { code: 'FD001', name: 'DIAMOND WHITE' },
+  { code: 'B9', name: 'DIAMOND WHITE' },
+  { code: '94', name: 'DIAMOND WHITE' },
+  { code: '', name: 'DIAMOND SILVER BLUE' },
+  { code: '5584', name: 'DIAMOND BLUE' },
+  { code: '38', name: 'DIAMOND BLUE' },
+  { code: '10856', name: 'DIAMOND BLACK' },
+  { code: 'FE95-09901', name: 'DIAMOND BLACK' },
+  { code: '568/10856', name: 'DIAMOND BLACK' },
+  { code: 'HAXEWHA', name: 'DIAMOND BLACK' },
+  { code: 'TC', name: 'DIAMANTE BLUE' },
+  { code: 'MX7081277', name: 'DHL YELLOW' },
+  { code: 'PD6', name: 'DESERT WIND' },
+  { code: 'JC', name: 'DESERT VIOLET' },
+  { code: '5916', name: 'DESERT TAN' },
+  { code: 'A4', name: 'DESERT TAN' },
+  { code: 'C2L', name: 'DESERT TAN' },
+  { code: '6473', name: 'DESERT TAN' },
+  { code: '5JDC', name: 'DESERT ISLAND BLUE' },
+  { code: '6F', name: 'DESERT GOLD' },
+  { code: '7436', name: 'DESERT GOLD' },
+  { code: 'PHU', name: 'DESERT GLOW' },
+  { code: 'BW', name: 'DESERT EMBER' },
+  { code: 'M6659D', name: 'DESERT CORRAL (2)(M)' },
+  { code: 'FD', name: 'DESERT CORAL' },
+  { code: 'PGM', name: 'DESERT CORAL' },
+  { code: '37P', name: 'DESERT BRONZE' },
+  { code: 'KYD', name: 'DENIM BLUE (7)(M)' },
+  { code: 'M6970D', name: 'DENIM BLUE' },
+  { code: 'KY', name: 'DENIM BLUE' },
+  { code: 'KYYEXWA', name: 'DENIM BLUE' },
+  { code: 'M4228H', name: 'DELTA GRAY (7)(M)' },
+  { code: 'AY', name: 'DEEPWATER BLUE' },
+  { code: 'WB', name: 'DEEP WINDSOR' },
+  { code: 'LDZEWHA', name: 'DEEP WEDGEWOOD BLUE' },
+  { code: 'KQ', name: 'DEEP WEDGEWOOD BLUE' },
+  { code: 'GV', name: 'DEEP TOREADOR RED (2C)' },
+  { code: '6976', name: 'DEEP TOREADOR RED' },
+  { code: '6149', name: 'DEEP TAUPE' },
+  { code: '9R', name: 'DEEP SILVER SMOKE GREY' },
+  { code: 'AM', name: 'DEEP SIENNA' },
+  { code: '6049', name: 'DEEP SHADOW BLUE' },
+  { code: '8D', name: 'DEEP SANDALWOOD' },
+  { code: '6193', name: 'DEEP SANDALWOOD' },
+  { code: '4SVEWWA', name: 'DEEP ROSSO RED' },
+  { code: '6820', name: 'DEEP NAVY BLUE' },
+  { code: 'PA', name: 'DEEP JEWEL GREEN' },
+  { code: 'PE', name: 'DEEP JEWEL GREEN' },
+  { code: 'GP', name: 'DEEP IRIS' },
+  { code: 'DCWEWHA', name: 'DEEP IMPACT BLUE' },
+  { code: '6846', name: 'DEEP EVERGREEN' },
+  { code: '6813', name: 'DEEP EVERGREEN' },
+  { code: '42M', name: 'DEEP CRYSTAL BLUE' },
+  { code: 'MK', name: 'DEEP AEGEAN' },
+  { code: '6073', name: 'DEEP AEGEAN' },
+  { code: '7497', name: 'DARKENED BRONZE' },
+  { code: '4V', name: 'DARK YELLOW GREEN' },
+  { code: 'M4250J', name: 'DARK WILLOW (7)(M)' },
+  { code: '9U', name: 'DARK WALNUT' },
+  { code: '', name: 'DARK VINO TINT' },
+  { code: 'NA', name: 'DARK TOURMALINE' },
+  { code: 'NE', name: 'DARK TOURMALINE' },
+  { code: 'JL', name: 'DARK TOREADOR RED' },
+  { code: '4209', name: 'DARK TITANIUM (7)(M)' },
+  { code: 'M6433G', name: 'DARK TITANIUM (1)(M)' },
+  { code: 'M6438G', name: 'DARK TITANIUM (1)(M)' },
+  { code: 'M6175G', name: 'DARK TITANIUM (1)(M)' },
+  { code: 'M6390A', name: 'DARK TITANIUM (1)' },
+  { code: '6438G', name: 'DARK TITANIUM' },
+  { code: '4S', name: 'DARK TITANIUM' },
+  { code: 'E1', name: 'DARK TITANIUM' },
+  { code: 'R8', name: 'DARK TITANIUM' },
+  { code: '7006', name: 'DARK TEAL (2)' },
+  { code: 'MG2AXPD', name: 'DARK TEAL' },
+  { code: '7001', name: 'DARK TEAL' },
+  { code: '5800', name: 'DARK TEAL' },
+  { code: '5881', name: 'DARK TEAL' },
+  { code: 'M6147A', name: 'DARK TAUPE (1)' },
+  { code: '5H', name: 'DARK TAUPE' },
+  { code: 'M6233', name: 'DARK TAUPE' },
+  { code: '7058', name: 'DARK SVT BLUE' },
+  { code: '1T5', name: 'DARK STONE' },
+  { code: '7071', name: 'DARK STEEL' },
+  { code: 'JNQEWHA', name: 'DARK SPARKLE' },
+  { code: 'M4194J', name: 'DARK SMOKE (7)(M)' },
+  { code: 'M6142G', name: 'DARK SMOKE (1)(M)' },
+  { code: '5985', name: 'DARK SLATE' },
+  { code: 'PHW', name: 'DARK SLATE' },
+  { code: '7301', name: 'DARK SIDE' },
+  { code: 'SPWCWHA', name: 'DARK SHADOW GREY' },
+  { code: '1MWCWHA', name: 'DARK SHADOW GRAY' },
+  { code: 'M6188G', name: 'DARK SHADOW BLUE (1)' },
+  { code: '6199', name: 'DARK SHADOW BLUE' },
+  { code: '79', name: 'DARK SHADOW BLUE' },
+  { code: '6609', name: 'DARK SHADOW BLUE' },
+  { code: 'B7', name: 'DARK SHADOW BLUE' },
+  { code: '6188', name: 'DARK SHADOW BLUE' },
+  { code: 'D', name: 'DARK SCARLET (7)(M)' },
+  { code: 'FW', name: 'DARK SATIN GREEN' },
+  { code: 'MX7001841', name: 'DARK SAPPHIRE BLUE' },
+  { code: '6009', name: 'DARK SAGE' },
+  { code: 'M4236H', name: 'DARK SADDLE (7)(M)' },
+  { code: '5973', name: 'DARK SABLE' },
+  { code: '', name: 'DARK SABLE' },
+  { code: '8W', name: 'DARK SABLE' },
+  { code: '6L', name: 'DARK SABLE' },
+  { code: '6549', name: 'DARK RUBY' },
+  { code: 'M4184', name: 'DARK REGATTA BLUE (7)(M)' },
+  { code: '5BD', name: 'DARK REGATTA BLUE (7)(M)' },
+  { code: 'M4199H', name: 'DARK REGATTA BLUE (7)(M)' },
+  { code: '52', name: 'DARK RED OPAL' },
+  { code: 'M6692G', name: 'DARK RED (1)(M)' },
+  { code: '6296', name: 'DARK RED' },
+  { code: 'X0035', name: 'DARK PURPLISH BLUE' },
+  { code: 'M4265J', name: 'DARK PRARIE TAN (7)(M)' },
+  { code: 'AY5', name: 'DARK PRAIRIE TAN (7)(M)' },
+  { code: 'M6691C', name: 'DARK PORTOFINO BLUE (1)(M)' },
+  { code: 'F2T', name: 'DARK PORTOFINO BLUE' },
+  { code: '6618', name: 'DARK PORTOFINO' },
+  { code: '7M', name: 'DARK PINE' },
+  { code: '5635', name: 'DARK PINE' },
+  { code: '5658', name: 'DARK PINE' },
+  { code: '1347-DP744', name: 'DARK PERSIAN GREEN' },
+  { code: 'LGTEWHA', name: 'DARK PERSIAN GREEN' },
+  { code: 'BJ5', name: 'DARK PARCHMENT (7)(M)' },
+  { code: 'M4222J', name: 'DARK OPAL (7)(M)' },
+  { code: 'M6654C', name: 'DARK OPAL (1)(M)' },
+  { code: '5PQAJMG', name: 'DARK NEUTRAL' },
+  { code: 'A1813', name: 'DARK NAUTIC BLUE' },
+  { code: '2039', name: 'DARK MOSS GREEN' },
+  { code: 'A', name: 'DARK MOCHA (7)(M)' },
+  { code: 'DW', name: 'DARK MOCHA' },
+  { code: 'M6679', name: 'DARK MOCHA' },
+  { code: 'BHE', name: 'DARK MINK' },
+  { code: '3A', name: 'DARK MIDNIGHT BLUE' },
+  { code: 'JH', name: 'DARK MICASTONE' },
+  { code: '7470', name: 'DARK MATTER GRAY' },
+  { code: '', name: 'DARK MAPLE' },
+  { code: 'M4231J', name: 'DARK LAPIS (7)(M)' },
+  { code: '6556', name: 'DARK LAPIS' },
+  { code: '5328', name: 'DARK JADE' },
+  { code: 'PDWCXWH', name: 'DARK HIGHLAND GREEN' },
+  { code: 'PDWAXPD', name: 'DARK HIGHLAND GREEN' },
+  { code: '6530', name: 'DARK GREY' },
+  { code: '6353', name: 'DARK GREY' },
+  { code: 'DG', name: 'DARK GREY' },
+  { code: '3ME', name: 'DARK GREY' },
+  { code: 'M6949D', name: 'DARK GREEN SATIN (2)' },
+  { code: '6949', name: 'DARK GREEN SATIN' },
+  { code: 'PAYEWHA', name: 'DARK GREEN SATIN' },
+  { code: 'M6275H', name: 'DARK GREEN GREY (1)(M)' },
+  { code: 'M6789D', name: 'DARK GREEN (2)(M)' },
+  { code: '4Q', name: 'DARK GREEN' },
+  { code: 'SG1', name: 'DARK GREEN' },
+  { code: '', name: 'DARK GREEN' },
+  { code: 'M4225J', name: 'DARK GRAY (7)(M)' },
+  { code: 'ZU5', name: 'DARK GRAPHITE' },
+  { code: '2N5', name: 'DARK FLINT' },
+  { code: '82', name: 'DARK FAWN' },
+  { code: '3GV', name: 'DARK EMERALD' },
+  { code: 'KY5', name: 'DARK DENIM BLUE' },
+  { code: '5827', name: 'DARK CURRY BROWN' },
+  { code: '6411', name: 'DARK CURRANT RED' },
+  { code: 'M6525C', name: 'DARK CRYSTAL BLUE (1)(M)' },
+  { code: 'M6642', name: 'DARK CRANBERRY (1)(M)' },
+  { code: 'M6445A', name: 'DARK CRANBERRY (1)(M)' },
+  { code: 'M6667C', name: 'DARK CRANBERRY (1)(M)' },
+  { code: '6445', name: 'DARK CRANBERRY' },
+  { code: '8N', name: 'DARK CORDOVAN' },
+  { code: 'W3837N', name: 'DARK COPPER' },
+  { code: 'A4805', name: 'DARK COPPER' },
+  { code: 'T5', name: 'DARK COPPER' },
+  { code: 'F', name: 'DARK CINNABAR (7)(M)' },
+  { code: 'M6262G', name: 'DARK CHESTNUT (1)(M)' },
+  { code: 'CE', name: 'DARK CHESTNUT' },
+  { code: 'A8', name: 'DARK CHESTNUT' },
+  { code: '6286', name: 'DARK CHESTNUT' },
+  { code: '6RTEWHA', name: 'DARK CHERRY' },
+  { code: 'M4148H', name: 'DARK CHARCOAL (7)(M)' },
+  { code: 'W3', name: 'DARK CHARCOAL' },
+  { code: '5887', name: 'DARK CHARCOAL' },
+  { code: '9W', name: 'DARK CHARCOAL' },
+  { code: '5D', name: 'DARK CHAMPAGNE' },
+  { code: 'T', name: 'DARK CHAMPAGNE' },
+  { code: '54', name: 'DARK CHAMPAGNE' },
+  { code: '5571', name: 'DARK CHAMPAGNE' },
+  { code: '8A', name: 'DARK CHAMOIS' },
+  { code: '8B', name: 'DARK CHAMOIS' },
+  { code: '5757', name: 'DARK CARAMEL' },
+  { code: '2T', name: 'DARK CANYON RED' },
+  { code: '23', name: 'DARK CANYON RED' },
+  { code: '5C', name: 'DARK CADET BLUE' },
+  { code: '5884', name: 'DARK CADET BLUE' },
+  { code: '6237', name: 'DARK CABERNET' },
+  { code: '25', name: 'DARK CABERNET' },
+  { code: '9P', name: 'DARK CABERNET' },
+  { code: 'M6582G', name: 'DARK BROWN (1)(M)' },
+  { code: '5247', name: 'DARK BROWN' },
+  { code: '5V', name: 'DARK BROWN' },
+  { code: '5Q', name: 'DARK BROWN' },
+  { code: 'W8161H', name: 'DARK BLUE' },
+  { code: 'NBMAXXX', name: 'DARK BLUE' },
+  { code: '6724', name: 'DARK BLUE' },
+  { code: '3DYEWHA', name: 'DARK BLUE' },
+  { code: '3Q', name: 'DARK BLUE' },
+  { code: '3L', name: 'DARK BLUE' },
+  { code: 'WT2166', name: 'DARK BLUE' },
+  { code: 'WT8381', name: 'DARK BLUE' },
+  { code: '3D', name: 'DARK BLUE' },
+  { code: '5953', name: 'DARK BLUE' },
+  { code: '39', name: 'DARK BLUE' },
+  { code: 'PA5', name: 'DARK BLUE' },
+  { code: '7127', name: 'DARK BLUE' },
+  { code: 'UV', name: 'DARK BLUE' },
+  { code: 'MX7001857', name: 'DARK BLUE' },
+  { code: '5656', name: 'DARK BITTERSWEET' },
+  { code: '5603', name: 'DARK BERYL' },
+  { code: 'M6743G', name: 'DARK BERRY (1)(M)' },
+  { code: 'M6787D', name: 'DARK BALTIC BLUE (2)(M)' },
+  { code: 'M6826G', name: 'DARK ARGENT (1)' },
+  { code: 'PG', name: 'DARK AMETHYST' },
+  { code: '16328', name: 'DAKAR YELLOW' },
+  { code: 'BF', name: 'CYPRESS GOLD FROST' },
+  { code: 'M4255J', name: 'CYPRESS (7)(M)' },
+  { code: '4255', name: 'CYPRESS' },
+  { code: '7449', name: 'CYBER ORANGE' },
+  { code: 'M6325A', name: 'CURRENT RED (1)' },
+  { code: 'EC', name: 'CURRANT RED' },
+  { code: '2S', name: 'CURRANT RED' },
+  { code: 'J', name: 'CURRANT (7)(M)' },
+  { code: 'WZ', name: 'CRYSTAL WHITE' },
+  { code: 'WY', name: 'CRYSTAL WHITE' },
+  { code: 'EP3EWHA', name: 'CRYSTAL SILVER' },
+  { code: 'M7268', name: 'CRYSTAL CHAMPAGNE' },
+  { code: '4R', name: 'CRYSTAL BLUE FROST' },
+  { code: 'M6662G', name: 'CRYSTAL BLUE (1)(M)' },
+  { code: 'M6327A', name: 'CRYSTAL BLUE (1)' },
+  { code: 'A', name: 'CRYSTAL BLUE' },
+  { code: 'KA', name: 'CRYSTAL BLUE' },
+  { code: '6404', name: 'CRYSTAL BLUE' },
+  { code: 'BL', name: 'CRYSTAL BLUE' },
+  { code: 'XSC2078', name: 'CRYSTAL (CANTON) BLUE' },
+  { code: '1L', name: 'CRYSTAL' },
+  { code: '6249', name: 'CRYSTAL' },
+  { code: '5BWT', name: 'CRYSTAL' },
+  { code: '7176', name: 'CREME BRULEE' },
+  { code: '7184', name: 'CREME BRULEE' },
+  { code: 'WT1030', name: 'CREAM' },
+  { code: 'B1', name: 'CREAM' },
+  { code: '6P', name: 'CREAM' },
+  { code: 'PPHM', name: 'CREAM' },
+  { code: 'PHM', name: 'CREAM' },
+  { code: 'M4212H', name: 'CRANBERRY (7)(M)' },
+  { code: 'M6588', name: 'CRANBERRY (1)(M)' },
+  { code: '6593', name: 'CRANBERRY' },
+  { code: '', name: 'COVERT GRAY' },
+  { code: 'PPF2', name: 'COSMIC BLUE' },
+  { code: '150/VWLH5H', name: 'CORNAT BLUE' },
+  { code: 'M4258J', name: 'CORDOVAN (7)(M)' },
+  { code: 'FHZEWHA', name: 'CORDOVAN' },
+  { code: 'PPHY', name: 'CORAL BLUE' },
+  { code: '7103', name: 'CORAL' },
+  { code: '2A', name: 'CORAL' },
+  { code: 'FD113', name: 'COPPER RUST' },
+  { code: '37M', name: 'COPPER RED' },
+  { code: '7523', name: 'COPPER QUARTZ' },
+  { code: '42G', name: 'COPPER PULSE' },
+  { code: '7535', name: 'COPPER OXIDE' },
+  { code: '', name: 'COPPER GLOW' },
+  { code: 'PEV', name: 'COPPER GLOW' },
+  { code: '7496', name: 'COPPER GLAZE' },
+  { code: 'HR', name: 'COPPER CLAY' },
+  { code: 'C', name: 'COPPER' },
+  { code: '5697', name: 'COPPER' },
+  { code: 'A2W', name: 'COOL WHITE' },
+  { code: 'SPR3', name: 'COOL GREY' },
+  { code: 'CG', name: 'COOL GREY' },
+  { code: 'M3', name: 'COOL BLUE' },
+  { code: 'JMWAWHA', name: 'CONQUER GREY' },
+  { code: '13041', name: 'CONIFEROUS GREEN' },
+  { code: 'CE', name: 'COMPETITION ORANGE' },
+  { code: '5ZTAWHA', name: 'COMMAND GREY' },
+  { code: '99', name: 'COLUMBIA SILVER' },
+  { code: 'NDD', name: 'COLORADO RED' },
+  { code: 'D3', name: 'COLORADO RED' },
+  { code: '', name: 'COLORADO RED' },
+  { code: 'ZT', name: 'COLONIAL WHITE' },
+  { code: 'YY', name: 'COLONIAL WHITE' },
+  { code: '6735', name: 'COLONIAL WHITE' },
+  { code: '6Y', name: 'CODE ORANGE' },
+  { code: '', name: 'COBRE ENCENDIDO' },
+  { code: 'MG', name: 'COBALT BLUE' },
+  { code: '1908', name: 'CLEARWATER AQUA' },
+  { code: '6415', name: 'CLEAR CRYSTAL BLUE FROST' },
+  { code: '59L34181', name: 'CLASSIC RED' },
+  { code: 'M7008D', name: 'CITRUS GOLD (2)' },
+  { code: 'ARKEWHA', name: 'CITRUS GOLD' },
+  { code: 'ARKEXWA', name: 'CITRUS GOLD' },
+  { code: '7008', name: 'CITRUS GOLD' },
+  { code: '6995', name: 'CITRUS GOLD' },
+  { code: '7260', name: 'CITRUS' },
+  { code: 'RA', name: 'CINZA VIENA' },
+  { code: 'SPW', name: 'CINZA TRANCOSO' },
+  { code: '', name: 'CINZA TENNESSEE P' },
+  { code: 'Q', name: 'CINZA TENNESSEE' },
+  { code: '2086.09349', name: 'CINZA POMBO' },
+  { code: 'BA', name: 'CINZA PLATINUM' },
+  { code: '046', name: 'CINZA PLATINUM' },
+  { code: '', name: 'CINZA PLATINO' },
+  { code: '', name: 'CINZA PARA-CHOQUE ECO' },
+  { code: 'ECO', name: 'CINZA PARA CHOQUE' },
+  { code: 'CNV', name: 'CINZA NOVARA / GRIS ZINC' },
+  { code: '030', name: 'CINZA NORUEGA' },
+  { code: '', name: 'CINZA NORUEGA' },
+  { code: 'BCW', name: 'CINZA NEGUEV' },
+  { code: 'MNZ', name: 'CINZA MONTREAL' },
+  { code: '', name: 'CINZA MONTREAL' },
+  { code: '026', name: 'CINZA MONTANA' },
+  { code: '9542.9203', name: 'CINZA MERCURY' },
+  { code: '', name: 'CINZA MERCURIO' },
+  { code: '3NP', name: 'CINZA LONDRES' },
+  { code: '', name: 'CINZA LIVERPOOL' },
+  { code: '', name: 'CINZA JAGUAR PEROL' },
+  { code: '', name: 'CINZA GRENOBLE' },
+  { code: '2086.06380', name: 'CINZA EXECUTIVO' },
+  { code: '3MZ', name: 'CINZA ESCURO SOLIDO' },
+  { code: '', name: 'CINZA COPENHAGEN' },
+  { code: '', name: 'CINZA CONCORD' },
+  { code: '', name: 'CINZA CLIPPER' },
+  { code: 'F04', name: 'CINZA CHARCOAL' },
+  { code: '', name: 'CINZA CHANCELLER' },
+  { code: '', name: 'CINZA CHAD' },
+  { code: '', name: 'CINZA BRUXELAS' },
+  { code: 'X10088K', name: 'CINZA BRISTOL' },
+  { code: 'HT', name: 'CINNAMON RED' },
+  { code: 'EC', name: 'CINNAMON GLAZE' },
+  { code: '7487', name: 'CINNABAR RED' },
+  { code: 'M4197', name: 'CINNABAR (7)(M)' },
+  { code: 'M6270A', name: 'CINNABAR (1)' },
+  { code: '5C', name: 'CINNABAR' },
+  { code: 'F1', name: 'CHRYSTAL' },
+  { code: '6S', name: 'CHROME YELLOW' },
+  { code: 'AFHAWHA', name: 'CHROME YELLOW' },
+  { code: 'BA', name: 'CHROME COPPER' },
+  { code: '7354', name: 'CHROMA QUARTZ' },
+  { code: 'ES4EWHA', name: 'CHROMA FLAME' },
+  { code: 'A2', name: 'CHROMA ELITE' },
+  { code: '7401', name: 'CHROMA CRYSTAL BLUE' },
+  { code: 'EJZEWHA', name: 'CHROMA COUTURE' },
+  { code: 'XF', name: 'CHROMA CAVIAR' },
+  { code: '7363', name: 'CHROMA CABERNET' },
+  { code: 'M6979D', name: 'CHOCOLATE BROWN (2)' },
+  { code: 'BS', name: 'CHOCOLATE BROWN' },
+  { code: '33J', name: 'CHILLI ORANGE' },
+  { code: 'BB8EWHA', name: 'CHESTNUT BROWN WATERBASE' },
+  { code: 'M4187H', name: 'CHESTNUT (7)(M)' },
+  { code: 'M6315G', name: 'CHESTNUT (1)(M)' },
+  { code: '6980', name: 'CHESTNUT' },
+  { code: '2022C', name: 'CHESTNUT' },
+  { code: '93', name: 'CHESTNUT' },
+  { code: '6285', name: 'CHESTNUT' },
+  { code: 'H', name: 'CHESAPEAKE BLUE' },
+  { code: '15859', name: 'CHATEAU SILVER' },
+  { code: 'M4172H', name: 'CHARCOAL RAVEN BLACK (7)(M)' },
+  { code: 'M6958D', name: 'CHARCOAL GREEN (2)' },
+  { code: '6958', name: 'CHARCOAL GREEN' },
+  { code: 'PHYCWHA', name: 'CHARCOAL GREEN' },
+  { code: 'TC', name: 'CHARCOAL GRAY' },
+  { code: 'MJ-174', name: 'CHARCOAL FROST' },
+  { code: 'M6959D', name: 'CHARCOAL BLUE (2)' },
+  { code: '6959', name: 'CHARCOAL BLUE' },
+  { code: '6855', name: 'CHARCOAL BLUE' },
+  { code: 'A', name: 'CHARCOAL BLACK (7)(M)' },
+  { code: '5TWEXWA', name: 'CHARCOAL BEIGE' },
+  { code: 'M6542G', name: 'CHARCOAL ARGENT (1)(M)' },
+  { code: 'M6542G', name: 'CHARCOAL (1)(M)' },
+  { code:
