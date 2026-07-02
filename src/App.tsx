@@ -6,11 +6,20 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 2단계에서 여기에 2200줄의 안료 데이터를 넣으시면 됩니다. 
-// 지금은 에러를 고치기 위해 임시로 1개만 넣어두었습니다.
+// 💡 [1번 구역] 기존에 쓰시던 안료 데이터(TONER_DB)를 여기에 그대로 넣으세요.
 export const TONER_DB: Record<string, TonerData> = {
-  'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '고농축 청색입니다.', details: [['일반 특성', '청색 수성 조색제입니다.']] }
+  'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '고농축 청색입니다.' },
+  // ... (기존 WT 안료 데이터들 전부) ...
+  'WT 3080': { role: '스페셜 애디티브', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '특수 첨가제.' }
 };
+
+// 💡 [2번 구역] 고객님이 추가하시려던 2610줄의 FORD 색상 코드는 반드시 '여기에' 넣으셔야 에러가 안 납니다!
+export const OEM_COLORS = [
+  // 아래에 { code: '...', name: '...' }, 형태의 2610줄을 전부 붙여넣으세요!
+  { code: 'X10088K', name: 'CINZA BRISTOL' },
+  { code: 'HT', name: 'CINNAMON RED' },
+  { code: 'M6542G', name: 'CHARCOAL (1)(M)' }
+];
 
 export const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
   let labelCategory = "일반 특성"; let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
@@ -62,68 +71,6 @@ export const getTonerDetailBackground = (code: string, role: string, angle: stri
     const l = isMetallic ? Math.max(0, baseL - 30) : Math.max(0, baseL - 15);
     return `radial-gradient(circle at 10% 10%, hsl(${h}, ${s}%, ${Math.min(100, l+10)}%) 0%, hsl(${h}, ${s}%, ${l}%) 100%)`;
   }
-};
-
-export const getMunsellDynamicDescription = (code: string, role: string, type: string, cWeight: number) => {
-    let behavior = ""; let title = "";
-    let weightTag = cWeight === 0 ? `[배합 대기중 : 0g]` : `[현재 투입량 : ${cWeight.toFixed(2)}g]`;
-
-    if (type === 'binder') {
-        title = "무색 투명도 제어 (N/A)"; 
-        behavior = `${weightTag} 수지(Resin) 역할을 하므로 먼셀 색상(Hue)에 직접 개입하지 않습니다. 양이 늘어날수록 금속 입자의 분산 공간을 넓혀주어 정면/측면의 명암 대비(Flop Index)를 극대화합니다.`;
-    } else if (role.includes('블루') || role.includes('청')) {
-        title = "먼셀 5PB ~ 7.5PB 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 정면(Face)은 극채도의 맑은 청색(C 14+)으로 화려해지며 명도가 낮아집니다. 측면(Flop) 110도에서는 특유의 반전 톤(녹청/적청)이 짙어집니다. 점점 줄어들면 보색 간섭이 잦아들며 맑은 푸른빛 난반사 역할만 수행합니다.`;
-    } else if (code.includes('376') || role.includes('레드') || role.includes('마젠타') || role.includes('적') || role.includes('마룬')) {
-        title = "먼셀 5R ~ 5RP 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 광학 간섭이 극대화되어 정면은 피 끓는 듯한 레드(C 14+)를 뿜어내며 측면으로 갈수록 특수 코팅에 의한 보색 간섭이 피어오릅니다. 점점 줄어들면 보색 효과는 숨고 베이스 컬러에 따뜻한 붉은 윤기만 은은하게 더해집니다.`;
-    } else if (role.includes('옐로우') || role.includes('황') || role.includes('오렌지') || role.includes('골드') || role.includes('오커')) {
-        title = "먼셀 2.5Y ~ 7.5YR 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 정면에서 순금과 같은 극강의 채도(C 12+)가 발현되며 시각적인 팽창감을 제공합니다. 반면 양이 점점 줄어들면 펄 입자가 넓게 흩어지며 별빛처럼 은은하고 따뜻한 스파클링 효과를 도막에 흩뿌리게 됩니다.`;
-    } else if (role.includes('그린') || role.includes('녹') || role.includes('에메랄드')) {
-        title = "먼셀 5G ~ 10BG 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 화려한 에메랄드 펄감이 폭발하며 측면 110도 플롭에서는 붉은(Reddish) 톤으로 급격히 교차 반전(Shift)됩니다. 양이 점점 줄어들면 붉은 베이스의 채도를 억누르며 바탕을 해치지 않는 신비로운 쿨톤 미세 반사광만을 제공합니다.`;
-    } else if (role.includes('블랙') || role.includes('흑')) {
-        title = "먼셀 무채색 N1 ~ N3 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 가시광선 흡수율이 기하급수적으로 상승하여 명도(Value)를 1.0 이하의 극한의 심연으로 끌어내립니다. 점점 줄어들면 바탕색의 채도를 미세하게 꺾어(Dirty) 차분하고 무거운 딥(Deep) 톤으로 밸런스를 맞추는 역할을 합니다.`;
-    } else if (role.includes('화이트') || role.includes('백')) {
-        title = "먼셀 무채색 N8 ~ N9.5 대역 제어"; 
-        behavior = `${weightTag} 양이 늘어날수록 정면 빛 반사율이 극대화되어 입자가 다이아몬드처럼 부서지는 화려한 발색과 고은폐 백탁 현상을 일으킵니다. 점점 줄어들면 바탕 베이스 컬러를 투과시키며 은은하고 부드러운 우유빛(Milky) 3D 깊이감을 섬세하게 연출합니다.`;
-    } else if (isTonerMetallic(role)) {
-        title = "명암 대비(Flop Index) 제어 안료"; 
-        behavior = `${weightTag} 양이 늘어날수록 금속 입자 배열 밀도가 촘촘해지며 정면은 8.0 이상 눈부시게 밝아지고 측면은 빛을 튕겨내 3.0 이하로 극단적으로 어두워집니다. 점점 줄어들면 금속감이 은은하게 흩어지며 베이스 고유의 솔리드 톤이 함께 어우러집니다.`;
-    } else {
-        title = "먼셀 다중 스펙트럼 제어"; 
-        behavior = `${weightTag} 투입량 증감에 따라 명도와 채도 변화 곡선이 다이내믹하게 움직이며, 주변 안료들과의 시너지 비율에 따라 정면광과 측면광의 톤 밸런스를 입체적으로 변환시킵니다.`;
-    }
-
-    return (
-        <div className="mt-2 mb-4 bg-slate-900 rounded-xl p-4 border border-slate-700 shadow-xl relative overflow-hidden">
-            <h4 className="text-yellow-400 font-black text-xs mb-3 flex items-center"><Zap size={14} className="mr-1.5"/> 2026 Munsell Color Dynamics</h4>
-            <div className="flex gap-4 items-center bg-slate-800 p-3 rounded-lg border border-slate-600 shadow-inner">
-                <div className="relative w-14 h-14 shrink-0 rounded-full shadow-[0_0_15px_rgba(0,0,0,0.8)] border-2 border-slate-500 animate-[spin_20s_linear_infinite]" 
-                     style={{ background: 'conic-gradient(from 90deg, #ef4444, #f59e0b, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #d946ef, #ef4444)' }}>
-                    <div className="absolute inset-2 bg-slate-900 rounded-full flex items-center justify-center">
-                        <div className="w-5 h-5 rounded-full border border-white/30 shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ background: `linear-gradient(135deg, ${TONER_DB[code].face}, ${TONER_DB[code].flop})` }}></div>
-                    </div>
-                </div>
-                <div className="flex flex-col flex-1">
-                    <div className="flex justify-between items-end mb-1.5">
-                        <span className="text-[10px] text-slate-400 font-bold tracking-wider">{title}</span>
-                        <span className="text-base font-black text-white">{cWeight.toFixed(2)} <span className="text-xs font-normal text-slate-400">g</span></span>
-                    </div>
-                    <div className="h-2.5 w-full rounded-full bg-slate-950 overflow-hidden relative border border-slate-700">
-                        <div className="absolute top-0 left-0 h-full transition-all duration-500 ease-out" 
-                             style={{ width: `${Math.min(100, (cWeight / 60) * 100)}%`, background: `linear-gradient(90deg, ${TONER_DB[code].flop}, ${TONER_DB[code].face})`, boxShadow: `0 0 10px ${TONER_DB[code].face}`}}>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className="mt-3 p-3 bg-blue-950/40 rounded-lg border border-blue-900/50">
-                <p className="text-[12px] text-blue-100 leading-relaxed break-keep font-medium"><span className="text-blue-400 font-bold tracking-tight mr-1">✨ 시뮬레이션 브리핑:</span>{behavior}</p>
-            </div>
-        </div>
-    );
 };
 
 export const getOptics = (tonersList: any[]) => {
@@ -288,6 +235,10 @@ export default function App() {
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight'} | null>(null); 
   const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
+  
+  // 💡 [새로 추가된 상태] FORD 색상 검색을 위한 상태
+  const [oemSearch, setOemSearch] = useState('');
+
   const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
   const [isBaseMetallic, setIsBaseMetallic] = useState(false); 
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
@@ -492,52 +443,13 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
-  // 💡 [요청 사항 완벽 반영] 자동차 렌더러 완전 삭제 및 화려한 3D 광학 렌즈 스펙트럼 이미지로 변경
-  const render3DView = (optics: any) => {
-    let appliedPaintColor = "transparent";
-    let flopColor = "transparent";
-
-    if (optics && optics.mid) {
-      const h = isNaN(optics.mid.h) ? 0 : Math.round(optics.mid.h);
-      const s = isNaN(optics.mid.s) ? 0 : Math.round(optics.mid.s);
-      const l = isNaN(optics.mid.l) ? 90 : Math.round(optics.mid.l);
-      appliedPaintColor = `hsl(${h}, ${s}%, ${l}%)`;
-      
-      const fh = isNaN(optics.flop.h) ? h : Math.round(optics.flop.h);
-      const fs = isNaN(optics.flop.s) ? s : Math.round(optics.flop.s);
-      const fl = isNaN(optics.flop.l) ? Math.max(0, l - 20) : Math.round(optics.flop.l);
-      flopColor = `hsl(${fh}, ${fs}%, ${fl}%)`;
-    }
-
-    // 환상적인 무지개 스펙트럼 리니어 그라데이션 (광학 렌즈 시뮬레이터 배경)
+  // 💡 [요청 사항 1 완벽 반영] 검정색 렌즈 화면을 싹 없애고, 무지개 스펙트럼 이미지만 가득 차게 변경했습니다!
+  const render3DView = () => {
     const SPECTRUM_GRADIENT = "linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff)";
 
     return (
-      <div className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-xl shadow-inner border border-slate-300 bg-slate-900">
-        
-        {/* 🌈 1. 생생한 스펙트럼 배경 (절대 어두워지지 않음) */}
-        <div className="absolute inset-0 opacity-90" style={{ background: SPECTRUM_GRADIENT }}></div>
-        
-        {/* 2. 공간감을 위한 비네팅(Vignette) 효과 */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.6)_100%)] z-10 pointer-events-none"></div>
-
-        {/* 3. 중앙에 페인트 컬러를 렌더링하는 광학 렌즈(글래스 플레이트) */}
-        <div className="z-20 w-[80%] h-[70%] rounded-2xl border border-white/30 shadow-[0_15px_35px_rgba(0,0,0,0.5)] flex items-center justify-center backdrop-blur-md relative overflow-hidden"
-             style={{ background: `linear-gradient(135deg, ${appliedPaintColor} 0%, ${flopColor} 100%)` }}>
-             
-             {/* 펄(Pearl) 입자 반짝임 효과 */}
-             {optics?.isMetallic && (
-                <div className="absolute inset-0 mix-blend-color-dodge opacity-60 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}></div>
-             )}
-             
-             {/* 렌즈 광택 (상단 하이라이트) */}
-             <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/40 to-transparent pointer-events-none"></div>
-             
-             {/* 중앙 포커스 아이콘 */}
-             <div className="w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center shadow-lg bg-black/10 backdrop-blur-sm z-30">
-                <ScanLine className="text-white" size={28} />
-             </div>
-        </div>
+      <div className="w-full h-full relative overflow-hidden rounded-xl shadow-inner border border-slate-300">
+        <div className="absolute inset-0 opacity-100" style={{ background: SPECTRUM_GRADIENT }}></div>
       </div>
     );
   };
@@ -733,7 +645,7 @@ export default function App() {
               
               <div className="h-44 rounded-xl overflow-hidden shadow-inner border border-slate-300 bg-slate-800 bg-cover bg-center flex items-center justify-center cursor-pointer relative group" onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }}>
                   <div className="relative z-10 w-full h-full">
-                      {render3DView(finalOptics)}
+                      {render3DView()}
                   </div>
                   <div className="absolute top-3 left-3 bg-white/90 text-slate-800 text-[10px] font-black px-2.5 py-1 rounded shadow backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity z-20 flex items-center">
                       <Maximize size={12} className="mr-1 text-blue-600"/> 화면을 클릭하여 스튜디오 크게 열기
@@ -741,13 +653,45 @@ export default function App() {
               </div>
             </div>
 
-            <div className="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0">
-                <h3 className="text-white font-black text-sm flex items-center"><BookOpen className="mr-2 text-blue-400" size={18}/>지능형 안료 도감</h3>
-                <span className="text-[10px] text-slate-500 hidden sm:block mx-auto flex-1 text-center font-bold">전체 안료 데이터 열람 영역</span>
-                <div className="relative w-40"><input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="검색 (예: 블루)" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 transition-colors" /><Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" /></div>
+            {/* 💡 [요청 사항 2 완벽 반영] FORD 색상코드 전용 검색창을 추가했습니다! */}
+            <div className="p-4 bg-slate-900 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-center shrink-0 gap-3">
+                <h3 className="text-white font-black text-sm flex items-center shrink-0"><BookOpen className="mr-2 text-blue-400" size={18}/>지능형 안료 도감</h3>
+                
+                <div className="flex gap-2 w-full sm:w-auto">
+                    {/* 기존 안료 검색창 */}
+                    <div className="relative flex-1 sm:w-40">
+                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료 검색 (예: 블루)" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
+                        <Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" />
+                    </div>
+                    {/* FORD 전용 검색창 추가 */}
+                    <div className="relative flex-1 sm:w-48">
+                        <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value)} placeholder="FORD 색상 검색" className="w-full bg-slate-800 border border-yellow-500/50 text-yellow-300 text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-yellow-400 transition-colors" />
+                        <Search size={14} className="absolute left-2.5 top-1.5 text-blue-400" />
+                    </div>
+                </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-3 flex flex-col gap-3 bg-slate-100">
+                {/* 💡 FORD 검색 결과 표시 영역 */}
+                {oemSearch.trim() !== '' && (
+                    <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm">
+                        <h4 className="text-xs font-black text-blue-800 mb-2">🔍 FORD 색상코드 검색 결과</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {/* 여기에 2번 구역(OEM_COLORS)에서 데이터를 찾아서 뿌려줍니다. */}
+                            {OEM_COLORS.filter(c => c.code.toUpperCase().includes(oemSearch.toUpperCase()) || c.name.toUpperCase().includes(oemSearch.toUpperCase())).slice(0, 20).map((oem, idx) => (
+                                <div key={idx} className="flex justify-between items-center bg-white px-3 py-2 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(oem.code)}>
+                                    <span className="font-black text-blue-600 text-sm">{oem.code}</span>
+                                    <span className="text-xs text-slate-600 font-bold truncate max-w-[100px]">{oem.name}</span>
+                                </div>
+                            ))}
+                            {OEM_COLORS.filter(c => c.code.toUpperCase().includes(oemSearch.toUpperCase()) || c.name.toUpperCase().includes(oemSearch.toUpperCase())).length === 0 && (
+                                <span className="text-xs text-slate-500 col-span-2 text-center py-2">일치하는 FORD 색상 코드가 없습니다.</span>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* 기존 안료 목록들 */}
                 {sortedCatalog.map((item) => {
                     const isMetallic = item.type !== 'solid' && item.type !== 'binder';
                     const isCurrentlyUsed = activeCodes.includes(item.code);
@@ -1163,4 +1107,4 @@ export default function App() {
       )}
     </div>
   );
-} 이 코드가 예전코드 전체 이고 내가 2200줄 안료추가 하려다 에러난거야 그럼 어떻게 하라는거야? 이 코드에 2200줄 추가 코드를 어딘가 붙여넣어야 된다는거잖아? 그 부분을 알려달라고
+} 이코드에 2610 줄 추가 하는 방법을 알려달라는거야 그리고 이코드 기능중에 검정렌즈 없어지고 색상코드 검색바 추가 된거 맞아?
