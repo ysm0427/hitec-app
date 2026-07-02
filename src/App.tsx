@@ -47,10 +47,10 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 336': { role: '트랜스루센트 레드', type: 'solid', face: '#7c2d12', flop: '#450a0a', desc: '어두운 갈색 빛이 오묘하게 도는 반투명 적색 조색제입니다.', details: [['일반 특성', '어두운 갈색 빛이 오묘하게 도는 선명한 반투명 적색 조색제입니다.'], ['색상 및 외관 변화', '이펙트 입자 위로 색이 투과되어 깊고 차분한 검붉은 반사광을 연출합니다.'], ['용도 및 적용 컬러', '빛 반사를 죽이지 않고 깊이감이 더해야 하는 특수 펄 레드 색상에 한정하여 조색 첨가제로 사용합니다.'], ['배합 및 혼합 비율', '반투명 첨가 가이드라인에 맞게 극소량 단위로 계량합니다.'], ['경고 및 주의사항', '반투명 성질이므로 솔리드 컬러 조색에 은폐용으로 사용하는 것은 금지됩니다.']] },
   'WT 337': { role: '레드', type: 'solid', face: '#ef4444', flop: '#991b1b', desc: '은은한 청색 기운이 도는 중간 톤의 표준 적색 조색제입니다.', details: [['일반 특성', '은은한 청색 기운이 도는 중간 톤의 고은폐력 표준 적색 조색제입니다.'], ['색상 및 외관 변화', '깨끗하고 묵직한 솔리드 적색광을 구현합니다.'], ['용도 및 적용 컬러', '일반적인 차가운 톤 솔리드 레드 컬러 배합 시 메인 안료로 널리 쓰입니다.'], ['배합 및 혼합 비율', '표준 조색 시스템 데이터를 엄수하여 정량 계량합니다.'], ['경고 및 주의사항', '따뜻한 노란빛 계열 레드 조색에 잘못 투입 시 색이 탁하고 보라색으로 틀어질 수 있습니다.']] },
   'WT 338': { role: '블루이쉬 마젠타 레드', type: 'solid', face: '#d946ef', flop: '#86198f', desc: '차가운 푸른빛이 많이 도는 선명한 표준 자주색 조색제입니다.', details: [['일반 특성', '차가운 푸른빛이 많이 도는 선명한 표준 자주색 조색제입니다.'], ['색상 및 외관 변화', '매우 맑고 차가운 분홍색 톤을 발현합니다.'], ['용도 및 적용 컬러', '솔리드 핑크나 차가운 느낌을 내야 하는 이펙트 펄 배합의 채도 상승제로 필수 사용됩니다.'], ['배합 및 혼합 비율', '색상 미세 보정 시 조색봉에 묻혀 소량씩 첨가해야 합니다.'], ['경고 및 주의사항', '착색이 강해 단 몇 방울의 오차로 전체 톤이 보라로 확 변할 수 있으므로 극소량 첨가 시 주의하십시오.']] },
-  'WT 339': { role: '바이올렛', type: 'solid', face: '#8b5cf6', flop: '#4c1d95', desc: '맑고 깨끗한 표준 보라색 수성 조색제입니다.', details: [['일반 특성', '맑고 깨끗한 표준 보라색 수성 조색제입니다.'], ['색상 및 외관 변화', '전체적인 명암 톤을 차분하고 고급스럽게 어둡게 눌러줍니다.'], ['용도 및 적용 컬러', '다크 그레이 솔리드/이펙트 컬러 조색 시 깊이감을 더하기 위해 주로 첨가됩니다.'], ['배합 및 혼합 비율', '배합표 상의 첨가 지시량에 따라 정밀 계량합니다.'], ['경고 및 주의사항', '실버 메탈릭에 직접 혼합 시 색이 칙칙하게 오염되어 보일 수 있으니 이펙트 혼합 시 상성 확인이 필요합니다.']] },
+  'WT 339': { role: '바이올렛', type: 'solid', face: '#8b5cf6', flop: '#4c1d95', desc: '맑고 깨끗한 표준 보라색 수성 조색제입니다.', details: [['일반 특성', '맑고 깨끗한 표준 보라색 수성 조색제입니다.'], ['색상 및 외관 변화', '전체적인 명암 톤을 차분하고 고급스럽게 어둡게 눌러줍니다.'], ['용도 및 적용 컬러', '다크 그레이 솔리드/이펙트 컬러 조색 시 깊이감이 더하기 위해 주로 첨가됩니다.'], ['배합 및 혼합 비율', '배합표 상의 첨가 지시량에 따라 정밀 계량합니다.'], ['경고 및 주의사항', '실버 메탈릭에 직접 혼합 시 색이 칙칙하게 오염되어 보일 수 있으니 이펙트 혼합 시 상성 확인이 필요합니다.']] },
   'WT 340': { role: '옐로우 마젠타 레드', type: 'solid', face: '#e879f9', flop: '#a21caf', desc: '따뜻한 황색 기운을 띠는 밝고 맑은 자주색 조색제입니다.', details: [['일반 특성', '따뜻한 황색 기운을 띠는 밝고 맑은 자주색 조색제입니다.'], ['색상 및 외관 변화', '알루미늄과 혼합 시 따스하고 화사한 핑크 메탈릭을 냅니다.'], ['용도 및 적용 컬러', '온화한 느낌의 핑크, 코랄, 밝은 레드 펄 조색 및 보정용으로 폭넓게 쓰입니다.'], ['배합 및 혼합 비율', '이펙트 전용 처방에 따라 정량 계량하여 사용합니다.'], ['경고 및 주의사항', '라벨 이름에 현혹되지 마십시오. 실제 발색은 선명한 자주색이므로 시편 확인 후 조색해야 합니다.']] },
   'WT 341': { role: '아주르 블루', type: 'solid', face: '#2563eb', flop: '#1e3a8a', desc: '채도가 가장 높은 아주 선명한 프리미엄 청색 조색제입니다.', details: [['일반 특성', '채도가 가장 높은 아주 선명한 프리미엄 청색 조색제입니다.'], ['색상 및 외관 변화', '정면은 녹청색, 측면은 적청색을 띠는 극단적인 각도별 플롭을 보입니다.'], ['용도 및 적용 컬러', '강한 채도가 필요한 이펙트 청색 배합의 필수 베이스입니다.'], ['배합 및 혼합 비율', '지정된 비율을 전자저울로 정밀하게 계측하여 혼합합니다.'], ['경고 및 주의사항', '측면과 정면 색상 차이가 워낙 크므로 조색 후 모든 각도를 다 확인해야 합니다.']] },
-  'WT 342': { role: '다크 바이올렛', type: 'solid', face: '#581c87', flop: '#2e1065', desc: '탁함 없이 맑은 심연의 어두움을 가진 보라색 수성 조색제입니다.', details: [['일반 특성', '탁함 없이 맑은 심연의 어두움을 가진 보라색 수성 조색제입니다.'], ['색상 및 외관 변화', '정면은 깊은 보라색을 띠고 측면은 붉은 자주색으로 변하여 화려한 입체감을 줍니다.'], ['용도 및 적용 컬러', '깊고 어두운 딥 블루 이펙트 컬러 조색 시 신비로운 명암 대비를 연출하기 위해 사용합니다.'], ['배합 및 혼합 비율', '바이올렛 계열 특수 배합비를 준수합니다.'], ['경고 및 주의사항', '청색감이 적고 붉은 기가 있어 쿨톤 조색 시 혼동 사용에 주의해야 합니다.']] },
+  'WT 342': { role: '다크 바이올렛', type: 'solid', face: '#581c87', flop: '#2e1065', desc: '탁함 없이 맑은 심연의 어두움을 가진 보라색 수성 조색제입니다.', details: [['일반 특성', '탁함 없이 맑은 심연의 어두움을 가진 보라색 수성 조색제입니다.'], ['색상 및 외관 변화', '정면은 깊은 보라색을 띠고 측면은 붉은 자주색으로 변하여 화려한 입체감을 줍니다.'], ['용도 및 적용 컬러', '깊고 어두운 딥 블루 이펙트 컬러 조색 시 신비로운 명암 대비 연출하기 위해 사용합니다.'], ['배합 및 혼합 비율', '바이올렛 계열 특수 배합비를 준수합니다.'], ['경고 및 주의사항', '청색감이 적고 붉은 기가 있어 쿨톤 조색 시 혼동 사용에 주의해야 합니다.']] },
   'WT 343': { role: '블루', type: 'solid', face: '#3b82f6', flop: '#1e40af', desc: '특정 색으로 치우침이 없는 완벽한 중간톤의 고은폐력 파란색입니다.', details: [['일반 특성', '특정 색으로 치우침이 없는 완벽한 중간톤의 고은폐력 표준 파란색 조색제입니다.'], ['색상 및 외관 변화', '바탕색을 완벽히 차단하고 균일하고 뚜렷한 파란색 솔리드 도막을 형성합니다.'], ['용도 및 적용 컬러', '가장 범용적으로 쓰이는 메인 안료로 두루 사용됩니다.'], ['배합 및 혼합 비율', '표준 배합표에 따라 대량 계량하여 사용합니다.'], ['경고 및 주의사항', '이펙트 조색 시 과다 사용하면 펄 고유의 메탈릭한 느낌이 덮일 수 있으니 정량 사용이 필수적입니다.']] },
   'WT 344': { role: '다크 블루', type: 'solid', face: '#1d4ed8', flop: '#0f172a', desc: '명도가 가장 묵직하고 어두운 딥 블루(Deep Blue) 안료입니다.', details: [['일반 특성', '명도가 가장 묵직하고 어두운 딥 블루 안료입니다.'], ['색상 및 외관 변화', '측면에서는 붉은 적색 기운이 은은하게 올라오는 뚜렷한 반전 매력이 있습니다.'], ['용도 및 적용 컬러', '프리미엄 다크 블루 펄 조색에 특화되어 사용됩니다.'], ['배합 및 혼합 비율', '조색 시스템의 지시값에 의거하여 정확하게 배합합니다.'], ['경고 및 주의사항', '일반적인 맑은 다크 블루 조색에 임의로 첨가 시 측면 붉은 톤 이색이 날 수 있으니 주의 바랍니다.']] },
   'WT 345': { role: '트랜스페어런트 에메랄드', type: 'solid', face: '#10b981', flop: '#064e3b', desc: '황색 기운을 강하게 띠는 에메랄드빛 투명 녹색 조색제입니다.', details: [['일반 특성', '황색 기운을 강하게 띠는 에메랄드빛 투명 녹색 조색제입니다.'], ['색상 및 외관 변화', '빛이 부드럽게 투과하여 보석 같은 질감을 줍니다.'], ['용도 및 적용 컬러', '투명함이 생명인 에메랄드 그린 이펙트 컬러 조색의 핵심 안료로 사용됩니다.'], ['배합 및 혼합 비율', '이펙트 데이터 배합을 바탕으로 정밀 계량합니다.'], ['경고 및 주의사항', '투명 조색제이므로 바탕 은폐용 솔리드 컬러에는 전혀 효과가 없어 사용을 금합니다.']] },
@@ -438,16 +438,14 @@ export default function App() {
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
-
-        const handleStorageChange = (e: StorageEvent) => { if (e.key === 'hitec_broadcast' && e.newValue) { const payload = JSON.parse(e.newValue); setRestoredViewData(payload.data); } };
-        window.addEventListener('storage', handleStorageChange);
+        
+        // 💡 주의: 이전에 남아있던 storage 리스너를 완전히 삭제했습니다. 팝업 무한 증식/오류 해결!
         
         if (!loadedFromUrl) {
             const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos');
             if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
         }
         setIsLoaded(true); 
-        return () => window.removeEventListener('storage', handleStorageChange);
     }
   }, []);
 
@@ -588,7 +586,7 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
-  // 💡 [결함 제로 & 이미지 무적 코딩] 외부 차단을 회피하는 CSS 레인보우 스펙트럼 + 내장 SVG 스포츠카 렌더러
+  // 💡 [요청 사항 완벽 반영] 자동차 렌더러 완전 삭제 및 화려한 3D 광학 렌즈 스펙트럼 이미지로 변경
   const render3DView = (optics: any) => {
     let appliedPaintColor = "transparent";
     if (optics && optics.mid) {
@@ -598,54 +596,37 @@ export default function App() {
       appliedPaintColor = `hsl(${h}, ${s}%, ${l}%)`;
     }
 
-    // 💡 첫 번째 이미지와 100% 동일하게 직접 구현한 고해상도 무적의 레인보우 스펙트럼 배경
-    const SPECTRUM_GRADIENT = "linear-gradient(90deg, #00b4db 0%, #0083b0 10%, #4b1248 20%, #7b2cbf 30%, #ec4899 40%, #e11d48 50%, #ea580c 60%, #f59e0b 75%, #65a30d 85%, #22c55e 100%)";
+    // 환상적인 무지개 스펙트럼 코닉 그라데이션 (광학 렌즈 시뮬레이터)
+    const SPECTRUM_GRADIENT = "conic-gradient(from 90deg at 50% 50%, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000)";
 
     return (
-      <div 
-        className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-xl shadow-inner border border-slate-300"
-        style={{ background: SPECTRUM_GRADIENT }}
-      >
-        {/* 페인트 색상이 레인보우 배경과 화려하게 섞이는 오버레이 레이어 */}
-        <div className="absolute inset-0 transition-colors duration-500 z-10 pointer-events-none" style={{ backgroundColor: appliedPaintColor, mixBlendMode: 'color' }}></div>
+      <div className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-xl shadow-inner border border-slate-300 bg-slate-900">
         
-        {/* 메탈릭 & 탄소섬유 질감 텍스처 */}
-        <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay z-10 pointer-events-none"></div>
+        {/* 🌈 무지개 빛 스펙트럼 배경 */}
+        <div className="absolute inset-0 opacity-80" style={{ background: SPECTRUM_GRADIENT }}></div>
         
-        {/* 🚗 끊기거나 엑박이 뜨지 않는 100% 안전한 내장형 SVG 스포츠카 실루엣 */}
-        <div className="absolute inset-0 flex items-center justify-center p-4 z-20 pointer-events-none">
-           <svg viewBox="0 0 800 400" className="w-full h-full p-4 object-contain transition-transform duration-500 transform hover:scale-105 drop-shadow-[0_25px_35px_rgba(0,0,0,0.8)]">
-              {/* 바닥 그림자 */}
-              <ellipse cx="400" cy="340" rx="300" ry="25" fill="rgba(0,0,0,0.5)" filter="blur(10px)"/>
-              
-              {/* 차체 뼈대 실루엣 (반투명 흰색으로 덮어 배경 스펙트럼과 자연스럽게 어우러짐) */}
-              <path d="M 120 270 A 40 40 0 0 1 200 270 L 540 270 A 40 40 0 0 1 620 270 L 720 270 C 760 270 780 240 770 210 L 730 140 C 700 110 650 90 580 90 L 460 70 C 400 60 340 65 280 85 L 180 120 C 130 135 80 160 50 190 C 20 220 20 240 20 260 L 20 270 Z" fill="#ffffff" opacity="0.85" />
-              
-              {/* 창문 영역 */}
-              <path d="M 210 130 L 300 95 L 440 90 L 560 115 L 590 145 L 160 175 Z" fill="#0f172a" />
-              
-              {/* 도어 라인 구분선 */}
-              <path d="M 290 175 L 290 260 M 490 155 L 490 260 M 170 175 L 590 145" stroke="#94a3b8" strokeWidth="3" fill="none" opacity="0.6"/>
-              
-              {/* 스포츠카 헤드라이트 (노란/붉은빛) */}
-              <path d="M 720 140 L 760 145 L 770 160 L 720 160 Z" fill="#ef4444" />
-              <path d="M 40 195 L 70 185 L 80 205 L 35 210 Z" fill="#facc15" />
-              
-              {/* 바퀴 세트 */}
-              <circle cx="160" cy="270" r="50" fill="#0f172a" stroke="#334155" strokeWidth="8"/>
-              <circle cx="160" cy="270" r="25" fill="#cbd5e1"/>
-              <circle cx="580" cy="270" r="50" fill="#0f172a" stroke="#334155" strokeWidth="8"/>
-              <circle cx="580" cy="270" r="25" fill="#cbd5e1"/>
-           </svg>
+        {/* 현재 혼합된 페인트 컬러를 오버레이하여 스펙트럼에 색상을 입힘 */}
+        <div className="absolute inset-0 transition-colors duration-500 z-10" style={{ backgroundColor: appliedPaintColor, mixBlendMode: 'color' }}></div>
+        <div className="absolute inset-0 transition-colors duration-500 z-10 opacity-70" style={{ backgroundColor: appliedPaintColor, mixBlendMode: 'multiply' }}></div>
+        
+        {/* 광학 렌즈 느낌의 하이라이트/글래스 효과 */}
+        <div className="absolute inset-0 z-20 pointer-events-none rounded-xl shadow-[inset_0_0_60px_rgba(0,0,0,0.8)]" 
+             style={{ background: 'radial-gradient(circle at 50% 30%, rgba(255,255,255,0.4) 0%, transparent 60%)' }}>
         </div>
-
+        
         {/* 펄(Pearl) 입자 반짝임 효과 */}
         {optics?.isMetallic && (
             <div className="absolute inset-0 mix-blend-color-dodge opacity-60 z-20 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}></div>
         )}
         
-        {/* 공간감을 위한 하단 검은색 그라데이션 */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-white/20 pointer-events-none z-30"></div>
+        {/* 중앙 렌즈 포커스 포인트 */}
+        <div className="z-30 w-32 h-32 rounded-full border border-white/30 shadow-[0_0_30px_rgba(0,0,0,0.5)] flex items-center justify-center backdrop-blur-sm"
+             style={{ background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 70%, rgba(0,0,0,0.4) 100%)' }}>
+             <ScanLine className="text-white/70" size={40} />
+        </div>
+        
+        {/* 심도(Depth) 그라데이션 */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none z-30"></div>
       </div>
     );
   };
@@ -835,7 +816,6 @@ export default function App() {
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
             <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
               <h3 className="text-xs font-black mb-2 flex justify-between items-center text-slate-800">
-                {/* 💡 요청하신 타이틀 변경 완료! */}
                 <span className="flex items-center"><Sun size={14} className="mr-1 text-orange-500"/> ✨ STUDIO 3D 광학 조정 시뮬레이터</span>
                 <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"><Maximize size={10} className="mr-1"/>먼셀 컬러 믹싱 랩</button>
               </h3>
@@ -995,7 +975,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 과거 데이터를 불러오는 새 탭 모달 (창닫기 마법 유지) */}
+      {/* 💡 과거 데이터를 불러오는 새 탭 모달 (간헐적 팝업 원인 제거 완료) */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
@@ -1004,10 +984,7 @@ export default function App() {
                 <History size={18} className="text-blue-400" /> 과거 구성에 따른 구성
               </h3>
               <button 
-                onClick={() => {
-                  setRestoredViewData(null);
-                  window.close(); // 💡 마법의 브라우저 종료 코드
-                }} 
+                onClick={() => setRestoredViewData(null)} 
                 className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"
               >
                 <X size={16} />
@@ -1073,10 +1050,7 @@ export default function App() {
 
             <div className="p-4 bg-[#1e293b] border-t border-slate-700/50">
               <button 
-                onClick={() => {
-                  setRestoredViewData(null);
-                  window.close(); // 💡 마법의 브라우저 종료 코드
-                }} 
+                onClick={() => setRestoredViewData(null)} 
                 className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
               >
                 닫기 및 진행 중으로 돌아가기
@@ -1118,8 +1092,8 @@ export default function App() {
                                         fill={color.hex} 
                                         stroke={isSelected ? "#ffffff" : "transparent"} 
                                         strokeWidth={isSelected ? "3" : "0"}
-                                        className={`cursor-pointer transition-all duration-300 hover:opacity-80 ${isSelected ? 'z-10 relative' : ''}`}
-                                        onClick={() => handleWheelClick(index)}
+                                        className={`cursor-pointer transition-all duration-300 hover:opacity-80`}
+                                        onClick={(e) => { e.stopPropagation(); handleWheelClick(index); }}
                                         style={{ transformOrigin: '200px 200px', transform: isSelected ? 'scale(1.05)' : 'scale(1)' }}
                                     />
                                 );
@@ -1192,7 +1166,6 @@ export default function App() {
                     </div>
                  </div>
 
-                 {/* 💡 [먼셀 튕김 완벽 방어] Fragment(<>)를 제거한 100% 안전한 렌더링 코드 */}
                  <div className="flex flex-col items-center w-full h-full justify-center">
                     {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
                         <div className="bg-slate-800 p-8 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] mx-auto min-h-[360px] flex flex-col justify-center text-center animate-in fade-in zoom-in duration-300">
@@ -1201,36 +1174,27 @@ export default function App() {
                                 {MUNSELL_WHEEL_COLORS[selectedWheelIndex].name} ({MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol}) 배합 규격
                             </h4>
                             <div className="flex justify-center items-center gap-6 bg-slate-900 py-8 px-4 rounded-xl border border-slate-700 w-full">
-                                {(() => {
-                                    try {
-                                        const symbol = MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol;
-                                        const mixInfo = MIXING_DATA[symbol];
-                                        
-                                        if (!mixInfo) return <div className="text-white text-sm font-bold w-full text-center">배합 데이터를 불러올 수 없습니다.</div>;
-
-                                        return (
-                                            <div className="flex flex-row justify-center items-center gap-6 w-full">
+                                {MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol] ? (
+                                    <div className="flex flex-row justify-center items-center gap-6 w-full">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].h1}}></div>
+                                            <span className="text-slate-300 font-bold text-sm">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c1}</span>
+                                            <span className="text-white font-black text-3xl">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].r1}%</span>
+                                        </div>
+                                        {MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c2 && (
+                                            <div className="flex flex-row justify-center items-center gap-6">
+                                                <span className="text-slate-600 font-black text-2xl">+</span>
                                                 <div className="flex flex-col items-center gap-3">
-                                                    <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: mixInfo.h1}}></div>
-                                                    <span className="text-slate-300 font-bold text-sm">{mixInfo.c1}</span>
-                                                    <span className="text-white font-black text-3xl">{mixInfo.r1}%</span>
+                                                    <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].h2}}></div>
+                                                    <span className="text-slate-300 font-bold text-sm">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c2}</span>
+                                                    <span className="text-white font-black text-3xl">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].r2}%</span>
                                                 </div>
-                                                {mixInfo.c2 && (
-                                                    <div className="flex flex-row justify-center items-center gap-6">
-                                                        <span className="text-slate-600 font-black text-2xl">+</span>
-                                                        <div className="flex flex-col items-center gap-3">
-                                                            <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: mixInfo.h2}}></div>
-                                                            <span className="text-slate-300 font-bold text-sm">{mixInfo.c2}</span>
-                                                            <span className="text-white font-black text-3xl">{mixInfo.r2}%</span>
-                                                        </div>
-                                                    </div>
-                                                )}
                                             </div>
-                                        );
-                                    } catch (err) {
-                                        return <div className="text-red-400 text-sm font-bold w-full text-center">렌더링 중 오류가 발생했습니다.</div>;
-                                    }
-                                })()}
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="text-red-400 text-sm font-bold w-full text-center">배합 데이터를 불러올 수 없습니다.</div>
+                                )}
                             </div>
                             <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
                         </div>
