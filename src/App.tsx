@@ -17,7 +17,7 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 197': { role: '실크 실버 울트라 파인', type: 'silver_fine', face: '#e2e8f0', flop: '#64748b', desc: '특수 초미립 알루미늄 조색제입니다.', details: [['일반 특성', '입자 크기가 극도로 미세하게 분쇄된 특수 초미립 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '입자감이 겉으로 도드라지지 않아 마치 비단(Silk)처럼 부드럽고 매끈하며 밀도 높은 금속 질감을 발현합니다.'], ['용도 및 적용 컬러', '프리미엄 세단의 매끄러운 고휘도 은색을 연출할 때 사용되며, 대표적으로 Lexus(1F1), M.Benz(047) 등에 적용됩니다.'], ['배합 및 혼합 비율', '조색 프로그램의 정해진 표준 배합 수치를 엄격히 준수하여 투입합니다.'], ['경고 및 주의사항', '미립자 알루미늄의 특성상 도장 횟수나 에어 압력에 따라 플롭이 크게 달라질 수 있으므로 표준 도장법을 준수해야 합니다.']] },
   'WT 300': { role: '마룬', type: 'solid', face: '#991b1b', flop: '#450a0a', desc: '짙은 밤색 기운이 도는 어두운 적색 수성 조색제입니다.', details: [['일반 특성', '짙은 밤색 기운이 도는 어두운 적색(Maroon) 수성 조색제입니다.'], ['색상 및 외관 변화', '또 다른 마론 안료인 WT332에 비해 채도가 더 높으며, 측면에서 명도가 급격히 어두워지는 강한 플롭 특성을 보입니다.'], ['용도 및 적용 컬러', '주로 입체감이 깊어야 하는 적색 베이스 이펙트(펄/메탈릭) 컬러 조색 시 톤을 눌러주기 위해 사용됩니다.'], ['배합 및 혼합 비율', '조색 프로그램에 명시된 기본 배합비를 준수하여 첨가합니다.'], ['경고 및 주의사항', '솔리드 적색에 다량 첨가 시 색상이 탁해지고 검붉게 변질될 수 있으므로 한 방울씩 조심스럽게 투입해야 합니다.']] },
   'WT 303': { role: '플래틴 실버 엑스트라 화인', type: 'silver_fine', face: '#d1d5db', flop: '#475569', desc: '고휘도 광휘형 초미립 알루미늄 조색제입니다.', details: [['일반 특성', '빛 반사율이 극대화된 고휘도 광휘형 초미립 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '입자가 가장 작아 거친 느낌 없이 밝고 매끄러운 금속 반사광을 제공합니다.'], ['용도 및 적용 컬러', '고운 입자로 높은 정면 명도를 요구하는 현대적인 실버 메탈릭 컬러나 화이트 펄 바탕색을 조색할 때 사용됩니다.'], ['배합 및 혼합 비율', '배합표의 정량 규정을 엄격하게 준수하여 전자저울로 정밀 계량합니다.'], ['경고 및 주의사항', '입자가 가라앉아 있을 수 있으므로 충분히 교반해야 안정적인 색상을 낼 수 있습니다.']] },
-  'WT 304': { role: '매직 스파클 이펙트', type: 'xirallic', face: '#fef08a', flop: '#475569', desc: '투명한 황색 코팅이 적용된 유리 입자 조색제입니다.', details: [['일반 특성', '투명한 황색 코팅이 적용된 입자 크기가 매우 큰 유리 입자(Glass Flake) 조색제입니다.'], ['색상 및 외관 변화', '도장면에 다이아몬드 가루를 뿌린 듯 다방향으로 강렬하게 튀는 입체적인 스파클링 효과를 부여합니다.'], ['용도 및 적용 컬러', '특수 전시용 컬러나 일부 프리미엄 차종의 특수 펄 컬러 조색에 제한적으로 사용됩니다.'], ['배합 및 혼합 비율', '은폐력이 전무하므로 기본 안료에 소량 첨가하여 효과를 부여하는 형태로 처방됩니다.'], ['경고 및 주의사항', '최종 클리어코트 작업 시 두껍게 도장하여 표면을 평활하게 잡아주어야 합니다.']] },
+  'WT 304': { role: '매직 스파클 이펙트', type: 'xirallic', face: '#fef08a', flop: '#475569', desc: '투명한 황색 코팅이 적용된 유리 입자 조색제입니다.', details: [['일반 특성', '투명한 황색 코팅이 적용된 입자 크기가 매우 큰 유리 입자(Glass Flake) 조색제입니다.'], ['색상 및 외관 변화', '도장면에 다이아몬드 가루를 뿌린 듯 다방향으로 강렬하게 튀는 입체적인 스파클링 효과를 부여합니다.'], ['용도 및 적용 컬러', '특수 전시용 컬러나 일부 프리미엄 차종의 특수 펄 컬러 조색에 제한적으로 사용됩니다.'], ['배합 및 혼합 비율', '은폐력이 전무하므로 기본 안료에 소량 첨가하여 효과 부여하는 형태로 처방됩니다.'], ['경고 및 주의사항', '최종 클리어코트 작업 시 두껍게 도장하여 표면을 평활하게 잡아주어야 합니다.']] },
   'WT 305': { role: '울트라 화인 실버', type: 'silver_fine', face: '#cbd5e1', flop: '#334155', desc: '반짝임이 부드러운 특수 미립자 알루미늄 수성 조색제입니다.', details: [['일반 특성', '반짝임이 매우 부드러운 특수 미립자 알루미늄 수성 조색제입니다.'], ['색상 및 외관 변화', '일반 메탈릭처럼 입자가 눈에 띄지 않으며 은은하고 매끈한 금속광택 베이스를 형성합니다.'], ['용도 및 적용 컬러', '매끈한 느낌의 하이엔드 은색을 연출할 때 메인으로 사용됩니다.'], ['배합 및 혼합 비율', 'TDS 및 조색 프로그램의 중량 데이터를 기반으로 계량합니다.'], ['경고 및 주의사항', '도장 기법에 따라 색상 톤이 민감하게 변할 수 있으므로 보카시 작업에 각별히 유의해야 합니다.']] },
   'WT 307': { role: '프리즈마 실버', type: 'xirallic', face: '#e2e8f0', flop: '#a855f7', desc: '빛을 분산시키는 홀로그램 특성의 조색제입니다.', details: [['일반 특성', '빛을 파장별로 분산시키는 홀로그램 특성을 지닌 특수 광학 조색제입니다.'], ['색상 및 외관 변화', '빛의 굴절 및 관찰 각도에 따라 표면에 무지개색 효과가 나타납니다.'], ['용도 및 적용 컬러', '럭셔리 라인업의 특수 홀로그램 컬러 배합에 독점적으로 사용됩니다.'], ['배합 및 혼합 비율', '단가가 매우 높은 특수 안료이므로 조색표에 지시된 필요 최소량만 정확하게 계량하여 사용합니다.'], ['경고 및 주의사항', '일반 실버와 혼합 시 프리즘 효과가 쉽게 죽어버리므로 임의로 다른 컬러에 섞어 사용하지 마십시오.']] },
   'WT 308': { role: '브라이트 오렌지', type: 'solid', face: '#ea580c', flop: '#7c2d12', desc: '탁함이 없는 매우 맑고 선명한 주황색 조색제입니다.', details: [['일반 특성', '탁함이 전혀 없는 매우 맑고 선명한 주황색 조색제입니다.'], ['색상 및 외관 변화', '높은 투명도로 인해 빛을 그대로 투과시키며 채도 높은 화사한 오렌지빛을 발산합니다.'], ['용도 및 적용 컬러', '이펙트 컬러의 화려함을 살릴 때 주로 사용됩니다.'], ['배합 및 혼합 비율', '조색 프로그램의 표준 데이터 배합 비율을 따릅니다.'], ['경고 및 주의사항', '은폐력이 심각하게 떨어지므로 솔리드 단독 도장 시 프라이머 도포가 반드시 필요합니다.']] },
@@ -439,8 +439,6 @@ export default function App() {
             }
         }
         
-        // 💡 주의: 이전에 남아있던 storage 리스너를 완전히 삭제했습니다. 팝업 무한 증식/오류 해결!
-        
         if (!loadedFromUrl) {
             const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos');
             if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
@@ -589,44 +587,49 @@ export default function App() {
   // 💡 [요청 사항 완벽 반영] 자동차 렌더러 완전 삭제 및 화려한 3D 광학 렌즈 스펙트럼 이미지로 변경
   const render3DView = (optics: any) => {
     let appliedPaintColor = "transparent";
+    let flopColor = "transparent";
+
     if (optics && optics.mid) {
       const h = isNaN(optics.mid.h) ? 0 : Math.round(optics.mid.h);
       const s = isNaN(optics.mid.s) ? 0 : Math.round(optics.mid.s);
       const l = isNaN(optics.mid.l) ? 90 : Math.round(optics.mid.l);
       appliedPaintColor = `hsl(${h}, ${s}%, ${l}%)`;
+      
+      const fh = isNaN(optics.flop.h) ? h : Math.round(optics.flop.h);
+      const fs = isNaN(optics.flop.s) ? s : Math.round(optics.flop.s);
+      const fl = isNaN(optics.flop.l) ? Math.max(0, l - 20) : Math.round(optics.flop.l);
+      flopColor = `hsl(${fh}, ${fs}%, ${fl}%)`;
     }
 
-    // 환상적인 무지개 스펙트럼 코닉 그라데이션 (광학 렌즈 시뮬레이터)
-    const SPECTRUM_GRADIENT = "conic-gradient(from 90deg at 50% 50%, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000)";
+    // 환상적인 무지개 스펙트럼 리니어 그라데이션 (광학 렌즈 시뮬레이터 배경)
+    const SPECTRUM_GRADIENT = "linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff)";
 
     return (
       <div className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-xl shadow-inner border border-slate-300 bg-slate-900">
         
-        {/* 🌈 무지개 빛 스펙트럼 배경 */}
-        <div className="absolute inset-0 opacity-80" style={{ background: SPECTRUM_GRADIENT }}></div>
+        {/* 🌈 1. 생생한 스펙트럼 배경 (절대 어두워지지 않음) */}
+        <div className="absolute inset-0 opacity-90" style={{ background: SPECTRUM_GRADIENT }}></div>
         
-        {/* 현재 혼합된 페인트 컬러를 오버레이하여 스펙트럼에 색상을 입힘 */}
-        <div className="absolute inset-0 transition-colors duration-500 z-10" style={{ backgroundColor: appliedPaintColor, mixBlendMode: 'color' }}></div>
-        <div className="absolute inset-0 transition-colors duration-500 z-10 opacity-70" style={{ backgroundColor: appliedPaintColor, mixBlendMode: 'multiply' }}></div>
-        
-        {/* 광학 렌즈 느낌의 하이라이트/글래스 효과 */}
-        <div className="absolute inset-0 z-20 pointer-events-none rounded-xl shadow-[inset_0_0_60px_rgba(0,0,0,0.8)]" 
-             style={{ background: 'radial-gradient(circle at 50% 30%, rgba(255,255,255,0.4) 0%, transparent 60%)' }}>
+        {/* 2. 공간감을 위한 비네팅(Vignette) 효과 */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.6)_100%)] z-10 pointer-events-none"></div>
+
+        {/* 3. 중앙에 페인트 컬러를 렌더링하는 광학 렌즈(글래스 플레이트) */}
+        <div className="z-20 w-[80%] h-[70%] rounded-2xl border border-white/30 shadow-[0_15px_35px_rgba(0,0,0,0.5)] flex items-center justify-center backdrop-blur-md relative overflow-hidden"
+             style={{ background: `linear-gradient(135deg, ${appliedPaintColor} 0%, ${flopColor} 100%)` }}>
+             
+             {/* 펄(Pearl) 입자 반짝임 효과 */}
+             {optics?.isMetallic && (
+                <div className="absolute inset-0 mix-blend-color-dodge opacity-60 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}></div>
+             )}
+             
+             {/* 렌즈 광택 (상단 하이라이트) */}
+             <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/40 to-transparent pointer-events-none"></div>
+             
+             {/* 중앙 포커스 아이콘 */}
+             <div className="w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center shadow-lg bg-black/10 backdrop-blur-sm z-30">
+                <ScanLine className="text-white" size={28} />
+             </div>
         </div>
-        
-        {/* 펄(Pearl) 입자 반짝임 효과 */}
-        {optics?.isMetallic && (
-            <div className="absolute inset-0 mix-blend-color-dodge opacity-60 z-20 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}></div>
-        )}
-        
-        {/* 중앙 렌즈 포커스 포인트 */}
-        <div className="z-30 w-32 h-32 rounded-full border border-white/30 shadow-[0_0_30px_rgba(0,0,0,0.5)] flex items-center justify-center backdrop-blur-sm"
-             style={{ background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 70%, rgba(0,0,0,0.4) 100%)' }}>
-             <ScanLine className="text-white/70" size={40} />
-        </div>
-        
-        {/* 심도(Depth) 그라데이션 */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none z-30"></div>
       </div>
     );
   };
@@ -975,7 +978,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 과거 데이터를 불러오는 새 탭 모달 (간헐적 팝업 원인 제거 완료) */}
+      {/* 💡 과거 데이터를 불러오는 새 탭 모달 */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
@@ -984,7 +987,7 @@ export default function App() {
                 <History size={18} className="text-blue-400" /> 과거 구성에 따른 구성
               </h3>
               <button 
-                onClick={() => setRestoredViewData(null)} 
+                onClick={() => { setRestoredViewData(null); window.close(); }} 
                 className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"
               >
                 <X size={16} />
@@ -1050,7 +1053,7 @@ export default function App() {
 
             <div className="p-4 bg-[#1e293b] border-t border-slate-700/50">
               <button 
-                onClick={() => setRestoredViewData(null)} 
+                onClick={() => { setRestoredViewData(null); window.close(); }} 
                 className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
               >
                 닫기 및 진행 중으로 돌아가기
