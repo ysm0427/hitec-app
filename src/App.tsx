@@ -148,6 +148,35 @@ export const getOptics = (tonersList: any[]) => {
 export const packToners = (tonerList: any[]) => { return tonerList.filter((t: any) => t.code).map((t: any) => { const c = t.code.replace('WT ', '').trim(); const w = t.adjustedWeight || ''; return `${c}_${w}`; }).join('*'); };
 export const unpackToners = (str: string) => { if (!str) return []; return str.split('*').map((t, i) => { const [c, w] = t.split('_'); return { id: `restored_${Date.now()}_${i}`, code: c ? `WT ${c}` : '', adjustedWeight: w || '', history: [], memo: '' }; }); };
 
+// 💡 [에러 해결!] 이 부분이 바로 누락되어서 에러가 났던 함수입니다. 다시 채워 넣었습니다.
+export const getMunsellDynamicDescription = (code: string, role: string, type: string, weight: number) => {
+  if (weight <= 0) {
+    return (
+      <div className="text-sm text-slate-500 bg-slate-100 p-3 rounded-lg mb-4 text-center font-bold">
+        현재 배합량이 0g이라 정밀 광학 분석이 비활성화되었습니다.
+      </div>
+    );
+  }
+
+  const typeName = type === 'solid' ? '솔리드(Solid)' : 
+                   type === 'pearl' ? '펄(Pearl)' : 
+                   type === 'xirallic' ? '지랄릭(Xirallic)' : 
+                   type === 'binder' ? '바인더/수지(Binder)' : 
+                   type.includes('silver') ? '메탈릭(Metallic)' : '이펙트';
+
+  return (
+    <div className="flex flex-col gap-2 bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4 shadow-sm">
+      <p className="text-sm text-slate-800 font-bold">
+        <span className="text-blue-600 font-black">[{code}]</span> {role}
+      </p>
+      <p className="text-xs text-slate-600 leading-relaxed break-keep">
+        해당 안료는 <span className="font-bold text-slate-700">{typeName}</span> 특성을 띄고 있으며, 
+        현재 베이스에 <span className="font-black text-blue-600 text-sm">{weight}g</span>이 배합되어 도막의 최종 발색 및 은폐력에 직접적인 영향을 주고 있습니다.
+      </p>
+    </div>
+  );
+};
+
 const MUNSELL_WHEEL_COLORS = [
     { name: '빨강', symbol: 'R', hex: '#E60012' },
     { name: '다홍', symbol: 'yR', hex: '#EB6100' },
@@ -236,7 +265,6 @@ export default function App() {
   const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
   
-  // 💡 [새로 추가된 상태] FORD 색상 검색을 위한 상태
   const [oemSearch, setOemSearch] = useState('');
 
   const [finalOptics, setFinalOptics] = useState<any>({ face: { h:0, s:0, l:90 }, mid: { h:0, s:0, l:90 }, flop: { h:0, s:0, l:90 }, isMetallic: false }); 
@@ -443,7 +471,6 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
-  // 💡 [요청 사항 1 완벽 반영] 검정색 렌즈 화면을 싹 없애고, 무지개 스펙트럼 이미지만 가득 차게 변경했습니다!
   const render3DView = () => {
     const SPECTRUM_GRADIENT = "linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff)";
 
