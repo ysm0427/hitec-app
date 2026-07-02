@@ -2204,5 +2204,5 @@ export const FORD_COLORS = [
   { code: 'A', name: 'CHARCOAL BLACK (7)(M)' },
   { code: '5TWEXWA', name: 'CHARCOAL BEIGE' },
   { code: 'M6542G', name: 'CHARCOAL ARGENT (1)(M)' },
-2207     { code: 'M6542G', name: 'CHARCOAL (1)(M)' } // 마지막 쉼표 제거
-2208 ]; // 배열 닫기
+{ code: 'M6542G', name: 'CHARCOAL (1)(M)' }
+];
