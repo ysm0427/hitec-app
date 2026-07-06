@@ -3699,18 +3699,22 @@ export default function App() {
         </div>
       )}
 
-      {isConfiguratorOpen && (
+     {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-auto custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
             <h2 className="text-base font-black tracking-widest text-slate-300 uppercase flex items-center"><Beaker className="mr-2 text-indigo-500"/> 먼셀 컬러 믹싱 스튜디오 (Munsell Mixing Lab)</h2>
             <button onClick={() => setIsConfiguratorOpen(false)} className="p-2 bg-slate-800 hover:bg-red-600 rounded-full border border-slate-700 transition-colors"><X size={18}/></button>
           </header>
           
-          <main className="flex-1 p-6 md:p-10 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950">
-             <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-12 mb-8 items-center">
-                 <div className="flex flex-col items-center relative w-full h-full justify-center">
-                     <h3 className="text-lg font-black text-white mb-6 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg"><Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)</h3>
-                     <div className="relative flex justify-center items-center w-[360px] h-[360px] md:w-[420px] md:h-[420px]">
+          <main className="flex-1 p-6 md:p-10 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950 overflow-x-hidden">
+             <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 mb-8 items-start">
+                 
+                 {/* 1. 먼셀 20 색상환 */}
+                 <div className="w-full flex flex-col items-center justify-center h-[460px]">
+                     <h3 className="text-lg font-black text-white mb-6 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg shrink-0">
+                         <Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)
+                     </h3>
+                     <div className="relative flex justify-center items-center w-[360px] h-[360px] shrink-0">
                         <svg className="w-full h-full drop-shadow-[0_0_50px_rgba(0,0,0,0.8)]" viewBox="0 0 400 400">
                             <defs>
                                 <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -3772,10 +3776,47 @@ export default function App() {
                      </div>
                  </div>
 
-                 <div className="flex flex-col items-center w-full h-full justify-center">
+                 {/* 2. RGB Additive Color (사라졌던 블록 완벽 복구) */}
+                 <div className="w-full flex flex-col items-center justify-center h-[460px]">
+                    <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-full justify-center transition-all">
+                        <h4 className="text-xl font-black text-white mb-6 tracking-widest flex items-center shrink-0">
+                            <BookOpen className="mr-2 text-blue-400" size={20}/>RGB <span className="text-xs text-slate-500 ml-2 font-normal">Additive Color (빛의 혼합)</span>
+                        </h4>
+                        <div className="w-60 h-60 relative shrink-0">
+                            <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
+                                <circle cx="75" cy="75" r="55" fill="#0000FF" style={{ mixBlendMode: 'screen' }} />
+                                <circle cx="125" cy="75" r="55" fill="#FF0000" style={{ mixBlendMode: 'screen' }} />
+                                <circle cx="100" cy="120" r="55" fill="#00FF00" style={{ mixBlendMode: 'screen' }} />
+                                
+                                <g stroke="#ffffff" strokeWidth="1" strokeOpacity="0.5">
+                                    <line x1="75" y1="75" x2="30" y2="40" />
+                                    <line x1="125" y1="75" x2="170" y2="40" />
+                                    <line x1="100" y1="120" x2="100" y2="175" />
+                                    <line x1="100" y1="55" x2="100" y2="25" /> 
+                                    <line x1="75" y1="105" x2="30" y2="130" /> 
+                                    <line x1="125" y1="105" x2="170" y2="130" /> 
+                                    <line x1="100" y1="90" x2="150" y2="90" /> 
+                                </g>
+                                <g fill="#ffffff" fontSize="10" fontWeight="bold" textAnchor="middle" className="drop-shadow-md">
+                                    <text x="25" y="35">Blue</text>
+                                    <text x="175" y="35">Red</text>
+                                    <text x="100" y="185">Green</text>
+                                    <text x="100" y="20" fill="#FF00FF">Magenta</text>
+                                    <text x="25" y="140" fill="#00FFFF">Cyan</text>
+                                    <text x="175" y="140" fill="#FFFF00">Yellow</text>
+                                    <rect x="155" y="82" width="30" height="14" fill="#ffffff" rx="2" />
+                                    <text x="170" y="93" fill="#000000">White</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                 </div>
+
+                 {/* 3. 선택된 컬러 배합 규격 (고정 높이로 튕김 방지) */}
+                 <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
-                        <div className="bg-slate-800 p-8 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] mx-auto min-h-[360px] flex flex-col justify-center text-center animate-in fade-in zoom-in duration-300">
-                            <h4 className="text-xl font-black text-white mb-8 flex items-center justify-center gap-3">
+                        <div className="bg-slate-800 p-6 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] h-full flex flex-col justify-center text-center animate-in fade-in duration-200">
+                            <h4 className="text-xl font-black text-white mb-6 flex items-center justify-center gap-3 shrink-0">
                                 <span className="w-6 h-6 rounded-full shadow-md border border-slate-400" style={{backgroundColor: MUNSELL_WHEEL_COLORS[selectedWheelIndex].hex}}></span>
                                 {MUNSELL_WHEEL_COLORS[selectedWheelIndex].name} ({MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol}) 배합 규격
                             </h4>
@@ -3802,10 +3843,10 @@ export default function App() {
                                     <div className="text-red-400 text-sm font-bold w-full text-center">배합 데이터를 불러올 수 없습니다.</div>
                                 )}
                             </div>
-                            <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
+                            <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg shrink-0">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
                         </div>
                     ) : (
-                        <div className="bg-slate-800/40 p-8 rounded-3xl border border-slate-700 border-dashed w-full max-w-[420px] mx-auto min-h-[360px] flex flex-col items-center justify-center gap-4 text-center text-slate-500">
+                        <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700 border-dashed w-full max-w-[420px] h-full flex flex-col items-center justify-center gap-4 text-center text-slate-500">
                             <Sun className="text-slate-600 mb-2" size={40} />
                             <p className="text-base font-bold text-slate-400">색상환에서 컬러를 클릭하세요.</p>
                             <p className="text-sm">선택된 색상의 원색 조색 배율이<br/>이곳에 표시됩니다.</p>
@@ -3813,10 +3854,13 @@ export default function App() {
                     )}
                  </div>
 
-                 <div className="flex flex-col items-center w-full h-full justify-center">
-                    <div className="bg-[#f8f9fa] rounded-3xl p-8 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[420px] mx-auto h-full min-h-[360px] justify-center">
-                        <h4 className="text-xl font-black text-slate-900 mb-8 tracking-widest flex items-center"><BookOpen className="mr-2 text-pink-500" size={20}/>CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color (물감의 혼합)</span></h4>
-                        <div className="w-56 h-56 relative">
+                 {/* 4. CMYK Subtractive Color */}
+                 <div className="w-full flex flex-col items-center justify-center h-[460px]">
+                    <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-full justify-center transition-all">
+                        <h4 className="text-xl font-black text-slate-900 mb-6 tracking-widest flex items-center shrink-0">
+                            <BookOpen className="mr-2 text-pink-500" size={20}/>CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color (물감의 혼합)</span>
+                        </h4>
+                        <div className="w-60 h-60 relative shrink-0">
                             <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
                                 <circle cx="75" cy="75" r="55" fill="#00FFFF" style={{ mixBlendMode: 'multiply' }} />
                                 <circle cx="125" cy="75" r="55" fill="#FF00FF" style={{ mixBlendMode: 'multiply' }} />
@@ -3848,7 +3892,7 @@ export default function App() {
 
              </div>
 
-             <div className="mt-4 pb-12 w-full flex justify-center">
+             <div className="mt-4 pb-12 w-full flex justify-center shrink-0">
                 <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg">
                     <X size={24} /> 믹싱 스튜디오 닫기
                 </button>
