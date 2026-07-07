@@ -6,7 +6,7 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 공식 안료 데이터베이스 (유실 없음)
+// 💡 1. 공식 안료 데이터베이스 (유실 없음)
 export const TONER_DB: Record<string, TonerData> = {
   'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '정면에서 선명한 적청색(Reddish-Blue) 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다.', details: [['일반 특성', '기존 WT 346 안료를 완벽하게 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'], ['색상 및 외관 변화', '가장 큰 특징은 정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점입니다.'], ['용도 및 적용 컬러', 'WT 346이 포함된 모든 솔리드 및 이펙트 컬러의 1:1 대체 처방 및 조색 보정용으로 사용됩니다.'], ['배합 및 혼합 비율', '기존 WT 346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용해야 동일한 착색력을 얻습니다.'], ['경고 및 주의사항', '정면의 뚜렷한 적청색 발색으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로 반드시 시편 대조 후 블랜딩 도장을 권장합니다.']] },
   'WT 346': { role: '트랜스페어런트 딥 블루 [WT 144 완벽대체]', type: 'solid', face: '#0369a1', flop: '#020617', desc: '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.', details: [['일반 특성', '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.'], ['색상 및 외관 변화', '특히 측면(45도/110도)에서 관찰할 때 전체 청색 조색제 중 녹색빛 반사가 가장 강하게 두드러지는 고유 특징이 있습니다.'], ['용도 및 적용 컬러', '시중 대부분의 이펙트 메탈릭 청색 조색 시 뼈대가 되는 가장 기초적이고 필수적인 투명 파란색입니다.'], ['배합 및 혼합 비율', '다양한 이펙트 처방에서 메인으로 쓰이므로 배합표의 대량 투입 지시를 엄수합니다.'], ['경고 및 주의사항', '이 안료는 신형 WT 144와 상호 대체가 가능합니다. 대체 시 [WT 346 : WT 144 = 1 : 0.9] 비율을 적용하십시오.']] },
@@ -28,7 +28,7 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 315': { role: '엑스트라 화인 블루 펄', type: 'pearl', face: '#3b82f6', flop: '#84cc16', desc: '가장 미세한 입자 크기의 약한 적색 기운 청색 간섭 펄입니다.', details: [['일반 특성', '가장 미세한 입자 크기로 분쇄된 청색 간섭 펄 조색제입니다.'], ['색상 및 외관 변화', '정면에서는 적청색, 측면으로 갈수록 부드러운 녹황색으로 입체감을 줍니다.'], ['용도 및 적용 컬러', '은은한 청색 간섭 효과만을 요구하는 고급 세단 컬러에 주로 사용됩니다.'], ['배합 및 혼합 비율', '시스템 지정 배합표 수치를 따릅니다.'], ['경고 및 주의사항', '펄의 양이 과다하면 전체 컬러 톤이 뿌옇게 흐려질 수 있습니다.']] },
   'WT 316': { role: '터콰이즈 펄', type: 'pearl', face: '#06b6d4', flop: '#10b981', desc: '중간 크기의 녹청색(터키석 색상) 간섭 펄 조색제입니다.', details: [['일반 특성', '중간 크기의 녹청색 간섭 펄 조색제입니다.'], ['색상 및 외관 변화', '정면은 맑은 청색, 측면은 밝은 녹색으로 그라데이션 변색을 일으킵니다.'], ['용도 및 적용 컬러', '이국적이고 스포티한 청녹색 계열 메탈릭 조색 시 생동감을 줍니다.'], ['배합 및 혼합 비율', '해당 차종의 배합 처방량에 맞추어 저울로 혼합합니다.'], ['경고 및 주의사항', '사용 전 반드시 잘 흔들어 가라앉은 성분을 완벽히 풀어주어야 올바른 색상이 발현됩니다.']] },
   'WT 317': { role: '플래틴 실버 브릴리언트 화인', type: 'silver_fine', face: '#f8fafc', flop: '#334155', desc: '고휘도 반사 특성을 지닌 매끄러운 소립자 특수 알루미늄입니다.', details: [['일반 특성', '고휘도 반사 특성을 지닌 매끄러운 소립자 특수 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '정면은 밝게 반사되며 측면은 급격히 어두워지는 강한 명암 대비를 보입니다.'], ['용도 및 적용 컬러', '밝고 입체적인 까다로운 고휘도 실버 구현에 필수적입니다.'], ['배합 및 혼합 비율', '조색표 상의 정확한 포뮬러 수치에 따라 배합합니다.'], ['경고 및 주의사항', '입자 배열 방향에 따라 색상 톤이 쉽게 틀어지므로 컨트롤 코트 도장이 필수적입니다.']] },
-  'WT 318': { role: '브릴리언트 블루', type: 'solid', face: '#0284c7', flop: '#082f49', desc: '밝고 화사한 녹색 기운을 띠는 고광도 맑은 청색 조색제입니다.', details: [['일반 특성', '밝고 화사한 녹색 기운을 띠는 고광도 맑은 청색 조색제입니다.'], ['색상 및 외관 변화', '전체적인 톤이 훨씬 밝게 유지되며 녹색빛이 감돌아 시원한 느낌을 줍니다.'], ['용도 및 적용 컬러', '탁색 없는 밝은 블루 이펙트 컬러 조색 시 톤업용으로 사용됩니다.'], ['배합 및 혼합 비율', '표준 조색 시스템 배합 수치를 바탕으로 혼합합니다.'], ['경고 및 주의사항', '소량으로도 전체 색상 톤이 크게 변할 수 있으므로 미세 조색 시 주의가 필요합니다.']] },
+  'WT 318': { role: '브릴리언트 블루', type: 'solid', face: '#0284c7', flop: '#082f49', desc: '밝고 화사한 녹색 기운을 띠는 고광도 맑은 청색 조색제입니다.', details: [['일반 특성', '밝고 화사한 녹색 기운을 띠는 고광도 맑은 청색 조색제입니다.'], ['색상 및 외관 변화', '전체적인 톤이 훨씬 밝게 유지되며 녹색빛이 감돌 시원한 느낌을 줍니다.'], ['용도 및 적용 컬러', '탁색 없는 밝은 블루 이펙트 컬러 조색 시 톤업용으로 사용됩니다.'], ['배합 및 혼합 비율', '표준 조색 시스템 배합 수치를 바탕으로 혼합합니다.'], ['경고 및 주의사항', '소량으로도 전체 색상 톤이 크게 변할 수 있으므로 미세 조색 시 주의가 필요합니다.']] },
   'WT 320': { role: '플래티늄 펄', type: 'pearl', face: '#f1f5f9', flop: '#64748b', desc: '조색 라인업 중 입자 크기가 가장 작은 초미립 백색 펄입니다.', details: [['일반 특성', '입자 크기가 가장 작은 초미립 백색 펄 조색제입니다.'], ['색상 및 외관 변화', '육안으로 거의 구별되지 않을 만큼 고와서 밀키하고 은은한 진주 광택을 형성합니다.'], ['용도 및 적용 컬러', '입자가 거칠지 않은 고급 화이트 펄 바탕 조색의 핵심 베이스로 폭넓게 사용됩니다.'], ['배합 및 혼합 비율', '조색 프로그램에 명시된 화이트 펄 계열 배합 중량을 준수하여 처방합니다.'], ['경고 및 주의사항', '점도가 뭉칠 수 있어 믹싱 전 교반기에서 장시간 혼합해 주어야 펄 뭉침을 방지합니다.']] },
   'WT 321': { role: '화이트', type: 'solid', face: '#ffffff', flop: '#e2e8f0', desc: '시스템의 가장 표준이 되는 고농축/고은폐력 표준 백색 조색제입니다.', details: [['일반 특성', '가장 뼈대가 되는 고농축/고은폐력 표준 백색 조색제입니다.'], ['색상 및 외관 변화', '명도를 밝히고 파스텔톤으로 유도하며, 이펙트 적용 시 측면을 밝게 하는 백탁 현상을 일으킵니다.'], ['용도 및 적용 컬러', '화이트 베이스코트의 메인 성분으로 절대적으로 사용됩니다.'], ['배합 및 혼합 비율', '광범위한 비율로 사용됩니다.'], ['경고 및 주의사항', '이펙트 컬러에 임의로 추가 시 금속 입자의 반짝임을 죽일 수 있으니 극소량만 신중히 사용해야 합니다.']] },
   'WT 322': { role: '마이크로 화이트', type: 'solid', face: '#f8fafc', flop: '#cbd5e1', desc: '미세한 알루미늄 및 펄 입자가 혼합 설계된 특수 복합 화이트 안료입니다.', details: [['일반 특성', '알루미늄 및 펄 입자가 혼합 설계된 특수 화이트 안료입니다.'], ['색상 및 외관 변화', '정면은 황색을 띠며, 측면은 청색을 띠며 밝게 반사되는 입체감을 냅니다.'], ['용도 및 적용 컬러', '복잡한 이펙트 화이트 컬러 배합에 특화되어 쓰입니다.'], ['배합 및 혼합 비율', '명시된 비율대로만 정확히 혼합합니다.'], ['경고 및 주의사항', '솔리드 컬러 조색에는 절대 사용을 금합니다.']] },
@@ -104,9 +104,9 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 3080': { role: '스페셜 애디티브', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '도막 보정 및 흐름 방지 특수 첨가제.', details: [['일반 특성', '도막 보정 및 흐름 방지 전용 특수 첨가제입니다.']] }
 };
 
-// 💡 [2번 구역] FORD 색상 데이터
-export const OEM_COLORS = [
-// 👇👇👇 여기에 아까 만드신 2610줄을 쏙 붙여넣으세요! 👇👇👇
+// 💡 [비워둔 공간] 아래 배열에 2,610줄의 OEM 컬러 코드를 붙여넣으세요.
+export const OEM_COLORS: { code: string; name: string }[] = [
+// 👇👇👇 여기에 2,610줄의 데이터를 쏙 붙여넣으세요! 👇👇👇
 { code: `AZ`, name: `펄` },
 { code: `RR`, name: `틴티드 투명` },
 { code: `AZ`, name: `바탕` },
@@ -2716,9 +2716,8 @@ export const OEM_COLORS = [
 { code: `PN4DG`, name: `` },
 { code: `UG`, name: `` },
 { code: `D4`, name: `` },
-// 👆👆👆 여기에 아까 만드신 2610줄을 쏙 붙여넣으세요! 👆👆👆
+// 👆👆👆 여기에 2,610줄의 데이터를 쏙 붙여넣으세요! 👆👆👆
 ];
-
 export const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
   let labelCategory = "일반 특성"; let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
   const r = data.role || ''; const d = data.desc || ''; const t = data.type || '';
@@ -3201,10 +3200,8 @@ export default function App() {
     else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
   };
 
-  // 💡 [요청 사항 완벽 반영] 검정색 렌즈 효과를 완전히 지우고 스펙트럼만 꽉 차게 만들었습니다.
   const render3DView = () => {
     const SPECTRUM_GRADIENT = "linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff)";
-
     return (
       <div className="w-full h-full relative overflow-hidden rounded-xl shadow-inner border border-slate-300">
         <div className="absolute inset-0 opacity-100" style={{ background: SPECTRUM_GRADIENT }}></div>
@@ -3229,7 +3226,6 @@ export default function App() {
             </div>
             
             <div className="flex flex-col gap-3">
-              {/* 첫 번째 줄: 날짜, 차량번호, 차종, 컬러코드 */}
               <div className="flex gap-2">
                 <div className="flex-1">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📅 등록 날짜</label>
@@ -3249,19 +3245,16 @@ export default function App() {
                 </div>
               </div>
               
-              {/* 두 번째 줄: 작업내용 */}
               <div>
                  <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🛠️ 작업 내용</label>
                  <input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="예: 조수석 앞휀다 교환, 본넷 교환 등" className="bg-white border border-slate-300 p-2 rounded text-xs font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
               </div>
               
-              {/* 세 번째 줄: 특이사항 */}
               <div>
                  <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📌 특이사항 및 스펙 메모</label>
                  <input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="선택사항 직접 입력 (예: 이색 심함, 조색 주의 등)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow" />
               </div>
               
-              {/* 버튼 영역 */}
               <div className="flex w-full gap-2 mt-1">
                 <button onClick={copyToExcel} className="flex-1 bg-green-600 text-white p-2.5 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={14} className="mr-1"/> 엑셀 연동 복사</button>
                 <button onClick={shareToKakao} className="flex-1 bg-[#FEE500] text-slate-900 p-2.5 rounded text-xs font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm"><Share2 size={14} className="mr-1"/> 모바일 인계</button>
@@ -3420,7 +3413,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* 우측 컬럼: 3D 그래픽 엔진 & 카탈로그 */}
         <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
             <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
@@ -3443,12 +3435,10 @@ export default function App() {
                 <h3 className="text-white font-black text-sm flex items-center shrink-0"><BookOpen className="mr-2 text-blue-400" size={18}/>지능형 안료 도감</h3>
                 
                 <div className="flex gap-2 w-full sm:w-auto">
-                    {/* 기존 안료 검색창 */}
                     <div className="relative flex-1 sm:w-40">
                         <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료 검색 (예: 블루)" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" />
                     </div>
-                    {/* FORD 전용 검색창 */}
                     <div className="relative flex-1 sm:w-48">
                         <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value)} placeholder="FORD 색상 검색" className="w-full bg-slate-800 border border-yellow-500/50 text-yellow-300 text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-yellow-400 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-1.5 text-blue-400" />
@@ -3457,7 +3447,6 @@ export default function App() {
             </div>
             
             <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
-                {/* 💡 FORD 검색 결과 표시 영역 */}
                 {oemSearch.trim() !== '' && (
                     <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm">
                         <h4 className="text-xs font-black text-blue-800 mb-2">🔍 FORD 색상코드 검색 결과</h4>
@@ -3475,7 +3464,6 @@ export default function App() {
                     </div>
                 )}
 
-                {/* 기존 안료 목록들 */}
                 {sortedCatalog.map((item) => {
                     const isMetallic = item.type !== 'solid' && item.type !== 'binder';
                     const isCurrentlyUsed = activeCodes.includes(item.code);
@@ -3614,7 +3602,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 팝업 닫기 기능 완벽 적용 (창 전체 닫힘) */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
@@ -3776,7 +3763,7 @@ export default function App() {
                      </div>
                  </div>
 
-                 {/* 2. RGB Additive Color (사라졌던 블록 완벽 복구) */}
+                 {/* 2. RGB Additive Color */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
                         <h4 className="text-xl font-black text-white mb-6 tracking-widest flex items-center shrink-0">
@@ -3812,7 +3799,7 @@ export default function App() {
                     </div>
                  </div>
 
-                 {/* 3. 선택된 컬러 배합 규격 (고정 높이 및 스크롤 고정으로 튕김 완벽 차단) */}
+                 {/* 3. 선택된 컬러 배합 규격 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
                         <div className="bg-slate-800 p-6 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] h-[420px] flex flex-col justify-center text-center">
