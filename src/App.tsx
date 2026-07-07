@@ -3008,6 +3008,15 @@ export default function App() {
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   
   const sortedCatalog = useMemo(() => {
+      const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
+          let labelCategory = "일반 특성"; let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
+          const r = data.role || ''; const d = data.desc || ''; const t = data.type || '';
+          if(r.includes("블루") || r.includes("레드") || r.includes("옐로우") || r.includes("그린") || r.includes("오렌지") || r.includes("바이올렛") || r.includes("마룬")) { labelCategory = "색상/외관"; badgeColor = "bg-emerald-50 text-emerald-600 border-emerald-200"; } 
+          else if (d.includes("금지") || d.includes("최대") || d.includes("주의") || d.includes("제한") || d.includes("경고")) { labelCategory = "경고/주의사항"; badgeColor = "bg-red-50 text-red-600 border-red-200 shadow-sm shadow-red-100"; } 
+          else if (r.includes("실버") || r.includes("펄") || r.includes("이펙트") || d.includes("이펙트") || code === 'WT 400') { labelCategory = "이펙트 전용"; badgeColor = "bg-blue-50 text-blue-600 border-blue-200"; } 
+          else if (t === "binder" || d.includes("첨가제") || d.includes("수지") || d.includes("바인더") || r.includes("콤퍼넌트")) { labelCategory = "배합/첨가제"; badgeColor = "bg-purple-50 text-purple-600 border-purple-200"; }
+          return { code, ...data, labelCategory, badgeColor };
+      });
       return [...catalogData].sort((a, b) => { 
           const aActive = activeCodes.includes(a.code); const bActive = activeCodes.includes(b.code); 
           if (aActive && !bActive) return -1; if (!aActive && bActive) return 1; return 0; 
@@ -3242,7 +3251,8 @@ export default function App() {
             </div>
             
             <div className="flex flex-col gap-3">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {/* 💡 1. 폼 겹침 완벽 해결: grid-cols-1로 모바일 1칸씩 (스태킹), sm 이상에서 2칸, 데스크탑 4칸 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="flex flex-col">
                    <label className="text-[11px] font-black text-slate-600 mb-1 ml-0.5">📅 등록 날짜</label>
                    <input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} className="bg-white border border-slate-300 p-2 rounded text-xs font-bold w-full text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm cursor-pointer" />
@@ -3471,7 +3481,6 @@ export default function App() {
                             {OEM_COLORS.filter(c => c.code.toUpperCase().includes(oemSearch.toUpperCase()) || c.name.toUpperCase().includes(oemSearch.toUpperCase())).slice(0, 20).map((oem, idx) => (
                                 <div key={idx} className="flex justify-between items-center bg-white px-3 py-2 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(oem.code)}>
                                     <span className="font-black text-blue-600 text-sm shrink-0 whitespace-nowrap">{oem.code}</span>
-                                    {/* 💡 글자 잘림 방지: truncate 제거, break-words 적용 */}
                                     <span className="text-[11px] text-slate-600 font-bold text-right break-words ml-2">{oem.name}</span>
                                 </div>
                             ))}
@@ -3620,19 +3629,15 @@ export default function App() {
         </div>
       )}
 
+      {/* 💡 3, 4. 팝업 복원 창닫기 버그 수정 및 UI 변경 (X버튼 제거, 타이틀 수정, window.close 삭제) */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
             <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-[#1e293b]">
               <h3 className="text-white font-bold flex items-center gap-2">
-                <History size={18} className="text-blue-400" /> 과거 구성에 따른 구성
+                <History size={18} className="text-blue-400" /> 요청한 데이터
               </h3>
-              <button 
-                onClick={() => { setRestoredViewData(null); window.close(); }} 
-                className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"
-              >
-                <X size={16} />
-              </button>
+              {/* X버튼 삭제됨 */}
             </div>
             
             <div className="p-6 overflow-y-auto custom-scrollbar max-h-[70vh] bg-[#0f172a] space-y-6">
@@ -3694,16 +3699,17 @@ export default function App() {
 
             <div className="p-4 bg-[#1e293b] border-t border-slate-700/50">
               <button 
-                onClick={() => { setRestoredViewData(null); window.close(); }} 
+                onClick={() => setRestoredViewData(null)} 
                 className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
               >
-                닫기 및 진행 중으로 돌아가기
+                확인 및 팝업 닫기
               </button>
             </div>
           </div>
         </div>
       )}
 
+     {/* 💡 2. 먼셀 컬러 믹싱 스튜디오 레이아웃 순서 변경 */}
      {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-scroll custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
@@ -3714,7 +3720,7 @@ export default function App() {
           <main className="flex-1 p-6 md:p-10 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950 overflow-x-hidden">
              <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 mb-8 items-start">
                  
-                 {/* 1. 먼셀 20 색상환 */}
+                 {/* [1번] 먼셀 20 색상환 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                      <h3 className="text-lg font-black text-white mb-6 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg shrink-0">
                          <Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)
@@ -3781,43 +3787,7 @@ export default function App() {
                      </div>
                  </div>
 
-                 {/* 2. RGB Additive Color */}
-                 <div className="w-full flex flex-col items-center justify-center h-[460px]">
-                    <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
-                        <h4 className="text-xl font-black text-white mb-6 tracking-widest flex items-center shrink-0">
-                            <BookOpen className="mr-2 text-blue-400" size={20}/>RGB <span className="text-xs text-slate-500 ml-2 font-normal">Additive Color (빛의 혼합)</span>
-                        </h4>
-                        <div className="w-60 h-60 relative shrink-0">
-                            <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
-                                <circle cx="75" cy="75" r="55" fill="#0000FF" style={{ mixBlendMode: 'screen' }} />
-                                <circle cx="125" cy="75" r="55" fill="#FF0000" style={{ mixBlendMode: 'screen' }} />
-                                <circle cx="100" cy="120" r="55" fill="#00FF00" style={{ mixBlendMode: 'screen' }} />
-                                
-                                <g stroke="#ffffff" strokeWidth="1" strokeOpacity="0.5">
-                                    <line x1="75" y1="75" x2="30" y2="40" />
-                                    <line x1="125" y1="75" x2="170" y2="40" />
-                                    <line x1="100" y1="120" x2="100" y2="175" />
-                                    <line x1="100" y1="55" x2="100" y2="25" /> 
-                                    <line x1="75" y1="105" x2="30" y2="130" /> 
-                                    <line x1="125" y1="105" x2="170" y2="130" /> 
-                                    <line x1="100" y1="90" x2="150" y2="90" /> 
-                                </g>
-                                <g fill="#ffffff" fontSize="10" fontWeight="bold" textAnchor="middle" className="drop-shadow-md">
-                                    <text x="25" y="35">Blue</text>
-                                    <text x="175" y="35">Red</text>
-                                    <text x="100" y="185">Green</text>
-                                    <text x="100" y="20" fill="#FF00FF">Magenta</text>
-                                    <text x="25" y="140" fill="#00FFFF">Cyan</text>
-                                    <text x="175" y="140" fill="#FFFF00">Yellow</text>
-                                    <rect x="155" y="82" width="30" height="14" fill="#ffffff" rx="2" />
-                                    <text x="170" y="93" fill="#000000">White</text>
-                                </g>
-                            </svg>
-                        </div>
-                    </div>
-                 </div>
-
-                 {/* 3. 선택된 컬러 배합 규격 */}
+                 {/* [2번] 선택된 컬러 배합 규격 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
                         <div className="bg-slate-800 p-6 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] h-[420px] flex flex-col justify-center text-center">
@@ -3859,7 +3829,43 @@ export default function App() {
                     )}
                  </div>
 
-                 {/* 4. CMYK Subtractive Color */}
+                 {/* [3번] RGB Additive Color */}
+                 <div className="w-full flex flex-col items-center justify-center h-[460px]">
+                    <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
+                        <h4 className="text-xl font-black text-white mb-6 tracking-widest flex items-center shrink-0">
+                            <BookOpen className="mr-2 text-blue-400" size={20}/>RGB <span className="text-xs text-slate-500 ml-2 font-normal">Additive Color (빛의 혼합)</span>
+                        </h4>
+                        <div className="w-60 h-60 relative shrink-0">
+                            <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
+                                <circle cx="75" cy="75" r="55" fill="#0000FF" style={{ mixBlendMode: 'screen' }} />
+                                <circle cx="125" cy="75" r="55" fill="#FF0000" style={{ mixBlendMode: 'screen' }} />
+                                <circle cx="100" cy="120" r="55" fill="#00FF00" style={{ mixBlendMode: 'screen' }} />
+                                
+                                <g stroke="#ffffff" strokeWidth="1" strokeOpacity="0.5">
+                                    <line x1="75" y1="75" x2="30" y2="40" />
+                                    <line x1="125" y1="75" x2="170" y2="40" />
+                                    <line x1="100" y1="120" x2="100" y2="175" />
+                                    <line x1="100" y1="55" x2="100" y2="25" /> 
+                                    <line x1="75" y1="105" x2="30" y2="130" /> 
+                                    <line x1="125" y1="105" x2="170" y2="130" /> 
+                                    <line x1="100" y1="90" x2="150" y2="90" /> 
+                                </g>
+                                <g fill="#ffffff" fontSize="10" fontWeight="bold" textAnchor="middle" className="drop-shadow-md">
+                                    <text x="25" y="35">Blue</text>
+                                    <text x="175" y="35">Red</text>
+                                    <text x="100" y="185">Green</text>
+                                    <text x="100" y="20" fill="#FF00FF">Magenta</text>
+                                    <text x="25" y="140" fill="#00FFFF">Cyan</text>
+                                    <text x="175" y="140" fill="#FFFF00">Yellow</text>
+                                    <rect x="155" y="82" width="30" height="14" fill="#ffffff" rx="2" />
+                                    <text x="170" y="93" fill="#000000">White</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                 </div>
+
+                 {/* [4번] CMYK Subtractive Color */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
                         <h4 className="text-xl font-black text-slate-900 mb-6 tracking-widest flex items-center shrink-0">
