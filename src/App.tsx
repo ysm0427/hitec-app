@@ -66,7 +66,7 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 356': { role: '미디엄 실버', type: 'silver_fine', face: '#e2e8f0', flop: '#475569', desc: '최적의 균형을 맞춘 중간 크기 입자의 최고 표준 범용 알루미늄입니다.', details: [['일반 특성', '가장 균형 잡힌 중간 크기 입자를 가진 최고 표준 범용 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '가장 대중적이고 안정적인 중간 톤의 회은색 금속성 반사광을 형성합니다.'], ['용도 및 적용 컬러', '시중 80% 이상의 일반적인 실버 메탈릭, 그레이 메탈릭 조색 시 가장 핵심적인 메인 베이스로 사용됩니다.'], ['배합 및 혼합 비율', '대부분의 은색 조색에서 가장 큰 부피를 차지하므로 정확한 대용량 정밀 계량이 요구됩니다.'], ['경고 및 주의사항', '투명 클리어코트 마감 전에는 입자가 얼룩지기 쉬우므로 드롭코트를 통해 입자를 균일하게 배열해야 합니다.']] },
   'WT 357': { role: '마이크로 실버', type: 'silver_fine', face: '#f8fafc', flop: '#64748b', desc: '알루미늄 입자를 한계치까지 미세하게 분쇄 가공한 초정밀 미립자입니다.', details: [['일반 특성', '알루미늄 입자를 한계치까지 미세하게 분쇄 가공한 초정밀 미립자 조색제입니다.'], ['색상 및 외관 변화', '극도로 치밀하고 매끄러우면서 새틴(Satin) 느낌을 줍니다.'], ['용도 및 적용 컬러', '매트한 느낌의 고급 세단 은색이나 입자가 고운 화이트 펄의 밑색(은폐용 베이스)으로 자주 활용됩니다.'], ['배합 및 혼합 비율', '조색기 소프트웨어의 정밀 데이터 값을 기준으로 철저히 혼합합니다.'], ['경고 및 주의사항', '입자가 고와 용제 증발이 지연될 수 있으므로, 얇게 플래시오프 타임을 충분히 지켜 도장해야 합니다.']] },
   'WT 359': { role: '브라이트 실버', type: 'silver_coarse', face: '#f1f5f9', flop: '#334155', desc: '명도 톤이 한계까지 높게 세팅된 극도로 밝은 광휘형 알루미늄입니다.', details: [['일반 특성', '명도 톤이 한계까지 높게 세팅된 극도로 밝은 광휘형 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '티 없이 맑으며, 정면 명도가 눈부시게 뛰어나 화사한 백은색 느낌을 극대화합니다.'], ['용도 및 적용 컬러', '티타늄 실버나 밝고 화창한 느낌의 하이라이트 실버 메탈릭 조장에 최적화된 핵심 안료입니다.'], ['배합 및 혼합 비율', '가장 밝은 베이스가 되므로 배합 시스템 데이터 중 높은 비중을 차지하며 정밀 저울로 처방합니다.'], ['경고 및 주의사항', '교반기 및 스프레이 건 내부에 어두운 도료 찌꺼기가 남지 않도록 완벽히 세척 후 사용해야 합니다.']] },
-  'WT 360': { role: '코스 실버', type: 'silver_coarse', face: '#94a3b8', flop: '#1e293b', desc: '입자가 크고 고 굵은 표준 거친 알루미늄 조색제입니다.', details: [['일반 특성', '입자가 크고 굵은(Coarse) 표준 거친 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '눈부신 반짝임은 없지만 도막에 뚜렷하고 안정적이며 묵직한 큰 금속 입자감을 형성합니다.'], ['용도 및 적용 컬러', 'SUV나 트럭처럼 터프하고 뚜렷한 입자감이 필요한 굵은 회은색(Grey Metallic) 컬러 배합에 주로 투입됩니다.'], ['배합 및 혼합 비율', '거친 입자 조색 데이터 비율을 바탕으로 혼합합니다.'], ['경고 및 주의사항', '입자가 표면 위로 솟아오르는 오렌지필 현상을 막기 위해 클리어를 충분한 두께로 2회 이상 올려주어야 합니다.']] },
+  'WT 360': { role: '코스 실버', type: 'silver_coarse', face: '#94a3b8', flop: '#1e293b', desc: '입자가 크고 굵은 표준 거친 알루미늄 조색제입니다.', details: [['일반 특성', '입자가 크고 굵은(Coarse) 표준 거친 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '눈부신 반짝임은 없지만 도막에 뚜렷하고 안정적이며 묵직한 큰 금속 입자감을 형성합니다.'], ['용도 및 적용 컬러', 'SUV나 트럭처럼 터프하고 뚜렷한 입자감이 필요한 굵은 회은색(Grey Metallic) 컬러 배합에 주로 투입됩니다.'], ['배합 및 혼합 비율', '거친 입자 조색 데이터 비율을 바탕으로 혼합합니다.'], ['경고 및 주의사항', '입자가 표면 위로 솟아오르는 오렌지필 현상을 막기 위해 클리어를 충분한 두께로 2회 이상 올려주어야 합니다.']] },
   'WT 361': { role: '브릴리언트 실버', type: 'silver_coarse', face: '#f1f5f9', flop: '#64748b', desc: '최적의 반짝임 밸런스를 맞춘 중간 입자 크기의 고휘도 알루미늄입니다.', details: [['일반 특성', '최적의 반짝임 밸런스를 맞춘 중간 입자 크기의 고휘도 광휘형 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '거울 같은 반사율을 지녀 정면은 밝고 측면은 짙게 떨어지며 뛰어난 광택감을 냅니다.'], ['용도 및 적용 컬러', '유럽 프리미엄 브랜드 특유의 깊이 있고 매끄러운 고광택 실버 도장을 재현할 때 주력으로 씁니다.'], ['배합 및 혼합 비율', '조색표 상의 정확한 포뮬러 수치에 따라 기본 베이스로 처방 및 혼합합니다.'], ['경고 및 주의사항', '도장 시 수분 건조 공정을 철저히 지키고 에어건으로 과도하게 불지 마십시오.']] },
   'WT 362': { role: '브릴리언트 실버 화인', type: 'silver_fine', face: '#f8fafc', flop: '#94a3b8', desc: '빛 반사 특성과 미세하고 고운 입자를 결합한 최고급 알루미늄입니다.', details: [['일반 특성', '뛰어난 빛 반사 특성과 미세하고 고운 입자 특성을 결합한 최고급 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '표면이 매우 매끄러우면서도 맑고 환한 고휘도 은빛 반사광을 우아하게 뿜어냅니다.'], ['용도 및 적용 컬러', '최신형 럭셔리 EV 차량이나 고급 세단의 실키한 초고광택 라이트 실버 조색 시 완벽한 매칭을 위해 사용됩니다.'], ['배합 및 혼합 비율', '조색기 소프트웨어에 내장된 정밀 용량 데이터 가이드에 맞춰 저울링합니다.'], ['경고 및 주의사항', '베이스 도막이 조금이라도 두껍게 도포되면 고유의 화사한 반사광이 죽고 탁해질 수 있으므로 지정된 얇은 도장법을 준수하십시오.']] },
   'WT 363': { role: '브릴리언트 골드', type: 'pearl', face: '#fbbf24', flop: '#b45309', desc: '순금처럼 맑고 선명한 채도를 자랑하는 프리미엄 황색 알루미늄 조색제입니다.', details: [['일반 특성', '순금처럼 맑고 선명한 채도를 자랑하는 프리미엄 황색 알루미늄 수성 조색제입니다.'], ['색상 및 외관 변화', '도막에 풍부하고 영롱한 화려한 금빛 스파클링을 연출합니다.'], ['용도 및 적용 컬러', '샴페인 골드 등 화려함을 극대화해야 하는 특수 컬러 조색에 필수적으로 사용됩니다.'], ['배합 및 혼합 비율', '금빛 채도 조절을 위해 미세 비율을 적용합니다.'], ['경고 및 주의사항', '일반 펄과 달리 산성/알칼리성 첨가제와 접촉 시 가스 발생 및 변색의 위험이 있으니 전용 용제만 사용하십시오.']] },
@@ -103,7 +103,6 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 455': { role: '퍼포먼스 컴포넌트', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '물성을 극적으로 안정화시키는 솔리드 전용 고성능 기능성 유동성 첨가제입니다.', details: [['일반 특성', '솔리드 전용 고성능 기능성 유동성 첨가제입니다.'], ['색상 및 외관 변화', '도막의 펴짐성을 극한으로 끌어올려 유리면처럼 매끄러운 고품질 외관을 보장합니다.'], ['용도 및 적용 컬러', '이펙트 입자가 없는 솔리드 컬러 도장 작업에만 단독으로 사용됩니다.'], ['배합 및 혼합 비율', '솔리드 베이스코트 도료 총 무게를 기준으로 정확히 10% 중량을 추가 계량하여 혼합 및 분사합니다.'], ['경고 및 주의사항', '성분 특성 상 이펙트 컬러에는 절대 사용을 금지합니다.']] },
   'WT 3080': { role: '스페셜 애디티브', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '도막 보정 및 흐름 방지 특수 첨가제.', details: [['일반 특성', '도막 보정 및 흐름 방지 전용 특수 첨가제입니다.']] }
 };
-
 // 💡 [비워둔 공간] 아래 배열에 2,610줄의 OEM 컬러 코드를 붙여넣으세요.
 export const OEM_COLORS: { code: string; name: string }[] = [
 // 👇👇👇 여기에 2,610줄의 데이터를 쏙 붙여넣으세요! 👇👇👇
@@ -2716,6 +2715,9 @@ export const OEM_COLORS: { code: string; name: string }[] = [
 { code: `PN4DG`, name: `` },
 { code: `UG`, name: `` },
 { code: `D4`, name: `` },
+// 👆👆👆 여기에 2,610줄의 데이터를 쏙 붙여넣으세요! 👆👆👆
+];
+
 export const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
   let labelCategory = "일반 특성"; let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
   const r = data.role || ''; const d = data.desc || ''; const t = data.type || '';
@@ -3006,15 +3008,6 @@ export default function App() {
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   
   const sortedCatalog = useMemo(() => {
-      const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
-          let labelCategory = "일반 특성"; let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
-          const r = data.role || ''; const d = data.desc || ''; const t = data.type || '';
-          if(r.includes("블루") || r.includes("레드") || r.includes("옐로우") || r.includes("그린") || r.includes("오렌지") || r.includes("바이올렛") || r.includes("마룬")) { labelCategory = "색상/외관"; badgeColor = "bg-emerald-50 text-emerald-600 border-emerald-200"; } 
-          else if (d.includes("금지") || d.includes("최대") || d.includes("주의") || d.includes("제한") || d.includes("경고")) { labelCategory = "경고/주의사항"; badgeColor = "bg-red-50 text-red-600 border-red-200 shadow-sm shadow-red-100"; } 
-          else if (r.includes("실버") || r.includes("펄") || r.includes("이펙트") || d.includes("이펙트") || code === 'WT 400') { labelCategory = "이펙트 전용"; badgeColor = "bg-blue-50 text-blue-600 border-blue-200"; } 
-          else if (t === "binder" || d.includes("첨가제") || d.includes("수지") || d.includes("바인더") || r.includes("콤퍼넌트")) { labelCategory = "배합/첨가제"; badgeColor = "bg-purple-50 text-purple-600 border-purple-200"; }
-          return { code, ...data, labelCategory, badgeColor };
-      });
       return [...catalogData].sort((a, b) => { 
           const aActive = activeCodes.includes(a.code); const bActive = activeCodes.includes(b.code); 
           if (aActive && !bActive) return -1; if (!aActive && bActive) return 1; return 0; 
@@ -3478,7 +3471,7 @@ export default function App() {
                             {OEM_COLORS.filter(c => c.code.toUpperCase().includes(oemSearch.toUpperCase()) || c.name.toUpperCase().includes(oemSearch.toUpperCase())).slice(0, 20).map((oem, idx) => (
                                 <div key={idx} className="flex justify-between items-center bg-white px-3 py-2 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(oem.code)}>
                                     <span className="font-black text-blue-600 text-sm shrink-0 whitespace-nowrap">{oem.code}</span>
-                                    {/* 💡 수정된 부분: truncate와 max-w-[100px]를 제거하고 글자가 끝까지 보이도록 수정했습니다. */}
+                                    {/* 💡 글자 잘림 방지: truncate 제거, break-words 적용 */}
                                     <span className="text-[11px] text-slate-600 font-bold text-right break-words ml-2">{oem.name}</span>
                                 </div>
                             ))}
@@ -3915,5 +3908,3 @@ export default function App() {
     </div>
   );
 }
-// 👆👆👆 여기에 2,610줄의 데이터를 쏙 붙여넣으세요! 👆👆👆
-];
