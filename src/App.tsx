@@ -6,7 +6,7 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 1. 공식 안료 데이터베이스 (문법 에러 방지를 위해 한 줄 처리)
+// 💡 1. 공식 안료 데이터베이스 (문법 에러 방지를 위해 모두 한 줄로 처리됨)
 export const TONER_DB: Record<string, TonerData> = {
   'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '정면에서 선명한 적청색(Reddish-Blue) 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다.', details: [['일반 특성', '기존 WT 346 안료를 완벽하게 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'], ['색상 및 외관 변화', '가장 큰 특징은 정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점입니다.'], ['용도 및 적용 컬러', 'WT 346이 포함된 모든 솔리드 및 이펙트 컬러의 1:1 대체 처방 및 조색 보정용으로 사용됩니다.'], ['배합 및 혼합 비율', '기존 WT 346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용해야 동일한 착색력을 얻습니다.'], ['경고 및 주의사항', '정면의 뚜렷한 적청색 발색으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로 반드시 시편 대조 후 블랜딩 도장을 권장합니다.']] },
   'WT 346': { role: '트랜스페어런트 딥 블루 [WT 144 완벽대체]', type: 'solid', face: '#0369a1', flop: '#020617', desc: '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.', details: [['일반 특성', '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.'], ['색상 및 외관 변화', '특히 측면(45도/110도)에서 관찰할 때 전체 청색 조색제 중 녹색빛 반사가 가장 강하게 두드러지는 고유 특징이 있습니다.'], ['용도 및 적용 컬러', '시중 대부분의 이펙트 메탈릭 청색 조색 시 뼈대가 되는 가장 기초적이고 필수적인 투명 파란색입니다.'], ['배합 및 혼합 비율', '다양한 이펙트 처방에서 메인으로 쓰이므로 배합표의 대량 투입 지시를 엄수합니다.'], ['경고 및 주의사항', '이 안료는 신형 WT 144와 상호 대체가 가능합니다. 대체 시 [WT 346 : WT 144 = 1 : 0.9] 비율을 적용하십시오.']] },
@@ -2728,8 +2728,8 @@ export const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
   return { code, ...data, labelCategory, badgeColor };
 });
 
-export const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
-const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스') || r.includes('대체용'); }
+export const safeNum = (val: any): number => { const num = parseFloat(val); return isNaN(num) ? 0 : num; };
+const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스') || r.includes('대체용'); };
 
 const textureCache: Record<string, React.CSSProperties> = {};
 export const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
@@ -2834,14 +2834,14 @@ export const getMunsellDynamicDescription = (code: string, role: string, type: s
 
 export const getOptics = (tonersList: any[]) => {
   const colorToners = tonersList.filter(t => t.code && TONER_DB[t.code]);
-  const sumW = colorToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
+  const sumW = colorToners.reduce((sum, t) => sum + safeNum(t.adjustedWeight), 0);
   if (sumW === 0) return { face: { h: 0, s: 0, l: 90 }, mid: { h: 0, s: 0, l: 90 }, flop: { h: 0, s: 0, l: 90 }, isMetallic: false };
 
   let rBlue=0; let rGreen=0; let rRed=0; let rYellow=0; let rViolet=0;
   let wSilver=0; let wWhite=0; let wBlack=0; let wPearl=0; let wBinder=0; let interferenceColor: string | null = null;
 
   colorToners.forEach(t => {
-    const w = safeNum(parseFloat(t.adjustedWeight)); if (w <= 0) return;
+    const w = safeNum(t.adjustedWeight); if (w <= 0) return;
     const role = TONER_DB[t.code]?.role || ''; const code = t.code || ''; let strength = 1.0;
     if (code.includes('341') || code.includes('300') || code.includes('338')) strength = 2.5;
 
@@ -3003,13 +3003,22 @@ export default function App() {
   const [tonerMemos, setTonerMemos] = useState<Record<string, string>>({});
   const [selectedWheelIndex, setSelectedWheelIndex] = useState<number | null>(null);
 
-  const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
+  const [isLocked, setIsLocked] = useState(false);
 
-  const tonersRef = useRef<any[]>([]); const pearlTonersRef = useRef<any[]>([]); const isThreeCoatModeRef = useRef<boolean>(true);
+  const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   
   const sortedCatalog = useMemo(() => {
+      const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
+          let labelCategory = "일반 특성"; let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
+          const r = data.role || ''; const d = data.desc || ''; const t = data.type || '';
+          if(r.includes("블루") || r.includes("레드") || r.includes("옐로우") || r.includes("그린") || r.includes("오렌지") || r.includes("바이올렛") || r.includes("마룬")) { labelCategory = "색상/외관"; badgeColor = "bg-emerald-50 text-emerald-600 border-emerald-200"; } 
+          else if (d.includes("금지") || d.includes("최대") || d.includes("주의") || d.includes("제한") || d.includes("경고")) { labelCategory = "경고/주의사항"; badgeColor = "bg-red-50 text-red-600 border-red-200 shadow-sm shadow-red-100"; } 
+          else if (r.includes("실버") || r.includes("펄") || r.includes("이펙트") || d.includes("이펙트") || code === 'WT 400') { labelCategory = "이펙트 전용"; badgeColor = "bg-blue-50 text-blue-600 border-blue-200"; } 
+          else if (t === "binder" || d.includes("첨가제") || d.includes("수지") || d.includes("바인더") || r.includes("콤퍼넌트")) { labelCategory = "배합/첨가제"; badgeColor = "bg-purple-50 text-purple-600 border-purple-200"; }
+          return { code, ...data, labelCategory, badgeColor };
+      });
       return [...catalogData].sort((a, b) => { 
           const aActive = activeCodes.includes(a.code); const bActive = activeCodes.includes(b.code); 
           if (aActive && !bActive) return -1; if (!aActive && bActive) return 1; return 0; 
@@ -3074,11 +3083,18 @@ export default function App() {
   }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, tonerMemos, isLoaded]);
 
   useEffect(() => {
-    const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
+    const baseTotal = toners.reduce((sum, t) => sum + safeNum(t.adjustedWeight), 0); 
+    const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(t.adjustedWeight), 0);
     setTotalBaseWeight(baseTotal.toFixed(2)); setTotalPearlWeight(pearlTotal.toFixed(2)); setTotalFinalWeight((baseTotal + pearlTotal).toFixed(2));
+    
     const activeToners = isThreeCoatMode ? [...toners, ...pearlToners] : toners; 
     setFinalOptics(getOptics(activeToners));
-    const checkMetallic = (list: any[]) => list.some(t => { const type = TONER_DB[t.code]?.type || ''; return type !== 'solid' && type !== 'binder' && type !== ''; });
+    
+    const checkMetallic = (list: any[]) => list.some(t => { 
+        const info = TONER_DB[t.code];
+        if (!info) return false;
+        return info.type !== 'solid' && info.type !== 'binder' && info.type !== ''; 
+    });
     setIsBaseMetallic(checkMetallic(toners)); setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
@@ -3088,21 +3104,30 @@ export default function App() {
       const interval = setInterval(() => {
         const el = focusTarget.type === 'code' ? codeRefs.current[focusTarget.id] : weightRefs.current[focusTarget.id];
         if (el) { 
-            el.focus(); 
-            setTimeout(() => { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 30);
             clearInterval(interval); 
             setFocusTarget(null); 
+            el.focus(); 
+            setTimeout(() => { 
+                if (el) {
+                    const y = el.getBoundingClientRect().top + window.scrollY - 150;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                }
+            }, 50);
         }
         attempts++; 
         if (attempts > 30) { clearInterval(interval); setFocusTarget(null); }
-      }, 20); 
+      }, 10); 
       return () => clearInterval(interval);
     }
   }, [focusTarget, toners, pearlToners]);
 
-  const handleClearAll = () => { setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); };
+  const handleClearAll = () => { 
+      if (isLocked) return; 
+      setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); 
+  };
 
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
+    if (isLocked) return;
     const formattedCode = newCode.toUpperCase().trim(); const setter = isPearl ? setPearlToners : setToners;
     setter(prev => prev.map(toner => {
       if (toner.id === id) {
@@ -3115,13 +3140,14 @@ export default function App() {
   };
 
   const handleWeightInputChange = (id: string, rawValue: string, isPearl = false) => {
+    if (isLocked) return;
     let val = rawValue.replace(/[^0-9.]/g, ''); const parts = val.split('.'); if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
     if (val === '') val = ''; else if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, ''); else if (val.startsWith('.')) val = '0' + val; 
     if (isPearl) setPearlToners(pearlToners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t)); else setToners(toners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
   };
 
   const handleWeightBlur = (id: string, value: string, isPearl = false) => {
-    if (!value) return; const setter = isPearl ? setPearlToners : setToners;
+    if (!value || isLocked) return; const setter = isPearl ? setPearlToners : setToners;
     setter(prev => prev.map(t => {
       if (t.id === id) { const currentHistory = t.history || []; if (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== value) return { ...t, history: [...currentHistory, value] }; }
       return t;
@@ -3131,6 +3157,7 @@ export default function App() {
   const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => {
       if (e.key === 'Enter') { 
           e.preventDefault(); 
+          if (isLocked) return;
           const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
           const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "" }; 
           if (isPearl) setPearlToners([...pearlToners, newToner]); 
@@ -3139,9 +3166,10 @@ export default function App() {
       }
   };
   
-  const removeToner = (id: string, isPearl = false) => { if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
+  const removeToner = (id: string, isPearl = false) => { if (isLocked) return; if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
   
   const addToner = (isPearl = false) => { 
+      if (isLocked) return;
       const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
       const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "" }; 
       if (isPearl) setPearlToners([...pearlToners, newToner]); 
@@ -3150,6 +3178,7 @@ export default function App() {
   };
 
   const quickEditWeight = (id: string, delta: number, isPearl: boolean) => {
+    if (isLocked) return;
     const setter = isPearl ? setPearlToners : setToners;
     setter(prev => prev.map(t => {
       if(t.id === id) {
@@ -3164,6 +3193,7 @@ export default function App() {
   };
 
   const handleScaleAll = (isMultiply: boolean) => {
+    if (isLocked) return;
     const factor = parseFloat(scaleFactor); if (isNaN(factor) || factor <= 0) { alert("올바른 배율 상수를 입력하세요."); return; }
     const scale = (valStr: string) => { 
         const val = parseFloat(valStr); if (isNaN(val) || val === 0) return valStr; 
@@ -3178,9 +3208,17 @@ export default function App() {
     setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
   };
 
+  const calcBaseWeight = safeNum(totalBaseWeight);
+  const calcPearlWeight = safeNum(totalPearlWeight);
+  const baseResinWeight = calcBaseWeight * (isBaseMetallic ? 0.2 : 0.1);
+  const pearlResinWeight = calcPearlWeight * (isPearlMetallic ? 0.2 : 0.1);
+  const baseTotalCalc = calcBaseWeight + baseResinWeight;
+  const pearlTotalCalc = calcPearlWeight + pearlResinWeight;
+  const absoluteTotal = baseTotalCalc + (isThreeCoatMode ? pearlTotalCalc : 0);
+
   const copyToExcel = () => {
-    const baseResin = (parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1); const baseStr = `${totalBaseWeight} (수지 ${baseResin})`; let pearlStr = "해당없음";
-    if (isThreeCoatMode) { const pearlResin = (parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1); pearlStr = `${totalPearlWeight} (수지 ${pearlResin})`; }
+    const baseStr = `${totalBaseWeight} (수지 ${baseResinWeight.toFixed(1)})`; let pearlStr = "해당없음";
+    if (isThreeCoatMode) { pearlStr = `${totalPearlWeight} (수지 ${pearlResinWeight.toFixed(1)})`; }
     const baseDetails = toners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', '); const pearlDetails = isThreeCoatMode ? pearlToners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ') : '해당없음'; const detailStr = isThreeCoatMode ? `[베이스] ${baseDetails} / [펄] ${pearlDetails}` : baseDetails;
     let currentOrigin = localStorage.getItem('hitec_clean_domain'); if (!currentOrigin || currentOrigin.includes('google') || currentOrigin.includes('gemini')) currentOrigin = window.location.origin; 
     
@@ -3196,24 +3234,16 @@ export default function App() {
   const shareToKakao = async () => {
     let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}g`).join('\n');
     let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}g`).join('\n');
-    const text = `[PERMAHYD HI-TEC 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 차종: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트 (Ground)]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지제원: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트 (Mid-coat)]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 코트 합계: ${totalPearlWeight}g\n▶ 6052 수지제원: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}g\n================================`;
+    const text = `[PERMAHYD HI-TEC 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 차종: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트 (Ground)]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지제원: ${baseResinWeight.toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트 (Mid-coat)]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 코트 합계: ${totalPearlWeight}g\n▶ 6052 수지제원: ${pearlResinWeight.toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${absoluteTotal.toFixed(1)}g\n================================`;
     
     if (typeof navigator !== 'undefined' && navigator.share) {
-        try {
-            await navigator.share({ title: 'HI-TEC 조색 데이터 인계', text: text });
-        } catch (e) {
-            console.log('공유 취소 또는 실패', e);
-        }
+        try { await navigator.share({ title: 'HI-TEC 조색 데이터 인계', text: text }); } catch (e) { console.log('공유 취소 또는 실패', e); }
     } else {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         if (isMobile) {
             window.location.href = `kakaotalk://send?text=${encodeURIComponent(text)}`;
         } else {
-            if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 채팅창에 붙여넣기 하십시오."));
-            } else {
-                alert(text);
-            }
+            if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(text).then(() => alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 채팅창에 붙여넣기 하십시오.")); } else { alert(text); }
         }
     }
   };
@@ -3228,7 +3258,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[220px] lg:pb-[150px]">
+    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[500px] lg:pb-[150px]">
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
@@ -3241,42 +3271,45 @@ export default function App() {
           <div className="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-slate-800 flex items-center"><Sliders className="text-blue-600 mr-2" size={16} />공식 배합 워크 시트</h2>
+              <button onClick={() => setIsLocked(!isLocked)} className={`px-3 py-1.5 rounded-lg text-[13px] font-bold flex items-center transition-colors shadow-sm ${isLocked ? 'bg-slate-700 hover:bg-slate-800 text-white' : 'bg-red-500 hover:bg-red-600 text-white'}`}>
+                  {isLocked ? <><Unlock size={14} className="mr-1.5"/>수정 모드</> : <><Lock size={14} className="mr-1.5"/>배합 확정</>}
+              </button>
             </div>
             
             <div className="flex flex-col gap-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="flex flex-col">
                    <label className="text-[11px] font-black text-slate-600 mb-1 ml-0.5">📅 등록 날짜</label>
-                   <input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} className="bg-white border border-slate-300 p-2 rounded text-[16px] font-bold w-full text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm cursor-pointer" />
+                   <input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} readOnly={isLocked} className={`border p-2 rounded text-[16px] font-bold w-full focus:outline-none transition-shadow shadow-sm ${isLocked ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-300 text-slate-700 focus:ring-2 focus:ring-blue-400'}`} />
                 </div>
                 <div className="flex flex-col">
                    <label className="text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚗 차량 번호</label>
-                   <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="예: 12가3456" className="bg-white border border-slate-300 p-2 rounded text-[16px] font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
+                   <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="예: 12가3456" readOnly={isLocked} className={`border p-2 rounded text-[16px] font-bold w-full focus:outline-none transition-shadow shadow-sm ${isLocked ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-300 text-slate-700 focus:ring-2 focus:ring-blue-400'}`} />
                 </div>
                 <div className="flex flex-col">
                    <label className="text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 차종</label>
-                   <input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 익스플로러" className="bg-white border border-slate-300 p-2 rounded text-[16px] font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
+                   <input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 익스플로러" readOnly={isLocked} className={`border p-2 rounded text-[16px] font-bold w-full focus:outline-none transition-shadow shadow-sm ${isLocked ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-300 text-slate-700 focus:ring-2 focus:ring-blue-400'}`} />
                 </div>
                 <div className="flex flex-col">
                    <label className="text-[11px] font-black text-slate-600 mb-1 ml-0.5">🎨 컬러코드</label>
-                   <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="예: UX" className="bg-white border border-slate-300 p-2 rounded text-[16px] font-bold w-full uppercase focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
+                   <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="예: UX" readOnly={isLocked} className={`border p-2 rounded text-[16px] font-bold w-full uppercase focus:outline-none transition-shadow shadow-sm ${isLocked ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-300 text-slate-700 focus:ring-2 focus:ring-blue-400'}`} />
                 </div>
               </div>
               
               <div>
                  <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🛠️ 작업 내용</label>
-                 <input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="예: 조수석 앞휀다 교환, 본넷 교환 등" className="bg-white border border-slate-300 p-2 rounded text-[16px] font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
+                 <input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="예: 조수석 앞휀다 교환, 본넷 교환 등" readOnly={isLocked} className={`border p-2 rounded text-[16px] font-bold w-full focus:outline-none transition-shadow shadow-sm ${isLocked ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-300 text-slate-700 focus:ring-2 focus:ring-blue-400'}`} />
               </div>
               
               <div>
                  <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📌 특이사항 및 스펙 메모</label>
-                 <input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="선택사항 직접 입력 (예: 이색 심함, 조색 주의 등)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-[16px] font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow" />
+                 <input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="선택사항 직접 입력 (예: 이색 심함, 조색 주의 등)" readOnly={isLocked} className={`border p-2.5 rounded text-[16px] font-bold w-full shadow-inner focus:outline-none transition-shadow ${isLocked ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-yellow-50 border-yellow-400 text-slate-800 focus:ring-2 focus:ring-yellow-400'}`} />
               </div>
               
               <div className="flex w-full gap-2 mt-1">
                 <button onClick={copyToExcel} className="flex-1 bg-green-600 text-white p-2.5 rounded text-[16px] font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1"/> 엑셀 연동 복사</button>
                 <button onClick={shareToKakao} className="flex-1 bg-[#FEE500] text-slate-900 p-2.5 rounded text-[16px] font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm"><Share2 size={16} className="mr-1"/> 모바일 카톡 연동</button>
-                <button onClick={handleClearAll} className="bg-red-50 text-red-600 border border-red-200 px-4 rounded flex items-center justify-center hover:bg-red-100 transition-colors shadow-sm"><Trash2 size={18} /></button>
+                {!isLocked && <button onClick={handleClearAll} className="bg-red-50 text-red-600 border border-red-200 px-4 rounded flex items-center justify-center hover:bg-red-100 transition-colors shadow-sm"><Trash2 size={18} /></button>}
               </div>
             </div>
           </div>
@@ -3285,10 +3318,14 @@ export default function App() {
             <div className="mb-4 bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-2"><Beaker size={16} className="text-indigo-600" /><span className="text-[14px] font-bold text-indigo-800">현장 실시간 용량 변환기</span></div>
                 <div className="flex items-center gap-1.5">
-                    <input type="text" inputMode="decimal" value={scaleFactor} onChange={(e) => setScaleFactor(e.target.value.replace(/[^0-9.]/g, ''))} className="w-12 text-center text-[16px] font-black text-indigo-700 border rounded py-1" />
+                    <input type="text" inputMode="decimal" value={scaleFactor} onChange={(e) => setScaleFactor(e.target.value.replace(/[^0-9.]/g, ''))} readOnly={isLocked} className={`w-12 text-center text-[16px] font-black border rounded py-1 ${isLocked ? 'bg-slate-100 text-slate-400 border-slate-200' : 'bg-white text-indigo-700 border-indigo-300'}`} />
                     <span className="text-[12px] font-bold text-indigo-400 mr-1">배</span>
-                    <button onClick={() => handleScaleAll(true)} className="bg-indigo-600 text-white text-[13px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-indigo-700 transition-colors">× 곱하기</button>
-                    <button onClick={() => handleScaleAll(false)} className="bg-white border border-indigo-300 text-indigo-700 text-[13px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-indigo-50 transition-colors">÷ 나누기</button>
+                    {!isLocked && (
+                        <>
+                            <button onClick={() => handleScaleAll(true)} className="bg-indigo-600 text-white text-[13px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-indigo-700 transition-colors">× 곱하기</button>
+                            <button onClick={() => handleScaleAll(false)} className="bg-white border border-indigo-300 text-indigo-700 text-[13px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-indigo-50 transition-colors">÷ 나누기</button>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -3306,19 +3343,18 @@ export default function App() {
                                    <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                                    <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                               </div>
-                              {/* 💡 1,3번: 숫자 키패드 띄우기 (inputMode="decimal"), 16px 고정으로 확대 현상 제거 */}
                               <input 
                                   ref={el => { codeRefs.current[toner.id] = el; }} 
                                   inputMode="decimal" 
                                   value={toner.code} 
                                   onChange={e => handleCodeChange(toner.id, e.target.value, false)} 
-                                  className="w-24 text-[16px] font-black uppercase border border-slate-300 rounded p-1.5 focus:border-blue-500 focus:outline-none shadow-inner" 
+                                  readOnly={isLocked}
+                                  className={`w-24 text-[16px] font-black uppercase border rounded p-1.5 focus:outline-none shadow-inner ${isLocked ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-300 focus:border-blue-500'}`} 
                                   placeholder="코드" 
                               />
                               <span className="font-bold text-blue-700 text-[15px] truncate">{info.role || '미등록 안료'}</span>
                           </div>
                           
-                          {/* 💡 4번: 안료 설명 UI 줄바꿈 최적화 (블록형) */}
                           {info.details && info.details.length > 0 ? (
                               <div className="flex flex-col gap-1.5 mt-2 sm:ml-[72px]">
                                   {info.details.slice(0, 2).map((d: any, idx: number) => (
@@ -3330,7 +3366,7 @@ export default function App() {
                               </div>
                           ) : <p className="text-[13px] text-slate-500 leading-tight break-keep sm:ml-[72px] bg-white p-2 rounded border border-slate-100 mt-2">{info.desc}</p>}
 
-                          {toner.history && toner.history.length > 0 && (
+                          {toner.history && toner.history.length > 0 && !isLocked && (
                               <div className="flex items-center gap-2 mt-2 sm:ml-[72px] text-[11px] text-slate-500 bg-slate-100 px-2.5 py-1.5 rounded">
                                   <span className="font-bold">이력 ({toner.history.length}회):</span>
                                   <div className="flex gap-1.5 flex-wrap">
@@ -3343,9 +3379,7 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center self-end sm:self-auto bg-white border rounded-md px-2 py-1 shrink-0 shadow-sm mt-3 sm:mt-0">
-                         {/* 💡 0.01g 증감 버튼 적용 */}
-                         <button onClick={() => quickEditWeight(toner.id, -0.01, false)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded text-lg">-</button>
-                         {/* 16px 고정으로 입력 시 화면 확대 현상 완벽 방지 */}
+                         {!isLocked && <button onClick={() => quickEditWeight(toner.id, -0.01, false)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded text-lg">-</button>}
                          <input 
                              ref={el => { weightRefs.current[toner.id] = el; }} 
                              inputMode="decimal" 
@@ -3353,25 +3387,26 @@ export default function App() {
                              onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} 
                              onBlur={e => handleWeightBlur(toner.id, e.target.value, false)} 
                              onKeyDown={e => handleWeightKeyDown(e, toner.id, false)} 
-                             className="w-20 text-right text-[18px] font-black text-blue-600 focus:outline-none clean-number-input mx-1" 
+                             readOnly={isLocked}
+                             className={`w-20 text-right text-[18px] font-black focus:outline-none clean-number-input mx-1 ${isLocked ? 'bg-transparent text-slate-500 cursor-not-allowed' : 'text-blue-600'}`} 
                              placeholder="0.0" 
                          />
-                         <button onClick={() => quickEditWeight(toner.id, 0.01, false)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded text-lg">+</button>
+                         {!isLocked && <button onClick={() => quickEditWeight(toner.id, 0.01, false)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded text-lg">+</button>}
                          <span className="text-[12px] font-bold text-slate-400 ml-1 mr-2">g</span>
-                         <button onClick={() => removeToner(toner.id, false)} className="ml-1 p-1"><Trash2 size={20} className="text-slate-300 hover:text-red-500 transition-colors"/></button>
+                         {!isLocked && <button onClick={() => removeToner(toner.id, false)} className="ml-1 p-1"><Trash2 size={20} className="text-slate-300 hover:text-red-500 transition-colors"/></button>}
                       </div>
                     </div>
                   </div>
                 )
               })}
-              <button onClick={() => addToner(false)} className="w-full py-4 border-2 border-dashed border-blue-200 rounded-xl text-blue-500 font-bold text-[15px] flex justify-center items-center bg-blue-50/30 hover:bg-blue-50 hover:border-blue-400 transition-colors shadow-sm"><Plus size={18} className="mr-1"/>베이스 안료 추가</button>
+              {!isLocked && <button onClick={() => addToner(false)} className="w-full py-4 border-2 border-dashed border-blue-200 rounded-xl text-blue-500 font-bold text-[15px] flex justify-center items-center bg-blue-50/30 hover:bg-blue-50 hover:border-blue-400 transition-colors shadow-sm"><Plus size={18} className="mr-1"/>베이스 안료 추가</button>}
             </div>
             
             <div className="mt-5 pt-5 border-t border-slate-200 flex items-center justify-between">
-                <label className="flex items-center cursor-pointer bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-sm hover:bg-purple-50 transition-colors">
+                <label className={`flex items-center bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-sm transition-colors ${isLocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-purple-50'}`}>
                   <span className="mr-3 text-[14px] font-black text-purple-700">3Coat (펄 추가) 모드 켜기</span>
                   <div className="relative">
-                    <input type="checkbox" className="sr-only" checked={isThreeCoatMode} onChange={() => setIsThreeCoatMode(!isThreeCoatMode)} />
+                    <input type="checkbox" className="sr-only" disabled={isLocked} checked={isThreeCoatMode} onChange={() => setIsThreeCoatMode(!isThreeCoatMode)} />
                     <div className={`w-12 h-6 rounded-full shadow-inner transition-colors ${isThreeCoatMode ? 'bg-purple-500' : 'bg-slate-300'}`}></div>
                     <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow transition-transform ${isThreeCoatMode ? 'transform translate-x-6' : ''}`}></div>
                   </div>
@@ -3393,7 +3428,15 @@ export default function App() {
                                      <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                                      <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                                 </div>
-                                <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code} onChange={e => handleCodeChange(toner.id, e.target.value, true)} inputMode="decimal" className="w-24 text-[16px] font-black uppercase border border-purple-200 rounded p-1.5 text-purple-800 shadow-inner focus:outline-none focus:border-purple-500" placeholder="코드" />
+                                <input 
+                                    ref={el => { codeRefs.current[toner.id] = el; }} 
+                                    value={toner.code} 
+                                    onChange={e => handleCodeChange(toner.id, e.target.value, true)} 
+                                    inputMode="decimal" 
+                                    readOnly={isLocked}
+                                    className={`w-24 text-[16px] font-black uppercase border rounded p-1.5 shadow-inner focus:outline-none ${isLocked ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-purple-200 text-purple-800 focus:border-purple-500'}`} 
+                                    placeholder="코드" 
+                                />
                                 <span className="font-bold text-purple-700 text-[15px] truncate">{info.role || '미등록 안료'}</span>
                             </div>
                             
@@ -3408,7 +3451,7 @@ export default function App() {
                                 </div>
                             ) : <p className="text-[13px] text-slate-500 leading-tight break-keep sm:ml-[72px] bg-white p-2 rounded border border-purple-100 mt-2">{info.desc}</p>}
 
-                            {toner.history && toner.history.length > 0 && (
+                            {toner.history && toner.history.length > 0 && !isLocked && (
                                 <div className="flex items-center gap-2 mt-2 sm:ml-[72px] text-[11px] text-purple-500 bg-purple-100 px-2.5 py-1.5 rounded">
                                     <span className="font-bold">이력 ({toner.history.length}회):</span>
                                     <div className="flex gap-1.5 flex-wrap">
@@ -3420,17 +3463,27 @@ export default function App() {
                             )}
                         </div>
                         <div className="flex items-center self-end sm:self-auto bg-white border border-purple-100 rounded-md px-2 py-1 shrink-0 shadow-sm mt-3 sm:mt-0">
-                           <button onClick={() => quickEditWeight(toner.id, -0.01, true)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded text-lg">-</button>
-                           <input ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" value={toner.adjustedWeight} onChange={e => handleWeightInputChange(toner.id, e.target.value, true)} onBlur={e => handleWeightBlur(toner.id, e.target.value, true)} onKeyDown={e => handleWeightKeyDown(e, toner.id, true)} className="w-20 text-right text-[18px] font-black text-purple-600 focus:outline-none clean-number-input mx-1" placeholder="0.0" />
-                           <button onClick={() => quickEditWeight(toner.id, 0.01, true)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded text-lg">+</button>
+                           {!isLocked && <button onClick={() => quickEditWeight(toner.id, -0.01, true)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded text-lg">-</button>}
+                           <input 
+                               ref={el => { weightRefs.current[toner.id] = el; }} 
+                               inputMode="decimal" 
+                               value={toner.adjustedWeight} 
+                               onChange={e => handleWeightInputChange(toner.id, e.target.value, true)} 
+                               onBlur={e => handleWeightBlur(toner.id, e.target.value, true)} 
+                               onKeyDown={e => handleWeightKeyDown(e, toner.id, true)} 
+                               readOnly={isLocked}
+                               className={`w-20 text-right text-[18px] font-black focus:outline-none clean-number-input mx-1 ${isLocked ? 'bg-transparent text-slate-500 cursor-not-allowed' : 'text-purple-600'}`} 
+                               placeholder="0.0" 
+                           />
+                           {!isLocked && <button onClick={() => quickEditWeight(toner.id, 0.01, true)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded text-lg">+</button>}
                            <span className="text-[12px] font-bold text-slate-400 ml-1 mr-2">g</span>
-                           <button onClick={() => removeToner(toner.id, true)} className="ml-1 p-1"><Trash2 size={20} className="text-purple-300 hover:text-red-500 transition-colors"/></button>
+                           {!isLocked && <button onClick={() => removeToner(toner.id, true)} className="ml-1 p-1"><Trash2 size={20} className="text-purple-300 hover:text-red-500 transition-colors"/></button>}
                         </div>
                       </div>
                     </div>
                   )
                 })}
-                <button onMouseDown={(e) => e.preventDefault()} onClick={() => addToner(true)} className="w-full py-4 border-2 border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-xl text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-[15px] mt-2 shadow-sm"><Plus size={18} /><span>펄 조색제 추가</span></button>
+                {!isLocked && <button onMouseDown={(e) => e.preventDefault()} onClick={() => addToner(true)} className="w-full py-4 border-2 border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-xl text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-[15px] mt-2 shadow-sm"><Plus size={18} /><span>펄 조색제 추가</span></button>}
               </div>
             )}
           </div>
@@ -3477,7 +3530,6 @@ export default function App() {
                             {OEM_COLORS.filter(c => c.code.toUpperCase().includes(oemSearch.toUpperCase()) || c.name.toUpperCase().includes(oemSearch.toUpperCase())).slice(0, 20).map((oem, idx) => (
                                 <div key={idx} className="flex justify-between items-center bg-white px-4 py-3 rounded-lg shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(oem.code)}>
                                     <span className="font-black text-blue-600 text-[15px] shrink-0 whitespace-nowrap">{oem.code}</span>
-                                    {/* 글자 짤림 방지: truncate 삭제 및 줄바꿈 허용 */}
                                     <span className="text-[13px] text-slate-600 font-bold text-right break-words ml-3 leading-snug">{oem.name}</span>
                                 </div>
                             ))}
@@ -3524,16 +3576,16 @@ export default function App() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 w-full p-4 sm:p-5 bg-slate-950 text-slate-100 flex flex-col lg:flex-row justify-between items-center z-[500] border-t-4 border-indigo-900 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] gap-4 backdrop-blur-md">
+      <div className="fixed bottom-0 left-0 w-full p-2.5 sm:p-4 bg-slate-950/98 text-slate-100 flex flex-col lg:flex-row justify-between items-center z-[500] border-t-2 border-indigo-500 shadow-[0_-10px_40px_rgba(0,0,0,0.85)] gap-2.5 backdrop-blur-xl">
           <div className="flex w-full lg:w-auto gap-4 flex-col sm:flex-row justify-between lg:justify-start">
               <div className="flex flex-col gap-1.5 flex-1 min-w-[260px]">
                  <span className="text-[11px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Layers size={13} className="mr-1 text-blue-400"/> A. 베이스 코트 실시간 중량</span>
                  <div className="flex items-center justify-between bg-slate-900/90 px-4 py-3 rounded-xl border border-slate-800 shadow-inner">
-                     <div className="flex flex-col items-center"><span className="text-[10px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-white text-[15px]">{totalBaseWeight}g</span></div>
+                     <div className="flex flex-col items-center"><span className="text-[10px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-white text-[15px]">{baseWeightNum.toFixed(1)}g</span></div>
                      <span className="text-slate-600 font-black text-[15px]">+</span>
-                     <div className="flex flex-col items-center"><span className="text-[10px] text-blue-400 font-bold">6052 수지 ({isBaseMetallic ? '20%' : '10%'})</span><span className="font-black text-blue-400 text-[15px]">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                     <div className="flex flex-col items-center"><span className="text-[10px] text-blue-400 font-bold">6052 수지 ({isBaseMetallic ? '20%' : '10%'})</span><span className="font-black text-blue-400 text-[15px]">{baseResinWeight.toFixed(1)}g</span></div>
                      <span className="text-slate-600 font-black text-[15px]">=</span>
-                     <div className="flex flex-col items-center bg-blue-950/40 px-3 py-1 rounded border border-blue-900/50"><span className="text-[10px] text-emerald-400 font-bold">총 중량</span><span className="font-black text-emerald-400 text-lg">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 1.2 : 1.1)).toFixed(1)}g</span></div>
+                     <div className="flex flex-col items-center bg-blue-950/40 px-3 py-1 rounded border border-blue-900/50"><span className="text-[10px] text-emerald-400 font-bold">총 중량</span><span className="font-black text-emerald-400 text-lg">{baseTotalCalc.toFixed(1)}g</span></div>
                  </div>
               </div>
               
@@ -3541,11 +3593,11 @@ export default function App() {
               <div className="flex flex-col gap-1.5 flex-1 min-w-[260px]">
                  <span className="text-[11px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Zap size={13} className="mr-1 text-purple-400"/> B. 펄 코트 실시간 중량</span>
                  <div className="flex items-center justify-between bg-slate-900/90 px-4 py-3 rounded-xl border border-slate-800 shadow-inner">
-                     <div className="flex flex-col items-center"><span className="text-[10px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-white text-[15px]">{totalPearlWeight}g</span></div>
+                     <div className="flex flex-col items-center"><span className="text-[10px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-white text-[15px]">{pearlWeightNum.toFixed(1)}g</span></div>
                      <span className="text-slate-600 font-black text-[15px]">+</span>
-                     <div className="flex flex-col items-center"><span className="text-[10px] text-purple-400 font-bold">6052 수지 ({isPearlMetallic ? '20%' : '10%'})</span><span className="font-black text-purple-400 text-[15px]">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                     <div className="flex flex-col items-center"><span className="text-[10px] text-purple-400 font-bold">6052 수지 ({isPearlMetallic ? '20%' : '10%'})</span><span className="font-black text-purple-400 text-[15px]">{pearlResinWeight.toFixed(1)}g</span></div>
                      <span className="text-slate-600 font-black text-[15px]">=</span>
-                     <div className="flex flex-col items-center bg-purple-950/40 px-3 py-1 rounded border border-purple-900/50"><span className="text-[10px] text-emerald-400 font-bold">총 중량</span><span className="font-black text-emerald-400 text-lg">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 1.2 : 1.1)).toFixed(1)}g</span></div>
+                     <div className="flex flex-col items-center bg-purple-950/40 px-3 py-1 rounded border border-purple-900/50"><span className="text-[10px] text-emerald-400 font-bold">총 중량</span><span className="font-black text-emerald-400 text-lg">{pearlTotalCalc.toFixed(1)}g</span></div>
                  </div>
               </div>
               )}
@@ -3554,10 +3606,7 @@ export default function App() {
           <div className="flex flex-col items-center justify-center shrink-0 bg-gradient-to-br from-amber-950/50 to-yellow-900/20 border-2 border-yellow-500/60 px-8 py-3 rounded-2xl w-full lg:w-auto shadow-[0_0_25px_rgba(234,179,8,0.2)]">
              <span className="text-[13px] text-yellow-500 font-black tracking-widest flex items-center uppercase"><Beaker size={15} className="mr-1.5"/> ✨ 최종 도막 혼합 총량</span>
              <span className="text-4xl font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">
-                 {(
-                     parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 1.2 : 1.1)).toFixed(1)) + 
-                     (isThreeCoatMode ? parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 1.2 : 1.1)).toFixed(1)) : 0)
-                 ).toFixed(1)}<span className="text-xl font-bold text-yellow-600 ml-1">g</span>
+                 {absoluteTotal.toFixed(1)}<span className="text-xl font-bold text-yellow-600 ml-1">g</span>
              </span>
           </div>
       </div>
@@ -3574,7 +3623,7 @@ export default function App() {
                  
                  {(()=>{
                      const activeT = [...toners, ...pearlToners].find(t => t.code === selectedTonerForView);
-                     const cWeight = activeT ? (parseFloat(activeT.adjustedWeight) || 0) : 0;
+                     const cWeight = activeT ? safeNum(activeT.adjustedWeight) : 0;
                      return getMunsellDynamicDescription(selectedTonerForView, TONER_DB[selectedTonerForView].role, TONER_DB[selectedTonerForView].type, cWeight);
                  })()}
 
@@ -3633,7 +3682,6 @@ export default function App() {
               <h3 className="text-white font-bold flex items-center gap-2 text-lg">
                 <History size={20} className="text-blue-400" /> 요청한 데이터
               </h3>
-              {/* 💡 사용성이 떨어지는 X버튼 삭제 */}
             </div>
             
             <div className="p-6 overflow-y-auto custom-scrollbar max-h-[70vh] bg-[#0f172a] space-y-6">
@@ -3705,7 +3753,6 @@ export default function App() {
         </div>
       )}
 
-     {/* 💡 먼셀 컬러 믹싱 스튜디오 레이아웃 순서 변경 */}
      {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-scroll custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
@@ -3783,46 +3830,55 @@ export default function App() {
                      </div>
                  </div>
 
-                 {/* [2번] 선택된 컬러 배합 규격 */}
+                 {/* 💡 [2번] 선택된 컬러 배합 규격 (에러 방지 적용) */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
-                    {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
-                        <div className="bg-slate-800 p-6 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] h-[420px] flex flex-col justify-center text-center">
-                            <h4 className="text-xl font-black text-white mb-6 flex items-center justify-center gap-3 shrink-0">
-                                <span className="w-6 h-6 rounded-full shadow-md border border-slate-400" style={{backgroundColor: MUNSELL_WHEEL_COLORS[selectedWheelIndex].hex}}></span>
-                                {MUNSELL_WHEEL_COLORS[selectedWheelIndex].name} ({MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol}) 배합 규격
-                            </h4>
-                            <div className="flex justify-center items-center gap-6 bg-slate-900 py-8 px-4 rounded-xl border border-slate-700 w-full shrink-0 min-h-[140px]">
-                                {MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol] ? (
-                                    <div className="flex flex-row justify-center items-center gap-6 w-full">
-                                        <div className="flex flex-col items-center gap-3">
-                                            <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].h1}}></div>
-                                            <span className="text-slate-300 font-bold text-sm">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c1}</span>
-                                            <span className="text-white font-black text-3xl">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].r1}%</span>
-                                        </div>
-                                        {MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c2 && (
-                                            <div className="flex flex-row justify-center items-center gap-6">
-                                                <span className="text-slate-600 font-black text-2xl">+</span>
+                    {(() => {
+                        const activeColor = selectedWheelIndex !== null && selectedWheelIndex >= 0 && selectedWheelIndex < MUNSELL_WHEEL_COLORS.length ? MUNSELL_WHEEL_COLORS[selectedWheelIndex] : null;
+                        const activeMixing = activeColor ? MIXING_DATA[activeColor.symbol] : null;
+
+                        if (activeColor) {
+                            return (
+                                <div className="bg-slate-800 p-6 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] h-[420px] flex flex-col justify-center text-center">
+                                    <h4 className="text-xl font-black text-white mb-6 flex items-center justify-center gap-3 shrink-0">
+                                        <span className="w-6 h-6 rounded-full shadow-md border border-slate-400" style={{backgroundColor: activeColor.hex}}></span>
+                                        {activeColor.name} ({activeColor.symbol}) 배합 규격
+                                    </h4>
+                                    <div className="flex justify-center items-center gap-6 bg-slate-900 py-8 px-4 rounded-xl border border-slate-700 w-full shrink-0 min-h-[140px]">
+                                        {activeMixing ? (
+                                            <div className="flex flex-row justify-center items-center gap-6 w-full">
                                                 <div className="flex flex-col items-center gap-3">
-                                                    <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].h2}}></div>
-                                                    <span className="text-slate-300 font-bold text-sm">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c2}</span>
-                                                    <span className="text-white font-black text-3xl">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].r2}%</span>
+                                                    <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: activeMixing.h1}}></div>
+                                                    <span className="text-slate-300 font-bold text-sm">{activeMixing.c1}</span>
+                                                    <span className="text-white font-black text-3xl">{activeMixing.r1}%</span>
                                                 </div>
+                                                {activeMixing.c2 && (
+                                                    <div className="flex flex-row justify-center items-center gap-6">
+                                                        <span className="text-slate-600 font-black text-2xl">+</span>
+                                                        <div className="flex flex-col items-center gap-3">
+                                                            <div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: activeMixing.h2}}></div>
+                                                            <span className="text-slate-300 font-bold text-sm">{activeMixing.c2}</span>
+                                                            <span className="text-white font-black text-3xl">{activeMixing.r2}%</span>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
+                                        ) : (
+                                            <div className="text-red-400 text-sm font-bold w-full text-center">배합 데이터를 불러올 수 없습니다.</div>
                                         )}
                                     </div>
-                                ) : (
-                                    <div className="text-red-400 text-sm font-bold w-full text-center">배합 데이터를 불러올 수 없습니다.</div>
-                                )}
-                            </div>
-                            <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg shrink-0">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
-                        </div>
-                    ) : (
-                        <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700 border-dashed w-full max-w-[420px] h-[420px] flex flex-col items-center justify-center gap-4 text-center text-slate-500">
-                            <Sun className="text-slate-600 mb-2" size={40} />
-                            <p className="text-base font-bold text-slate-400">색상환에서 컬러를 클릭하세요.</p>
-                            <p className="text-sm">선택된 색상의 원색 조색 배율이<br/>이곳에 표시됩니다.</p>
-                        </div>
-                    )}
+                                    <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg shrink-0">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
+                                </div>
+                            );
+                        } else {
+                            return (
+                                <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700 border-dashed w-full max-w-[420px] h-[420px] flex flex-col items-center justify-center gap-4 text-center text-slate-500">
+                                    <Sun className="text-slate-600 mb-2" size={40} />
+                                    <p className="text-base font-bold text-slate-400">색상환에서 컬러를 클릭하세요.</p>
+                                    <p className="text-sm">선택된 색상의 원색 조색 배율이<br/>이곳에 표시됩니다.</p>
+                                </div>
+                            );
+                        }
+                    })()}
                  </div>
 
                  {/* [3번] RGB Additive Color */}
