@@ -3196,14 +3196,21 @@ export default function App() {
     const rowData = [registrationDate, vehicleNumber || '미입력', carModel || '미입력', targetColorCode || '미지정', jobDescription || '미입력', specialNotes || '', baseStr, pearlStr, detailStr, shareUrl].join('\t');
     if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(rowData).catch(err => console.error(err));
     else { const textarea = document.createElement('textarea'); textarea.value = rowData; document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); document.body.removeChild(textarea); }
+    
+    alert("데이터가 클립보드에 복사되었습니다. 조색 PRO 엑셀의 [매크로 연동 버튼]을 클릭하세요.");
   };
 
   const shareToKakao = () => {
     let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}g`).join('\n');
     let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}g`).join('\n');
     const text = `[PERMAHYD HI-TEC 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 차종: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트 (Ground)]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지제원: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트 (Mid-coat)]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 코트 합계: ${totalPearlWeight}g\n▶ 6052 수지제원: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}g\n================================`;
-    if (typeof navigator !== 'undefined' && navigator.share) navigator.share({ title: 'HI-TEC 조색 데이터 인계', text: text }).catch(console.error);
-    else { alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); }
+    
+    if (typeof navigator !== 'undefined' && navigator.share) {
+        navigator.share({ title: 'HI-TEC 조색 데이터 인계', text: text }).catch(console.error);
+    } else { 
+        alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); 
+        if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); 
+    }
   };
 
   const render3DView = () => {
@@ -3232,20 +3239,21 @@ export default function App() {
             </div>
             
             <div className="flex flex-col gap-3">
-              <div className="flex gap-2">
-                <div className="flex-1">
+              {/* 💡 수정된 부분: 모바일 겹침 문제 해결을 위해 grid-cols-2 (모바일), md:grid-cols-4 (PC) 적용 */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📅 등록 날짜</label>
                    <input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} className="bg-white border border-slate-300 p-2 rounded text-xs font-bold w-full text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm cursor-pointer" />
                 </div>
-                <div className="flex-1">
+                <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚗 차량 번호</label>
                    <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="예: 12가3456" className="bg-white border border-slate-300 p-2 rounded text-xs font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
                 </div>
-                <div className="flex-1">
+                <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 차종</label>
                    <input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 익스플로러" className="bg-white border border-slate-300 p-2 rounded text-xs font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
                 </div>
-                <div className="flex-1">
+                <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🎨 컬러코드</label>
                    <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="예: UX" className="bg-white border border-slate-300 p-2 rounded text-xs font-bold w-full uppercase focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
                 </div>
@@ -3261,10 +3269,13 @@ export default function App() {
                  <input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="선택사항 직접 입력 (예: 이색 심함, 조색 주의 등)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow" />
               </div>
               
-              <div className="flex w-full gap-2 mt-1">
-                <button onClick={copyToExcel} className="flex-1 bg-green-600 text-white p-2.5 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={14} className="mr-1"/> 엑셀 연동 복사</button>
-                <button onClick={shareToKakao} className="flex-1 bg-[#FEE500] text-slate-900 p-2.5 rounded text-xs font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm"><Share2 size={14} className="mr-1"/> 모바일 인계</button>
-                <button onClick={handleClearAll} className="bg-red-50 text-red-600 border border-red-200 px-3 rounded flex items-center justify-center hover:bg-red-100 transition-colors shadow-sm"><Trash2 size={16} /></button>
+              {/* 💡 수정된 부분: 확정(카톡 전송) 버튼 신설 및 강조 */}
+              <div className="flex w-full gap-2 mt-2">
+                <button onClick={copyToExcel} className="flex-[1.5] bg-green-600 text-white p-2.5 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={14} className="mr-1"/> 엑셀 복사</button>
+                <button onClick={shareToKakao} className="flex-[2] bg-[#FEE500] text-slate-900 p-2.5 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
+                    <Share2 size={16} className="mr-1.5"/> 확정 (카톡 전송)
+                </button>
+                <button onClick={handleClearAll} className="bg-white border border-red-200 text-red-500 px-4 rounded flex items-center justify-center hover:bg-red-50 transition-colors shadow-sm"><Trash2 size={18} /></button>
               </div>
             </div>
           </div>
@@ -3347,6 +3358,7 @@ export default function App() {
                   </div>
                 )
               })}
+              
               <button 
                   onMouseDown={(e) => e.preventDefault()} 
                   onTouchStart={(e) => e.preventDefault()}
@@ -3420,6 +3432,7 @@ export default function App() {
                     </div>
                   )
                 })}
+
                 <button 
                     onMouseDown={(e) => e.preventDefault()} 
                     onTouchStart={(e) => e.preventDefault()}
