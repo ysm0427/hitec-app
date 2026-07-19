@@ -3239,8 +3239,8 @@ export default function App() {
             </div>
             
             <div className="flex flex-col gap-3">
-              {/* 💡 수정된 부분: 모바일 겹침 문제 해결을 위해 grid-cols-2 (모바일), md:grid-cols-4 (PC) 적용 */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {/* 💡 수정된 부분: 모바일 겹침 문제 해결을 위해 grid-cols-1 (모바일), sm:grid-cols-2, lg:grid-cols-4 적용 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📅 등록 날짜</label>
                    <input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} className="bg-white border border-slate-300 p-2 rounded text-xs font-bold w-full text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm cursor-pointer" />
@@ -3269,7 +3269,7 @@ export default function App() {
                  <input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="선택사항 직접 입력 (예: 이색 심함, 조색 주의 등)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow" />
               </div>
               
-              {/* 💡 수정된 부분: 확정(카톡 전송) 버튼 신설 및 강조 */}
+              {/* 💡 수정된 부분: 확정(카톡 전송) 버튼 강조 */}
               <div className="flex w-full gap-2 mt-2">
                 <button onClick={copyToExcel} className="flex-[1.5] bg-green-600 text-white p-2.5 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={14} className="mr-1"/> 엑셀 복사</button>
                 <button onClick={shareToKakao} className="flex-[2] bg-[#FEE500] text-slate-900 p-2.5 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
@@ -3305,10 +3305,13 @@ export default function App() {
                                    <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                                    <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                               </div>
+                              {/* 💡 수정된 부분: 안료 코드 입력창에 숫자 전용 키패드 호출 (inputMode="numeric" pattern="[0-9]*") */}
                               <input 
                                   ref={el => { codeRefs.current[toner.id] = el; }} 
                                   value={toner.code} 
                                   onChange={e => handleCodeChange(toner.id, e.target.value, false)} 
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
                                   className="w-20 text-sm font-black uppercase border border-slate-300 rounded p-1 focus:border-blue-500 focus:outline-none shadow-inner" 
                                   placeholder="코드" 
                               />
@@ -3395,7 +3398,16 @@ export default function App() {
                                      <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                                      <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                                 </div>
-                                <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code} onChange={e => handleCodeChange(toner.id, e.target.value, true)} inputMode="numeric" pattern="[0-9]*" className="w-24 text-sm font-black uppercase border border-purple-200 rounded px-1.5 py-0.5 text-purple-800 shadow-inner focus:outline-none focus:border-purple-500" placeholder="코드" />
+                                {/* 💡 수정된 부분: 펄 안료 코드 입력창에도 숫자 전용 키패드 호출 */}
+                                <input 
+                                    ref={el => { codeRefs.current[toner.id] = el; }} 
+                                    value={toner.code} 
+                                    onChange={e => handleCodeChange(toner.id, e.target.value, true)} 
+                                    inputMode="numeric" 
+                                    pattern="[0-9]*" 
+                                    className="w-24 text-sm font-black uppercase border border-purple-200 rounded px-1.5 py-0.5 text-purple-800 shadow-inner focus:outline-none focus:border-purple-500" 
+                                    placeholder="코드" 
+                                />
                                 <span className="font-bold text-purple-700 text-sm truncate">{info.role || '미등록 안료'}</span>
                             </div>
                             
@@ -3432,7 +3444,6 @@ export default function App() {
                     </div>
                   )
                 })}
-
                 <button 
                     onMouseDown={(e) => e.preventDefault()} 
                     onTouchStart={(e) => e.preventDefault()}
