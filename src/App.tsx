@@ -2739,35 +2739,35 @@ export const isTonerMetallic = (role: string) => { const r = role || ''; return 
 
 const textureCache: Record<string, React.CSSProperties> = {};
 
-// 💡 텍스처 엔진 업그레이드 (공식 사이트처럼 자잘하고 고급스러운 메탈릭 펄 입자감)
+// 💡 텍스처 엔진 전면 롤백 & 복구 (아이폰 Safari에서 크래시 안 나도록 feSpecularLighting 재사용)
 export const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
     if (!isMetallic || type === 'binder' || type === 'solid') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
     const key = `${type}_${faceColor}_${flopColor}`; if (textureCache[key]) return textureCache[key];
     
-    // 메탈릭 노이즈 주파수를 높여 입자를 미세하게 만듦
-    let baseFreq = '1.8', alphaMult = '4', surfaceScale = '1.5', specConst = '1.0';
-    if (type === 'xirallic') { baseFreq = '1.2'; alphaMult = '8'; surfaceScale = '3'; specConst = '2.0'; }
-    else if (type === 'pearl') { baseFreq = '1.5'; alphaMult = '5'; surfaceScale = '2'; specConst = '1.5'; }
-    else if (type === 'silver_fine') { baseFreq = '2.5'; alphaMult = '3'; surfaceScale = '1.0'; specConst = '0.8'; }
-    else if (type === 'silver_coarse') { baseFreq = '0.8'; alphaMult = '7'; surfaceScale = '2.5'; specConst = '1.8'; }
+    let baseFreq = '0.8', alphaMult = '4', surfaceScale = '1.5', specConst = '1.2';
+    if (type === 'xirallic') { baseFreq = '0.6'; alphaMult = '8'; surfaceScale = '3'; specConst = '1.8'; }
+    else if (type === 'pearl') { baseFreq = '0.5'; alphaMult = '6'; surfaceScale = '2'; specConst = '1.5'; }
+    else if (type === 'silver_fine') { baseFreq = '1.2'; alphaMult = '3'; surfaceScale = '1.2'; specConst = '1.0'; }
+    else if (type === 'silver_coarse') { baseFreq = '0.4'; alphaMult = '8'; surfaceScale = '2.5'; specConst = '1.6'; }
     
     const safeFaceColor = faceColor || '#ffffff'; const safeFlopColor = flopColor || '#ffffff';
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="4" result="noise"/><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${alphaMult} -1" in="noise" result="coloredNoise"/><feComposite operator="in" in="coloredNoise" in2="SourceGraphic" result="composite"/></filter><rect width="100%25" height="100%25" fill="${encodeURIComponent(safeFaceColor)}"/><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.6"/></svg>`;
+    // ⚠️ SVG 필터 복구: feComposite 에러 방지를 위해 feSpecularLighting 방식 유지
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="3"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${alphaMult} -1"/><feSpecularLighting surfaceScale="${surfaceScale}" specularConstant="${specConst}" specularExponent="25" lighting-color="%23ffffff"><feDistantLight azimuth="45" elevation="55"/></feSpecularLighting></filter><rect width="100%25" height="100%25" fill="${encodeURIComponent(safeFaceColor)}"/><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.6"/></svg>`;
     
-    const result = { backgroundColor: safeFaceColor, backgroundImage: `url("data:image/svg+xml;utf8,${svg}"), radial-gradient(circle at 50% 0%, ${safeFaceColor} 0%, ${safeFlopColor} 80%, #000000 100%)`, backgroundBlendMode: 'overlay, normal' as any, boxShadow: 'inset 0 -20px 40px rgba(0,0,0,0.6)' };
+    const result = { backgroundColor: safeFaceColor, backgroundImage: `url("data:image/svg+xml;utf8,${svg}"), radial-gradient(circle at 50% 20%, ${safeFaceColor} 0%, ${safeFlopColor} 80%, #000000 100%)`, backgroundBlendMode: 'overlay, normal' as any, boxShadow: 'inset 0 -10px 30px rgba(0,0,0,0.8)' };
     textureCache[key] = result; return result;
 };
 
 export const getTonerDetailBackground = (code: string, role: string, angle: string) => {
   const r = role || ''; let h = 0; let s = 0; let baseL = 50;
-  if (code.includes('144')) { h = 230; s = 85; baseL = 35; } 
+  if (code.includes('144')) { h = 215; s = 85; baseL = 35; } 
   else if (r.includes('블루') || r.includes('청')) { h = 210; s = 80; baseL = 40; }
   else if (r.includes('레드') || r.includes('마젠타') || r.includes('적') || r.includes('마룬')) { h = 350; s = 80; baseL = 40; }
-  else if (r.includes('그린') || r.includes('녹')) { h = 140; s = 80; baseL = 35; }
-  else if (r.includes('옐로우') || r.includes('황')) { h = 40; s = 80; baseL = 50; }
+  else if (r.includes('그린') || r.includes('녹')) { h = 150; s = 80; baseL = 35; }
+  else if (r.includes('옐로우') || r.includes('황')) { h = 45; s = 80; baseL = 50; }
   else if (r.includes('오커')) { h = 30; s = 60; baseL = 40; }
-  else if (r.includes('오렌지')) { h = 20; s = 90; baseL = 50; }
-  else if (r.includes('바이올렛')) { h = 270; s = 80; baseL = 40; }
+  else if (r.includes('오렌지')) { h = 25; s = 90; baseL = 50; }
+  else if (r.includes('바이올렛')) { h = 290; s = 80; baseL = 40; }
   else if (r.includes('화이트') || r.includes('백')) { h = 0; s = 0; baseL = 90; }
   else if (r.includes('블랙') || r.includes('흑')) { h = 0; s = 0; baseL = 15; }
   else if (r.includes('실버') || r.includes('알루미늄') || code.includes('400')) { h = 210; s = 10; baseL = 60; }
@@ -2844,79 +2844,87 @@ export const getMunsellDynamicDescription = (code: string, role: string, type: s
     );
 };
 
-// 💡 광학 엔진 업그레이드 (블루+그린 = 틸/다크그린, WT144 과도한 파란색 방지, 명도/채도 현실화)
+// 💡 광학 엔진 업그레이드 (벡터 연산을 통한 정확한 색상 혼합 & 강력한 블랙 대비 구현)
+const getTonerBaseHue = (code: string, role: string) => {
+    if (code.includes('144')) return 215;
+    if (role.includes('블루') || role.includes('청')) return 215;
+    if (role.includes('레드') || role.includes('마젠타') || role.includes('마룬') || role.includes('적')) return 350;
+    if (role.includes('그린') || role.includes('녹') || role.includes('에메랄드')) return 150;
+    if (role.includes('옐로우') || role.includes('황')) return 45;
+    if (role.includes('오렌지') || role.includes('오커') || role.includes('브라운') || role.includes('카퍼')) return 25;
+    if (role.includes('바이올렛') || role.includes('라일락') || role.includes('자주')) return 290;
+    return null;
+};
+
 export const getOptics = (tonersList: any[]) => {
   const colorToners = tonersList.filter(t => t.code && TONER_DB[t.code]);
   const sumW = colorToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
   if (sumW === 0) return { face: { h: 0, s: 0, l: 90 }, mid: { h: 0, s: 0, l: 90 }, flop: { h: 0, s: 0, l: 90 }, isMetallic: false };
 
-  let rBlue=0; let rGreen=0; let rRed=0; let rYellow=0; let rViolet=0;
+  let totalX = 0; let totalY = 0; let colorWeight = 0;
   let wSilver=0; let wWhite=0; let wBlack=0; let wPearl=0; let wBinder=0; let interferenceColor: string | null = null;
 
   colorToners.forEach(t => {
     const w = safeNum(parseFloat(t.adjustedWeight)); if (w <= 0) return;
-    const role = TONER_DB[t.code]?.role || ''; const code = t.code || ''; let strength = 1.0;
-    
-    // 특정 안료 강도 미세 조정
-    if (code.includes('341') || code.includes('300') || code.includes('338')) strength = 1.5;
+    const role = TONER_DB[t.code]?.role || ''; const code = t.code || '';
 
+    // 바인더 & 흑백 및 메탈릭 분류
     if (role.includes('컴포넌트') || role.includes('바인더') || role.includes('애디티브') || ['WT 385', 'WT 387', 'WT 386', 'WT 400', 'WT 3080', 'WT 310'].some(c => code.includes(c.replace('WT ', '')))) wBinder += w;
     else if (role.includes('블랙') || code.includes('323') || code.includes('388') || code.includes('188') || code.includes('1500')) wBlack += w;
     else if (role.includes('실버') || role.includes('알루미늄') || code.includes('362') || code.includes('357') || code.includes('197') || code.includes('303') || code.includes('305') || code.includes('307') || code.includes('400')) wSilver += w;
     else if (role.includes('화이트') || code.includes('321') || code.includes('328') || code.includes('322')) wWhite += w;
     else if (role.includes('펄') || role.includes('이펙트') || role.includes('스파클') || code.includes('304') || code.includes('377') || code.includes('381')) {
       wPearl += w;
-      if (role.includes('블루') || code.includes('381')) { interferenceColor = 'blue'; rBlue += w * 0.5; }
-      else if (role.includes('레드') || role.includes('마젠타')) { interferenceColor = 'red'; rRed += w * 0.5; }
-      else if (role.includes('그린') || code.includes('380')) { interferenceColor = 'green'; rGreen += w * 0.5; }
-      else if (role.includes('골드') || code.includes('304') || code.includes('382')) { interferenceColor = 'yellow'; rYellow += w * 0.5; }
+      if (role.includes('블루') || code.includes('381')) interferenceColor = 'blue';
+      else if (role.includes('레드') || role.includes('마젠타')) interferenceColor = 'red';
+      else if (role.includes('그린') || code.includes('380')) interferenceColor = 'green';
+      else if (role.includes('골드') || code.includes('304') || code.includes('382')) interferenceColor = 'yellow';
       else if (role.includes('화이트') || code.includes('377')) interferenceColor = 'white';
-    } 
-    // WT144 이전 2.5배 뻥튀기 제거. 현실적인 블루+약간의 레드 기운만 부여
-    else if (code.includes('144')) { rBlue += w * 1.0; rRed += w * 0.2; } 
-    else if (role.includes('블루') || role.includes('청')) { rBlue += w * strength; rGreen += (w * strength) * 0.2; }
-    else if (code.includes('339') || role.includes('바이올렛')) rViolet += w * strength;
-    else if (code.includes('353') || code.includes('309') || role.includes('마젠타')) { rRed += w * strength; rViolet += (w * strength) * 0.5; }
-    else if (code.includes('300') || role.includes('마룬') || role.includes('적')) rRed += w * strength;
-    else if (code.includes('308') || role.includes('오렌지')) { rRed += w * strength; rYellow += (w * strength) * 0.5; }
-    else if (role.includes('옐로우') || role.includes('황') || code.includes('350')) rYellow += w * strength;
-    else if (role.includes('그린') || role.includes('녹')) rGreen += w * strength;
+    }
+
+    // 💡 벡터 색상 혼합 (WT144의 과도한 파란색 방지 및 청록색 완벽 렌더링)
+    const baseHue = getTonerBaseHue(code, role);
+    if (baseHue !== null) {
+        let rad = baseHue * (Math.PI / 180);
+        let str = 1.0;
+        // 특정 고농축 안료 약간의 가중치 부여 (단, 이전처럼 무식하게 2.5배 뻥튀기 하지 않음)
+        if(code.includes('341') || code.includes('300')) str = 1.2; 
+        totalX += Math.cos(rad) * (w * str);
+        totalY += Math.sin(rad) * (w * str);
+        colorWeight += w;
+    }
   });
 
-  const colorWeight = (rBlue + rGreen + rRed + rYellow + rViolet);
   const effectiveW = wWhite + wBlack + wSilver + wPearl + colorWeight;
   const totalForRatio = effectiveW > 0 ? effectiveW : 1;
   const pSilver = wSilver / totalForRatio; const pWhite = wWhite / totalForRatio;
   const pBlack = wBlack / totalForRatio; const pPearl = wPearl / totalForRatio; const pColor = colorWeight / totalForRatio;
 
-  // 블랙이 강할 때 명도(L)를 확실히 떨어뜨림
-  let baseL = (pWhite * 96) + (pSilver * 65) + (pPearl * 80); if (effectiveW === 0 && wBinder > 0) baseL = 90; 
-  let blackImpact = Math.pow(pBlack, 0.5) * 75; // 블랙 임팩트 상향
-  const colorImpactL = Math.pow(pColor, 0.6) * 35; 
-  baseL = Math.max(3, baseL - blackImpact - colorImpactL);
-  
-  let l15 = baseL + (Math.pow(pSilver + pPearl, 0.6) * 55); // 정면 반사율 상승
-  let l110 = Math.max(1, baseL - 40 - (pSilver * 40) - (pBlack * 25)); // 측면 더 어둡게
+  // 💡 명도(L) 계산: 블랙이 들어갈 때 극적으로 어두워지도록 설계 수정
+  let baseL = (pWhite * 90) + (pSilver * 55) + (pPearl * 65); 
+  if (effectiveW === 0 && wBinder > 0) baseL = 90; 
+  if (pBlack > 0) baseL = Math.max(5, baseL - (Math.pow(pBlack, 0.4) * 60)); // 블랙 명암 대폭 억제
+  if (pColor > 0) baseL = Math.max(3, baseL - (Math.pow(pColor, 0.5) * 30));
+
+  let l15 = Math.min(98, baseL + (pSilver * 40) + (pPearl * 35)); // 정면(Face)은 실버/펄 때문에 밝음
+  let l110 = Math.max(1, baseL - (pSilver * 30) - (pBlack * 20)); // 측면(Flop)은 극단적으로 어두움
 
   if (pWhite > 0.6) { l110 = Math.max(83, baseL - 8); l15 = Math.min(99, baseL + (pPearl > 0 ? 10 : 3)); }
 
-  let x = rRed + (rYellow * 0.5) - (rGreen * 0.5) - rBlue - (rViolet * 0.5);
-  let y = (rYellow * 0.866) + (rGreen * 0.866) - (rBlue * 0.866) - (rViolet * 0.866);
-  let hue = Math.atan2(y, x) * (180 / Math.PI); if (hue < 0) hue += 360;
-  
-  // 만약 그린과 블루가 비슷하게 섞였다면 (Teal/청록) 보정
-  if (rGreen > 0 && rBlue > 0 && rRed < rBlue) {
-      const ratio = rGreen / (rGreen + rBlue);
-      hue = 210 - (ratio * 60); // 210(Blue)에서 150(Green) 사이로 혼합
+  // 💡 채도 및 최종 색상(H) 도출
+  let hue = 0;
+  if (totalX !== 0 || totalY !== 0) {
+      hue = Math.atan2(totalY, totalX) * (180 / Math.PI);
+      if (hue < 0) hue += 360;
   }
-
-  let sat = colorWeight > 0 ? Math.min(100, Math.pow((colorWeight / (colorWeight + wWhite + wSilver + wBlack*1.5)), 0.5) * 120) : 0;
+  
+  let sat = colorWeight > 0 ? Math.min(100, (pColor / (pColor + pWhite + pBlack)) * 130) : 0;
   if (pWhite > 0.6) sat = sat * 0.3; 
 
   let flopHue = hue; let faceHue = hue;
   if (interferenceColor === 'blue') { faceHue = 210; flopHue = 230; }
   else if (interferenceColor === 'red') { faceHue = 340; flopHue = 350; }
-  else if (interferenceColor === 'green') { faceHue = 150; flopHue = 170; } // 녹색 펄 보정
+  else if (interferenceColor === 'green') { faceHue = 150; flopHue = 170; } // 녹색 펄 간섭 보정
   else if (interferenceColor === 'yellow') { faceHue = 50; flopHue = 60; }
   
   let faceSat = Math.min(100, sat + (pPearl * (interferenceColor === 'white' ? 5 : 30)));
@@ -3041,7 +3049,7 @@ export function FormulaComparator({ formulaA, setFormulaA, formulaB, setFormulaB
                                 [현재 배합] 버전 A
                             </div>
                             <div className="border border-indigo-300 bg-indigo-50 p-2 rounded text-sm font-bold text-indigo-800 text-center shadow-sm">
-                                [비교 보완] 버전 B (수정 가능)
+                                [비교 배합] 버전 B (수정 가능)
                             </div>
                         </div>
 
@@ -3248,12 +3256,15 @@ export default function App() {
 
   const handleClearAll = () => { setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "" }]); setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); };
 
+  // 💡 수정: 아이폰 키패드 대응 위해 숫자만 입력받고 내부적으로 'WT '를 붙임
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
-    const formattedCode = newCode.toUpperCase().trim(); const setter = isPearl ? setPearlToners : setToners;
+    const numOnly = newCode.replace(/[^0-9]/g, '');
+    const finalCode = numOnly ? `WT ${numOnly}` : '';
+    const setter = isPearl ? setPearlToners : setToners;
+    
     setter(prev => prev.map(toner => {
       if (toner.id === id) {
-        let finalCode = formattedCode; const numMatch = formattedCode.match(/\d+/);
-        if (numMatch && numMatch[0].length >= 3) { const testCode = `WT ${numMatch[0]}`; if (TONER_DB[testCode]) { finalCode = testCode; setFocusTarget({ id: id, type: 'weight' }); } }
+        if (numOnly.length >= 3 && TONER_DB[finalCode]) { setFocusTarget({ id: id, type: 'weight' }); }
         return { ...toner, code: finalCode };
       }
       return toner;
@@ -3451,14 +3462,16 @@ export default function App() {
                                    <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                                    <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                               </div>
+                              {/* 💡 수정: 아이폰에서 순수 숫자 패드만 나오도록 type="tel" 및 숫자만 추출하여 value 유지 */}
                               <input 
                                   ref={el => { codeRefs.current[toner.id] = el; }} 
-                                  value={toner.code} 
+                                  value={toner.code.replace('WT ', '')} 
                                   onChange={e => handleCodeChange(toner.id, e.target.value, false)} 
+                                  type="tel"
                                   inputMode="numeric"
                                   pattern="[0-9]*"
-                                  className="w-20 text-sm font-black uppercase border border-slate-300 rounded p-1.5 focus:border-blue-500 focus:outline-none shadow-inner" 
-                                  placeholder="코드" 
+                                  className="w-20 text-center text-sm font-black border border-slate-300 rounded p-1.5 focus:border-blue-500 focus:outline-none shadow-inner" 
+                                  placeholder="번호" 
                               />
                               <span className="font-bold text-blue-700 text-sm truncate">{info.role || '미등록 안료'}</span>
                           </div>
@@ -3546,12 +3559,13 @@ export default function App() {
                                 </div>
                                 <input 
                                     ref={el => { codeRefs.current[toner.id] = el; }} 
-                                    value={toner.code} 
+                                    value={toner.code.replace('WT ', '')} 
                                     onChange={e => handleCodeChange(toner.id, e.target.value, true)} 
+                                    type="tel"
                                     inputMode="numeric" 
                                     pattern="[0-9]*" 
-                                    className="w-24 text-sm font-black uppercase border border-purple-200 rounded px-1.5 py-1 text-purple-800 shadow-inner focus:outline-none focus:border-purple-500" 
-                                    placeholder="코드" 
+                                    className="w-20 text-center text-sm font-black border border-purple-200 rounded px-1.5 py-1 text-purple-800 shadow-inner focus:outline-none focus:border-purple-500" 
+                                    placeholder="번호" 
                                 />
                                 <span className="font-bold text-purple-700 text-sm truncate">{info.role || '미등록 안료'}</span>
                             </div>
