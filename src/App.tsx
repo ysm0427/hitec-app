@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Sliders, Trash2, Plus, Minus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket, Columns
 } from 'lucide-react';
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
@@ -2735,7 +2735,7 @@ export const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
 });
 
 export const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
-const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스') || r.includes('대체용'); }
+export const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스') || r.includes('대체용'); }
 
 const textureCache: Record<string, React.CSSProperties> = {};
 export const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
@@ -2976,6 +2976,122 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
   ].join(" ");
 };
 
+// 💡 새롭게 추가된 [배합 대조 및 시각적 비교 뷰어] 컴포넌트
+export function FormulaComparator({ formulaA, setFormulaA, formulaB, setFormulaB, onClose }: any) {
+    const opticsA = useMemo(() => getOptics(formulaA), [formulaA]);
+    const opticsB = useMemo(() => getOptics(formulaB), [formulaB]);
+
+    const textureA = getCachedTexture(
+        opticsA.isMetallic ? 'silver_fine' : 'solid', 
+        `hsl(${opticsA.face.h}, ${opticsA.face.s}%, ${opticsA.face.l}%)`, 
+        `hsl(${opticsA.flop.h}, ${opticsA.flop.s}%, ${opticsA.flop.l}%)`, 
+        opticsA.isMetallic
+    );
+
+    const textureB = getCachedTexture(
+        opticsB.isMetallic ? 'silver_fine' : 'solid', 
+        `hsl(${opticsB.face.h}, ${opticsB.face.s}%, ${opticsB.face.l}%)`, 
+        `hsl(${opticsB.flop.h}, ${opticsB.flop.s}%, ${opticsB.flop.l}%)`, 
+        opticsB.isMetallic
+    );
+
+    const allTonerCodes = Array.from(new Set([
+        ...formulaA.map((t: any) => t.code), 
+        ...formulaB.map((t: any) => t.code)
+    ])).filter(code => code !== '');
+
+    const handleEditB = (code: string, newWeight: string) => {
+        setFormulaB((prev: any) => prev.map((t: any) => t.code === code ? { ...t, adjustedWeight: newWeight } : t));
+    };
+
+    return (
+        <div className="fixed inset-0 bg-slate-900/95 z-[900] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+           <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden border border-slate-700 flex flex-col mt-10 md:mt-0">
+                <div className="bg-slate-900 p-4 flex justify-between items-center text-white shrink-0 border-b-4 border-indigo-500">
+                    <h3 className="text-lg font-black flex items-center tracking-widest"><Columns size={20} className="mr-2 text-indigo-400"/> 배합 A/B 시각적 대조 뷰어 (Split View)</h3>
+                    <button onClick={onClose} className="hover:text-red-400 transition-colors bg-slate-800 p-1.5 rounded-full"><X size={20}/></button>
+                </div>
+
+                <div className="p-4 bg-slate-100 flex-1 overflow-y-auto">
+                    <div className="bg-white rounded-xl shadow border border-slate-300 overflow-hidden">
+                        {/* 상단: 드롭다운 헤더 영역 */}
+                        <div className="grid grid-cols-2 gap-4 p-3 bg-slate-50 border-b border-slate-200">
+                            <div className="border border-slate-300 bg-white p-2 rounded text-sm font-bold text-slate-700 text-center shadow-sm">
+                                [현재 배합] 버전 A
+                            </div>
+                            <div className="border border-indigo-300 bg-indigo-50 p-2 rounded text-sm font-bold text-indigo-800 text-center shadow-sm">
+                                [비교 배합] 버전 B (수정 가능)
+                            </div>
+                        </div>
+
+                        {/* 중간: 반반 분할된 시각적 페인트 뷰어 */}
+                        <div className="relative w-full h-48 md:h-72 bg-slate-900 group cursor-crosshair">
+                            <div className="absolute inset-y-0 left-0 w-1/2" style={textureA}></div>
+                            <div className="absolute inset-y-0 right-0 w-1/2" style={textureB}></div>
+                            <div className="absolute inset-y-0 left-1/2 w-[1px] bg-white/30 group-hover:w-[2px] group-hover:bg-white transition-all z-10 shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
+                            
+                            <div className="absolute bottom-3 left-1/4 transform -translate-x-1/2 flex gap-1 shadow-md">
+                                <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 font-bold rounded">OEM</span>
+                                <span className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5 font-bold rounded">P</span>
+                                <span className="bg-red-600 text-white text-[10px] px-1.5 py-0.5 font-bold rounded">PGM</span>
+                            </div>
+                            <div className="absolute bottom-3 right-1/4 transform translate-x-1/2 flex gap-1 shadow-md">
+                                <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 font-bold rounded">OEM</span>
+                                <span className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5 font-bold rounded">P</span>
+                                <span className="bg-red-600 text-white text-[10px] px-1.5 py-0.5 font-bold rounded">PGM</span>
+                            </div>
+                        </div>
+
+                        {/* 하단: 데이터 대조 테이블 */}
+                        <div className="w-full overflow-x-auto">
+                            <table className="w-full text-xs text-left">
+                                <thead className="bg-slate-800 text-white">
+                                    <tr>
+                                        <th className="p-3 font-bold whitespace-nowrap">제품코드</th>
+                                        <th className="p-3 font-bold">제품명</th>
+                                        <th className="p-3 font-bold text-center">버전 A (원본)</th>
+                                        <th className="p-3 font-bold text-center">버전 B (비교)</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-slate-600">
+                                    {allTonerCodes.map((code: any, idx) => {
+                                        const tonerA = formulaA.find((t: any) => t.code === code);
+                                        const tonerB = formulaB.find((t: any) => t.code === code);
+                                        const weightA = tonerA ? parseFloat(tonerA.adjustedWeight).toFixed(2) : "0.00";
+                                        const weightB = tonerB ? tonerB.adjustedWeight : "0";
+                                        const role = TONER_DB[code]?.role || "알 수 없는 안료";
+
+                                        return (
+                                            <tr key={idx} className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                                                <td className="p-2.5 pl-3 font-black text-slate-800 whitespace-nowrap">{code}</td>
+                                                <td className="p-2.5 uppercase font-bold text-[10px]">{role}</td>
+                                                <td className="p-2.5 text-center text-slate-800 font-bold bg-slate-100/50">{weightA}g</td>
+                                                <td className="p-1.5 text-center bg-indigo-50/30">
+                                                    <input 
+                                                        type="text" 
+                                                        inputMode="decimal"
+                                                        value={weightB}
+                                                        onChange={(e) => handleEditB(code, e.target.value.replace(/[^0-9.]/g, ''))}
+                                                        className="w-16 text-center font-black text-indigo-700 bg-white border border-indigo-200 rounded p-1 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                                                    />
+                                                    <span className="text-[10px] ml-1 text-slate-400">g</span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+                    <button onClick={onClose} className="bg-slate-800 text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-700 shadow-md transition-all">비교창 닫기</button>
+                </div>
+           </div>
+        </div>
+    );
+}
+
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: 'WT 318', adjustedWeight: "0.3", history: [], memo: "" }, { id: `b_next`, code: 'WT 144', adjustedWeight: "4.0", history: [], memo: "" }]);
@@ -2995,6 +3111,10 @@ export default function App() {
   const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
   const [restoredViewData, setRestoredViewData] = useState<any>(null); 
   
+  // 💡 비교 뷰어용 State
+  const [isCompareOpen, setIsCompareOpen] = useState(false);
+  const [compareFormulaB, setCompareFormulaB] = useState<any[]>([]);
+
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   
@@ -3222,6 +3342,12 @@ export default function App() {
     );
   };
 
+  // 💡 비교 뷰어 열기
+  const openComparator = () => {
+      setCompareFormulaB(JSON.parse(JSON.stringify(isThreeCoatMode ? pearlToners : toners))); // 현재 활성화된 코트 복사
+      setIsCompareOpen(true);
+  }
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[320px] lg:pb-[140px]">
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
@@ -3239,29 +3365,29 @@ export default function App() {
             </div>
             
             <div className="flex flex-col gap-3">
-              {/* 💡 수정된 부분: 모바일 겹침 문제 해결을 위해 grid-cols-1 (모바일), sm:grid-cols-2, lg:grid-cols-4 적용 */}
+              {/* 💡 수정된 부분: 모바일에서는 무조건 1칸씩 차지하도록 grid-cols-1, PC에서는 grid-cols-4 */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📅 등록 날짜</label>
-                   <input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} className="bg-white border border-slate-300 p-2 rounded text-xs font-bold w-full text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm cursor-pointer" />
+                   <input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm cursor-pointer" />
                 </div>
                 <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚗 차량 번호</label>
-                   <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="예: 12가3456" className="bg-white border border-slate-300 p-2 rounded text-xs font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
+                   <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="예: 12가3456" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
                 </div>
                 <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 차종</label>
-                   <input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 익스플로러" className="bg-white border border-slate-300 p-2 rounded text-xs font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
+                   <input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 익스플로러" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
                 </div>
                 <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🎨 컬러코드</label>
-                   <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="예: UX" className="bg-white border border-slate-300 p-2 rounded text-xs font-bold w-full uppercase focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
+                   <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="예: UX" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full uppercase focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
                 </div>
               </div>
               
               <div>
                  <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🛠️ 작업 내용</label>
-                 <input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="예: 조수석 앞휀다 교환, 본넷 교환 등" className="bg-white border border-slate-300 p-2 rounded text-xs font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
+                 <input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="예: 조수석 앞휀다 교환, 본넷 교환 등" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
               </div>
               
               <div>
@@ -3269,25 +3395,25 @@ export default function App() {
                  <input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="선택사항 직접 입력 (예: 이색 심함, 조색 주의 등)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow" />
               </div>
               
-              {/* 💡 수정된 부분: 확정(카톡 전송) 버튼 강조 */}
+              {/* 💡 확정 버튼 유지 */}
               <div className="flex w-full gap-2 mt-2">
-                <button onClick={copyToExcel} className="flex-[1.5] bg-green-600 text-white p-2.5 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={14} className="mr-1"/> 엑셀 복사</button>
-                <button onClick={shareToKakao} className="flex-[2] bg-[#FEE500] text-slate-900 p-2.5 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
-                    <Share2 size={16} className="mr-1.5"/> 확정 (카톡 전송)
+                <button onClick={copyToExcel} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1"/> 엑셀 복사</button>
+                <button onClick={shareToKakao} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
+                    <Share2 size={18} className="mr-1.5"/> 확정 (카톡 전송)
                 </button>
-                <button onClick={handleClearAll} className="bg-white border border-red-200 text-red-500 px-4 rounded flex items-center justify-center hover:bg-red-50 transition-colors shadow-sm"><Trash2 size={18} /></button>
+                <button onClick={handleClearAll} className="bg-white border border-red-200 text-red-500 px-4 rounded flex items-center justify-center hover:bg-red-50 transition-colors shadow-sm"><Trash2 size={20} /></button>
               </div>
             </div>
           </div>
           
           <div className="p-3 bg-white">
-            <div className="mb-4 bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg flex items-center justify-between shadow-sm">
+            <div className="mb-4 bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-between shadow-sm gap-2">
                 <div className="flex items-center gap-2"><Beaker size={14} className="text-indigo-600" /><span className="text-xs font-bold text-indigo-800">현장 실시간 용량 배율 변환기</span></div>
-                <div className="flex items-center gap-1.5">
-                    <input type="text" inputMode="decimal" value={scaleFactor} onChange={(e) => setScaleFactor(e.target.value.replace(/[^0-9.]/g, ''))} className="w-10 text-center text-xs font-black text-indigo-700 border rounded py-1" />
+                <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end">
+                    <input type="text" inputMode="decimal" value={scaleFactor} onChange={(e) => setScaleFactor(e.target.value.replace(/[^0-9.]/g, ''))} className="w-12 text-center text-sm font-black text-indigo-700 border rounded py-1" />
                     <span className="text-[11px] font-bold text-indigo-400 mr-1">배</span>
-                    <button onClick={() => handleScaleAll(true)} className="bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded shadow-sm hover:bg-indigo-700 transition-colors">× 곱하기</button>
-                    <button onClick={() => handleScaleAll(false)} className="bg-white border border-indigo-300 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded shadow-sm hover:bg-indigo-50 transition-colors">÷ 나누기</button>
+                    <button onClick={() => handleScaleAll(true)} className="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded shadow-sm hover:bg-indigo-700 transition-colors">× 곱하기</button>
+                    <button onClick={() => handleScaleAll(false)} className="bg-white border border-indigo-300 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded shadow-sm hover:bg-indigo-50 transition-colors">÷ 나누기</button>
                 </div>
             </div>
 
@@ -3305,14 +3431,14 @@ export default function App() {
                                    <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                                    <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                               </div>
-                              {/* 💡 수정된 부분: 안료 코드 입력창에 숫자 전용 키패드 호출 (inputMode="numeric" pattern="[0-9]*") */}
+                              {/* 💡 수정: 코드 입력창 숫자 키패드 호환 */}
                               <input 
                                   ref={el => { codeRefs.current[toner.id] = el; }} 
                                   value={toner.code} 
                                   onChange={e => handleCodeChange(toner.id, e.target.value, false)} 
                                   inputMode="numeric"
                                   pattern="[0-9]*"
-                                  className="w-20 text-sm font-black uppercase border border-slate-300 rounded p-1 focus:border-blue-500 focus:outline-none shadow-inner" 
+                                  className="w-20 text-sm font-black uppercase border border-slate-300 rounded p-1.5 focus:border-blue-500 focus:outline-none shadow-inner" 
                                   placeholder="코드" 
                               />
                               <span className="font-bold text-blue-700 text-sm truncate">{info.role || '미등록 안료'}</span>
@@ -3342,10 +3468,11 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center self-end sm:self-auto bg-white border rounded-md px-1.5 py-0.5 shrink-0 shadow-sm mt-2 sm:mt-0">
-                         <button onClick={() => quickEditWeight(toner.id, -0.1, false)} className="px-1.5 py-0.5 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
+                         <button onClick={() => quickEditWeight(toner.id, -0.1, false)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
                          <input 
                              ref={el => { weightRefs.current[toner.id] = el; }} 
                              inputMode="decimal" 
+                             pattern="[0-9]*"
                              value={toner.adjustedWeight} 
                              onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} 
                              onBlur={e => handleWeightBlur(toner.id, e.target.value, false)} 
@@ -3353,9 +3480,9 @@ export default function App() {
                              className="w-16 text-right text-base font-black text-blue-600 focus:outline-none clean-number-input mx-1" 
                              placeholder="0.0" 
                          />
-                         <button onClick={() => quickEditWeight(toner.id, 0.1, false)} className="px-1.5 py-0.5 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
+                         <button onClick={() => quickEditWeight(toner.id, 0.1, false)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
                          <span className="text-[10px] font-bold text-slate-400 ml-1 mr-1">g</span>
-                         <button onClick={() => removeToner(toner.id, false)} className="ml-1"><Trash2 size={16} className="text-slate-300 hover:text-red-500 transition-colors"/></button>
+                         <button onClick={() => removeToner(toner.id, false)} className="ml-1"><Trash2 size={18} className="text-slate-300 hover:text-red-500 transition-colors"/></button>
                       </div>
                     </div>
                   </div>
@@ -3366,9 +3493,9 @@ export default function App() {
                   onMouseDown={(e) => e.preventDefault()} 
                   onTouchStart={(e) => e.preventDefault()}
                   onClick={() => addToner(false)} 
-                  className="w-full py-2.5 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center transition-all shadow-sm mt-2"
+                  className="w-full py-3 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center transition-all shadow-sm mt-2"
               >
-                  <Plus size={16} className="mr-1"/>베이스 안료 추가
+                  <Plus size={18} className="mr-1"/>베이스 안료 추가
               </button>
             </div>
             
@@ -3398,14 +3525,13 @@ export default function App() {
                                      <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                                      <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                                 </div>
-                                {/* 💡 수정된 부분: 펄 안료 코드 입력창에도 숫자 전용 키패드 호출 */}
                                 <input 
                                     ref={el => { codeRefs.current[toner.id] = el; }} 
                                     value={toner.code} 
                                     onChange={e => handleCodeChange(toner.id, e.target.value, true)} 
                                     inputMode="numeric" 
                                     pattern="[0-9]*" 
-                                    className="w-24 text-sm font-black uppercase border border-purple-200 rounded px-1.5 py-0.5 text-purple-800 shadow-inner focus:outline-none focus:border-purple-500" 
+                                    className="w-24 text-sm font-black uppercase border border-purple-200 rounded px-1.5 py-1 text-purple-800 shadow-inner focus:outline-none focus:border-purple-500" 
                                     placeholder="코드" 
                                 />
                                 <span className="font-bold text-purple-700 text-sm truncate">{info.role || '미등록 안료'}</span>
@@ -3434,11 +3560,21 @@ export default function App() {
                             )}
                         </div>
                         <div className="flex items-center self-end sm:self-auto bg-white border border-purple-100 rounded-md px-1.5 py-0.5 shrink-0 shadow-sm mt-2 sm:mt-0">
-                           <button onClick={() => quickEditWeight(toner.id, -0.1, true)} className="px-1.5 py-0.5 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
-                           <input ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" value={toner.adjustedWeight} onChange={e => handleWeightInputChange(toner.id, e.target.value, true)} onBlur={e => handleWeightBlur(toner.id, e.target.value, true)} onKeyDown={e => handleWeightKeyDown(e, toner.id, true)} className="w-16 text-right text-base font-black text-purple-600 focus:outline-none clean-number-input mx-1" placeholder="0.0" />
-                           <button onClick={() => quickEditWeight(toner.id, 0.1, true)} className="px-1.5 py-0.5 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
+                           <button onClick={() => quickEditWeight(toner.id, -0.1, true)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
+                           <input 
+                               ref={el => { weightRefs.current[toner.id] = el; }} 
+                               inputMode="decimal" 
+                               pattern="[0-9]*"
+                               value={toner.adjustedWeight} 
+                               onChange={e => handleWeightInputChange(toner.id, e.target.value, true)} 
+                               onBlur={e => handleWeightBlur(toner.id, e.target.value, true)} 
+                               onKeyDown={e => handleWeightKeyDown(e, toner.id, true)} 
+                               className="w-16 text-right text-base font-black text-purple-600 focus:outline-none clean-number-input mx-1" 
+                               placeholder="0.0" 
+                           />
+                           <button onClick={() => quickEditWeight(toner.id, 0.1, true)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
                            <span className="text-[10px] font-bold text-slate-400 ml-1 mr-1">g</span>
-                           <button onClick={() => removeToner(toner.id, true)} className="ml-1"><Trash2 size={16} className="text-purple-300 hover:text-red-500 transition-colors"/></button>
+                           <button onClick={() => removeToner(toner.id, true)} className="ml-1"><Trash2 size={18} className="text-purple-300 hover:text-red-500 transition-colors"/></button>
                         </div>
                       </div>
                     </div>
@@ -3448,9 +3584,9 @@ export default function App() {
                     onMouseDown={(e) => e.preventDefault()} 
                     onTouchStart={(e) => e.preventDefault()}
                     onClick={() => addToner(true)} 
-                    className="w-full py-2.5 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-lg text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-2 shadow-sm"
+                    className="w-full py-3 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-lg text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-2 shadow-sm"
                 >
-                    <Plus size={16} /><span>펄 조색제 추가</span>
+                    <Plus size={18} /><span>펄 조색제 추가</span>
                 </button>
               </div>
             )}
@@ -3474,6 +3610,14 @@ export default function App() {
                       <Maximize size={12} className="mr-1 text-blue-600"/> 화면을 클릭하여 스튜디오 크게 열기
                   </div>
               </div>
+
+              {/* 💡 신규 기능: 배합 A/B 시각적 대조 모드 버튼 */}
+              <button 
+                  onClick={openComparator}
+                  className="w-full mt-3 bg-indigo-50 border border-indigo-200 text-indigo-700 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-indigo-100 transition-colors shadow-sm"
+              >
+                  <Columns size={16} className="mr-1.5 text-indigo-500" /> ✨ 배합 A/B 시각적 대조 모드 (Split View)
+              </button>
             </div>
 
             <div className="p-4 bg-slate-900 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-center shrink-0 gap-3">
@@ -3611,6 +3755,15 @@ export default function App() {
             </div>
           </div>
       </div>
+
+      {isCompareOpen && (
+          <FormulaComparator 
+              formulaA={isThreeCoatMode ? pearlToners : toners} 
+              formulaB={compareFormulaB} 
+              setFormulaB={setCompareFormulaB}
+              onClose={() => setIsCompareOpen(false)} 
+          />
+      )}
 
       {selectedTonerForView && TONER_DB[selectedTonerForView] && (
         <div className="fixed inset-0 bg-slate-900/90 z-[700] flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in">
