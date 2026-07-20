@@ -2738,17 +2738,23 @@ export const safeNum = (val: any): number => { const num = Number(val); return i
 export const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('글라스') || r.includes('대체용'); }
 
 const textureCache: Record<string, React.CSSProperties> = {};
+
+// 💡 텍스처 엔진 업그레이드 (공식 사이트처럼 자잘하고 고급스러운 메탈릭 펄 입자감)
 export const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
     if (!isMetallic || type === 'binder' || type === 'solid') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
     const key = `${type}_${faceColor}_${flopColor}`; if (textureCache[key]) return textureCache[key];
-    let baseFreq = '0.5', alphaMult = '4', surfaceScale = '2', specConst = '1.2';
-    if (type === 'xirallic') { baseFreq = '0.8'; alphaMult = '10'; surfaceScale = '5'; specConst = '2.0'; }
-    else if (type === 'pearl') { baseFreq = '0.4'; alphaMult = '6'; surfaceScale = '3'; specConst = '1.5'; }
-    else if (type === 'silver_fine') { baseFreq = '1.2'; alphaMult = '3'; surfaceScale = '1.5'; specConst = '1.0'; }
-    else if (type === 'silver_coarse') { baseFreq = '0.2'; alphaMult = '8'; surfaceScale = '4'; specConst = '1.8'; }
+    
+    // 메탈릭 노이즈 주파수를 높여 입자를 미세하게 만듦
+    let baseFreq = '1.8', alphaMult = '4', surfaceScale = '1.5', specConst = '1.0';
+    if (type === 'xirallic') { baseFreq = '1.2'; alphaMult = '8'; surfaceScale = '3'; specConst = '2.0'; }
+    else if (type === 'pearl') { baseFreq = '1.5'; alphaMult = '5'; surfaceScale = '2'; specConst = '1.5'; }
+    else if (type === 'silver_fine') { baseFreq = '2.5'; alphaMult = '3'; surfaceScale = '1.0'; specConst = '0.8'; }
+    else if (type === 'silver_coarse') { baseFreq = '0.8'; alphaMult = '7'; surfaceScale = '2.5'; specConst = '1.8'; }
+    
     const safeFaceColor = faceColor || '#ffffff'; const safeFlopColor = flopColor || '#ffffff';
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="3"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${alphaMult} -1"/><feSpecularLighting surfaceScale="${surfaceScale}" specularConstant="${specConst}" specularExponent="20" lighting-color="%23ffffff"><feDistantLight azimuth="45" elevation="60"/></feSpecularLighting></filter><rect width="100%25" height="100%25" fill="${encodeURIComponent(safeFaceColor)}"/><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.4"/></svg>`;
-    const result = { backgroundColor: safeFaceColor, backgroundImage: `url("data:image/svg+xml;utf8,${svg}"), linear-gradient(135deg, ${safeFaceColor} 0%, ${safeFlopColor} 100%)`, backgroundBlendMode: 'overlay, normal' as any, boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)' };
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="4" result="noise"/><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${alphaMult} -1" in="noise" result="coloredNoise"/><feComposite operator="in" in="coloredNoise" in2="SourceGraphic" result="composite"/></filter><rect width="100%25" height="100%25" fill="${encodeURIComponent(safeFaceColor)}"/><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.6"/></svg>`;
+    
+    const result = { backgroundColor: safeFaceColor, backgroundImage: `url("data:image/svg+xml;utf8,${svg}"), radial-gradient(circle at 50% 0%, ${safeFaceColor} 0%, ${safeFlopColor} 80%, #000000 100%)`, backgroundBlendMode: 'overlay, normal' as any, boxShadow: 'inset 0 -20px 40px rgba(0,0,0,0.6)' };
     textureCache[key] = result; return result;
 };
 
@@ -2838,6 +2844,7 @@ export const getMunsellDynamicDescription = (code: string, role: string, type: s
     );
 };
 
+// 💡 광학 엔진 업그레이드 (블루+그린 = 틸/다크그린, WT144 과도한 파란색 방지, 명도/채도 현실화)
 export const getOptics = (tonersList: any[]) => {
   const colorToners = tonersList.filter(t => t.code && TONER_DB[t.code]);
   const sumW = colorToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
@@ -2849,7 +2856,9 @@ export const getOptics = (tonersList: any[]) => {
   colorToners.forEach(t => {
     const w = safeNum(parseFloat(t.adjustedWeight)); if (w <= 0) return;
     const role = TONER_DB[t.code]?.role || ''; const code = t.code || ''; let strength = 1.0;
-    if (code.includes('341') || code.includes('300') || code.includes('338')) strength = 2.5;
+    
+    // 특정 안료 강도 미세 조정
+    if (code.includes('341') || code.includes('300') || code.includes('338')) strength = 1.5;
 
     if (role.includes('컴포넌트') || role.includes('바인더') || role.includes('애디티브') || ['WT 385', 'WT 387', 'WT 386', 'WT 400', 'WT 3080', 'WT 310'].some(c => code.includes(c.replace('WT ', '')))) wBinder += w;
     else if (role.includes('블랙') || code.includes('323') || code.includes('388') || code.includes('188') || code.includes('1500')) wBlack += w;
@@ -2857,14 +2866,15 @@ export const getOptics = (tonersList: any[]) => {
     else if (role.includes('화이트') || code.includes('321') || code.includes('328') || code.includes('322')) wWhite += w;
     else if (role.includes('펄') || role.includes('이펙트') || role.includes('스파클') || code.includes('304') || code.includes('377') || code.includes('381')) {
       wPearl += w;
-      if (role.includes('블루') || code.includes('381')) { interferenceColor = 'blue'; rBlue += w * 0.15; }
-      else if (role.includes('레드') || role.includes('마젠타')) { interferenceColor = 'red'; rRed += w * 0.15; }
-      else if (role.includes('그린') || code.includes('380')) { interferenceColor = 'green'; rGreen += w * 0.15; }
-      else if (role.includes('골드') || code.includes('304') || code.includes('382')) { interferenceColor = 'yellow'; rYellow += w * 0.15; }
+      if (role.includes('블루') || code.includes('381')) { interferenceColor = 'blue'; rBlue += w * 0.5; }
+      else if (role.includes('레드') || role.includes('마젠타')) { interferenceColor = 'red'; rRed += w * 0.5; }
+      else if (role.includes('그린') || code.includes('380')) { interferenceColor = 'green'; rGreen += w * 0.5; }
+      else if (role.includes('골드') || code.includes('304') || code.includes('382')) { interferenceColor = 'yellow'; rYellow += w * 0.5; }
       else if (role.includes('화이트') || code.includes('377')) interferenceColor = 'white';
     } 
-    else if (code.includes('144')) { rBlue += w * 2.5; rRed += (w * 2.5) * 0.4; } 
-    else if (role.includes('블루') || role.includes('청')) { rBlue += w * strength; rGreen += (w * strength) * 0.5; }
+    // WT144 이전 2.5배 뻥튀기 제거. 현실적인 블루+약간의 레드 기운만 부여
+    else if (code.includes('144')) { rBlue += w * 1.0; rRed += w * 0.2; } 
+    else if (role.includes('블루') || role.includes('청')) { rBlue += w * strength; rGreen += (w * strength) * 0.2; }
     else if (code.includes('339') || role.includes('바이올렛')) rViolet += w * strength;
     else if (code.includes('353') || code.includes('309') || role.includes('마젠타')) { rRed += w * strength; rViolet += (w * strength) * 0.5; }
     else if (code.includes('300') || role.includes('마룬') || role.includes('적')) rRed += w * strength;
@@ -2879,33 +2889,44 @@ export const getOptics = (tonersList: any[]) => {
   const pSilver = wSilver / totalForRatio; const pWhite = wWhite / totalForRatio;
   const pBlack = wBlack / totalForRatio; const pPearl = wPearl / totalForRatio; const pColor = colorWeight / totalForRatio;
 
-  let baseL = (pWhite * 96) + (pSilver * 65) + (pPearl * 85); if (effectiveW === 0 && wBinder > 0) baseL = 90; 
-  let blackImpact = Math.pow(pBlack, 0.45) * 60; if (pWhite > 0.6) blackImpact = blackImpact * 0.15; 
-  const colorImpactL = Math.pow(pColor, 0.5) * 30; baseL = Math.max(4, baseL - blackImpact - colorImpactL);
-  let l15 = baseL + (Math.pow(pSilver + pPearl, 0.6) * 45); 
-  let l110 = Math.max(2, baseL - 30 - (pSilver * 40) - (pBlack * 20));
+  // 블랙이 강할 때 명도(L)를 확실히 떨어뜨림
+  let baseL = (pWhite * 96) + (pSilver * 65) + (pPearl * 80); if (effectiveW === 0 && wBinder > 0) baseL = 90; 
+  let blackImpact = Math.pow(pBlack, 0.5) * 75; // 블랙 임팩트 상향
+  const colorImpactL = Math.pow(pColor, 0.6) * 35; 
+  baseL = Math.max(3, baseL - blackImpact - colorImpactL);
+  
+  let l15 = baseL + (Math.pow(pSilver + pPearl, 0.6) * 55); // 정면 반사율 상승
+  let l110 = Math.max(1, baseL - 40 - (pSilver * 40) - (pBlack * 25)); // 측면 더 어둡게
+
   if (pWhite > 0.6) { l110 = Math.max(83, baseL - 8); l15 = Math.min(99, baseL + (pPearl > 0 ? 10 : 3)); }
 
   let x = rRed + (rYellow * 0.5) - (rGreen * 0.5) - rBlue - (rViolet * 0.5);
   let y = (rYellow * 0.866) + (rGreen * 0.866) - (rBlue * 0.866) - (rViolet * 0.866);
   let hue = Math.atan2(y, x) * (180 / Math.PI); if (hue < 0) hue += 360;
   
-  let sat = colorWeight > 0 ? Math.min(100, Math.pow((colorWeight / (colorWeight + wWhite + wSilver + Math.max(wBlack * 2, 0))), 0.4) * 150) : 0;
+  // 만약 그린과 블루가 비슷하게 섞였다면 (Teal/청록) 보정
+  if (rGreen > 0 && rBlue > 0 && rRed < rBlue) {
+      const ratio = rGreen / (rGreen + rBlue);
+      hue = 210 - (ratio * 60); // 210(Blue)에서 150(Green) 사이로 혼합
+  }
+
+  let sat = colorWeight > 0 ? Math.min(100, Math.pow((colorWeight / (colorWeight + wWhite + wSilver + wBlack*1.5)), 0.5) * 120) : 0;
   if (pWhite > 0.6) sat = sat * 0.3; 
 
   let flopHue = hue; let faceHue = hue;
   if (interferenceColor === 'blue') { faceHue = 210; flopHue = 230; }
   else if (interferenceColor === 'red') { faceHue = 340; flopHue = 350; }
-  else if (interferenceColor === 'green') { faceHue = 120; flopHue = 140; }
+  else if (interferenceColor === 'green') { faceHue = 150; flopHue = 170; } // 녹색 펄 보정
   else if (interferenceColor === 'yellow') { faceHue = 50; flopHue = 60; }
-  let faceSat = Math.min(100, sat + (pPearl * (interferenceColor === 'white' ? 5 : 20)));
-  let flopSat = Math.min(100, sat + (pPearl * (interferenceColor === 'white' ? 2 : 12)));
+  
+  let faceSat = Math.min(100, sat + (pPearl * (interferenceColor === 'white' ? 5 : 30)));
+  let flopSat = Math.min(100, sat + (pPearl * (interferenceColor === 'white' ? 2 : 15)));
   if (colorWeight === 0 && wPearl === 0) { hue = 0; flopHue = 0; faceHue = 0; sat = 0; faceSat = 0; flopSat = 0; }
 
   return {
     face: { h: safeNum(Math.round(faceHue)), s: safeNum(Math.round(faceSat)), l: safeNum(Math.round(Math.min(99, Math.max(5, l15)))) },
-    mid:  { h: safeNum(Math.round(hue)), s: safeNum(Math.round(sat)), l: safeNum(Math.round(Math.min(98, Math.max(5, baseL)))) },
-    flop: { h: safeNum(Math.round(wPearl > 0 ? flopHue : hue)), s: safeNum(Math.round(flopSat)), l: safeNum(Math.round(Math.min(98, Math.max(2, l110)))) },
+    mid:  { h: safeNum(Math.round(hue)), s: safeNum(Math.round(sat)), l: safeNum(Math.round(Math.min(98, Math.max(3, baseL)))) },
+    flop: { h: safeNum(Math.round(wPearl > 0 ? flopHue : hue)), s: safeNum(Math.round(flopSat)), l: safeNum(Math.round(Math.min(98, Math.max(1, l110)))) },
     isMetallic: (wSilver > 0 || wPearl > 0)
   };
 };
@@ -2976,7 +2997,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
   ].join(" ");
 };
 
-// 💡 새롭게 추가된 [배합 대조 및 시각적 비교 뷰어] 컴포넌트
+// 💡 배합 대조 및 시각적 비교 뷰어 컴포넌트
 export function FormulaComparator({ formulaA, setFormulaA, formulaB, setFormulaB, onClose }: any) {
     const opticsA = useMemo(() => getOptics(formulaA), [formulaA]);
     const opticsB = useMemo(() => getOptics(formulaB), [formulaB]);
@@ -3020,7 +3041,7 @@ export function FormulaComparator({ formulaA, setFormulaA, formulaB, setFormulaB
                                 [현재 배합] 버전 A
                             </div>
                             <div className="border border-indigo-300 bg-indigo-50 p-2 rounded text-sm font-bold text-indigo-800 text-center shadow-sm">
-                                [비교 배합] 버전 B (수정 가능)
+                                [비교 보완] 버전 B (수정 가능)
                             </div>
                         </div>
 
@@ -3365,7 +3386,7 @@ export default function App() {
             </div>
             
             <div className="flex flex-col gap-3">
-              {/* 💡 수정된 부분: 모바일에서는 무조건 1칸씩 차지하도록 grid-cols-1, PC에서는 grid-cols-4 */}
+              {/* 💡 겹침 해결: 모바일 grid-cols-1 */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📅 등록 날짜</label>
@@ -3395,7 +3416,6 @@ export default function App() {
                  <input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="선택사항 직접 입력 (예: 이색 심함, 조색 주의 등)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow" />
               </div>
               
-              {/* 💡 확정 버튼 유지 */}
               <div className="flex w-full gap-2 mt-2">
                 <button onClick={copyToExcel} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1"/> 엑셀 복사</button>
                 <button onClick={shareToKakao} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
@@ -3431,7 +3451,6 @@ export default function App() {
                                    <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                                    <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                               </div>
-                              {/* 💡 수정: 코드 입력창 숫자 키패드 호환 */}
                               <input 
                                   ref={el => { codeRefs.current[toner.id] = el; }} 
                                   value={toner.code} 
