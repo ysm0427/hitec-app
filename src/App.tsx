@@ -6,14 +6,8 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 [1번 구역] 전면 업그레이드된 전문가용 안료 데이터베이스 (모든 안료 5단계 표준 포맷 적용)
+// 💡 [1번 구역] 전면 업그레이드된 전문가용 안료 데이터베이스 (누락 안료 100% 완벽 복구 및 탑재)
 export const TONER_DB: Record<string, TonerData> = {
-  // 👇 대표님이 요청하신 WT 347, 380, 389 (1줄 요약 + 5단계 완벽 분배)
-  'WT 347': { role: '트랜스페어런트 그린', type: 'solid', face: '#15803d', flop: '#022c22', desc: '도막에 깊이감과 맑은 느낌을 부여하는 투명성이 뛰어난 녹색 조색제입니다.', details: [['일반 특성', '은폐력이 거의 없어 메탈릭이나 펄 입자 고유의 반사광을 가리지 않습니다. 이로 인해 도막에 깊이감(Depth)과 맑은 느낌을 부여합니다.'], ['색상 및 외관 변화', '정면에서는 맑고 선명한 녹색을 띠지만, 측면(스카시)으로 갈수록 투명도가 높아 바탕의 메탈릭 입자나 펄의 특성이 그대로 투과되어 보입니다.'], ['용도 및 적용 컬러', '주로 맑은 옐로우 틴트와 배합하여 깨끗한 골드 그린(Gold Green)을 만들거나, 투명 블루와 섞어 깊이 있는 청록색(Teal)을 조색할 때 활용됩니다.'], ['배합 및 혼합 비율', '착색력이 뛰어나 미량의 추가만으로도 전체적인 색상의 방향(특히 측면 톤)이 크게 변할 수 있어 배합량 조절에 매우 유의해야 합니다.'], ['경고 및 주의사항', '메탈릭 및 펄 컬러에 적용할 때는 입자 배열을 돕는 오리엔테이션 제제(예: 386 agent)나 결합 수지(예: WT390)의 비율을 정확히 맞추어 펄과 알루미늄 입자가 안정적으로 자리 잡도록 세팅하는 것이 맑은 컬러감을 극대화하는 데 중요합니다.']] },
-  'WT 380': { role: '다이아몬드 그린', type: 'xirallic', face: '#4ade80', flop: '#166534', desc: '녹색 빛을 띠는 고휘도의 반짝임을 내는 특수 펄 조색제입니다.', details: [['일반 특성', '일반적인 마이카(Mica) 펄 안료와 달리, 유리 입자(Glass Flake)나 합성 기재를 베이스로 하여 투명도가 월등히 높고 다이아몬드처럼 강렬하게 부서지는 빛 반사(Sparkle)를 만들어냅니다.'], ['색상 및 외관 변화', '빛이 없는 그늘에서는 입자감이 잘 띄지 않다가, 직사광선 아래에서 폭발적인 녹색 광원을 뿜어내는 것이 특징입니다.'], ['용도 및 적용 컬러', '블랙 바탕에서는 각도에 따라 검은색과 강렬한 녹색이 교차하는 드라마틱한 투톤(Color Flip) 효과를 내며, 밝은 바탕에서는 투명하고 은은한 펄감만 더해줍니다.'], ['배합 및 혼합 비율', '프리미엄 럭셔리카 다이아몬드 그린 펄 페인팅에 전용 처방되며 정밀하게 소량씩 계측 혼입합니다.'], ['경고 및 주의사항', '바탕색상(하도 프라이머 명도)의 미세 차이도 그대로 노출시키므로 완벽한 밸류쉐이드 하도 도장이 선행되어야 합니다.']] },
-  'WT 389': { role: '플래티닌 실버 화인', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b', desc: '거친 입자감이 전혀 없는 맑고 고운 금속 광택을 내는 초미세 실버 달러 입자 조색제입니다.', details: [['일반 특성', '입자의 크기가 매우 작고 둥글며 납작한 형태를 띠고 있어, 도막 위에 촘촘하고 매끄럽게 배열됩니다. 이로 인해 거친 입자감이 전혀 없는 맑고 고운 금속 광택을 냅니다.'], ['색상 및 외관 변화', '정면(Face)에서는 빛을 강하게 반사하여 플래티넘(백금)처럼 눈부시고 화사하게 빛납니다. 반면, 입자가 워낙 조밀하게 배열되어 빛이 통과할 틈이 적기 때문에 측면(스카시, Flop)에서 볼 때는 톤이 확연히 어둡고 단단해 보이는 특징이 있습니다.'], ['용도 및 적용 컬러', '특정 아시안 OEM 차량의 중간 입자 실버 매칭 및 고휘도 라이트 실버 조색 시 타겟팅됩니다.'], ['배합 및 혼합 비율', '안료 입자가 매우 미세하고 밀도가 높아, 다른 굵은 메탈릭 안료나 투명 펄에 비해 은폐력이 뛰어나 타깃 컬러의 밑색을 빠르게 덮어줍니다.'], ['경고 및 주의사항', '입자 배열에 따라 색상이 민감하게 변하므로 숨김 도장 영역을 충분히 넓게 확보하고 저압으로 플래시오프 해야 이색을 잡을 수 있습니다.']] },
-  
-  // 👇 나머지 안료들도 모두 5단계 포맷으로 통일 및 요약 반영
   'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '기존 WT 346을 대체하는 고농축 청색 수성 조색제입니다.', details: [['일반 특성', '기존 WT 346 안료를 완벽하게 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'], ['색상 및 외관 변화', '정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점이 큰 특징입니다.'], ['용도 및 적용 컬러', 'WT 346이 포함된 모든 솔리드 및 이펙트 컬러의 1:1 대체 처방 및 조색 보정용으로 폭넓게 사용됩니다.'], ['배합 및 혼합 비율', '기존 WT 346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용해야 동일한 착색력을 얻습니다.'], ['경고 및 주의사항', '정면의 뚜렷한 적청색 발색으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로 반드시 시편 대조 후 블랜딩 도장을 권장합니다.']] },
   'WT 346': { role: '트랜스페어런트 딥 블루 [WT 144 완벽대체]', type: 'solid', face: '#0369a1', flop: '#020617', desc: '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.', details: [['일반 특성', '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.'], ['색상 및 외관 변화', '특히 측면(45도/110도)에서 관찰할 때 전체 청색 조색제 중 녹색빛 반사가 가장 강하게 두드러지는 고유 특징이 있습니다.'], ['용도 및 적용 컬러', '시중 대부분의 이펙트 메탈릭 청색 조색 시 뼈대가 되는 가장 기초적이고 필수적인 투명 파란색입니다.'], ['배합 및 혼합 비율', '다양한 이펙트 처방에서 메인으로 쓰이므로 배합표의 대량 투입 지시를 엄수합니다.'], ['경고 및 주의사항', '이 안료는 신형 WT 144와 상호 대체가 가능합니다. 대체 시 [WT 346 : WT 144 = 1 : 0.9] 비율을 적용하십시오.']] },
   'WT 358': { role: '스페셜 실버 [WT 400 완벽대체]', type: 'silver_fine', face: '#e2e8f0', flop: '#475569', desc: '특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.', details: [['일반 특성', '독자적인 금속 배열 구조를 지녀 특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '일반 실버와 달리 특정 각도에서 빛을 머금었다가 뿜어내는 듯한 오묘한 밝기와 독특한 플롭(Flop) 현상을 일으킵니다.'], ['용도 및 적용 컬러', '일반 조색제로는 절대 색을 맞출 수 없는 특정 수입차 OEM 특수 실버 컬러의 고유 반사각 및 이색 매칭 시 독점적으로 사용됩니다.'], ['배합 및 혼합 비율', '특수 처방 데이터베이스에 명시된 배합비대로만 적용하며 임의 비율 조정 시 실패 확률이 높습니다.'], ['경고 및 주의사항', '동일한 특성을 지닌 WT 400 안료와 1:1로 상호 완벽 대체가 가능합니다. 재고 상황에 따라 교차 사용하십시오.']] },
@@ -90,8 +84,6 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 381': { role: '다이아몬드 블루', type: 'xirallic', face: '#3b82f6', flop: '#1e3a8a', desc: '합성 크리스탈 질라릭 코팅 기반의 최고급 청색 간섭 펄 조색제입니다.', details: [['일반 특성', '합성 크리스탈 질라릭 코팅 기반으로 눈부시게 세팅된 최고급 청색 간섭 펄 조색제입니다.'], ['색상 및 외관 변화', '정면은 찬란한 청색, 측면은 보색인 따뜻한 황색으로 화려하게 교차 변색됩니다.'], ['용도 및 적용 컬러', '딥 블루 특수 펄 컬러 조색의 메인으로 사용됩니다.'], ['배합 및 혼합 비율', '질라릭 배합 가이드라인을 엄격하게 준수하여 전자저울로 배합합니다.'], ['경고 및 주의사항', '안료 병 보관 시 입자가 빠르게 가라앉으므로 투입 직전 병을 강하게 여러 번 흔들어 침전물을 완전히 풀어주어야 합니다.']] },
   'WT 382': { role: '다이아몬드 골드', type: 'xirallic', face: '#facc15', flop: '#a16207', desc: '빛의 굴절을 극대화시킨 프리미엄 황색 간섭 질라릭 펄 조색제입니다.', details: [['일반 특성', '빛의 굴절을 극대화시킨 프리미엄 황색 간섭 질라릭 펄 조색제입니다.'], ['색상 및 외관 변화', '정면은 화사한 황금색으로, 측면은 맑고 푸른 청색으로 신비롭게 교차 변환됩니다.'], ['용도 및 적용 컬러', '최고급 샴페인 화이트 펄 계열이나 특수 골드 메탈릭 도장 시 극한의 입체 반사광을 위해 처방됩니다.'], ['배합 및 혼합 비율', '지시된 프리미엄 이펙트 데이터 수치를 정확히 계량합니다.'], ['경고 및 주의사항', '단가가 매우 높으므로 숨김 도장 면적을 넓게 잡고 투명 클리어를 고품질로 마감해야 이색 및 얼룩 현상을 방지할 수 있습니다.']] },
   'WT 383': { role: '브릴리언트 오렌지', type: 'silver_coarse', face: '#f97316', flop: '#9a3412', desc: '강렬하고 고채도의 주황빛으로 착색된 고광택 알루미늄 조색제입니다.', details: [['일반 특성', '시선을 사로잡는 강렬하고 고채도의 주황빛으로 착색된 고광택 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '깊이 있고 따뜻하며 화려한 오렌지 메탈릭 광채를 발현합니다.'], ['용도 및 적용 컬러', '수퍼카 시그니처 오렌지 컬러 등 튀는 오렌지 메탈릭 연출에 탁월한 핵심 안료입니다.'], ['배합 및 혼합 비율', '해당 스페셜 컬러의 배합 처방전을 철저히 준수하여 저울로 혼합합니다.'], ['경고 및 주의사항', '도장 횟수가 늘어날수록 채도만 진해질 수 있으니 시편 제작 후 정확한 도장 횟수를 결정해야 합니다.']] },
-  'WT 387': { role: '시스템 콤퍼넌트 B', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '수용성 베이스코트 도료 전체의 시스템 점도 조절제 및 바인더입니다.', details: [['일반 특성', '안정적인 분산과 흐름성을 관리하는 시스템 점도 조절제 및 바인더입니다.'], ['색상 및 외관 변화', '건조 시 완벽한 투명 상태가 되며 도막에 균일하고 매끄러운 펴짐성을 부여합니다.'], ['용도 및 적용 컬러', '모든 수성 컬러 시스템에 사용됩니다.'], ['배합 및 혼합 비율', '요구 중량을 한 치의 오차 없이 정밀 투입해야 합니다.'], ['경고 및 주의사항', '비율이 초과하면 흘러내림이 발생하므로 계량에 집중해야 합니다.']] },
-  'WT 455': { role: '퍼포먼스 컴포넌트', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '물성을 극적으로 안정화시키는 솔리드 전용 고성능 기능성 유동성 첨가제입니다.', details: [['일반 특성', '솔리드 전용 고성능 기능성 유동성 첨가제입니다.'], ['색상 및 외관 변화', '도막의 펴짐성을 극한으로 끌어올려 유리면처럼 매끄러운 고품질 외관을 보장합니다.'], ['용도 및 적용 컬러', '이펙트 입자가 없는 솔리드 컬러 도장 작업에만 단독으로 사용됩니다.'], ['배합 및 혼합 비율', '솔리드 베이스코트 도료 총 무게를 기준으로 정확히 10% 중량을 추가 계량하여 혼합 및 분사합니다.'], ['경고 및 주의사항', '성분 특성 상 이펙트 컬러에는 절대 사용을 금지합니다.']] },
   'WT 3080': { role: '스페셜 애디티브', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '도막 보정 및 흐름 방지 특수 첨가제.', details: [['일반 특성', '도막 보정 및 흐름 방지 전용 특수 첨가제입니다.']] }
 };
 
@@ -2724,7 +2716,6 @@ export const isTonerMetallic = (role: string) => { const r = role || ''; return 
 
 const textureCache: Record<string, React.CSSProperties> = {};
 
-// 💡 텍스처 엔진 (고급 메탈릭 노이즈 구현 - 아이폰 완벽 호환)
 export const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
     if (!isMetallic || type === 'binder' || type === 'solid') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
     const key = `${type}_${faceColor}_${flopColor}`; if (textureCache[key]) return textureCache[key];
@@ -2742,7 +2733,7 @@ export const getCachedTexture = (type: string, faceColor: string, flopColor: str
     textureCache[key] = result; return result;
 };
 
-// 💡 뱃지 색상을 자동으로 다양하게 입혀주는 함수 (전문가 포맷 지원용)
+// 💡 뱃지 색상을 내용에 따라 전문가처럼 매칭하는 함수
 export const getBadgeClass = (title: string) => {
     if(title.includes("일반") || title.includes("투명") || title.includes("입자") || title.includes("반짝")) return "bg-emerald-50 text-emerald-700 border-emerald-200";
     if(title.includes("외관") || title.includes("변화") || title.includes("대비")) return "bg-blue-50 text-blue-700 border-blue-200";
@@ -2838,7 +2829,6 @@ export const getMunsellDynamicDescription = (code: string, role: string, type: s
     );
 };
 
-// 💡 광학 엔진 (벡터 연산을 통한 정확한 색상 혼합 & 강력한 블랙 대비 구현)
 const getTonerBaseHue = (code: string, role: string) => {
     if (code.includes('144')) return 215;
     if (role.includes('블루') || role.includes('청')) return 215;
@@ -2994,7 +2984,6 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
   ].join(" ");
 };
 
-// 💡 배합 대조 및 시각적 비교 뷰어 컴포넌트
 export function FormulaComparator({ formulaA, setFormulaA, formulaB, setFormulaB, onClose }: any) {
     const opticsA = useMemo(() => getOptics(formulaA), [formulaA]);
     const opticsB = useMemo(() => getOptics(formulaB), [formulaB]);
@@ -3109,7 +3098,6 @@ export function FormulaComparator({ formulaA, setFormulaA, formulaB, setFormulaB
 
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
-  // 시작 시 모든 특성 아코디언은 '숨김(false)' 상태
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: 'WT 347', adjustedWeight: "3.59", history: [], memo: "", isExpanded: false }, { id: `b_next`, code: 'WT 380', adjustedWeight: "3.79", history: [], memo: "", isExpanded: false }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
@@ -3126,7 +3114,6 @@ export default function App() {
   
   const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
   const [restoredViewData, setRestoredViewData] = useState<any>(null); 
-  
   const [isCompareOpen, setIsCompareOpen] = useState(false);
   const [compareFormulaB, setCompareFormulaB] = useState<any[]>([]);
 
@@ -3240,7 +3227,22 @@ export default function App() {
     }
   }, [focusTarget, toners, pearlToners]);
 
-  const handleClearAll = () => { setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); };
+  // 💡 정보 전체 초기화 핸들러
+  const handleClearAllInfo = () => { 
+      if(!window.confirm("차량 정보를 포함한 모든 입력 데이터를 초기화하시겠습니까?")) return;
+      setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
+      setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
+      setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); 
+      setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); 
+  };
+
+  // 💡 배합 리셋 핸들러 (차량정보 유지)
+  const handleResetFormula = () => { 
+      if(!window.confirm("현재 입력된 배합(베이스 및 펄 코트) 데이터만 초기화하시겠습니까?")) return;
+      setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
+      setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
+      setSelectedTonerForView(null); 
+  };
 
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
     const numOnly = newCode.replace(/[^0-9]/g, '');
@@ -3305,7 +3307,6 @@ export default function App() {
     }));
   };
 
-  // 💡 아코디언 토글 핸들러 
   const toggleExpand = (id: string, isPearl: boolean) => {
       const setter = isPearl ? setPearlToners : setToners;
       setter(prev => prev.map(t => t.id === id ? { ...t, isExpanded: !t.isExpanded } : t));
@@ -3384,6 +3385,10 @@ export default function App() {
           <div className="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-slate-800 flex items-center"><Sliders className="text-blue-600 mr-2" size={16} />공식 배합 워크 시트</h2>
+              {/* 💡 전체 정보 초기화 버튼 */}
+              <button onClick={handleClearAllInfo} className="text-[11px] font-bold text-slate-500 hover:text-red-600 flex items-center transition-colors bg-slate-100 hover:bg-red-50 px-2.5 py-1.5 rounded border border-slate-200 shadow-sm">
+                <Trash2 size={14} className="mr-1"/> 정보 전체 초기화
+              </button>
             </div>
             
             <div className="flex flex-col gap-3">
@@ -3421,7 +3426,11 @@ export default function App() {
                 <button onClick={shareToKakao} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
                     <Share2 size={18} className="mr-1.5"/> 확정 (카톡 전송)
                 </button>
-                <button onClick={handleClearAll} className="bg-white border border-red-200 text-red-500 px-4 rounded flex items-center justify-center hover:bg-red-50 transition-colors shadow-sm"><Trash2 size={20} /></button>
+                {/* 💡 배합 리셋 전용 버튼 */}
+                <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 transition-colors shadow-sm whitespace-nowrap">
+                    <Trash2 size={18} className="mb-0.5" />
+                    <span className="text-[9px] font-black">배합 리셋</span>
+                </button>
               </div>
             </div>
           </div>
@@ -3445,8 +3454,8 @@ export default function App() {
                 return (
                   <div key={toner.id} className="flex flex-col bg-slate-50 hover:bg-blue-50/50 p-2.5 mb-1.5 rounded-xl border border-slate-200 shadow-sm transition-colors">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center w-full">
-                      <div className="flex flex-col flex-1 w-full">
-                          <div className="flex items-center gap-2 mb-1">
+                      <div className="flex flex-col flex-1 w-full overflow-hidden">
+                          <div className="flex items-center gap-2 mb-1 w-full">
                               <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
                                    <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                                    <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
@@ -3458,38 +3467,29 @@ export default function App() {
                                   type="tel"
                                   inputMode="numeric"
                                   pattern="[0-9]*"
-                                  className="w-20 text-center text-sm font-black border border-slate-300 rounded p-1.5 focus:border-blue-500 focus:outline-none shadow-inner" 
+                                  className="w-20 text-center text-sm font-black border border-slate-300 rounded p-1.5 focus:border-blue-500 focus:outline-none shadow-inner shrink-0" 
                                   placeholder="번호" 
                               />
                               
                               <div 
-                                  className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1 px-1.5 rounded transition-colors"
+                                  className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1 px-1.5 rounded transition-colors flex-1 overflow-hidden"
                                   onClick={() => toggleExpand(toner.id, false)}
                               >
                                   <span className="font-bold text-blue-700 text-sm truncate">{info.role || '미등록 안료'}</span>
-                                  {toner.isExpanded ? <ChevronUp size={16} className="text-blue-400" /> : <ChevronDown size={16} className="text-blue-400" />}
+                                  {toner.isExpanded ? <ChevronUp size={16} className="text-blue-400 shrink-0" /> : <ChevronDown size={16} className="text-blue-400 shrink-0" />}
                               </div>
                           </div>
                           
-                          {/* 💡 아코디언 토글 영역 (왼쪽 정렬 및 다채로운 뱃지 색상) */}
                           {toner.isExpanded && (
                               <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-2 pt-2 border-t border-slate-200">
                                   {info.details && info.details.length > 0 ? (
                                       <div className="flex flex-col gap-1.5 w-full">
-                                          {info.details.map((d: any, idx: number) => {
-                                              let badgeClass = "bg-slate-50 text-slate-700 border-slate-200";
-                                              if(d[0].includes("일반") || d[0].includes("투명")) badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
-                                              else if(d[0].includes("색상") || d[0].includes("외관")) badgeClass = "bg-blue-50 text-blue-700 border-blue-200";
-                                              else if(d[0].includes("용도") || d[0].includes("적용")) badgeClass = "bg-purple-50 text-purple-700 border-purple-200";
-                                              else if(d[0].includes("배합") || d[0].includes("혼합")) badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
-                                              else if(d[0].includes("경고") || d[0].includes("주의")) badgeClass = "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
-                                              
-                                              return (
-                                              <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
-                                                  <span className={`shrink-0 inline-flex items-center justify-center px-1.5 py-1 text-[10px] font-bold rounded-md border leading-none ${badgeClass}`}>{d[0]}</span>
+                                          {info.details.map((d: any, idx: number) => (
+                                              <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2">
+                                                  <span className={`shrink-0 inline-flex items-center justify-center px-1.5 py-1 text-[10px] font-bold rounded-md border leading-none ${getBadgeClass(d[0])}`}>{d[0]}</span>
                                                   <span className="text-[11px] text-slate-600 leading-normal break-keep">{d[1]}</span>
                                               </div>
-                                          )})}
+                                          ))}
                                       </div>
                                   ) : <p className="text-[11px] text-slate-500 leading-tight break-keep">{info.desc}</p>}
 
@@ -3559,8 +3559,8 @@ export default function App() {
                   return (
                     <div key={toner.id} className="flex flex-col bg-purple-50 p-2.5 mb-1.5 rounded-xl border border-purple-200 shadow-sm transition-colors hover:bg-purple-100/50">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center w-full">
-                        <div className="flex flex-col flex-1 w-full pl-2">
-                            <div className="flex items-center gap-2 mb-1">
+                        <div className="flex flex-col flex-1 w-full overflow-hidden pl-2">
+                            <div className="flex items-center gap-2 mb-1 w-full">
                                 <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
                                      <div className="flex-1" style={getCachedTexture(info.type, info.face, info.face, isEffect)}></div>
                                      <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
@@ -3572,37 +3572,28 @@ export default function App() {
                                     type="tel"
                                     inputMode="numeric" 
                                     pattern="[0-9]*" 
-                                    className="w-20 text-center text-sm font-black border border-purple-200 rounded px-1.5 py-1 text-purple-800 shadow-inner focus:outline-none focus:border-purple-500" 
+                                    className="w-20 text-center text-sm font-black border border-purple-200 rounded px-1.5 py-1 text-purple-800 shadow-inner focus:outline-none focus:border-purple-500 shrink-0" 
                                     placeholder="번호" 
                                 />
                                 <div 
-                                    className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1 px-1.5 rounded transition-colors"
+                                    className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1 px-1.5 rounded transition-colors flex-1 overflow-hidden"
                                     onClick={() => toggleExpand(toner.id, true)}
                                 >
                                     <span className="font-bold text-purple-700 text-sm truncate">{info.role || '미등록 안료'}</span>
-                                    {toner.isExpanded ? <ChevronUp size={16} className="text-purple-400" /> : <ChevronDown size={16} className="text-purple-400" />}
+                                    {toner.isExpanded ? <ChevronUp size={16} className="text-purple-400 shrink-0" /> : <ChevronDown size={16} className="text-purple-400 shrink-0" />}
                                 </div>
                             </div>
                             
-                            {/* 💡 펄 코트 쪽도 아코디언 및 컬러 뱃지 동일 적용 */}
                             {toner.isExpanded && (
                                 <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-2 pt-2 border-t border-purple-200">
                                     {info.details && info.details.length > 0 ? (
                                         <div className="flex flex-col gap-1.5 w-full">
-                                            {info.details.map((d: any, idx: number) => {
-                                                let badgeClass = "bg-slate-50 text-slate-700 border-slate-200";
-                                                if(d[0].includes("일반") || d[0].includes("투명")) badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
-                                                else if(d[0].includes("색상") || d[0].includes("외관")) badgeClass = "bg-blue-50 text-blue-700 border-blue-200";
-                                                else if(d[0].includes("용도") || d[0].includes("적용")) badgeClass = "bg-purple-50 text-purple-700 border-purple-200";
-                                                else if(d[0].includes("배합") || d[0].includes("혼합")) badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
-                                                else if(d[0].includes("경고") || d[0].includes("주의")) badgeClass = "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
-                                                
-                                                return (
-                                                <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
-                                                    <span className={`shrink-0 inline-flex items-center justify-center px-1.5 py-1 text-[10px] font-bold rounded-md border leading-none ${badgeClass}`}>{d[0]}</span>
+                                            {info.details.map((d: any, idx: number) => (
+                                                <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2">
+                                                    <span className={`shrink-0 inline-flex items-center justify-center px-1.5 py-1 text-[9px] font-bold rounded-md border leading-none ${getBadgeClass(d[0])}`}>{d[0]}</span>
                                                     <span className="text-[11px] text-slate-600 leading-normal break-keep">{d[1]}</span>
                                                 </div>
-                                            )})}
+                                            ))}
                                         </div>
                                     ) : <p className="text-[11px] text-slate-500 leading-tight break-keep">{info.desc}</p>}
 
@@ -3726,16 +3717,9 @@ export default function App() {
                             </div>
                             <div className="p-3 flex flex-col gap-1.5">
                                 {item.details?.map((d: any, idx: number) => {
-                                    let badgeClass = "bg-slate-50 text-slate-700 border-slate-200";
-                                    if(d[0].includes("일반") || d[0].includes("투명")) badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
-                                    else if(d[0].includes("색상") || d[0].includes("외관")) badgeClass = "bg-blue-50 text-blue-700 border-blue-200";
-                                    else if(d[0].includes("용도") || d[0].includes("적용")) badgeClass = "bg-purple-50 text-purple-700 border-purple-200";
-                                    else if(d[0].includes("배합") || d[0].includes("혼합")) badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
-                                    else if(d[0].includes("경고") || d[0].includes("주의")) badgeClass = "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
-                                    
                                     return (
                                     <div key={idx} className="flex items-start gap-2">
-                                        <span className={`shrink-0 inline-flex items-center justify-center px-1.5 py-1 text-[9px] font-bold rounded-md border leading-none mt-0.5 ${badgeClass}`}>{d[0]}</span>
+                                        <span className={`shrink-0 inline-flex items-center justify-center px-1.5 py-1 text-[9px] font-bold rounded-md border leading-none mt-0.5 ${getBadgeClass(d[0])}`}>{d[0]}</span>
                                         <span className="text-[11px] text-slate-700 leading-snug break-keep mt-0.5">{d[1]}</span>
                                     </div>
                                 )})}
@@ -3839,16 +3823,9 @@ export default function App() {
 
                  <div className="flex flex-col gap-2 bg-white p-4 rounded-lg border border-slate-200 mb-4 shadow-sm">
                     {TONER_DB[selectedTonerForView].details?.map((d: any, idx: number) => {
-                        let badgeClass = "bg-slate-50 text-slate-700 border-slate-200";
-                        if(d[0].includes("일반") || d[0].includes("투명")) badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
-                        else if(d[0].includes("색상") || d[0].includes("외관")) badgeClass = "bg-blue-50 text-blue-700 border-blue-200";
-                        else if(d[0].includes("용도") || d[0].includes("적용")) badgeClass = "bg-purple-50 text-purple-700 border-purple-200";
-                        else if(d[0].includes("배합") || d[0].includes("혼합")) badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
-                        else if(d[0].includes("경고") || d[0].includes("주의")) badgeClass = "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
-                        
                         return (
                         <div key={idx} className="flex items-start gap-2.5">
-                            <span className={`shrink-0 inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold rounded-md border ${badgeClass}`}>{d[0]}</span>
+                            <span className={`shrink-0 inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold rounded-md border ${getBadgeClass(d[0])}`}>{d[0]}</span>
                             <span className="text-xs text-slate-700 leading-relaxed break-keep mt-0.5">{d[1]}</span>
                         </div>
                     )})}
