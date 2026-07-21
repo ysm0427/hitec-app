@@ -6,15 +6,15 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 [1번 구역] 전면 업그레이드된 전문가용 안료 데이터베이스 (모든 안료 5단계 포맷 적용)
+// 💡 [1번 구역] 전면 업그레이드된 전문가용 안료 데이터베이스 (모든 안료 5단계 표준 포맷 적용)
 export const TONER_DB: Record<string, TonerData> = {
-  // 👇 대표님이 요청하신 WT 347, 380, 389 완벽 반영
-  'WT 347': { role: '트랜스페어런트 그린', type: 'solid', face: '#15803d', flop: '#022c22', desc: '도막에 깊이감과 맑은 느낌을 부여하는 투명성이 뛰어난 녹색 조색제입니다.', details: [['일반 특성 (뛰어난 투명성)', '은폐력이 거의 없어 메탈릭이나 펄 입자 고유의 반사광을 가리지 않습니다. 이로 인해 도막에 깊이감(Depth)과 맑은 느낌을 부여합니다.'], ['색상 및 외관 변화 (Face & Flop)', '정면에서는 맑고 선명한 녹색을 띠지만, 측면(스카시)으로 갈수록 투명도가 높아 바탕의 메탈릭 입자나 펄의 특성이 그대로 투과되어 보입니다.'], ['용도 및 적용 컬러 (방향성 제어)', '주로 맑은 옐로우 틴트와 배합하여 깨끗한 골드 그린(Gold Green)을 만들거나, 투명 블루와 섞어 깊이 있는 청록색(Teal)을 조색할 때 활용됩니다.'], ['배합 및 혼합 비율', '착색력이 뛰어나 미량의 추가만으로도 전체적인 색상의 방향(특히 측면 톤)이 크게 변할 수 있어 배합량 조절에 매우 유의해야 합니다.'], ['경고 및 조색 주의점', '메탈릭 및 펄 컬러에 적용할 때는 입자 배열을 돕는 오리엔테이션 제제(예: 386 agent)의 비율을 정확히 맞추어 입자가 안정적으로 자리 잡도록 세팅하는 것이 맑은 컬러감을 극대화하는 데 중요합니다.']] },
-  'WT 380': { role: '다이아몬드 그린', type: 'xirallic', face: '#4ade80', flop: '#166534', desc: '녹색 빛을 띠는 고휘도의 반짝임을 내는 특수 펄 안료입니다.', details: [['일반 특성 (압도적인 반짝임)', '일반적인 마이카(Mica) 펄 안료와 달리, 유리 입자(Glass Flake)나 합성 기재를 베이스로 하여 투명도가 월등히 높고 다이아몬드처럼 강렬하게 부서지는 빛 반사(Sparkle)를 만들어냅니다.'], ['색상 및 외관 변화', '빛이 없는 그늘에서는 입자감이 잘 띄지 않다가, 직사광선 아래에서 폭발적인 녹색 광원을 뿜어내는 것이 특징입니다.'], ['용도 및 적용 컬러 (극적인 플립)', '블랙 바탕에서는 각도에 따라 검은색과 강렬한 녹색이 교차하는 드라마틱한 투톤(Color Flip) 효과를 내며, 밝은 바탕에서는 투명하고 은은한 펄감만 더해줍니다.'], ['배합 및 혼합 비율', '프리미엄 럭셔리카 다이아몬드 그린 펄 페인팅에 전용 처방되며 정밀하게 소량씩 계측 혼입합니다.'], ['경고 및 주의사항', '바탕색상(하도 프라이머 명도)의 미세 차이도 그대로 노출시키므로 완벽한 밸류쉐이드 하도 도장이 선행되어야 합니다.']] },
-  'WT 389': { role: '플래티닌 실버 화인', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b', desc: '거친 입자감이 전혀 없는 맑고 고운 금속 광택을 내는 초미세 실버 달러 입자 조색제입니다.', details: [['일반 특성 (초미세 실버 달러)', '입자의 크기가 매우 작고 둥글며 납작한 형태를 띠고 있어, 도막 위에 촘촘하고 매끄럽게 배열됩니다. 이로 인해 거친 입자감이 전혀 없는 맑고 고운 금속 광택을 냅니다.'], ['색상 및 외관 변화 (극명한 대비)', '정면(Face)에서는 빛을 강하게 반사하여 플래티넘(백금)처럼 눈부시고 화사하게 빛납니다. 반면, 입자가 워낙 조밀하게 배열되어 빛이 통과할 틈이 적기 때문에 측면(스카시, Flop)에서 볼 때는 톤이 확연히 어둡고 단단해 보이는 특징이 있습니다.'], ['용도 및 적용 컬러', '특정 아시안 OEM 차량의 중간 입자 실버 매칭 및 고휘도 라이트 실버 조색 시 타겟팅됩니다.'], ['배합 및 혼합 비율', '안료 입자가 매우 미세하고 밀도가 높아, 다른 굵은 메탈릭 안료나 투명 펄에 비해 은폐력이 뛰어나 타깃 컬러의 밑색을 빠르게 덮어줍니다.'], ['경고 및 주의사항', '입자 배열에 따라 색상이 민감하게 변하므로 숨김 도장 영역을 충분히 넓게 확보하고 저압으로 플래시오프 해야 이색을 잡을 수 있습니다.']] },
+  // 👇 대표님이 요청하신 WT 347, 380, 389 (1줄 요약 + 5단계 완벽 분배)
+  'WT 347': { role: '트랜스페어런트 그린', type: 'solid', face: '#15803d', flop: '#022c22', desc: '도막에 깊이감과 맑은 느낌을 부여하는 투명성이 뛰어난 녹색 조색제입니다.', details: [['일반 특성', '은폐력이 거의 없어 메탈릭이나 펄 입자 고유의 반사광을 가리지 않습니다. 이로 인해 도막에 깊이감(Depth)과 맑은 느낌을 부여합니다.'], ['색상 및 외관 변화', '정면에서는 맑고 선명한 녹색을 띠지만, 측면(스카시)으로 갈수록 투명도가 높아 바탕의 메탈릭 입자나 펄의 특성이 그대로 투과되어 보입니다.'], ['용도 및 적용 컬러', '주로 맑은 옐로우 틴트와 배합하여 깨끗한 골드 그린(Gold Green)을 만들거나, 투명 블루와 섞어 깊이 있는 청록색(Teal)을 조색할 때 활용됩니다.'], ['배합 및 혼합 비율', '착색력이 뛰어나 미량의 추가만으로도 전체적인 색상의 방향(특히 측면 톤)이 크게 변할 수 있어 배합량 조절에 매우 유의해야 합니다.'], ['경고 및 주의사항', '메탈릭 및 펄 컬러에 적용할 때는 입자 배열을 돕는 오리엔테이션 제제(예: 386 agent)나 결합 수지(예: WT390)의 비율을 정확히 맞추어 펄과 알루미늄 입자가 안정적으로 자리 잡도록 세팅하는 것이 맑은 컬러감을 극대화하는 데 중요합니다.']] },
+  'WT 380': { role: '다이아몬드 그린', type: 'xirallic', face: '#4ade80', flop: '#166534', desc: '녹색 빛을 띠는 고휘도의 반짝임을 내는 특수 펄 조색제입니다.', details: [['일반 특성', '일반적인 마이카(Mica) 펄 안료와 달리, 유리 입자(Glass Flake)나 합성 기재를 베이스로 하여 투명도가 월등히 높고 다이아몬드처럼 강렬하게 부서지는 빛 반사(Sparkle)를 만들어냅니다.'], ['색상 및 외관 변화', '빛이 없는 그늘에서는 입자감이 잘 띄지 않다가, 직사광선 아래에서 폭발적인 녹색 광원을 뿜어내는 것이 특징입니다.'], ['용도 및 적용 컬러', '블랙 바탕에서는 각도에 따라 검은색과 강렬한 녹색이 교차하는 드라마틱한 투톤(Color Flip) 효과를 내며, 밝은 바탕에서는 투명하고 은은한 펄감만 더해줍니다.'], ['배합 및 혼합 비율', '프리미엄 럭셔리카 다이아몬드 그린 펄 페인팅에 전용 처방되며 정밀하게 소량씩 계측 혼입합니다.'], ['경고 및 주의사항', '바탕색상(하도 프라이머 명도)의 미세 차이도 그대로 노출시키므로 완벽한 밸류쉐이드 하도 도장이 선행되어야 합니다.']] },
+  'WT 389': { role: '플래티닌 실버 화인', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b', desc: '거친 입자감이 전혀 없는 맑고 고운 금속 광택을 내는 초미세 실버 달러 입자 조색제입니다.', details: [['일반 특성', '입자의 크기가 매우 작고 둥글며 납작한 형태를 띠고 있어, 도막 위에 촘촘하고 매끄럽게 배열됩니다. 이로 인해 거친 입자감이 전혀 없는 맑고 고운 금속 광택을 냅니다.'], ['색상 및 외관 변화', '정면(Face)에서는 빛을 강하게 반사하여 플래티넘(백금)처럼 눈부시고 화사하게 빛납니다. 반면, 입자가 워낙 조밀하게 배열되어 빛이 통과할 틈이 적기 때문에 측면(스카시, Flop)에서 볼 때는 톤이 확연히 어둡고 단단해 보이는 특징이 있습니다.'], ['용도 및 적용 컬러', '특정 아시안 OEM 차량의 중간 입자 실버 매칭 및 고휘도 라이트 실버 조색 시 타겟팅됩니다.'], ['배합 및 혼합 비율', '안료 입자가 매우 미세하고 밀도가 높아, 다른 굵은 메탈릭 안료나 투명 펄에 비해 은폐력이 뛰어나 타깃 컬러의 밑색을 빠르게 덮어줍니다.'], ['경고 및 주의사항', '입자 배열에 따라 색상이 민감하게 변하므로 숨김 도장 영역을 충분히 넓게 확보하고 저압으로 플래시오프 해야 이색을 잡을 수 있습니다.']] },
   
-  // 👇 모든 기존 안료들도 5단계 디테일 포맷 완벽 유지
-  'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '정면에서 선명한 적청색(Reddish-Blue) 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다.', details: [['일반 특성', '기존 WT 346 안료를 완벽하게 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'], ['색상 및 외관 변화', '가장 큰 특징은 정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점입니다.'], ['용도 및 적용 컬러', 'WT 346이 포함된 모든 솔리드 및 이펙트 컬러의 1:1 대체 처방 및 조색 보정용으로 사용됩니다.'], ['배합 및 혼합 비율', '기존 WT 346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용해야 동일한 착색력을 얻습니다.'], ['경고 및 주의사항', '정면의 뚜렷한 적청색 발색으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로 반드시 시편 대조 후 블랜딩 도장을 권장합니다.']] },
+  // 👇 나머지 안료들도 모두 5단계 포맷으로 통일 및 요약 반영
+  'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '기존 WT 346을 대체하는 고농축 청색 수성 조색제입니다.', details: [['일반 특성', '기존 WT 346 안료를 완벽하게 대체하기 위해 새롭게 개발된 고농축 청색 수성 조색제입니다.'], ['색상 및 외관 변화', '정면(Face)에서 맑고 선명한 적청색(Reddish-Blue)을 띠며, 측면(Flop)으로 비스듬히 볼 때 특유의 푸른빛이 발현된다는 점이 큰 특징입니다.'], ['용도 및 적용 컬러', 'WT 346이 포함된 모든 솔리드 및 이펙트 컬러의 1:1 대체 처방 및 조색 보정용으로 폭넓게 사용됩니다.'], ['배합 및 혼합 비율', '기존 WT 346 대체 시 [WT346 : WT144 = 1 : 0.9]의 정밀 비율을 적용해야 동일한 착색력을 얻습니다.'], ['경고 및 주의사항', '정면의 뚜렷한 적청색 발색으로 인해 기존 도막과 미세한 색상 차이가 발생할 수 있으므로 반드시 시편 대조 후 블랜딩 도장을 권장합니다.']] },
   'WT 346': { role: '트랜스페어런트 딥 블루 [WT 144 완벽대체]', type: 'solid', face: '#0369a1', flop: '#020617', desc: '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.', details: [['일반 특성', '녹색 기운을 많이 띠면서도 묵직함을 가진 투명 청색 조색제입니다.'], ['색상 및 외관 변화', '특히 측면(45도/110도)에서 관찰할 때 전체 청색 조색제 중 녹색빛 반사가 가장 강하게 두드러지는 고유 특징이 있습니다.'], ['용도 및 적용 컬러', '시중 대부분의 이펙트 메탈릭 청색 조색 시 뼈대가 되는 가장 기초적이고 필수적인 투명 파란색입니다.'], ['배합 및 혼합 비율', '다양한 이펙트 처방에서 메인으로 쓰이므로 배합표의 대량 투입 지시를 엄수합니다.'], ['경고 및 주의사항', '이 안료는 신형 WT 144와 상호 대체가 가능합니다. 대체 시 [WT 346 : WT 144 = 1 : 0.9] 비율을 적용하십시오.']] },
   'WT 358': { role: '스페셜 실버 [WT 400 완벽대체]', type: 'silver_fine', face: '#e2e8f0', flop: '#475569', desc: '특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.', details: [['일반 특성', '독자적인 금속 배열 구조를 지녀 특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '일반 실버와 달리 특정 각도에서 빛을 머금었다가 뿜어내는 듯한 오묘한 밝기와 독특한 플롭(Flop) 현상을 일으킵니다.'], ['용도 및 적용 컬러', '일반 조색제로는 절대 색을 맞출 수 없는 특정 수입차 OEM 특수 실버 컬러의 고유 반사각 및 이색 매칭 시 독점적으로 사용됩니다.'], ['배합 및 혼합 비율', '특수 처방 데이터베이스에 명시된 배합비대로만 적용하며 임의 비율 조정 시 실패 확률이 높습니다.'], ['경고 및 주의사항', '동일한 특성을 지닌 WT 400 안료와 1:1로 상호 완벽 대체가 가능합니다. 재고 상황에 따라 교차 사용하십시오.']] },
   'WT 400': { role: '스페셜 실버 대체용 [WT 358 완벽대체]', type: 'silver_fine', face: '#e2e8f0', flop: '#475569', desc: 'WT 358을 1:1로 완벽 대체할 수 있는 특수 밝은 톤 알루미늄입니다.', details: [['일반 특성', 'WT 358과 동일한 특수한 반사 특성을 일으키는 밝은 톤의 기능성 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '일반 실버와 달리 특정 각도에서 빛을 머금었다가 뿜어내는 듯한 오묘한 밝기와 독특한 플롭(Flop) 현상을 일으킵니다.'], ['용도 및 적용 컬러', '특정 수입차 OEM 특수 실버 컬러 조색 시 WT 358을 100% 동일하게 상호 대체하여 사용합니다.'], ['배합 및 혼합 비율', '특수 처방 데이터베이스에 명시된 배합비대로 적용하며 WT 358과 1:1 대체됩니다.'], ['경고 및 주의사항', '기존 WT 358과 상호 대체 가능하므로 재고 상황에 맞게 헷갈리지 않도록 교차 사용하십시오.']] },
@@ -71,7 +71,6 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 356': { role: '미디엄 실버', type: 'silver_fine', face: '#e2e8f0', flop: '#475569', desc: '최적의 균형을 맞춘 중간 크기 입자의 최고 표준 범용 알루미늄입니다.', details: [['일반 특성', '가장 균형 잡힌 중간 크기 입자를 가진 최고 표준 범용 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '가장 대중적이고 안정적인 중간 톤의 회은색 금속성 반사광을 형성합니다.'], ['용도 및 적용 컬러', '시중 80% 이상의 일반적인 실버 메탈릭, 그레이 메탈릭 조색 시 가장 핵심적인 메인 베이스로 사용됩니다.'], ['배합 및 혼합 비율', '대부분의 은색 조색에서 가장 큰 부피를 차지하므로 정확한 대용량 정밀 계량이 요구됩니다.'], ['경고 및 주의사항', '투명 클리어코트 마감 전에는 입자가 얼룩지기 쉬우므로 드롭코트를 통해 입자를 균일하게 배열해야 합니다.']] },
   'WT 357': { role: '마이크로 실버', type: 'silver_fine', face: '#f8fafc', flop: '#64748b', desc: '알루미늄 입자를 한계치까지 미세하게 분쇄 가공한 초정밀 미립자입니다.', details: [['일반 특성', '알루미늄 입자를 한계치까지 미세하게 분쇄 가공한 초정밀 미립자 조색제입니다.'], ['색상 및 외관 변화', '극도로 치밀하고 매끄러우면서 새틴(Satin) 느낌을 줍니다.'], ['용도 및 적용 컬러', '매트한 느낌의 고급 세단 은색이나 입자가 고운 화이트 펄의 밑색(은폐용 베이스)으로 자주 활용됩니다.'], ['배합 및 혼합 비율', '조색기 소프트웨어의 정밀 데이터 값을 기준으로 철저히 혼합합니다.'], ['경고 및 주의사항', '입자가 고와 용제 증발이 지연될 수 있으므로, 얇게 플래시오프 타임을 충분히 지켜 도장해야 합니다.']] },
   'WT 359': { role: '브라이트 실버', type: 'silver_coarse', face: '#f1f5f9', flop: '#334155', desc: '명도 톤이 한계까지 높게 세팅된 극도로 밝은 광휘형 알루미늄입니다.', details: [['일반 특성', '명도 톤이 한계까지 높게 세팅된 극도로 밝은 광휘형 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '티 없이 맑으며, 정면 명도가 눈부시게 뛰어나 화사한 백은색 느낌을 극대화합니다.'], ['용도 및 적용 컬러', '티타늄 실버나 밝고 화창한 느낌의 하이라이트 실버 메탈릭 조장에 최적화된 핵심 안료입니다.'], ['배합 및 혼합 비율', '가장 밝은 베이스가 되므로 배합 시스템 데이터 중 높은 비중을 차지하며 정밀 저울로 처방합니다.'], ['경고 및 주의사항', '교반기 및 스프레이 건 내부에 어두운 도료 찌꺼기가 남지 않도록 완벽히 세척 후 사용해야 합니다.']] },
-  'WT 360': { role: '코스 실버', type: 'silver_coarse', face: '#94a3b8', flop: '#1e293b', desc: '입자가 크고 굵은 표준 거친 알루미늄 조색제입니다.', details: [['일반 특성', '입자가 크고 굵은(Coarse) 표준 거친 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '눈부신 반짝임은 없지만 도막에 뚜렷하고 안정적이며 묵직한 큰 금속 입자감을 형성합니다.'], ['용도 및 적용 컬러', 'SUV나 트럭처럼 터프하고 뚜렷한 입자감이 필요한 굵은 회은색(Grey Metallic) 컬러 배합에 주로 투입됩니다.'], ['배합 및 혼합 비율', '거친 입자 조색 데이터 비율을 바탕으로 혼합합니다.'], ['경고 및 주의사항', '입자가 표면 위로 솟아오르는 오렌지필 현상을 막기 위해 클리어를 충분한 두께로 2회 이상 올려주어야 합니다.']] },
   'WT 361': { role: '브릴리언트 실버', type: 'silver_coarse', face: '#f1f5f9', flop: '#64748b', desc: '최적의 반짝임 밸런스를 맞춘 중간 입자 크기의 고휘도 알루미늄입니다.', details: [['일반 특성', '최적의 반짝임 밸런스를 맞춘 중간 입자 크기의 고휘도 광휘형 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '거울 같은 반사율을 지녀 정면은 밝고 측면은 짙게 떨어지며 뛰어난 광택감을 냅니다.'], ['용도 및 적용 컬러', '유럽 프리미엄 브랜드 특유의 깊이 있고 매끄러운 고광택 실버 도장을 재현할 때 주력으로 씁니다.'], ['배합 및 혼합 비율', '조색표 상의 정확한 포뮬러 수치에 따라 기본 베이스로 처방 및 혼합합니다.'], ['경고 및 주의사항', '도장 시 수분 건조 공정을 철저히 지키고 에어건으로 과도하게 불지 마십시오.']] },
   'WT 362': { role: '브릴리언트 실버 화인', type: 'silver_fine', face: '#f8fafc', flop: '#94a3b8', desc: '빛 반사 특성과 미세하고 고운 입자를 결합한 최고급 알루미늄입니다.', details: [['일반 특성', '뛰어난 빛 반사 특성과 미세하고 고운 입자 특성을 결합한 최고급 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '표면이 매우 매끄러우면서도 맑고 환한 고휘도 은빛 반사광을 우아하게 뿜어냅니다.'], ['용도 및 적용 컬러', '최신형 럭셔리 EV 차량이나 고급 세단의 실키한 초고광택 라이트 실버 조색 시 완벽한 매칭을 위해 사용됩니다.'], ['배합 및 혼합 비율', '조색기 소프트웨어에 내장된 정밀 용량 데이터 가이드에 맞춰 저울링합니다.'], ['경고 및 주의사항', '베이스 도막이 조금이라도 두껍게 도포되면 고유의 화사한 반사광이 죽고 탁해질 수 있으므로 지정된 얇은 도장법을 준수하십시오.']] },
   'WT 363': { role: '브릴리언트 골드', type: 'pearl', face: '#fbbf24', flop: '#b45309', desc: '순금처럼 맑고 선명한 채도를 자랑하는 프리미엄 황색 알루미늄 조색제입니다.', details: [['일반 특성', '순금처럼 맑고 선명한 채도를 자랑하는 프리미엄 황색 알루미늄 수성 조색제입니다.'], ['색상 및 외관 변화', '도막에 풍부하고 영롱한 화려한 금빛 스파클링을 연출합니다.'], ['용도 및 적용 컬러', '샴페인 골드 등 화려함을 극대화해야 하는 특수 컬러 조색에 필수적으로 사용됩니다.'], ['배합 및 혼합 비율', '금빛 채도 조절을 위해 미세 비율을 적용합니다.'], ['경고 및 주의사항', '일반 펄과 달리 산성/알칼리성 첨가제와 접촉 시 가스 발생 및 변색의 위험이 있으니 전용 용제만 사용하십시오.']] },
@@ -2743,7 +2742,7 @@ export const getCachedTexture = (type: string, faceColor: string, flopColor: str
     textureCache[key] = result; return result;
 };
 
-// 💡 뱃지 색상을 내용에 따라 전문가처럼 매칭하는 함수
+// 💡 뱃지 색상을 자동으로 다양하게 입혀주는 함수 (전문가 포맷 지원용)
 export const getBadgeClass = (title: string) => {
     if(title.includes("일반") || title.includes("투명") || title.includes("입자") || title.includes("반짝")) return "bg-emerald-50 text-emerald-700 border-emerald-200";
     if(title.includes("외관") || title.includes("변화") || title.includes("대비")) return "bg-blue-50 text-blue-700 border-blue-200";
@@ -2817,7 +2816,7 @@ export const getMunsellDynamicDescription = (code: string, role: string, type: s
                 <div className="relative w-14 h-14 shrink-0 rounded-full shadow-[0_0_15px_rgba(0,0,0,0.8)] border-2 border-slate-500 animate-[spin_20s_linear_infinite]" 
                      style={{ background: 'conic-gradient(from 90deg, #ef4444, #f59e0b, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #d946ef, #ef4444)' }}>
                     <div className="absolute inset-2 bg-slate-900 rounded-full flex items-center justify-center">
-                        <div className="w-5 h-5 rounded-full border border-white/30 shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ background: `linear-gradient(135deg, ${TONER_DB[code].face}, ${TONER_DB[code].flop})` }}></div>
+                        <div className="w-5 h-5 rounded-full border border-white/30 shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ background: `linear-gradient(135deg, ${TONER_DB[code].flop}, ${TONER_DB[code].face})` }}></div>
                     </div>
                 </div>
                 <div className="flex flex-col flex-1">
@@ -2839,7 +2838,7 @@ export const getMunsellDynamicDescription = (code: string, role: string, type: s
     );
 };
 
-// 💡 광학 엔진 (벡터 연산을 통한 정확한 색상 혼합)
+// 💡 광학 엔진 (벡터 연산을 통한 정확한 색상 혼합 & 강력한 블랙 대비 구현)
 const getTonerBaseHue = (code: string, role: string) => {
     if (code.includes('144')) return 215;
     if (role.includes('블루') || role.includes('청')) return 215;
@@ -3472,17 +3471,25 @@ export default function App() {
                               </div>
                           </div>
                           
-                          {/* 💡 아코디언 토글 (왼쪽으로 완전히 정렬) */}
+                          {/* 💡 아코디언 토글 영역 (왼쪽 정렬 및 다채로운 뱃지 색상) */}
                           {toner.isExpanded && (
                               <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-2 pt-2 border-t border-slate-200">
                                   {info.details && info.details.length > 0 ? (
                                       <div className="flex flex-col gap-1.5 w-full">
-                                          {info.details.map((d: any, idx: number) => (
-                                              <div key={idx} className="flex items-start gap-2">
-                                                  <span className={`shrink-0 inline-flex items-center justify-center px-1.5 py-1 text-[9px] font-bold rounded-md border leading-none mt-0.5 ${getBadgeClass(d[0])}`}>{d[0]}</span>
-                                                  <span className="text-[11px] text-slate-600 leading-normal break-keep mt-0.5">{d[1]}</span>
+                                          {info.details.map((d: any, idx: number) => {
+                                              let badgeClass = "bg-slate-50 text-slate-700 border-slate-200";
+                                              if(d[0].includes("일반") || d[0].includes("투명")) badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+                                              else if(d[0].includes("색상") || d[0].includes("외관")) badgeClass = "bg-blue-50 text-blue-700 border-blue-200";
+                                              else if(d[0].includes("용도") || d[0].includes("적용")) badgeClass = "bg-purple-50 text-purple-700 border-purple-200";
+                                              else if(d[0].includes("배합") || d[0].includes("혼합")) badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
+                                              else if(d[0].includes("경고") || d[0].includes("주의")) badgeClass = "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
+                                              
+                                              return (
+                                              <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
+                                                  <span className={`shrink-0 inline-flex items-center justify-center px-1.5 py-1 text-[10px] font-bold rounded-md border leading-none ${badgeClass}`}>{d[0]}</span>
+                                                  <span className="text-[11px] text-slate-600 leading-normal break-keep">{d[1]}</span>
                                               </div>
-                                          ))}
+                                          )})}
                                       </div>
                                   ) : <p className="text-[11px] text-slate-500 leading-tight break-keep">{info.desc}</p>}
 
@@ -3577,17 +3584,25 @@ export default function App() {
                                 </div>
                             </div>
                             
-                            {/* 💡 펄 코트 아코디언 토글 (왼쪽으로 완전히 정렬) */}
+                            {/* 💡 펄 코트 쪽도 아코디언 및 컬러 뱃지 동일 적용 */}
                             {toner.isExpanded && (
                                 <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-2 pt-2 border-t border-purple-200">
                                     {info.details && info.details.length > 0 ? (
                                         <div className="flex flex-col gap-1.5 w-full">
-                                            {info.details.map((d: any, idx: number) => (
-                                                <div key={idx} className="flex items-start gap-2">
-                                                    <span className={`shrink-0 inline-flex items-center justify-center px-1.5 py-1 text-[9px] font-bold rounded-md border leading-none mt-0.5 ${getBadgeClass(d[0])}`}>{d[0]}</span>
-                                                    <span className="text-[11px] text-slate-600 leading-normal break-keep mt-0.5">{d[1]}</span>
+                                            {info.details.map((d: any, idx: number) => {
+                                                let badgeClass = "bg-slate-50 text-slate-700 border-slate-200";
+                                                if(d[0].includes("일반") || d[0].includes("투명")) badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+                                                else if(d[0].includes("색상") || d[0].includes("외관")) badgeClass = "bg-blue-50 text-blue-700 border-blue-200";
+                                                else if(d[0].includes("용도") || d[0].includes("적용")) badgeClass = "bg-purple-50 text-purple-700 border-purple-200";
+                                                else if(d[0].includes("배합") || d[0].includes("혼합")) badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
+                                                else if(d[0].includes("경고") || d[0].includes("주의")) badgeClass = "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
+                                                
+                                                return (
+                                                <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
+                                                    <span className={`shrink-0 inline-flex items-center justify-center px-1.5 py-1 text-[10px] font-bold rounded-md border leading-none ${badgeClass}`}>{d[0]}</span>
+                                                    <span className="text-[11px] text-slate-600 leading-normal break-keep">{d[1]}</span>
                                                 </div>
-                                            ))}
+                                            )})}
                                         </div>
                                     ) : <p className="text-[11px] text-slate-500 leading-tight break-keep">{info.desc}</p>}
 
@@ -3680,7 +3695,6 @@ export default function App() {
             </div>
             
             <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
-                {/* 💡 FORD 검색 결과 표시 영역 */}
                 {oemSearch.trim() !== '' && (
                     <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm">
                         <h4 className="text-xs font-black text-blue-800 mb-2">🔍 FORD 색상코드 검색 결과</h4>
@@ -3704,19 +3718,27 @@ export default function App() {
 
                     return (
                         <div key={item.code} className={`flex flex-col bg-white rounded-xl shadow-sm border overflow-hidden transition-all duration-300 ${isCurrentlyUsed ? 'border-2 border-blue-500 shadow-md transform scale-[1.01]' : 'border-slate-200 hover:border-blue-300 hover:shadow-md cursor-pointer'}`} onClick={() => setSelectedTonerForView(item.code)}>
-                            {/* 💡 도감 헤더 단색 롤백 완벽 적용 */}
+                            {/* 💡 도감 헤더 단색 롤백 유지 */}
                             <div className="h-12 w-full relative transition-all border-b border-slate-200" style={{background: getTonerDetailBackground(item.code, item.role, 'face')}}>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                                 <div className="absolute bottom-1.5 left-3 text-white text-sm font-black drop-shadow-md">{item.code} <span className="text-[10px] font-normal opacity-90 ml-1">{item.role}</span></div>
                                 {isCurrentlyUsed && <div className="absolute top-1.5 right-2 bg-blue-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold shadow">배합 중</div>}
                             </div>
                             <div className="p-3 flex flex-col gap-1.5">
-                                {item.details?.map((d: any, idx: number) => (
+                                {item.details?.map((d: any, idx: number) => {
+                                    let badgeClass = "bg-slate-50 text-slate-700 border-slate-200";
+                                    if(d[0].includes("일반") || d[0].includes("투명")) badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+                                    else if(d[0].includes("색상") || d[0].includes("외관")) badgeClass = "bg-blue-50 text-blue-700 border-blue-200";
+                                    else if(d[0].includes("용도") || d[0].includes("적용")) badgeClass = "bg-purple-50 text-purple-700 border-purple-200";
+                                    else if(d[0].includes("배합") || d[0].includes("혼합")) badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
+                                    else if(d[0].includes("경고") || d[0].includes("주의")) badgeClass = "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
+                                    
+                                    return (
                                     <div key={idx} className="flex items-start gap-2">
-                                        <span className={`shrink-0 inline-flex items-center justify-center px-1.5 py-1 text-[9px] font-bold rounded-md border leading-none mt-0.5 ${getBadgeClass(d[0])}`}>{d[0]}</span>
+                                        <span className={`shrink-0 inline-flex items-center justify-center px-1.5 py-1 text-[9px] font-bold rounded-md border leading-none mt-0.5 ${badgeClass}`}>{d[0]}</span>
                                         <span className="text-[11px] text-slate-700 leading-snug break-keep mt-0.5">{d[1]}</span>
                                     </div>
-                                ))}
+                                )})}
                             </div>
                         </div>
                     );
@@ -3727,7 +3749,6 @@ export default function App() {
       </div>
 
       <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
-          {/* 모바일 화면용 콤팩트 뷰 (< lg) */}
           <div className="flex lg:hidden items-center justify-between p-3 px-4">
              <div className="flex gap-4">
                 <div className="flex flex-col">
@@ -3752,7 +3773,6 @@ export default function App() {
              </div>
           </div>
 
-          {/* 데스크톱 화면용 상세 뷰 (>= lg) */}
           <div className="hidden lg:flex p-4 justify-between items-center gap-4">
             <div className="flex w-full lg:w-auto gap-4 flex-col sm:flex-row justify-between lg:justify-start">
                 <div className="flex flex-col gap-1 flex-1 min-w-[240px]">
@@ -3819,9 +3839,16 @@ export default function App() {
 
                  <div className="flex flex-col gap-2 bg-white p-4 rounded-lg border border-slate-200 mb-4 shadow-sm">
                     {TONER_DB[selectedTonerForView].details?.map((d: any, idx: number) => {
+                        let badgeClass = "bg-slate-50 text-slate-700 border-slate-200";
+                        if(d[0].includes("일반") || d[0].includes("투명")) badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+                        else if(d[0].includes("색상") || d[0].includes("외관")) badgeClass = "bg-blue-50 text-blue-700 border-blue-200";
+                        else if(d[0].includes("용도") || d[0].includes("적용")) badgeClass = "bg-purple-50 text-purple-700 border-purple-200";
+                        else if(d[0].includes("배합") || d[0].includes("혼합")) badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
+                        else if(d[0].includes("경고") || d[0].includes("주의")) badgeClass = "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
+                        
                         return (
                         <div key={idx} className="flex items-start gap-2.5">
-                            <span className={`shrink-0 inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold rounded-md border ${getBadgeClass(d[0])}`}>{d[0]}</span>
+                            <span className={`shrink-0 inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold rounded-md border ${badgeClass}`}>{d[0]}</span>
                             <span className="text-xs text-slate-700 leading-relaxed break-keep mt-0.5">{d[1]}</span>
                         </div>
                     )})}
