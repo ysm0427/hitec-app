@@ -10,7 +10,7 @@ interface TonerData { role: string; type: string; face: string; flop: string; de
 export const TONER_DB: Record<string, TonerData> = {
   'WT 347': { role: '트랜스페어런트 그린', type: 'solid', face: '#15803d', flop: '#022c22', desc: '도막에 깊이감과 맑은 느낌을 부여하는 투명성이 뛰어난 녹색 조색제입니다.', details: [['일반 특성 (뛰어난 투명성)', '은폐력이 거의 없어 메탈릭이나 펄 입자 고유의 반사광을 가리지 않습니다. 이로 인해 도막에 깊이감(Depth)과 맑은 느낌을 부여합니다.'], ['색상 및 외관 변화 (Face & Flop)', '정면에서는 맑고 선명한 녹색을 띠지만, 측면(스카시)으로 갈수록 투명도가 높아 바탕의 메탈릭 입자나 펄의 특성이 그대로 투과되어 보입니다.'], ['용도 및 적용 컬러 (방향성 제어)', '주로 맑은 옐로우 틴트와 배합하여 깨끗한 골드 그린(Gold Green)을 만들거나, 투명 블루와 섞어 깊이 있는 청록색(Teal)을 조색할 때 활용됩니다.'], ['배합 및 혼합 비율', '착색력이 뛰어나 미량의 추가만으로도 전체적인 색상의 방향(특히 측면 톤)이 크게 변할 수 있어 배합량 조절에 매우 유의해야 합니다.'], ['경고 및 조색 주의점', '메탈릭 및 펄 컬러에 적용할 때는 입자 배열을 돕는 오리엔테이션 제제(예: 386 agent)나 결합 수지(예: WT390)의 비율을 정확히 맞추어 펄과 알루미늄 입자가 안정적으로 자리 잡도록 세팅하는 것이 맑은 컬러감을 극대화하는 데 중요합니다.']] },
   'WT 380': { role: '다이아몬드 그린', type: 'xirallic', face: '#4ade80', flop: '#166534', desc: '녹색 빛을 띠는 고휘도의 반짝임을 내는 특수 펄 조색제입니다.', details: [['일반 특성 (압도적인 반짝임)', '일반적인 마이카(Mica) 펄 안료와 달리, 유리 입자(Glass Flake)나 합성 기재를 베이스로 하여 투명도가 월등히 높고 다이아몬드처럼 강렬하게 부서지는 빛 반사(Sparkle)를 만들어냅니다.'], ['색상 및 외관 변화', '빛이 없는 그늘에서는 입자감이 잘 띄지 않다가, 직사광선 아래에서 폭발적인 녹색 광원을 뿜어내는 것이 특징입니다.'], ['용도 및 적용 컬러 (극적인 플립)', '블랙 바탕에서는 각도에 따라 검은색과 강렬한 녹색이 교차하는 드라마틱한 투톤(Color Flip) 효과를 내며, 밝은 바탕에서는 투명하고 은은한 펄감만 더해줍니다.'], ['배합 및 혼합 비율', '프리미엄 럭셔리카 다이아몬드 그린 펄 페인팅에 전용 처방되며 정밀하게 소량씩 계측 혼입합니다.'], ['경고 및 주의사항', '바탕색상(하도 프라이머 명도)의 미세 차이도 그대로 노출시키므로 완벽한 밸류쉐이드 하도 도장이 선행되어야 합니다.']] },
-  'WT 389': { role: '플래티닌 실버 화인', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b', desc: '거친 입자감이 전혀 없는 맑고 고운 금속 광택을 내는 초미세 실버 달러 입자 조색제입니다.', details: [['일반 특성 (초미세 실버 달러)', '입자의 크기가 매우 작고 둥글며 납작한 형태를 띠고 있어, 도막 위에 촘촘하고 매끄럽게 배열됩니다. 이로 인해 거친 입자감이 전혀 없는 맑고 고운 금속 광택을 냅니다.'], ['색상 및 외관 변화 (극명한 대비)', '정면(Face)에서는 빛을 강하게 반사하여 플래티넘(백금)처럼 눈부시고 화사하게 빛납니다. 반면, 입자가 워낙 조밀하게 배열되어 빛이 통과할 틈이 적기 때문에 측면(스카시, Flop)에서 볼 때는 톤이 확연히 어둡고 단단해 보이는 특징이 있습니다.'], ['용도 및 적용 컬러', '특정 아시안 OEM 차량의 중간 입자 실버 매칭 및 고휘도 라이트 실버 조색 시 타겟팅됩니다.'], ['배합 및 혼합 비율', '안료 입자가 매우 미세하고 밀도가 높아, 다른 굵은 메탈릭 안료나 투명 펄에 비해 은폐력이 뛰어나 타깃 컬러의 밑색을 빠르게 덮어줍니다.'], ['경고 및 주의사항', '입자 배열에 따라 색상이 민감하게 변하므로 숨김 도장 영역을 충분히 넓게 확보하고 저압으로 플래시오프 해야 이색을 잡을 수 있습니다.']] },
+  'WT 389': { role: '플래티닌 실버 화인', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b', desc: '거친 입자감이 전혀 없는 맑고 고운 금속 광택을 내는 초미세 실버 달러 입자 조색제입니다.', details: [['일반 특성 (초미세 실버 달러)', '입자의 크기가 매우 작고 둥글며 납작한 형태를 띠고 있어, 도막 위에 촘촘하고 매끄럽게 배열됩니다. 이로 인해 거친 입자감이 전혀 없는 맑고 고운 금속 광택을 냅니다.'], ['색상 및 외관 변화 (극명한 대비)', '정면(Face)에서는 빛을 강하게 반사하여 플래티넘(백금)처럼 눈부시고 화사하게 빛납니다. 반면, 입자가 워낙 조밀하게 배열되어 빛이 통과할 고틈이 적기 때문에 측면(스카시, Flop)에서 볼 때는 톤이 확연히 어둡고 단단해 보이는 특징이 있습니다.'], ['용도 및 적용 컬러', '특정 아시안 OEM 차량의 중간 입자 실버 매칭 및 고휘도 라이트 실버 조색 시 타겟팅됩니다.'], ['배합 및 혼합 비율', '안료 입자가 매우 미세하고 밀도가 높아, 다른 굵은 메탈릭 안료나 투명 펄에 비해 은폐력이 뛰어나 타깃 컬러의 밑색을 빠르게 덮어줍니다.'], ['경고 및 주의사항', '입자 배열에 따라 색상이 민감하게 변하므로 숨김 도장 영역을 충분히 넓게 확보하고 저압으로 플래시오프 해야 이색을 잡을 수 있습니다.']] },
   'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '정면에서 선명한 적청색 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다.', details: [['일반 특성', '새롭게 개발된 고농축 청색 수성 조색제입니다.'], ['색상 및 외관 변화', '정면에서 선명한 적청색을 띠며 측면에서 푸른빛이 발현됩니다.'], ['용도 및 적용 컬러', 'WT 346이 포함된 모든 컬러의 1:1 대체 조색용으로 사용됩니다.'], ['배합 및 혼합 비율', '대체 시 [WT346 : WT144 = 1 : 0.9]의 비율을 적용합니다.'], ['경고 및 주의사항', '기존 도막과 미세한 색상 차이가 발생할 수 있으므로 시편 대조를 권장합니다.']] },
   'WT 154': { role: '블루 이펙트', type: 'silver_fine', face: '#3b82f6', flop: '#1e3a8a', desc: '청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.', details: [['일반 특성', '청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '입자의 반짝임이 뛰어나며 도막에 깊은 청색 메탈릭 질감을 부여합니다.'], ['용도 및 적용 컬러', '고성능 차량의 청색 계열 특수 메탈릭 컬러 조색 시 핵심적으로 사용됩니다.'], ['배합 및 혼합 비율', '표준 배합 데이터를 기준하여 정밀 저울로 계량합니다.'], ['경고 및 주의사항', '용기 바닥에 가라앉기 쉬우므로 사용 전 교반기로 충분히 혼합해야 합니다.']] },
   'WT 188': { role: '슈퍼 딥 블랙', type: 'solid', face: '#0f172a', flop: '#020617', desc: '명도를 극단적으로 낮춘 매우 어두운 흑색 조색제입니다.', details: [['일반 특성', '명도를 극단적으로 낮춘 매우 어두운 흑색 조색제입니다.'], ['색상 및 외관 변화', '밑색이 보이지 않을 정도로 차갑고 깊은 완전 흑색을 구현합니다.'], ['용도 및 적용 컬러', '극한의 명암 대비가 필요한 특정 흑색 계열 컬러에 제한적으로 사용됩니다.'], ['배합 및 혼합 비율', '착색력이 강하므로 기존 대비 절반 이하의 비율부터 미세 조정합니다.'], ['경고 및 주의사항', '과량 사용 시 이펙트 안료의 반짝임을 덮어버릴 수 있으므로 주의가 필요합니다.']] },
@@ -3271,7 +3271,6 @@ export default function App() {
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          {/* 💡 모바일 타이틀 노출 복구 & 패치 날짜 추가 */}
           <h1 className="text-lg md:text-xl font-semibold flex items-center gap-2">
               <span className="text-white tracking-wide">윤성만님을 위한</span>
               <span className="text-blue-400 font-normal">조색 PRO</span>
@@ -3284,26 +3283,14 @@ export default function App() {
         <div className="lg:col-span-7 flex flex-col bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden">
           <div className="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3">
             
-            {/* 💡 안료 빠른 검색창 + 정보 전체 초기화 */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            {/* 💡 중복 검색창 삭제 및 버튼 재정렬 */}
+            <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-slate-800 flex items-center shrink-0">
                 <Sliders className="text-blue-600 mr-2" size={16} />공식 배합 워크 시트
               </h2>
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <div className="relative flex-1 sm:w-48">
-                    <input 
-                        type="text" 
-                        value={catalogSearch} 
-                        onChange={e=>setCatalogSearch(e.target.value)} 
-                        placeholder="안료 빠른 검색 (예: 블루)" 
-                        className="w-full bg-white border border-blue-200 text-slate-700 text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors shadow-sm" 
-                    />
-                    <Search size={14} className="absolute left-2.5 top-1.5 text-blue-400" />
-                </div>
-                <button onClick={handleClearAllInfo} className="text-[11px] font-bold text-slate-500 hover:text-red-600 flex items-center transition-colors bg-white hover:bg-red-50 px-2.5 py-1.5 rounded-md border border-slate-200 shadow-sm shrink-0">
-                  <Trash2 size={14} className="mr-1"/> 전체 초기화
-                </button>
-              </div>
+              <button onClick={handleClearAllInfo} className="text-[11px] font-bold text-slate-500 hover:text-red-600 flex items-center transition-colors bg-white hover:bg-red-50 px-2.5 py-1.5 rounded-md border border-slate-200 shadow-sm shrink-0">
+                <Trash2 size={14} className="mr-1"/> 전체 초기화
+              </button>
             </div>
             
             <div className="flex flex-col gap-3">
@@ -3586,13 +3573,13 @@ export default function App() {
                   </div>
               </div>
 
-              {/* 💡 A/B 모드 삭제 및 피드백/비하인드 버튼 신설 */}
+              {/* 💡 2번. 다이렉트 피드백 버튼 색상 변경 (노란색 강조) */}
               <div className="flex gap-2 mt-3">
                   <button 
                       onClick={() => setIsEmailModalOpen(true)}
-                      className="flex-1 bg-indigo-50 border border-indigo-200 text-indigo-700 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-indigo-100 transition-colors shadow-sm"
+                      className="flex-1 bg-yellow-400 border border-yellow-500 text-slate-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-yellow-500 transition-colors shadow-sm"
                   >
-                      <Mail size={16} className="mr-1.5 text-indigo-500" /> 다이렉트 피드백 보내기
+                      <Mail size={16} className="mr-1.5 text-slate-800" /> 다이렉트 피드백 보내기
                   </button>
                   <button 
                       onClick={() => setIsHistoryModalOpen(true)}
@@ -3615,7 +3602,6 @@ export default function App() {
             </div>
             
             <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
-                {/* 💡 FORD 검색 결과 표시 영역 */}
                 {oemSearch.trim() !== '' && (
                     <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm">
                         <h4 className="text-xs font-black text-blue-800 mb-2">🔍 FORD 색상코드 검색 결과</h4>
@@ -3725,7 +3711,6 @@ export default function App() {
           </div>
       </div>
 
-      {/* 💡 [신규] 다이렉트 피드백 이메일 모달 */}
       {isEmailModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -3747,7 +3732,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 [신규] 제작 비하인드 히스토리 모달 */}
       {isHistoryModalOpen && (
         <div className="fixed inset-0 bg-slate-950/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-900 rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700 my-8">
