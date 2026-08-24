@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Sliders, Trash2, Plus, Minus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket, Columns
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket, Columns, Mail, Code
 } from 'lucide-react';
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
@@ -2751,7 +2751,7 @@ export const getBadgeClass = (title: string) => {
     if(title.includes("외관") || title.includes("변화") || title.includes("대비") || title.includes("방향성")) return "bg-blue-50 text-blue-700 border-blue-200";
     if(title.includes("용도") || title.includes("컬러") || title.includes("바탕") || title.includes("플립")) return "bg-purple-50 text-purple-700 border-purple-200";
     if(title.includes("혼합") || title.includes("비율") || title.includes("배합")) return "bg-amber-50 text-amber-700 border-amber-200";
-    if(title.includes("경고") || title.includes("주의")) return "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
+    if(title.includes("경고") || title.includes("주의") || title.includes("조색 주의점")) return "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100";
     return "bg-slate-50 text-slate-700 border-slate-200";
 };
 
@@ -2996,121 +2996,9 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
   ].join(" ");
 };
 
-export function FormulaComparator({ formulaA, setFormulaA, formulaB, setFormulaB, onClose }: any) {
-    const opticsA = useMemo(() => getOptics(formulaA), [formulaA]);
-    const opticsB = useMemo(() => getOptics(formulaB), [formulaB]);
-
-    const textureA = getCachedTexture(
-        opticsA.isMetallic ? 'silver_fine' : 'solid', 
-        `hsl(${opticsA.face.h}, ${opticsA.face.s}%, ${opticsA.face.l}%)`, 
-        `hsl(${opticsA.flop.h}, ${opticsA.flop.s}%, ${opticsA.flop.l}%)`, 
-        opticsA.isMetallic
-    );
-
-    const textureB = getCachedTexture(
-        opticsB.isMetallic ? 'silver_fine' : 'solid', 
-        `hsl(${opticsB.face.h}, ${opticsB.face.s}%, ${opticsB.face.l}%)`, 
-        `hsl(${opticsB.flop.h}, ${opticsB.flop.s}%, ${opticsB.flop.l}%)`, 
-        opticsB.isMetallic
-    );
-
-    const allTonerCodes = Array.from(new Set([
-        ...formulaA.map((t: any) => t.code), 
-        ...formulaB.map((t: any) => t.code)
-    ])).filter(code => code !== '');
-
-    const handleEditB = (code: string, newWeight: string) => {
-        setFormulaB((prev: any) => prev.map((t: any) => t.code === code ? { ...t, adjustedWeight: newWeight } : t));
-    };
-
-    return (
-        <div className="fixed inset-0 bg-slate-900/95 z-[900] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in overflow-y-auto">
-           <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden border border-slate-700 flex flex-col mt-10 md:mt-0">
-                <div className="bg-slate-900 p-4 flex justify-between items-center text-white shrink-0 border-b-4 border-indigo-500">
-                    <h3 className="text-lg font-black flex items-center tracking-widest"><Columns size={20} className="mr-2 text-indigo-400"/> 배합 A/B 시각적 대조 뷰어 (Split View)</h3>
-                    <button onClick={onClose} className="hover:text-red-400 transition-colors bg-slate-800 p-1.5 rounded-full"><X size={20}/></button>
-                </div>
-
-                <div className="p-4 bg-slate-100 flex-1 overflow-y-auto">
-                    <div className="bg-white rounded-xl shadow border border-slate-300 overflow-hidden">
-                        <div className="grid grid-cols-2 gap-4 p-3 bg-slate-50 border-b border-slate-200">
-                            <div className="border border-slate-300 bg-white p-2 rounded text-sm font-bold text-slate-700 text-center shadow-sm">
-                                [현재 배합] 버전 A
-                            </div>
-                            <div className="border border-indigo-300 bg-indigo-50 p-2 rounded text-sm font-bold text-indigo-800 text-center shadow-sm">
-                                [비교 보완] 버전 B (수정 가능)
-                            </div>
-                        </div>
-
-                        <div className="relative w-full h-48 md:h-72 bg-slate-900 group cursor-crosshair">
-                            <div className="absolute inset-y-0 left-0 w-1/2" style={textureA}></div>
-                            <div className="absolute inset-y-0 right-0 w-1/2" style={textureB}></div>
-                            <div className="absolute inset-y-0 left-1/2 w-[1px] bg-white/30 group-hover:w-[2px] group-hover:bg-white transition-all z-10 shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
-                            
-                            <div className="absolute bottom-3 left-1/4 transform -translate-x-1/2 flex gap-1 shadow-md">
-                                <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 font-bold rounded">OEM</span>
-                                <span className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5 font-bold rounded">P</span>
-                                <span className="bg-red-600 text-white text-[10px] px-1.5 py-0.5 font-bold rounded">PGM</span>
-                            </div>
-                            <div className="absolute bottom-3 right-1/4 transform translate-x-1/2 flex gap-1 shadow-md">
-                                <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 font-bold rounded">OEM</span>
-                                <span className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5 font-bold rounded">P</span>
-                                <span className="bg-red-600 text-white text-[10px] px-1.5 py-0.5 font-bold rounded">PGM</span>
-                            </div>
-                        </div>
-
-                        <div className="w-full overflow-x-auto">
-                            <table className="w-full text-xs text-left">
-                                <thead className="bg-slate-800 text-white">
-                                    <tr>
-                                        <th className="p-3 font-bold whitespace-nowrap">제품코드</th>
-                                        <th className="p-3 font-bold">제품명</th>
-                                        <th className="p-3 font-bold text-center">버전 A (원본)</th>
-                                        <th className="p-3 font-bold text-center">버전 B (비교)</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="text-slate-600">
-                                    {allTonerCodes.map((code: any, idx) => {
-                                        const tonerA = formulaA.find((t: any) => t.code === code);
-                                        const tonerB = formulaB.find((t: any) => t.code === code);
-                                        const weightA = tonerA ? parseFloat(tonerA.adjustedWeight).toFixed(2) : "0.00";
-                                        const weightB = tonerB ? tonerB.adjustedWeight : "0";
-                                        const role = TONER_DB[code]?.role || "알 수 없는 안료";
-
-                                        return (
-                                            <tr key={idx} className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
-                                                <td className="p-2.5 pl-3 font-black text-slate-800 whitespace-nowrap">{code}</td>
-                                                <td className="p-2.5 uppercase font-bold text-[10px]">{role}</td>
-                                                <td className="p-2.5 text-center text-slate-800 font-bold bg-slate-100/50">{weightA}g</td>
-                                                <td className="p-1.5 text-center bg-indigo-50/30">
-                                                    <input 
-                                                        type="text" 
-                                                        inputMode="decimal"
-                                                        value={weightB}
-                                                        onChange={(e) => handleEditB(code, e.target.value.replace(/[^0-9.]/g, ''))}
-                                                        className="w-16 text-center font-black text-indigo-700 bg-white border border-indigo-200 rounded p-1 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                                                    />
-                                                    <span className="text-[10px] ml-1 text-slate-400">g</span>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
-                    <button onClick={onClose} className="bg-slate-800 text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-700 shadow-md transition-all">비교창 닫기</button>
-                </div>
-           </div>
-        </div>
-    );
-}
-
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
-  // 💡 배포용 퍼블릭 버전을 위해 초기 로딩 시 무조건 빈칸(Clean Slate)으로 시작
+  // 💡 배포용 클린 뷰: 접속 시 무조건 빈 상태로 시작 (제 테스트 데이터 완전 제거)
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
@@ -3127,8 +3015,10 @@ export default function App() {
   
   const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
   const [restoredViewData, setRestoredViewData] = useState<any>(null); 
-  const [isCompareOpen, setIsCompareOpen] = useState(false);
-  const [compareFormulaB, setCompareFormulaB] = useState<any[]>([]);
+  
+  // 💡 피드백 모달 및 히스토리 모달 State
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -3376,18 +3266,17 @@ export default function App() {
     );
   };
 
-  const openComparator = () => {
-      setCompareFormulaB(JSON.parse(JSON.stringify(isThreeCoatMode ? pearlToners : toners))); 
-      setIsCompareOpen(true);
-  }
-
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[320px] lg:pb-[140px]">
       <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          {/* 💡 2번. 모바일 타이틀 노출 수정 완료 (hidden md:block 제거) */}
-          <h1 className="text-lg md:text-xl font-semibold"><span className="text-white tracking-wide">윤성만님을 위한</span><span className="text-blue-400 font-normal ml-2">조색 PRO</span></h1>
+          {/* 💡 모바일 타이틀 노출 복구 & 패치 날짜 추가 */}
+          <h1 className="text-lg md:text-xl font-semibold flex items-center gap-2">
+              <span className="text-white tracking-wide">윤성만님을 위한</span>
+              <span className="text-blue-400 font-normal">조색 PRO</span>
+              <span className="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-full border border-slate-700 ml-1 hidden sm:inline-block">Last Patch: 2026.08.24</span>
+          </h1>
         </div>
       </header>
 
@@ -3395,7 +3284,7 @@ export default function App() {
         <div className="lg:col-span-7 flex flex-col bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden">
           <div className="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3">
             
-            {/* 💡 3번. 워크시트 상단에 [안료 빠른 검색창] + [정보 초기화] 배치 */}
+            {/* 💡 안료 빠른 검색창 + 정보 전체 초기화 */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h2 className="text-sm font-bold text-slate-800 flex items-center shrink-0">
                 <Sliders className="text-blue-600 mr-2" size={16} />공식 배합 워크 시트
@@ -3697,23 +3586,27 @@ export default function App() {
                   </div>
               </div>
 
-              <button 
-                  onClick={openComparator}
-                  className="w-full mt-3 bg-indigo-50 border border-indigo-200 text-indigo-700 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-indigo-100 transition-colors shadow-sm"
-              >
-                  <Columns size={16} className="mr-1.5 text-indigo-500" /> ✨ 배합 A/B 시각적 대조 모드 (Split View)
-              </button>
+              {/* 💡 A/B 모드 삭제 및 피드백/비하인드 버튼 신설 */}
+              <div className="flex gap-2 mt-3">
+                  <button 
+                      onClick={() => setIsEmailModalOpen(true)}
+                      className="flex-1 bg-indigo-50 border border-indigo-200 text-indigo-700 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-indigo-100 transition-colors shadow-sm"
+                  >
+                      <Mail size={16} className="mr-1.5 text-indigo-500" /> 다이렉트 피드백 보내기
+                  </button>
+                  <button 
+                      onClick={() => setIsHistoryModalOpen(true)}
+                      className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white transition-colors shadow-sm"
+                  >
+                      <Code size={16} className="mr-1.5 text-slate-400" /> PRO 제작 과정 보기
+                  </button>
+              </div>
             </div>
 
             <div className="p-4 bg-slate-900 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-center shrink-0 gap-3">
                 <h3 className="text-white font-black text-sm flex items-center shrink-0"><BookOpen className="mr-2 text-blue-400" size={18}/>지능형 안료 도감</h3>
                 
                 <div className="flex gap-2 w-full sm:w-auto">
-                    {/* 하단(우측) 카탈로그 검색창 */}
-                    <div className="relative flex-1 sm:w-40">
-                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료 검색 (예: 블루)" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
-                        <Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" />
-                    </div>
                     <div className="relative flex-1 sm:w-48">
                         <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value)} placeholder="FORD 색상 검색" className="w-full bg-slate-800 border border-yellow-500/50 text-yellow-300 text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-yellow-400 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-1.5 text-blue-400" />
@@ -3722,6 +3615,7 @@ export default function App() {
             </div>
             
             <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
+                {/* 💡 FORD 검색 결과 표시 영역 */}
                 {oemSearch.trim() !== '' && (
                     <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm">
                         <h4 className="text-xs font-black text-blue-800 mb-2">🔍 FORD 색상코드 검색 결과</h4>
@@ -3831,13 +3725,63 @@ export default function App() {
           </div>
       </div>
 
-      {isCompareOpen && (
-          <FormulaComparator 
-              formulaA={isThreeCoatMode ? pearlToners : toners} 
-              formulaB={compareFormulaB} 
-              setFormulaB={setCompareFormulaB}
-              onClose={() => setIsCompareOpen(false)} 
-          />
+      {/* 💡 [신규] 다이렉트 피드백 이메일 모달 */}
+      {isEmailModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-indigo-600 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><Mail size={18} /> 개발자에게 피드백 보내기</h3>
+              <button onClick={() => setIsEmailModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-4 bg-slate-50">
+              <p className="text-sm text-slate-600 text-center font-medium break-keep">버그 제보, 기능 추가 요청 등 어떤 의견이든 환영합니다!<br/>어떤 메일 서비스로 보내시겠습니까?</p>
+              <div className="flex gap-3 mt-2">
+                  <a href="https://mail.naver.com/v2/new?to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-[#03C75A] text-white py-3 rounded-xl font-black text-center shadow-md hover:bg-[#02b350] transition-colors">네이버 메일</a>
+                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-white border border-slate-300 text-slate-700 py-3 rounded-xl font-black text-center shadow-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#34A853" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#4A90E2" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#FBBC05" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg> 구글 메일
+                  </a>
+              </div>
+              <button onClick={() => { navigator.clipboard.writeText('ysm0427@gmail.com'); alert('이메일 주소가 복사되었습니다.'); }} className="text-xs text-slate-400 underline mt-2 hover:text-indigo-500 transition-colors">주소만 복사하기 (ysm0427@gmail.com)</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 💡 [신규] 제작 비하인드 히스토리 모달 */}
+      {isHistoryModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
+          <div className="bg-slate-900 rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700 my-8">
+            <div className="p-4 border-b border-slate-800 bg-slate-900 flex justify-between items-center sticky top-0 z-10">
+              <h3 className="text-white font-black text-lg flex items-center gap-2"><Code className="text-blue-400" /> 조색 PRO 한계 돌파의 기록</h3>
+              <button onClick={() => setIsHistoryModalOpen(false)} className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"><X size={18} /></button>
+            </div>
+            <div className="p-6 overflow-y-auto custom-scrollbar space-y-6 text-slate-300 text-sm leading-relaxed">
+                <p className="text-blue-200 font-bold text-base border-l-4 border-blue-500 pl-3">"이 앱은 단순한 웹 툴이 아닙니다. 색채 공학과 극한의 코드 최적화가 낳은 피와 땀의 결과물입니다."</p>
+                
+                <div className="space-y-4">
+                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                        <h4 className="text-white font-bold mb-2 flex items-center gap-2"><Zap size={14} className="text-yellow-400"/> 1. 광학 엔진(Vector HSL Engine) 자체 개발</h4>
+                        <p>기존 조색 앱들의 단순 더하기 방식이 아닌, 안료의 고유 파장과 반사각을 수학적 벡터(Vector)로 계산하여 혼합하는 엔진을 밑바닥부터 다시 설계했습니다. 특정 고농축 안료(WT144 등)와 투명 안료의 혼합 시 실제 페인트처럼 오묘한 청록색(Teal)을 브라우저에 렌더링하기 위해 수백 번의 수학적 파라미터 조정이 필요했습니다.</p>
+                    </div>
+                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                        <h4 className="text-white font-bold mb-2 flex items-center gap-2"><Lock size={14} className="text-green-400"/> 2. 아이폰(iOS Safari) 렌더링 크래시 극복</h4>
+                        <p>펄 입자를 사실적으로 구현하기 위한 SVG 특수 필터가 아이폰 환경에서 치명적인 렌더링 붕괴를 일으키는 것을 발견했습니다. 이를 해결하기 위해 웹 표준에 가장 안전한 코드로 질감 엔진을 완전히 재구축하여 모바일 크래시를 100% 방지해냈습니다.</p>
+                    </div>
+                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                        <h4 className="text-white font-bold mb-2 flex items-center gap-2"><BookOpen size={14} className="text-purple-400"/> 3. 5단계 전문가용 안료 DB 마이그레이션</h4>
+                        <p>50여 개가 넘는 스피스헥커 안료의 특성을 단순히 나열하는 것을 넘어, Face & Flop, 은폐력, 입자 특성 등 현장 전문가 수준의 5단계 포맷으로 데이터를 전면 리팩토링했습니다. 이 과정에서 발생한 수많은 데이터 충돌과 누락 위기를 극복하고 완벽한 무결성 DB를 완성했습니다.</p>
+                    </div>
+                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                        <h4 className="text-white font-bold mb-2 flex items-center gap-2"><Layers size={14} className="text-rose-400"/> 4. 복합 UI 아키텍처 및 상태 관리의 지옥</h4>
+                        <p>모바일 겹침 방지, 아이폰 전용 '왕숫자 키패드' 강제 호출, 복잡한 아코디언 토글 내부에 숨은 데이터의 비동기적 노출, 그리고 무려 2,610종에 달하는 포드(FORD) 컬러 엑셀 연동까지... 수십 개의 컴포넌트 상태(State)가 엉키는 '콜백 지옥'을 뚫고 물 흐르듯 자연스러운 UI/UX를 기어코 완성해 냈습니다.</p>
+                    </div>
+                </div>
+            </div>
+            <div className="p-4 border-t border-slate-800 bg-slate-900 flex justify-end">
+                <button onClick={() => setIsHistoryModalOpen(false)} className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/20">닫기</button>
+            </div>
+          </div>
+        </div>
       )}
 
       {selectedTonerForView && TONER_DB[selectedTonerForView] && (
