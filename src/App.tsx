@@ -8,7 +8,7 @@ interface TonerData { role: string; type: string; face: string; flop: string; de
 
 const LAST_PATCH_DATE = "2026.08.26"; 
 
-// 💡 Vercel 빌드 에러(TS2304) 해결: 외부로 독립시킨 3D 렌더링 함수
+// 💡 3D 시뮬레이터 함수
 const render3DView = () => {
   const SPECTRUM_GRADIENT = "linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff)";
   return (
@@ -2756,13 +2756,13 @@ export const getCachedTexture = (type: string, faceColor: string, flopColor: str
     textureCache[key] = result; return result;
 };
 
-// 💡 뱃지 색상 5단계 완벽 매칭 및 통일 (녹색, 파란색, 하늘색, 주황색, 빨간색)
+// 💡 뱃지 색상 5단계 완벽 매칭 및 통일
 export const getBadgeClass = (title: string) => {
     if(title.includes("일반") || title.includes("투명") || title.includes("전반적")) return "bg-teal-50 text-teal-700 border-teal-300";
     if(title.includes("외관") || title.includes("변화") || title.includes("색상 및 구성")) return "bg-blue-50 text-blue-700 border-blue-300";
     if(title.includes("용도") || title.includes("컬러") || title.includes("적용 색상")) return "bg-cyan-50 text-cyan-700 border-cyan-300";
     if(title.includes("혼합") || title.includes("비율") || title.includes("배합") || title.includes("제형화")) return "bg-amber-50 text-amber-700 border-amber-300";
-    if(title.includes("경고") || title.includes("주의")) return "bg-red-50 text-red-700 border-red-300 shadow-sm shadow-red-100";
+    if(title.includes("경고") || title.includes("주의") || title.includes("조색 주의점")) return "bg-red-50 text-red-700 border-red-300 shadow-sm shadow-red-100";
     return "bg-slate-50 text-slate-700 border-slate-300";
 };
 
@@ -2967,11 +2967,12 @@ const MUNSELL_WHEEL_COLORS = [
     { name: '연지', symbol: 'pR', hex: '#BE0081' },
 ];
 
+const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
+  const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+  return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) };
+};
+
 const describeArc = (x: number, y: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number) => {
-  const polarToCartesian = (cX: number, cY: number, r: number, aInDeg: number) => {
-      const aInRad = (aInDeg - 90) * Math.PI / 180.0;
-      return { x: cX + (r * Math.cos(aInRad)), y: cY + (r * Math.sin(aInRad)) };
-  };
   const startOuter = polarToCartesian(x, y, outerRadius, endAngle);
   const endOuter = polarToCartesian(x, y, outerRadius, startAngle);
   const startInner = polarToCartesian(x, y, innerRadius, endAngle);
@@ -3445,14 +3446,13 @@ export default function App() {
                               </div>
                           </div>
                           
-                          {/* 💡 안료 디테일 뱃지: 넓이(w-[140px]) 및 중앙 정렬, 색상 분리 적용 */}
                           {toner.isExpanded && (
                               <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-2 pt-2 border-t border-slate-200">
                                   {info.details && info.details.length > 0 ? (
                                       <div className="flex flex-col gap-1.5 w-full">
                                           {info.details.map((d: any, idx: number) => (
                                               <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2">
-                                                  <span className={`shrink-0 inline-flex items-center justify-center w-[140px] px-1.5 py-1.5 text-[10px] font-bold rounded-md border text-center break-keep leading-tight ${getBadgeClass(d[0])}`}>{d[0]}</span>
+                                                  <span className={`shrink-0 inline-flex items-center justify-center w-[140px] px-1.5 py-1.5 text-[10px] font-bold rounded-md border text-center break-keep leading-tight mt-0.5 ${getBadgeClass(d[0])}`}>{d[0]}</span>
                                                   <span className="text-[11px] text-slate-600 leading-normal break-keep pt-0.5">{d[1]}</span>
                                               </div>
                                           ))}
@@ -3555,14 +3555,13 @@ export default function App() {
                                 </div>
                             </div>
                             
-                            {/* 💡 안료 디테일 뱃지: 넓이 동일 적용 */}
                             {toner.isExpanded && (
                                 <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-2 pt-2 border-t border-purple-200">
                                     {info.details && info.details.length > 0 ? (
                                         <div className="flex flex-col gap-1.5 w-full">
                                             {info.details.map((d: any, idx: number) => (
                                                 <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2">
-                                                    <span className={`shrink-0 inline-flex items-center justify-center w-[140px] px-1.5 py-1.5 text-[10px] font-bold rounded-md border text-center break-keep leading-tight ${getBadgeClass(d[0])}`}>{d[0]}</span>
+                                                    <span className={`shrink-0 inline-flex items-center justify-center w-[140px] px-1.5 py-1.5 text-[10px] font-bold rounded-md border text-center break-keep leading-tight mt-0.5 ${getBadgeClass(d[0])}`}>{d[0]}</span>
                                                     <span className="text-[11px] text-slate-600 leading-normal break-keep pt-0.5">{d[1]}</span>
                                                 </div>
                                             ))}
@@ -3661,7 +3660,6 @@ export default function App() {
             </div>
             
             <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
-                {/* 💡 FORD 검색 결과 표시 영역 */}
                 {catalogSearch.trim() !== '' && OEM_COLORS.some(c => c.code.toUpperCase().includes(catalogSearch.toUpperCase()) || c.name.toUpperCase().includes(catalogSearch.toUpperCase())) && (
                     <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm">
                         <h4 className="text-xs font-black text-blue-800 mb-2">🔍 FORD 색상코드 검색 결과</h4>
@@ -3691,7 +3689,6 @@ export default function App() {
                                 {item.details?.map((d: any, idx: number) => {
                                     return (
                                     <div key={idx} className="flex items-start gap-2">
-                                        {/* 💡 안료 도감 리스트 뱃지 동일 넓이 적용 */}
                                         <span className={`shrink-0 inline-flex items-center justify-center w-[140px] px-1.5 py-1.5 text-[9px] font-bold rounded-md border text-center break-keep leading-tight mt-0.5 ${getBadgeClass(d[0])}`}>{d[0]}</span>
                                         <span className="text-[11px] text-slate-700 leading-snug break-keep mt-0.5 pt-0.5">{d[1]}</span>
                                     </div>
@@ -3769,7 +3766,6 @@ export default function App() {
           </div>
       </div>
 
-      {/* 공유하기 모달 */}
       {isShareModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -3792,7 +3788,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 엑셀 연동 모달 */}
       {isExcelModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border-2 border-green-600">
@@ -3820,7 +3815,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 월 구독 승인요청 모달 */}
       {isSubscribeOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in overflow-y-auto">
           <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 my-8">
@@ -3846,7 +3840,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 브랜드별 시편 공유 게시판 */}
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
@@ -3907,29 +3900,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 다이렉트 피드백 모달 */}
-      {isEmailModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
-            <div className="p-4 bg-yellow-500 flex justify-between items-center text-slate-900">
-              <h3 className="font-black flex items-center gap-2"><Mail size={18} /> 개발자에게 피드백 보내기</h3>
-              <button onClick={() => setIsEmailModalOpen(false)} className="hover:text-red-600 transition-colors bg-yellow-400 p-1.5 rounded-full"><X size={16} /></button>
-            </div>
-            <div className="p-6 flex flex-col gap-4 bg-slate-50">
-              <p className="text-sm text-slate-600 text-center font-medium break-keep">버그 제보, 기능 추가 요청 등 어떤 의견이든 환영합니다!<br/>어떤 메일 서비스로 보내시겠습니까?</p>
-              <div className="flex gap-3 mt-2">
-                  <a href="https://mail.naver.com/v2/new?to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-[#03C75A] text-white py-3 rounded-xl font-black text-center shadow-md hover:bg-[#02b350] transition-colors">네이버 메일</a>
-                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-white border border-slate-300 text-slate-700 py-3 rounded-xl font-black text-center shadow-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
-                    <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#34A853" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#4A90E2" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#FBBC05" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg> 구글 메일
-                  </a>
-              </div>
-              <button onClick={() => { navigator.clipboard.writeText('ysm0427@gmail.com'); alert('이메일 주소가 복사되었습니다.'); }} className="text-xs text-slate-400 underline mt-2 hover:text-yellow-600 transition-colors">주소만 복사하기 (ysm0427@gmail.com)</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 제작 비하인드 히스토리 모달 */}
       {isHistoryModalOpen && (
         <div className="fixed inset-0 bg-slate-950/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-900 rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700 my-8">
@@ -3986,7 +3956,6 @@ export default function App() {
                     {TONER_DB[selectedTonerForView].details?.map((d: any, idx: number) => {
                         return (
                         <div key={idx} className="flex items-start gap-2.5">
-                            {/* 💡 안료 디테일 분석 보드 내부 뱃지 동일 넓이 적용 */}
                             <span className={`shrink-0 inline-flex items-center justify-center w-[140px] px-2 py-1.5 text-[10px] font-bold rounded-md border text-center break-keep leading-tight ${getBadgeClass(d[0])}`}>{d[0]}</span>
                             <span className="text-xs text-slate-700 leading-relaxed break-keep pt-0.5">{d[1]}</span>
                         </div>
@@ -4023,7 +3992,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 과거 연동 데이터 모달 */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
@@ -4108,7 +4076,6 @@ export default function App() {
         </div>
       )}
 
-     {/* 먼셀 컬러 믹싱 스튜디오 */}
      {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-scroll custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
@@ -4119,7 +4086,6 @@ export default function App() {
           <main className="flex-1 p-6 md:p-10 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950 overflow-x-hidden">
              <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 mb-8 items-start">
                  
-                 {/* 1. 먼셀 20 색상환 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                      <h3 className="text-lg font-black text-white mb-6 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg shrink-0">
                          <Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)
@@ -4186,7 +4152,6 @@ export default function App() {
                      </div>
                  </div>
 
-                 {/* 2. RGB Additive Color */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
                         <h4 className="text-xl font-black text-white mb-6 tracking-widest flex items-center shrink-0">
@@ -4222,7 +4187,6 @@ export default function App() {
                     </div>
                  </div>
 
-                 {/* 3. 선택된 컬러 배합 규격 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
                         <div className="bg-slate-800 p-6 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] h-[420px] flex flex-col justify-center text-center">
@@ -4264,7 +4228,6 @@ export default function App() {
                     )}
                  </div>
 
-                 {/* 4. CMYK Subtractive Color */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
                         <h4 className="text-xl font-black text-slate-900 mb-6 tracking-widest flex items-center shrink-0">
