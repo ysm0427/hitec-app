@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Sliders, Trash2, Plus, Minus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket, Columns, Mail, Code, Users, CreditCard, AlertTriangle, ThumbsUp, Eye, Calendar, RefreshCw
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket, Columns, Mail, Code, Users, CreditCard, AlertTriangle, ThumbsUp, Eye, Calendar, RefreshCw, MessageSquare, Send
 } from 'lucide-react';
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-const LAST_PATCH_DATE = "2026.08.25"; 
+const LAST_PATCH_DATE = "2026.08.26"; // 💡 최종 패치 날짜 업데이트 
 
-// 💡 [1번 구역] 전면 업그레이드된 전문가용 안료 데이터베이스 (모든 안료 5단계 표준 포맷 적용)
+// 💡 [1번 구역] 전면 업그레이드된 전문가용 안료 데이터베이스
 export const TONER_DB: Record<string, TonerData> = {
   'WT 347': { role: '트랜스페어런트 그린', type: 'solid', face: '#15803d', flop: '#022c22', desc: '도막에 깊이감과 맑은 느낌을 부여하는 투명성이 뛰어난 녹색 조색제입니다.', details: [['일반 특성 (뛰어난 투명성)', '은폐력이 거의 없어 메탈릭이나 펄 입자 고유의 반사광을 가리지 않습니다. 이로 인해 도막에 깊이감(Depth)과 맑은 느낌을 부여합니다.'], ['색상 및 외관 변화 (Face & Flop)', '정면에서는 맑고 선명한 녹색을 띠지만, 측면(스카시)으로 갈수록 투명도가 높아 바탕의 메탈릭 입자나 펄의 특성이 그대로 투과되어 보입니다.'], ['용도 및 적용 컬러 (방향성 제어)', '주로 맑은 옐로우 틴트와 배합하여 깨끗한 골드 그린(Gold Green)을 만들거나, 투명 블루와 섞어 깊이 있는 청록색(Teal)을 조색할 때 활용됩니다.'], ['배합 및 혼합 비율', '착색력이 뛰어나 미량의 추가만으로도 전체적인 색상의 방향(특히 측면 톤)이 크게 변할 수 있어 배합량 조절에 매우 유의해야 합니다.'], ['경고 및 조색 주의점', '메탈릭 및 펄 컬러에 적용할 때는 입자 배열을 돕는 오리엔테이션 제제(예: 386 agent)나 결합 수지(예: WT390)의 비율을 정확히 맞추어 펄과 알루미늄 입자가 안정적으로 자리 잡도록 세팅하는 것이 맑은 컬러감을 극대화하는 데 중요합니다.']] },
   'WT 380': { role: '다이아몬드 그린', type: 'xirallic', face: '#4ade80', flop: '#166534', desc: '녹색 빛을 띠는 고휘도의 반짝임을 내는 특수 펄 조색제입니다.', details: [['일반 특성 (압도적인 반짝임)', '일반적인 마이카(Mica) 펄 안료와 달리, 유리 입자(Glass Flake)나 합성 기재를 베이스로 하여 투명도가 월등히 높고 다이아몬드처럼 강렬하게 부서지는 빛 반사(Sparkle)를 만들어냅니다.'], ['색상 및 외관 변화', '빛이 없는 그늘에서는 입자감이 잘 띄지 않다가, 직사광선 아래에서 폭발적인 녹색 광원을 뿜어내는 것이 특징입니다.'], ['용도 및 적용 컬러 (극적인 플립)', '블랙 바탕에서는 각도에 따라 검은색과 강렬한 녹색이 교차하는 드라마틱한 투톤(Color Flip) 효과를 내며, 밝은 바탕에서는 투명하고 은은한 펄감만 더해줍니다.'], ['배합 및 혼합 비율', '프리미엄 럭셔리카 다이아몬드 그린 펄 페인팅에 전용 처방되며 정밀하게 소량씩 계측 혼입합니다.'], ['경고 및 주의사항', '바탕색상(하도 프라이머 명도)의 미세 차이도 그대로 노출시키므로 완벽한 밸류쉐이드 하도 도장이 선행되어야 합니다.']] },
@@ -2956,35 +2956,11 @@ const MUNSELL_WHEEL_COLORS = [
     { name: '연지', symbol: 'pR', hex: '#BE0081' },
 ];
 
-const MIXING_DATA: Record<string, any> = {
-    'R': { c1: '빨강 (R)', h1: '#ff0000', r1: 100 },
-    'yR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 },
-    'YR': { c1: '빨강 (R)', h1: '#ff0000', r1: 50, c2: '노랑 (Y)', h2: '#ffff00', r2: 50 },
-    'rY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 75, c2: '빨강 (R)', h2: '#ff0000', r2: 25 },
-    'Y': { c1: '노랑 (Y)', h1: '#ffff00', r1: 100 },
-    'gY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 75, c2: '녹색 (G)', h2: '#009900', r2: 25 },
-    'GY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 50, c2: '녹색 (G)', h2: '#009900', r2: 50 },
-    'yG': { c1: '녹색 (G)', h1: '#009900', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 },
-    'G': { c1: '녹색 (G)', h1: '#009900', r1: 100 },
-    'bG': { c1: '녹색 (G)', h1: '#009900', r1: 75, c2: '파랑 (B)', h2: '#0000ff', r2: 25 },
-    'BG': { c1: '녹색 (G)', h1: '#009900', r1: 50, c2: '파랑 (B)', h2: '#0000ff', r2: 50 },
-    'gB': { c1: '파랑 (B)', h1: '#0000ff', r1: 75, c2: '녹색 (G)', h2: '#009900', r2: 25 },
-    'B': { c1: '파랑 (B)', h1: '#0000ff', r1: 100 },
-    'pB': { c1: '파랑 (B)', h1: '#0000ff', r1: 75, c2: '보라 (P)', h2: '#700070', r2: 25 },
-    'PB': { c1: '파랑 (B)', h1: '#0000ff', r1: 50, c2: '보라 (P)', h2: '#700070', r2: 50 },
-    'bP': { c1: '보라 (P)', h1: '#700070', r1: 75, c2: '파랑 (B)', h2: '#0000ff', r2: 25 },
-    'P': { c1: '보라 (P)', h1: '#700070', r1: 100 },
-    'rP': { c1: '보라 (P)', h1: '#700070', r1: 75, c2: '빨강 (R)', h2: '#ff0000', r2: 25 },
-    'RP': { c1: '보라 (P)', h1: '#700070', r1: 50, c2: '빨강 (R)', h2: '#ff0000', r2: 50 },
-    'pR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '보라 (P)', h2: '#700070', r2: 25 },
-};
-
-const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
-  const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
-  return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) };
-};
-
 const describeArc = (x: number, y: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number) => {
+  const polarToCartesian = (cX: number, cY: number, r: number, aInDeg: number) => {
+      const aInRad = (aInDeg - 90) * Math.PI / 180.0;
+      return { x: cX + (r * Math.cos(aInRad)), y: cY + (r * Math.sin(aInRad)) };
+  };
   const startOuter = polarToCartesian(x, y, outerRadius, endAngle);
   const endOuter = polarToCartesian(x, y, outerRadius, startAngle);
   const startInner = polarToCartesian(x, y, innerRadius, endAngle);
@@ -2998,7 +2974,6 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
 
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
-  // 💡 배포용 클린 뷰: 접속 시 무조건 빈 상태로 시작
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
@@ -3016,12 +2991,14 @@ export default function App() {
   const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
   const [restoredViewData, setRestoredViewData] = useState<any>(null); 
   
-  // 💡 피드백 모달, 히스토리 모달, 가입/승인 모달, 사전공지 State 
+  // 💡 팝업/모달 State
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
   const [isNoticeOpen, setIsNoticeOpen] = useState(true);
   const [isBoardOpen, setIsBoardOpen] = useState(false); 
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false); 
+  const [isExcelModalOpen, setIsExcelModalOpen] = useState(false); 
 
   // 구독 폼 데이터
   const [subName, setSubName] = useState('');
@@ -3030,7 +3007,7 @@ export default function App() {
   const [subBiz, setSubBiz] = useState('');
   const [subEmail, setSubEmail] = useState('');
 
-  // 💡 게시판 목업(Mock) 데이터 및 State
+  // 💡 게시판 목업 데이터 및 State
   const [boardSearch, setBoardSearch] = useState('');
   const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
   const [boardPosts, setBoardPosts] = useState([
@@ -3110,7 +3087,6 @@ export default function App() {
         if (!loadedFromUrl) {
             const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos'); const savedBoard = localStorage.getItem('hitec_board_mock');
             
-            // 기존 데이터 로드 (첫 접속 시엔 빈칸)
             if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
             if (savedBoard) setBoardPosts(JSON.parse(savedBoard));
         }
@@ -3125,8 +3101,6 @@ export default function App() {
           localStorage.setItem('hitec_board_mock', JSON.stringify(boardPosts));
       }
   }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, tonerMemos, boardPosts, isLoaded]);
-
-  useEffect(() => { tonersRef.current = toners; pearlTonersRef.current = pearlToners; isThreeCoatModeRef.current = isThreeCoatMode; }, [toners, pearlToners, isThreeCoatMode]);
 
   useEffect(() => {
     const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
@@ -3252,49 +3226,48 @@ export default function App() {
     setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
   };
 
-  const copyToExcel = () => {
-    const baseResin = (parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1); const baseStr = `${totalBaseWeight} (수지 ${baseResin})`; let pearlStr = "해당없음";
-    if (isThreeCoatMode) { const pearlResin = (parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1); pearlStr = `${totalPearlWeight} (수지 ${pearlResin})`; }
-    const baseDetails = toners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', '); const pearlDetails = isThreeCoatMode ? pearlToners.filter(t => t.code).map(t => `${t.code}: ${t.adjustedWeight || '0'}`).join(', ') : '해당없음'; const detailStr = isThreeCoatMode ? `[베이스] ${baseDetails} / [펄] ${pearlDetails}` : baseDetails;
-    let currentOrigin = localStorage.getItem('hitec_clean_domain'); if (!currentOrigin || currentOrigin.includes('google') || currentOrigin.includes('gemini')) currentOrigin = window.location.origin; 
-    
-    const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0'].join('|');
-    const safeUrlString = btoa(unescape(encodeURIComponent(payloadStr))); 
-    const shareUrl = `${currentOrigin}${window.location.pathname}?d=${safeUrlString}`;
-    
-    const rowData = [registrationDate, vehicleNumber || '미입력', carModel || '미입력', targetColorCode || '미지정', jobDescription || '미입력', specialNotes || '', baseStr, pearlStr, detailStr, shareUrl].join('\t');
-    if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(rowData).catch(err => console.error(err));
-    else { const textarea = document.createElement('textarea'); textarea.value = rowData; document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); document.body.removeChild(textarea); }
-    
-    alert("데이터가 클립보드에 복사되었습니다. 조색 PRO 엑셀의 [매크로 연동 버튼]을 클릭하세요.");
-  };
-
-  const shareToKakao = () => {
+  // 💡 공유/전송용 텍스트 생성기
+  const generateShareText = () => {
     let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}g`).join('\n');
     let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '안료미지정'}): ${t.adjustedWeight || '0'}g`).join('\n');
-    const text = `[PERMAHYD HI-TEC 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 차종: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트 (Ground)]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지제원: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트 (Mid-coat)]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 코트 합계: ${totalPearlWeight}g\n▶ 6052 수지제원: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}g\n================================`;
+    let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin;
+    const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0'].join('|');
+    const shareUrl = `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`;
     
-    if (typeof navigator !== 'undefined' && navigator.share) {
-        navigator.share({ title: 'HI-TEC 조색 데이터 인계', text: text }).catch(console.error);
-    } else { 
-        alert("상세 배합 스펙이 클립보드에 복사되었습니다. 카카오톡 창에 붙여넣기 하십시오.\n\n" + text); 
-        if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(text); 
-    }
+    return `[PERMAHYD HI-TEC 조색 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 브랜드/차종: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트 (Ground)]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지제원: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트 (Mid-coat)]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 코트 합계: ${totalPearlWeight}g\n▶ 6052 수지제원: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}g\n\n👉 모바일 배합 복원 링크:\n${shareUrl}`;
   };
 
-  const render3DView = () => {
-    const SPECTRUM_GRADIENT = "linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff)";
-    return (
-      <div className="w-full h-full relative overflow-hidden rounded-xl shadow-inner border border-slate-300">
-        <div className="absolute inset-0 opacity-100" style={{ background: SPECTRUM_GRADIENT }}></div>
-      </div>
-    );
+  // 💡 2. 공유 전송 버튼들 (카톡 복사, SMS, Mail)
+  const handleShareKakao = () => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        navigator.clipboard.writeText(generateShareText());
+        alert("배합 스펙이 클립보드에 복사되었습니다. 카카오톡 대화창에 붙여넣기 하십시오.");
+    } else { alert("클립보드 복사를 지원하지 않는 브라우저입니다."); }
+    setIsShareModalOpen(false);
+  };
+  const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
+  const handleShareMail = () => { window.location.href = `mailto:?subject=${encodeURIComponent('[조색PRO] 배합 지시서 공유')}&body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
+
+  // 💡 3. 엑셀 연동 기능 
+  const generateShareUrl = () => {
+      let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin;
+      const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0'].join('|');
+      return `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`;
+  }
+  const handleCopyExcelTemplate = () => {
+      const headerRow = ['등록 날짜', '차량 번호', '브랜드/차종', '컬러코드', '작업내용', '특이사항', '배합보기'].join('\t');
+      navigator.clipboard.writeText(headerRow); alert("엑셀 헤더(제목 표시줄)가 복사되었습니다. 엑셀 A1 셀에 붙여넣기 하세요.");
+  }
+  const copyToExcelData = () => {
+    const linkStr = `=HYPERLINK("${generateShareUrl()}", "[팝업으로 복원]")`; // 엑셀 HYPERLINK 함수 자동화
+    const rowData = [registrationDate, vehicleNumber || '미입력', carModel || '미입력', targetColorCode || '미지정', jobDescription || '미입력', specialNotes || '', linkStr].join('\t');
+    if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(rowData).catch(err => console.error(err)); }
+    alert("현재 데이터가 복사되었습니다. 엑셀의 빈 줄에 붙여넣기 하세요.");
+    setIsExcelModalOpen(false);
   };
 
   const handleSubscribeSubmit = () => {
-      if(!subName || !subAge || !subRegion || !subBiz || !subEmail) {
-          alert("모든 항목을 입력해주세요."); return;
-      }
+      if(!subName || !subAge || !subRegion || !subBiz || !subEmail) { alert("모든 항목을 입력해주세요."); return; }
       const subject = encodeURIComponent(`[조색 PRO 승인요청] ${subBiz} - ${subName}`);
       const body = encodeURIComponent(`이름: ${subName}\n나이: ${subAge}\n지역: ${subRegion}\n사업장명: ${subBiz}\n이메일: ${subEmail}\n\n위의 정보로 조색 PRO 정식 사용 및 월 구독(3,000원) 승인을 요청합니다.`);
       window.location.href = `mailto:ysm0427@gmail.com?subject=${subject}&body=${body}`;
@@ -3320,7 +3293,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[320px] lg:pb-[140px]">
       
-      {/* 💡 1. 멘트가 간소화된 시스템 업데이트 공지사항 모달 */}
+      {/* 💡 [신규] 최초 공지사항 모달 */}
       {isNoticeOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[2000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -3339,7 +3312,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 2, 5, 6. 상단 헤더 (패치날짜, 동기화버튼, 게시판, 승인요청) */}
+      {/* 헤더 */}
       <header className="bg-slate-900 flex flex-col sm:flex-row justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0 gap-3">
         <div className="flex items-center space-x-3 w-full sm:w-auto">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
@@ -3350,7 +3323,6 @@ export default function App() {
           </h1>
         </div>
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-            {/* 최신버전 동기화 버튼 (강제 새로고침) */}
             <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 <RefreshCw size={14} /> 업데이트
             </button>
@@ -3386,9 +3358,10 @@ export default function App() {
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚗 차량 번호</label>
                    <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="예: 12가3456" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
                 </div>
+                {/* 💡 브랜드 등록으로 라벨 명확화 */}
                 <div className="flex flex-col">
-                   <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 브랜드(차종)</label>
-                   <input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 현대, 제네시스" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
+                   <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 브랜드 등록</label>
+                   <input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 현대, BMW..." className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
                 </div>
                 <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🎨 컬러코드</label>
@@ -3407,11 +3380,11 @@ export default function App() {
               </div>
               
               <div className="flex w-full gap-2 mt-2">
-                <button onClick={copyToExcel} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
-                {/* 💡 복구된 시편 공유 메인 버튼 */}
-                <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.5] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
-                <button onClick={shareToKakao} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
-                    <Share2 size={18} className="mr-1.5"/> 톡 전송
+                {/* 💡 엑셀 전용 안내 모달 띄우기 */}
+                <button onClick={() => setIsExcelModalOpen(true)} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
+                {/* 💡 전송 통합 기능 모달 띄우기 */}
+                <button onClick={() => setIsShareModalOpen(true)} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
+                    <Share2 size={18} className="mr-1.5"/> 공유 전송
                 </button>
                 <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 transition-colors shadow-sm whitespace-nowrap">
                     <Trash2 size={18} className="mb-0.5" />
@@ -3646,7 +3619,6 @@ export default function App() {
             <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
               <h3 className="text-xs font-black mb-2 flex justify-between items-center text-slate-800">
                 <span className="flex items-center"><Sun size={14} className="mr-1 text-orange-500"/> ✨ STUDIO 3D 광학 조정 시뮬레이터</span>
-                <button onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"><Maximize size={10} className="mr-1"/>먼셀 컬러 믹싱 랩</button>
               </h3>
               
               <div className="h-44 rounded-xl overflow-hidden shadow-inner border border-slate-300 bg-slate-800 bg-cover bg-center flex items-center justify-center cursor-pointer relative group" onClick={() => { setOriginalFinalOptics(finalOptics); setIsConfiguratorOpen(true); }}>
@@ -3678,31 +3650,25 @@ export default function App() {
                 <h3 className="text-white font-black text-sm flex items-center shrink-0"><BookOpen className="mr-2 text-blue-400" size={18}/>지능형 안료 도감</h3>
                 
                 <div className="flex gap-2 w-full sm:w-auto">
-                    <div className="relative flex-1 sm:w-40">
-                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료 검색 (예: 블루)" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
-                        <Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" />
-                    </div>
                     <div className="relative flex-1 sm:w-48">
-                        <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value)} placeholder="FORD 색상 검색" className="w-full bg-slate-800 border border-yellow-500/50 text-yellow-300 text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-yellow-400 transition-colors" />
-                        <Search size={14} className="absolute left-2.5 top-1.5 text-blue-400" />
+                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료명 / FORD 검색" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
+                        <Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" />
                     </div>
                 </div>
             </div>
             
             <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
-                {oemSearch.trim() !== '' && (
+                {/* 💡 FORD 검색 결과 표시 영역 */}
+                {catalogSearch.trim() !== '' && OEM_COLORS.some(c => c.code.toUpperCase().includes(catalogSearch.toUpperCase()) || c.name.toUpperCase().includes(catalogSearch.toUpperCase())) && (
                     <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm">
                         <h4 className="text-xs font-black text-blue-800 mb-2">🔍 FORD 색상코드 검색 결과</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {OEM_COLORS.filter(c => c.code.toUpperCase().includes(oemSearch.toUpperCase()) || c.name.toUpperCase().includes(oemSearch.toUpperCase())).slice(0, 20).map((oem, idx) => (
+                            {OEM_COLORS.filter(c => c.code.toUpperCase().includes(catalogSearch.toUpperCase()) || c.name.toUpperCase().includes(catalogSearch.toUpperCase())).slice(0, 20).map((oem, idx) => (
                                 <div key={idx} className="flex justify-between items-center bg-white px-3 py-2 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(oem.code)}>
                                     <span className="font-black text-blue-600 text-sm">{oem.code}</span>
                                     <span className="text-xs text-slate-600 font-bold truncate max-w-[100px]">{oem.name}</span>
                                 </div>
                             ))}
-                            {OEM_COLORS.filter(c => c.code.toUpperCase().includes(oemSearch.toUpperCase()) || c.name.toUpperCase().includes(oemSearch.toUpperCase())).length === 0 && (
-                                <span className="text-xs text-slate-500 col-span-2 text-center py-2">일치하는 FORD 색상 코드가 없습니다.</span>
-                            )}
                         </div>
                     </div>
                 )}
@@ -3799,7 +3765,58 @@ export default function App() {
           </div>
       </div>
 
-      {/* 💡 3. 월 구독 승인요청 모달 */}
+      {/* 💡 3. 공유하기 (메일, 문자, 카톡) 전용 모달 */}
+      {isShareModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-slate-800 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><Share2 size={18} /> 배합 데이터 공유하기</h3>
+              <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-3 bg-slate-50">
+                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2">
+                    <MessageSquare size={18}/> 카카오톡 복사 전송
+                </button>
+                <button onClick={handleShareSMS} className="w-full bg-blue-500 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                    <Send size={18}/> 문자(SMS)로 보내기
+                </button>
+                <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2">
+                    <Mail size={18}/> 이메일로 보내기
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 💡 4. 엑셀 연동 전용 안내 및 복사 모달 */}
+      {isExcelModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border-2 border-green-600">
+            <div className="p-4 bg-green-600 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><FileSpreadsheet size={18} /> 엑셀(Excel) 연동 가이드 및 복사</h3>
+              <button onClick={() => setIsExcelModalOpen(false)} className="hover:text-red-200 transition-colors bg-green-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-5 flex flex-col gap-4 bg-slate-50">
+              <div className="text-sm text-slate-700 leading-relaxed bg-green-50 p-4 rounded-xl border border-green-200">
+                  <p className="font-black text-green-800 mb-2">✅ 사용 방법</p>
+                  <p><b>Step 1.</b> 처음 등록 시 아래 <b>'엑셀 기본 양식 복사'</b>를 눌러 본인의 엑셀 A1 셀에 붙여넣어 <b>제목 틀</b>을 만드세요.</p>
+                  <p className="mt-1"><b>Step 2.</b> 작업이 끝난 후 <b>'현재 데이터 엑셀 복사'</b>를 누르고 엑셀의 빈 줄 첫 칸에 붙여넣으면 깔끔하게 연동됩니다.</p>
+              </div>
+
+              <div className="flex flex-col gap-2 mt-2">
+                  <button onClick={handleCopyExcelTemplate} className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold shadow-sm hover:bg-slate-700 transition-colors">
+                      📋 Step 1. 엑셀 기본 양식 복사 (제목줄 만들기)
+                  </button>
+                  <button onClick={copyToExcelData} className="w-full bg-green-600 text-white py-3 rounded-xl font-black shadow-md hover:bg-green-700 transition-colors">
+                      🚀 Step 2. 현재 데이터 엑셀 복사 (배합 저장하기)
+                  </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 월 구독 승인요청 모달 */}
       {isSubscribeOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in overflow-y-auto">
           <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 my-8">
@@ -3825,7 +3842,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 4. 브랜드별 시편 공유 게시판 (+현재 배합 추가) */}
+      {/* 브랜드별 시편 공유 게시판 (다중 검색엔진 적용) */}
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
@@ -3834,26 +3851,30 @@ export default function App() {
               <button onClick={() => setIsBoardOpen(false)} className="hover:text-red-300 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             
-            <div className="p-3 bg-white border-b border-slate-200 flex flex-col sm:flex-row justify-between gap-3 shrink-0">
-                <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                    {['전체', '현대', '기아', '벤츠', 'BMW', '포드'].map(b => (
+            <div className="p-3 bg-white border-b border-slate-200 flex flex-col gap-3 shrink-0">
+                <div className="flex gap-2 w-full overflow-x-auto pb-2">
+                    {['전체', '현대', '기아', '제네시스', '쉐보레', '르노', 'KGM', '벤츠', 'BMW', '아우디', '포드', '렉서스'].map(b => (
                         <button key={b} onClick={() => setBoardBrandFilter(b)} className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${boardBrandFilter === b ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300'}`}>{b}</button>
                     ))}
                 </div>
-                <div className="flex gap-2 flex-1 max-w-md">
-                    <div className="relative flex-1">
-                        <input type="text" value={boardSearch} onChange={e=>setBoardSearch(e.target.value)} placeholder="컬러코드 등 검색" className="w-full bg-slate-50 border border-slate-300 text-sm px-3 py-1.5 rounded-lg pl-8 focus:outline-none focus:border-emerald-500" />
-                        <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
+                <div className="flex flex-col sm:flex-row gap-2 w-full items-center">
+                    <div className="relative w-full">
+                        <input type="text" value={boardSearch} onChange={e=>setBoardSearch(e.target.value)} placeholder="브랜드, 컬러코드, 특이사항 동시 검색" className="w-full bg-slate-50 border border-slate-300 text-sm px-3 py-2 rounded-lg pl-9 focus:outline-none focus:border-emerald-500 shadow-sm" />
+                        <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
                     </div>
-                    {/* 💡 게시판 상단 우측에 [+ 현재 배합 등록] 버튼 추가 */}
-                    <button onClick={saveToBoard} className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-bold text-xs shadow-md hover:bg-emerald-700 transition-colors shrink-0 whitespace-nowrap flex items-center gap-1">
-                        <Plus size={14}/> 현재 배합 등록
+                    <button onClick={saveToBoard} className="w-full sm:w-auto bg-emerald-600 text-white px-5 py-2 rounded-lg font-bold text-sm shadow-md hover:bg-emerald-700 transition-colors shrink-0 whitespace-nowrap flex items-center justify-center gap-1.5">
+                        <Plus size={16}/> 현재 배합 등록
                     </button>
                 </div>
             </div>
 
             <div className="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-3 bg-slate-100">
-                {boardPosts.filter(p => (boardBrandFilter === '전체' || p.brand === boardBrandFilter) && (p.code.toLowerCase().includes(boardSearch.toLowerCase()) || p.spec.includes(boardSearch))).map(post => (
+                {boardPosts.filter(p => {
+                    const passBrandFilter = boardBrandFilter === '전체' || p.brand === boardBrandFilter;
+                    const searchLower = boardSearch.toLowerCase();
+                    const passSearch = p.brand.toLowerCase().includes(searchLower) || p.code.toLowerCase().includes(searchLower) || p.spec.toLowerCase().includes(searchLower);
+                    return passBrandFilter && passSearch;
+                }).map(post => (
                     <div key={post.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-400 transition-colors cursor-pointer group">
                         <div className="flex justify-between items-start mb-2">
                             <div className="flex items-center gap-2">
@@ -3872,33 +3893,11 @@ export default function App() {
                         </div>
                     </div>
                 ))}
-                {boardPosts.length === 0 && <div className="text-center py-10 text-slate-500">등록된 시편 데이터가 없습니다.</div>}
+                {boardPosts.length === 0 && <div className="text-center py-10 text-slate-500">검색 조건에 맞는 시편 데이터가 없습니다.</div>}
             </div>
             
             <div className="p-3 bg-emerald-50 border-t border-emerald-200 shrink-0 text-center">
                 <p className="text-xs text-emerald-800 font-bold">※ 현재 내 기기(로컬)에서 작성한 배합 데이터만 연동 테스트 중입니다. 워크시트에서 새 배합을 만들고 위 <b>[+ 현재 배합 등록]</b> 버튼을 누르면 계속 추가할 수 있습니다.</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 다이렉트 피드백 모달 */}
-      {isEmailModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
-            <div className="p-4 bg-yellow-500 flex justify-between items-center text-slate-900">
-              <h3 className="font-black flex items-center gap-2"><Mail size={18} /> 개발자에게 피드백 보내기</h3>
-              <button onClick={() => setIsEmailModalOpen(false)} className="hover:text-red-600 transition-colors bg-yellow-400 p-1.5 rounded-full"><X size={16} /></button>
-            </div>
-            <div className="p-6 flex flex-col gap-4 bg-slate-50">
-              <p className="text-sm text-slate-600 text-center font-medium break-keep">버그 제보, 기능 추가 요청 등 어떤 의견이든 환영합니다!<br/>어떤 메일 서비스로 보내시겠습니까?</p>
-              <div className="flex gap-3 mt-2">
-                  <a href="https://mail.naver.com/v2/new?to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-[#03C75A] text-white py-3 rounded-xl font-black text-center shadow-md hover:bg-[#02b350] transition-colors">네이버 메일</a>
-                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-white border border-slate-300 text-slate-700 py-3 rounded-xl font-black text-center shadow-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
-                    <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#34A853" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#4A90E2" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#FBBC05" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg> 구글 메일
-                  </a>
-              </div>
-              <button onClick={() => { navigator.clipboard.writeText('ysm0427@gmail.com'); alert('이메일 주소가 복사되었습니다.'); }} className="text-xs text-slate-400 underline mt-2 hover:text-yellow-600 transition-colors">주소만 복사하기 (ysm0427@gmail.com)</button>
             </div>
           </div>
         </div>
@@ -4020,7 +4019,7 @@ export default function App() {
                   <div className="text-sm font-bold text-white">{restoredViewData.v || restoredViewData.vehicleNumber || '미입력'}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-400 mb-1">차종</div>
+                  <div className="text-[10px] text-slate-400 mb-1">브랜드/차종</div>
                   <div className="text-sm font-bold text-white">{restoredViewData.m || restoredViewData.carModel || '미입력'}</div>
                 </div>
                 <div>
