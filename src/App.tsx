@@ -6,7 +6,7 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-const LAST_PATCH_DATE = "2026.08.25"; // 최신 패치 날짜 
+const LAST_PATCH_DATE = "2026.08.25"; 
 
 // 💡 [1번 구역] 전면 업그레이드된 전문가용 안료 데이터베이스 (모든 안료 5단계 표준 포맷 적용)
 export const TONER_DB: Record<string, TonerData> = {
@@ -102,11 +102,9 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 3080': { role: '스페셜 애디티브', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '도막 보정 및 흐름 방지 특수 첨가제.', details: [['일반 특성', '도막 보정 및 흐름 방지 전용 특수 첨가제입니다.'], ['색상 및 외관 변화', '건조 후 투명하게 유지됩니다.'], ['용도 및 적용 컬러', '도막 두께 보정이 필요한 모든 수성 도료에 사용됩니다.'], ['배합 및 혼합 비율', '시스템 지시에 따라 사용합니다.'], ['경고 및 주의사항', '과도한 첨가는 도막 품질 저하를 유발합니다.']] }
 };
 
-// 💡 [2번 구역] FORD 2,610종 색상 데이터 공간 확보
 export const OEM_COLORS = [
 /* 
   👇👇👇 여기에 2610줄짜리 엑셀 데이터를 복사해서 붙여넣으세요! 👇👇👇
-  (예: { code: 'UG4', name: 'WHITE PLATINUM' }, ...)
 */
 { code: `AZ`, name: `펄` },
 { code: `RR`, name: `틴티드 투명` },
@@ -3000,7 +2998,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
 
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
-  // 💡 배포용 클린 뷰: 접속 시 무조건 빈 상태로 시작 (제 테스트 데이터 완전 제거)
+  // 💡 배포용 클린 뷰: 접속 시 무조건 빈 상태로 시작
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
@@ -3022,8 +3020,8 @@ export default function App() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
-  const [isNoticeOpen, setIsNoticeOpen] = useState(true); // 업데이트 공지 팝업
-  const [isBoardOpen, setIsBoardOpen] = useState(false); // 시편 게시판 모달
+  const [isNoticeOpen, setIsNoticeOpen] = useState(true);
+  const [isBoardOpen, setIsBoardOpen] = useState(false); 
 
   // 구독 폼 데이터
   const [subName, setSubName] = useState('');
@@ -3032,7 +3030,7 @@ export default function App() {
   const [subBiz, setSubBiz] = useState('');
   const [subEmail, setSubEmail] = useState('');
 
-  // 💡 게시판 목업(Mock) 데이터
+  // 💡 게시판 목업(Mock) 데이터 및 State
   const [boardSearch, setBoardSearch] = useState('');
   const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
   const [boardPosts, setBoardPosts] = useState([
@@ -3112,6 +3110,7 @@ export default function App() {
         if (!loadedFromUrl) {
             const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos'); const savedBoard = localStorage.getItem('hitec_board_mock');
             
+            // 기존 데이터 로드 (첫 접속 시엔 빈칸)
             if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
             if (savedBoard) setBoardPosts(JSON.parse(savedBoard));
         }
@@ -3302,7 +3301,6 @@ export default function App() {
       setIsSubscribeOpen(false);
   };
 
-  // 💡 게시판에 "워크시트에 작성된 현재 배합"을 계속 추가할 수 있는 핸들러
   const saveToBoard = () => {
       if(!targetColorCode) { alert("워크시트에 컬러코드를 입력해야 게시판에 등록할 수 있습니다."); return; }
       const newPost = {
@@ -3410,10 +3408,11 @@ export default function App() {
               
               <div className="flex w-full gap-2 mt-2">
                 <button onClick={copyToExcel} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
+                {/* 💡 복구된 시편 공유 메인 버튼 */}
+                <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.5] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
                 <button onClick={shareToKakao} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
-                    <Share2 size={18} className="mr-1.5"/> 확정 (카톡 전송)
+                    <Share2 size={18} className="mr-1.5"/> 톡 전송
                 </button>
-                {/* 💡 배합 리셋 전용 버튼 (확인창 없이 즉시 삭제) */}
                 <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 transition-colors shadow-sm whitespace-nowrap">
                     <Trash2 size={18} className="mb-0.5" />
                     <span className="text-[9px] font-black">배합 리셋</span>
@@ -3826,7 +3825,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 4. 브랜드별 시편 공유 게시판 (추가 버튼 생성 반영) */}
+      {/* 💡 4. 브랜드별 시편 공유 게시판 (+현재 배합 추가) */}
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
@@ -3846,7 +3845,7 @@ export default function App() {
                         <input type="text" value={boardSearch} onChange={e=>setBoardSearch(e.target.value)} placeholder="컬러코드 등 검색" className="w-full bg-slate-50 border border-slate-300 text-sm px-3 py-1.5 rounded-lg pl-8 focus:outline-none focus:border-emerald-500" />
                         <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
                     </div>
-                    {/* 💡 [신규] 게시판 상단 우측에 [+ 현재 배합 등록] 버튼 추가 */}
+                    {/* 💡 게시판 상단 우측에 [+ 현재 배합 등록] 버튼 추가 */}
                     <button onClick={saveToBoard} className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-bold text-xs shadow-md hover:bg-emerald-700 transition-colors shrink-0 whitespace-nowrap flex items-center gap-1">
                         <Plus size={14}/> 현재 배합 등록
                     </button>
@@ -3998,6 +3997,7 @@ export default function App() {
         </div>
       )}
 
+      {/* 과거 연동 데이터 모달 */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
