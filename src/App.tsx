@@ -6,7 +6,7 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 [1번 구역] 전면 업그레이드된 전문가용 안료 데이터베이스
+// 💡 [1번 구역] 전면 업그레이드된 전문가용 안료 데이터베이스 (모든 안료 5단계 표준 포맷 적용)
 export const TONER_DB: Record<string, TonerData> = {
   'WT 347': { role: '트랜스페어런트 그린', type: 'solid', face: '#15803d', flop: '#022c22', desc: '도막에 깊이감과 맑은 느낌을 부여하는 투명성이 뛰어난 녹색 조색제입니다.', details: [['일반 특성 (뛰어난 투명성)', '은폐력이 거의 없어 메탈릭이나 펄 입자 고유의 반사광을 가리지 않습니다. 이로 인해 도막에 깊이감(Depth)과 맑은 느낌을 부여합니다.'], ['색상 및 외관 변화 (Face & Flop)', '정면에서는 맑고 선명한 녹색을 띠지만, 측면(스카시)으로 갈수록 투명도가 높아 바탕의 메탈릭 입자나 펄의 특성이 그대로 투과되어 보입니다.'], ['용도 및 적용 컬러 (방향성 제어)', '주로 맑은 옐로우 틴트와 배합하여 깨끗한 골드 그린(Gold Green)을 만들거나, 투명 블루와 섞어 깊이 있는 청록색(Teal)을 조색할 때 활용됩니다.'], ['배합 및 혼합 비율', '착색력이 뛰어나 미량의 추가만으로도 전체적인 색상의 방향(특히 측면 톤)이 크게 변할 수 있어 배합량 조절에 매우 유의해야 합니다.'], ['경고 및 조색 주의점', '메탈릭 및 펄 컬러에 적용할 때는 입자 배열을 돕는 오리엔테이션 제제(예: 386 agent)나 결합 수지(예: WT390)의 비율을 정확히 맞추어 펄과 알루미늄 입자가 안정적으로 자리 잡도록 세팅하는 것이 맑은 컬러감을 극대화하는 데 중요합니다.']] },
   'WT 380': { role: '다이아몬드 그린', type: 'xirallic', face: '#4ade80', flop: '#166534', desc: '녹색 빛을 띠는 고휘도의 반짝임을 내는 특수 펄 조색제입니다.', details: [['일반 특성 (압도적인 반짝임)', '일반적인 마이카(Mica) 펄 안료와 달리, 유리 입자(Glass Flake)나 합성 기재를 베이스로 하여 투명도가 월등히 높고 다이아몬드처럼 강렬하게 부서지는 빛 반사(Sparkle)를 만들어냅니다.'], ['색상 및 외관 변화', '빛이 없는 그늘에서는 입자감이 잘 띄지 않다가, 직사광선 아래에서 폭발적인 녹색 광원을 뿜어내는 것이 특징입니다.'], ['용도 및 적용 컬러 (극적인 플립)', '블랙 바탕에서는 각도에 따라 검은색과 강렬한 녹색이 교차하는 드라마틱한 투톤(Color Flip) 효과를 내며, 밝은 바탕에서는 투명하고 은은한 펄감만 더해줍니다.'], ['배합 및 혼합 비율', '프리미엄 럭셔리카 다이아몬드 그린 펄 페인팅에 전용 처방되며 정밀하게 소량씩 계측 혼입합니다.'], ['경고 및 주의사항', '바탕색상(하도 프라이머 명도)의 미세 차이도 그대로 노출시키므로 완벽한 밸류쉐이드 하도 도장이 선행되어야 합니다.']] },
@@ -2998,7 +2998,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
 
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
-  // 💡 배포용 클린 뷰: 접속 시 무조건 빈 상태로 시작 (제 테스트 데이터 완전 제거)
+  // 💡 배포용 클린 뷰: 접속 시 무조건 빈 상태로 시작
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
@@ -3016,12 +3016,12 @@ export default function App() {
   const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
   const [restoredViewData, setRestoredViewData] = useState<any>(null); 
   
-  // 💡 피드백 모달, 히스토리 모달, 가입/승인 모달 State
+  // 💡 피드백, 히스토리, 가입/승인 모달, 사전공지 State 추가
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
-  const [isNoticeOpen, setIsNoticeOpen] = useState(true); // 업데이트 공지 팝업
-  const [isBoardOpen, setIsBoardOpen] = useState(false); // 시편 게시판 모달
+  const [isNoticeOpen, setIsNoticeOpen] = useState(true);
+  const [isBoardOpen, setIsBoardOpen] = useState(false); 
 
   // 구독 폼 데이터
   const [subName, setSubName] = useState('');
@@ -3030,14 +3030,15 @@ export default function App() {
   const [subBiz, setSubBiz] = useState('');
   const [subEmail, setSubEmail] = useState('');
 
-  // 💡 게시판 목업(Mock) 데이터 및 State (실제 공유는 백엔드 필요함을 인지시킴)
+  // 💡 게시판 목업(Mock) 데이터 및 State
   const [boardSearch, setBoardSearch] = useState('');
   const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
   const [boardPosts, setBoardPosts] = useState([
       { id: 1, brand: '현대', code: 'UG4', date: '2026-08-20', likes: 12, views: 45, author: '김프로', spec: '이색 심함, 블랜딩 필수' },
       { id: 2, brand: '기아', code: 'SWP', date: '2026-08-22', likes: 28, views: 102, author: '이반장', spec: '정면 밝음, 측면 어두움' },
       { id: 3, brand: '벤츠', code: '197', date: '2026-08-24', likes: 8, views: 15, author: '성남최고', spec: '은폐력 약함, 하도 필수' },
-      { id: 4, brand: 'BMW', code: 'C3E', date: '2026-08-25', likes: 45, views: 210, author: '광주도장러', spec: '신형 펄 입자 적용' }
+      { id: 4, brand: 'BMW', code: 'C3E', date: '2026-08-25', likes: 45, views: 210, author: '광주도장러', spec: '신형 펄 입자 적용' },
+      { id: 5, brand: '아우디', code: 'LY9C', date: '2026-08-25', likes: 3, views: 12, author: '하남공업사', spec: '화이트 솔리드 기본 배합' }
   ]);
 
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
@@ -3109,7 +3110,6 @@ export default function App() {
         if (!loadedFromUrl) {
             const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos'); const savedBoard = localStorage.getItem('hitec_board_mock');
             
-            // 기존 데이터가 있다면 로드하되, 앱 최초 진입 시 빈칸 상태 유지를 위해 setToners는 조건부 적용 고려 가능. 여기서는 기존 사용자 편의를 위해 로드 유지.
             if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
             if (savedBoard) setBoardPosts(JSON.parse(savedBoard));
         }
@@ -3404,9 +3404,9 @@ export default function App() {
               </div>
               
               <div className="flex w-full gap-2 mt-2">
-                <button onClick={copyToExcel} className="flex-1 bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
-                <button onClick={saveToBoard} className="flex-1 bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
-                <button onClick={shareToKakao} className="flex-[1.5] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
+                <button onClick={copyToExcel} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
+                <button onClick={saveToBoard} className="flex-[1.5] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
+                <button onClick={shareToKakao} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
                     <Share2 size={18} className="mr-1.5"/> 톡 전송
                 </button>
                 <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 transition-colors shadow-sm whitespace-nowrap">
@@ -3654,7 +3654,6 @@ export default function App() {
                   </div>
               </div>
 
-              {/* 💡 피드백 버튼 컬러 패치 (노란색) 및 팝업 연동 */}
               <div className="flex gap-2 mt-3">
                   <button 
                       onClick={() => setIsEmailModalOpen(true)}
@@ -3675,7 +3674,6 @@ export default function App() {
                 <h3 className="text-white font-black text-sm flex items-center shrink-0"><BookOpen className="mr-2 text-blue-400" size={18}/>지능형 안료 도감</h3>
                 
                 <div className="flex gap-2 w-full sm:w-auto">
-                    {/* 💡 도감 내 자체 검색창 유지 */}
                     <div className="relative flex-1 sm:w-40">
                         <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료 검색 (예: 블루)" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" />
@@ -3733,7 +3731,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* 모바일/데스크톱 하단 패널 */}
       <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
           <div className="flex lg:hidden items-center justify-between p-3 px-4">
              <div className="flex gap-4">
@@ -3798,7 +3795,7 @@ export default function App() {
           </div>
       </div>
 
-      {/* 💡 [신규] 월 구독 승인요청 모달 */}
+      {/* 월 구독 승인요청 모달 */}
       {isSubscribeOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in overflow-y-auto">
           <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 my-8">
@@ -3824,7 +3821,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 [신규] 브랜드별 시편 공유 게시판 (Mock) */}
+      {/* 브랜드별 시편 공유 게시판 (Mock) */}
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
@@ -3834,9 +3831,9 @@ export default function App() {
             </div>
             
             <div className="p-3 bg-white border-b border-slate-200 flex flex-col sm:flex-row gap-3 shrink-0">
-                <div className="flex gap-2 w-full sm:w-auto">
+                <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
                     {['전체', '현대', '기아', '벤츠', 'BMW', '포드'].map(b => (
-                        <button key={b} onClick={() => setBoardBrandFilter(b)} className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${boardBrandFilter === b ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300'}`}>{b}</button>
+                        <button key={b} onClick={() => setBoardBrandFilter(b)} className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${boardBrandFilter === b ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300'}`}>{b}</button>
                     ))}
                 </div>
                 <div className="relative flex-1">
@@ -3991,7 +3988,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 과거 연동 데이터 모달 */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
