@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Sliders, Trash2, Plus, Minus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket, Columns, Mail, Code
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket, Columns, Mail, Code, Users, CreditCard, AlertTriangle, ThumbsUp, Eye, Calendar
 } from 'lucide-react';
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
@@ -10,7 +10,7 @@ interface TonerData { role: string; type: string; face: string; flop: string; de
 export const TONER_DB: Record<string, TonerData> = {
   'WT 347': { role: '트랜스페어런트 그린', type: 'solid', face: '#15803d', flop: '#022c22', desc: '도막에 깊이감과 맑은 느낌을 부여하는 투명성이 뛰어난 녹색 조색제입니다.', details: [['일반 특성 (뛰어난 투명성)', '은폐력이 거의 없어 메탈릭이나 펄 입자 고유의 반사광을 가리지 않습니다. 이로 인해 도막에 깊이감(Depth)과 맑은 느낌을 부여합니다.'], ['색상 및 외관 변화 (Face & Flop)', '정면에서는 맑고 선명한 녹색을 띠지만, 측면(스카시)으로 갈수록 투명도가 높아 바탕의 메탈릭 입자나 펄의 특성이 그대로 투과되어 보입니다.'], ['용도 및 적용 컬러 (방향성 제어)', '주로 맑은 옐로우 틴트와 배합하여 깨끗한 골드 그린(Gold Green)을 만들거나, 투명 블루와 섞어 깊이 있는 청록색(Teal)을 조색할 때 활용됩니다.'], ['배합 및 혼합 비율', '착색력이 뛰어나 미량의 추가만으로도 전체적인 색상의 방향(특히 측면 톤)이 크게 변할 수 있어 배합량 조절에 매우 유의해야 합니다.'], ['경고 및 조색 주의점', '메탈릭 및 펄 컬러에 적용할 때는 입자 배열을 돕는 오리엔테이션 제제(예: 386 agent)나 결합 수지(예: WT390)의 비율을 정확히 맞추어 펄과 알루미늄 입자가 안정적으로 자리 잡도록 세팅하는 것이 맑은 컬러감을 극대화하는 데 중요합니다.']] },
   'WT 380': { role: '다이아몬드 그린', type: 'xirallic', face: '#4ade80', flop: '#166534', desc: '녹색 빛을 띠는 고휘도의 반짝임을 내는 특수 펄 조색제입니다.', details: [['일반 특성 (압도적인 반짝임)', '일반적인 마이카(Mica) 펄 안료와 달리, 유리 입자(Glass Flake)나 합성 기재를 베이스로 하여 투명도가 월등히 높고 다이아몬드처럼 강렬하게 부서지는 빛 반사(Sparkle)를 만들어냅니다.'], ['색상 및 외관 변화', '빛이 없는 그늘에서는 입자감이 잘 띄지 않다가, 직사광선 아래에서 폭발적인 녹색 광원을 뿜어내는 것이 특징입니다.'], ['용도 및 적용 컬러 (극적인 플립)', '블랙 바탕에서는 각도에 따라 검은색과 강렬한 녹색이 교차하는 드라마틱한 투톤(Color Flip) 효과를 내며, 밝은 바탕에서는 투명하고 은은한 펄감만 더해줍니다.'], ['배합 및 혼합 비율', '프리미엄 럭셔리카 다이아몬드 그린 펄 페인팅에 전용 처방되며 정밀하게 소량씩 계측 혼입합니다.'], ['경고 및 주의사항', '바탕색상(하도 프라이머 명도)의 미세 차이도 그대로 노출시키므로 완벽한 밸류쉐이드 하도 도장이 선행되어야 합니다.']] },
-  'WT 389': { role: '플래티닌 실버 화인', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b', desc: '거친 입자감이 전혀 없는 맑고 고운 금속 광택을 내는 초미세 실버 달러 입자 조색제입니다.', details: [['일반 특성 (초미세 실버 달러)', '입자의 크기가 매우 작고 둥글며 납작한 형태를 띠고 있어, 도막 위에 촘촘하고 매끄럽게 배열됩니다. 이로 인해 거친 입자감이 전혀 없는 맑고 고운 금속 광택을 냅니다.'], ['색상 및 외관 변화 (극명한 대비)', '정면(Face)에서는 빛을 강하게 반사하여 플래티넘(백금)처럼 눈부시고 화사하게 빛납니다. 반면, 입자가 워낙 조밀하게 배열되어 빛이 통과할 고틈이 적기 때문에 측면(스카시, Flop)에서 볼 때는 톤이 확연히 어둡고 단단해 보이는 특징이 있습니다.'], ['용도 및 적용 컬러', '특정 아시안 OEM 차량의 중간 입자 실버 매칭 및 고휘도 라이트 실버 조색 시 타겟팅됩니다.'], ['배합 및 혼합 비율', '안료 입자가 매우 미세하고 밀도가 높아, 다른 굵은 메탈릭 안료나 투명 펄에 비해 은폐력이 뛰어나 타깃 컬러의 밑색을 빠르게 덮어줍니다.'], ['경고 및 주의사항', '입자 배열에 따라 색상이 민감하게 변하므로 숨김 도장 영역을 충분히 넓게 확보하고 저압으로 플래시오프 해야 이색을 잡을 수 있습니다.']] },
+  'WT 389': { role: '플래티닌 실버 화인', type: 'silver_fine', face: '#cbd5e1', flop: '#64748b', desc: '거친 입자감이 전혀 없는 맑고 고운 금속 광택을 내는 초미세 실버 달러 입자 조색제입니다.', details: [['일반 특성 (초미세 실버 달러)', '입자의 크기가 매우 작고 둥글며 납작한 형태를 띠고 있어, 도막 위에 촘촘하고 매끄럽게 배열됩니다. 이로 인해 거친 입자감이 전혀 없는 맑고 고운 금속 광택을 냅니다.'], ['색상 및 외관 변화 (극명한 대비)', '정면(Face)에서는 빛을 강하게 반사하여 플래티넘(백금)처럼 눈부시고 화사하게 빛납니다. 반면, 입자가 워낙 조밀하게 배열되어 빛이 통과할 틈이 적기 때문에 측면(스카시, Flop)에서 볼 때는 톤이 확연히 어둡고 단단해 보이는 특징이 있습니다.'], ['용도 및 적용 컬러', '특정 아시안 OEM 차량의 중간 입자 실버 매칭 및 고휘도 라이트 실버 조색 시 타겟팅됩니다.'], ['배합 및 혼합 비율', '안료 입자가 매우 미세하고 밀도가 높아, 다른 굵은 메탈릭 안료나 투명 펄에 비해 은폐력이 뛰어나 타깃 컬러의 밑색을 빠르게 덮어줍니다.'], ['경고 및 주의사항', '입자 배열에 따라 색상이 민감하게 변하므로 숨김 도장 영역을 충분히 넓게 확보하고 저압으로 플래시오프 해야 이색을 잡을 수 있습니다.']] },
   'WT 144': { role: '블루 [WT 346 완벽대체]', type: 'solid', face: '#1e3a8a', flop: '#0369a1', desc: '정면에서 선명한 적청색 기운을 띠며 기존 WT346을 대체하는 고농축 청색입니다.', details: [['일반 특성', '새롭게 개발된 고농축 청색 수성 조색제입니다.'], ['색상 및 외관 변화', '정면에서 선명한 적청색을 띠며 측면에서 푸른빛이 발현됩니다.'], ['용도 및 적용 컬러', 'WT 346이 포함된 모든 컬러의 1:1 대체 조색용으로 사용됩니다.'], ['배합 및 혼합 비율', '대체 시 [WT346 : WT144 = 1 : 0.9]의 비율을 적용합니다.'], ['경고 및 주의사항', '기존 도막과 미세한 색상 차이가 발생할 수 있으므로 시편 대조를 권장합니다.']] },
   'WT 154': { role: '블루 이펙트', type: 'silver_fine', face: '#3b82f6', flop: '#1e3a8a', desc: '청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.', details: [['일반 특성', '청색으로 특수 착색된 광휘형 알루미늄 조색제입니다.'], ['색상 및 외관 변화', '입자의 반짝임이 뛰어나며 도막에 깊은 청색 메탈릭 질감을 부여합니다.'], ['용도 및 적용 컬러', '고성능 차량의 청색 계열 특수 메탈릭 컬러 조색 시 핵심적으로 사용됩니다.'], ['배합 및 혼합 비율', '표준 배합 데이터를 기준하여 정밀 저울로 계량합니다.'], ['경고 및 주의사항', '용기 바닥에 가라앉기 쉬우므로 사용 전 교반기로 충분히 혼합해야 합니다.']] },
   'WT 188': { role: '슈퍼 딥 블랙', type: 'solid', face: '#0f172a', flop: '#020617', desc: '명도를 극단적으로 낮춘 매우 어두운 흑색 조색제입니다.', details: [['일반 특성', '명도를 극단적으로 낮춘 매우 어두운 흑색 조색제입니다.'], ['색상 및 외관 변화', '밑색이 보이지 않을 정도로 차갑고 깊은 완전 흑색을 구현합니다.'], ['용도 및 적용 컬러', '극한의 명암 대비가 필요한 특정 흑색 계열 컬러에 제한적으로 사용됩니다.'], ['배합 및 혼합 비율', '착색력이 강하므로 기존 대비 절반 이하의 비율부터 미세 조정합니다.'], ['경고 및 주의사항', '과량 사용 시 이펙트 안료의 반짝임을 덮어버릴 수 있으므로 주의가 필요합니다.']] },
@@ -3016,9 +3016,29 @@ export default function App() {
   const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
   const [restoredViewData, setRestoredViewData] = useState<any>(null); 
   
-  // 💡 피드백 모달 및 히스토리 모달 State
+  // 💡 피드백 모달, 히스토리 모달, 가입/승인 모달 State
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
+  const [isNoticeOpen, setIsNoticeOpen] = useState(true); // 업데이트 공지 팝업
+  const [isBoardOpen, setIsBoardOpen] = useState(false); // 시편 게시판 모달
+
+  // 구독 폼 데이터
+  const [subName, setSubName] = useState('');
+  const [subAge, setSubAge] = useState('');
+  const [subRegion, setSubRegion] = useState('');
+  const [subBiz, setSubBiz] = useState('');
+  const [subEmail, setSubEmail] = useState('');
+
+  // 💡 게시판 목업(Mock) 데이터 및 State (실제 공유는 백엔드 필요함을 인지시킴)
+  const [boardSearch, setBoardSearch] = useState('');
+  const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
+  const [boardPosts, setBoardPosts] = useState([
+      { id: 1, brand: '현대', code: 'UG4', date: '2026-08-20', likes: 12, views: 45, author: '김프로', spec: '이색 심함, 블랜딩 필수' },
+      { id: 2, brand: '기아', code: 'SWP', date: '2026-08-22', likes: 28, views: 102, author: '이반장', spec: '정면 밝음, 측면 어두움' },
+      { id: 3, brand: '벤츠', code: '197', date: '2026-08-24', likes: 8, views: 15, author: '성남최고', spec: '은폐력 약함, 하도 필수' },
+      { id: 4, brand: 'BMW', code: 'C3E', date: '2026-08-25', likes: 45, views: 210, author: '광주도장러', spec: '신형 펄 입자 적용' }
+  ]);
 
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -3087,8 +3107,11 @@ export default function App() {
         }
         
         if (!loadedFromUrl) {
-            const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos');
+            const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos'); const savedBoard = localStorage.getItem('hitec_board_mock');
+            
+            // 기존 데이터가 있다면 로드하되, 앱 최초 진입 시 빈칸 상태 유지를 위해 setToners는 조건부 적용 고려 가능. 여기서는 기존 사용자 편의를 위해 로드 유지.
             if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
+            if (savedBoard) setBoardPosts(JSON.parse(savedBoard));
         }
         setIsLoaded(true); 
     }
@@ -3098,8 +3121,9 @@ export default function App() {
       const urlParams = new URLSearchParams(window.location.search); if (urlParams.get('d')) return;
       if (isLoaded && typeof window !== 'undefined') {
           localStorage.setItem('hitec_base', JSON.stringify(toners)); localStorage.setItem('hitec_pearl', JSON.stringify(pearlToners)); localStorage.setItem('hitec_code', targetColorCode); localStorage.setItem('hitec_mode', JSON.stringify(isThreeCoatMode)); localStorage.setItem('hitec_vehicle', vehicleNumber); localStorage.setItem('hitec_carmodel', carModel); localStorage.setItem('hitec_job', jobDescription); localStorage.setItem('hitec_notes', specialNotes); localStorage.setItem('hitec_toner_memos', JSON.stringify(tonerMemos));
+          localStorage.setItem('hitec_board_mock', JSON.stringify(boardPosts));
       }
-  }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, tonerMemos, isLoaded]);
+  }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, tonerMemos, boardPosts, isLoaded]);
 
   useEffect(() => { tonersRef.current = toners; pearlTonersRef.current = pearlToners; isThreeCoatModeRef.current = isThreeCoatMode; }, [toners, pearlToners, isThreeCoatMode]);
 
@@ -3266,16 +3290,73 @@ export default function App() {
     );
   };
 
+  // 💡 [신규] 승인 요청 폼 이메일 전송 핸들러
+  const handleSubscribeSubmit = () => {
+      if(!subName || !subAge || !subRegion || !subBiz || !subEmail) {
+          alert("모든 항목을 입력해주세요."); return;
+      }
+      const subject = encodeURIComponent(`[조색 PRO 승인요청] ${subBiz} - ${subName}`);
+      const body = encodeURIComponent(`이름: ${subName}\n나이: ${subAge}\n지역: ${subRegion}\n사업장명: ${subBiz}\n이메일: ${subEmail}\n\n위의 정보로 조색 PRO 정식 사용 및 월 구독(3,000원) 승인을 요청합니다.`);
+      window.location.href = `mailto:ysm0427@gmail.com?subject=${subject}&body=${body}`;
+      setIsSubscribeOpen(false);
+  };
+
+  // 💡 [신규] 시편 게시판 내 배합 저장 핸들러 (Mock DB 활용)
+  const saveToBoard = () => {
+      if(!targetColorCode) { alert("컬러코드를 입력해야 게시판에 저장할 수 있습니다."); return; }
+      const newPost = {
+          id: Date.now(),
+          brand: carModel || '미지정', // 차종 필드를 브랜드처럼 임시 활용
+          code: targetColorCode,
+          date: registrationDate,
+          likes: 0,
+          views: 0,
+          author: '내 데이터',
+          spec: specialNotes || '특이사항 없음'
+      };
+      setBoardPosts([newPost, ...boardPosts]);
+      alert("게시판에 내 시편 데이터가 등록되었습니다! (현재는 내 기기에서만 보입니다. 추후 DB 연동 시 전체 공유됩니다.)");
+  };
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[320px] lg:pb-[140px]">
-      <header className="bg-slate-900 flex justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0">
-        <div className="flex items-center space-x-3">
+      
+      {/* 💡 [신규] 최초 공지사항 모달 */}
+      {isNoticeOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[2000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-rose-600 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><AlertTriangle size={18} /> 업데이트 사전 공지</h3>
+              <button onClick={() => setIsNoticeOpen(false)} className="hover:text-red-200 transition-colors bg-rose-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-4 bg-slate-50">
+              <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl text-rose-800 text-sm leading-relaxed font-medium">
+                  <p className="mb-2"><span className="font-black text-rose-600">[중요]</span> 조색 PRO의 대규모 시스템 패치가 예정되어 있습니다.</p>
+                  <p>업데이트가 진행되는 동안 기존에 저장해 두셨던 임시 배합 데이터가 초기화될 수 있습니다. <b>업데이트 전 기존 시편 데이터를 반드시 엑셀로 복사하시거나 따로 저장(백업)해 주시기 바랍니다.</b></p>
+              </div>
+              <button onClick={() => setIsNoticeOpen(false)} className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-slate-700 transition-colors">확인했습니다</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 헤더 + 상단 메뉴 (승인요청, 게시판) */}
+      <header className="bg-slate-900 flex flex-col sm:flex-row justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0 gap-3">
+        <div className="flex items-center space-x-3 w-full sm:w-auto">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
-          <h1 className="text-lg md:text-xl font-semibold flex items-center gap-2">
-              <span className="text-white tracking-wide">윤성만님을 위한</span>
-              <span className="text-blue-400 font-normal">조색 PRO</span>
-              <span className="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-full border border-slate-700 ml-1 hidden sm:inline-block">Last Patch: 2026.08.24</span>
+          <h1 className="text-lg md:text-xl font-semibold flex items-center gap-2 w-full">
+              <span className="text-white tracking-wide truncate">윤성만님을 위한</span>
+              <span className="text-blue-400 font-normal shrink-0">조색 PRO</span>
+              <span className="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-full border border-slate-700 ml-1 hidden sm:inline-block shrink-0">Last Patch: 2026.08.24</span>
           </h1>
+        </div>
+        <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            <button onClick={() => setIsBoardOpen(true)} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                <Layers size={14} /> 브랜드 시편 공유
+            </button>
+            <button onClick={() => setIsSubscribeOpen(true)} className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                <Users size={14} /> PRO 사용 승인요청
+            </button>
         </div>
       </header>
 
@@ -3283,7 +3364,6 @@ export default function App() {
         <div className="lg:col-span-7 flex flex-col bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden">
           <div className="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3">
             
-            {/* 💡 중복 검색창 삭제 및 버튼 재정렬 */}
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-slate-800 flex items-center shrink-0">
                 <Sliders className="text-blue-600 mr-2" size={16} />공식 배합 워크 시트
@@ -3304,8 +3384,8 @@ export default function App() {
                    <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="예: 12가3456" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
                 </div>
                 <div className="flex flex-col">
-                   <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 차종</label>
-                   <input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 익스플로러" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
+                   <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 브랜드(차종)</label>
+                   <input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 현대, 제네시스" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
                 </div>
                 <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🎨 컬러코드</label>
@@ -3324,9 +3404,10 @@ export default function App() {
               </div>
               
               <div className="flex w-full gap-2 mt-2">
-                <button onClick={copyToExcel} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1"/> 엑셀 복사</button>
-                <button onClick={shareToKakao} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
-                    <Share2 size={18} className="mr-1.5"/> 확정 (카톡 전송)
+                <button onClick={copyToExcel} className="flex-1 bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
+                <button onClick={saveToBoard} className="flex-1 bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
+                <button onClick={shareToKakao} className="flex-[1.5] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
+                    <Share2 size={18} className="mr-1.5"/> 톡 전송
                 </button>
                 <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 transition-colors shadow-sm whitespace-nowrap">
                     <Trash2 size={18} className="mb-0.5" />
@@ -3573,7 +3654,7 @@ export default function App() {
                   </div>
               </div>
 
-              {/* 💡 2번. 다이렉트 피드백 버튼 색상 변경 (노란색 강조) */}
+              {/* 💡 피드백 버튼 컬러 패치 (노란색) 및 팝업 연동 */}
               <div className="flex gap-2 mt-3">
                   <button 
                       onClick={() => setIsEmailModalOpen(true)}
@@ -3594,6 +3675,11 @@ export default function App() {
                 <h3 className="text-white font-black text-sm flex items-center shrink-0"><BookOpen className="mr-2 text-blue-400" size={18}/>지능형 안료 도감</h3>
                 
                 <div className="flex gap-2 w-full sm:w-auto">
+                    {/* 💡 도감 내 자체 검색창 유지 */}
+                    <div className="relative flex-1 sm:w-40">
+                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료 검색 (예: 블루)" className="w-full bg-slate-800 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
+                        <Search size={14} className="absolute left-2.5 top-1.5 text-slate-400" />
+                    </div>
                     <div className="relative flex-1 sm:w-48">
                         <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value)} placeholder="FORD 색상 검색" className="w-full bg-slate-800 border border-yellow-500/50 text-yellow-300 text-xs px-2.5 py-1.5 rounded-full pl-8 focus:outline-none focus:border-yellow-400 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-1.5 text-blue-400" />
@@ -3647,6 +3733,7 @@ export default function App() {
         </div>
       </div>
 
+      {/* 모바일/데스크톱 하단 패널 */}
       <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
           <div className="flex lg:hidden items-center justify-between p-3 px-4">
              <div className="flex gap-4">
@@ -3711,12 +3798,91 @@ export default function App() {
           </div>
       </div>
 
+      {/* 💡 [신규] 월 구독 승인요청 모달 */}
+      {isSubscribeOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+          <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 my-8">
+            <div className="p-4 bg-gradient-to-r from-purple-600 to-indigo-600 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><CreditCard size={18} /> 조색 PRO 정식 사용 승인 요청</h3>
+              <button onClick={() => setIsSubscribeOpen(false)} className="hover:text-purple-200 transition-colors bg-white/20 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-4 bg-slate-50">
+              <div className="bg-purple-50 border border-purple-200 p-4 rounded-xl text-center">
+                  <p className="text-purple-800 font-black text-lg">월 사용료: 3,000원</p>
+                  <p className="text-xs text-purple-600 mt-1">계좌번호: 카카오뱅크 3333-XX-XXXXXX (윤성만)</p>
+              </div>
+              <div className="space-y-3">
+                  <div><label className="text-xs font-bold text-slate-600">이름</label><input type="text" value={subName} onChange={e=>setSubName(e.target.value)} className="w-full p-2 border rounded mt-1 focus:ring-2 focus:ring-purple-400 focus:outline-none" placeholder="홍길동" /></div>
+                  <div><label className="text-xs font-bold text-slate-600">나이</label><input type="text" value={subAge} onChange={e=>setSubAge(e.target.value)} className="w-full p-2 border rounded mt-1 focus:ring-2 focus:ring-purple-400 focus:outline-none" placeholder="35" /></div>
+                  <div><label className="text-xs font-bold text-slate-600">지역 (현재 경기권 우선 승인)</label><input type="text" value={subRegion} onChange={e=>setSubRegion(e.target.value)} className="w-full p-2 border rounded mt-1 focus:ring-2 focus:ring-purple-400 focus:outline-none" placeholder="예: 경기 광주, 성남 등" /></div>
+                  <div><label className="text-xs font-bold text-slate-600">사업장명</label><input type="text" value={subBiz} onChange={e=>setSubBiz(e.target.value)} className="w-full p-2 border rounded mt-1 focus:ring-2 focus:ring-purple-400 focus:outline-none" placeholder="ㅇㅇ모터스" /></div>
+                  <div><label className="text-xs font-bold text-slate-600">연락처(이메일)</label><input type="email" value={subEmail} onChange={e=>setSubEmail(e.target.value)} className="w-full p-2 border rounded mt-1 focus:ring-2 focus:ring-purple-400 focus:outline-none" placeholder="example@gmail.com" /></div>
+              </div>
+              <button onClick={handleSubscribeSubmit} className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold mt-2 shadow-md hover:bg-indigo-700 transition-colors">승인 요청 메일 보내기</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 💡 [신규] 브랜드별 시편 공유 게시판 (Mock) */}
+      {isBoardOpen && (
+        <div className="fixed inset-0 bg-slate-900/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
+          <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
+            <div className="p-4 bg-slate-800 flex justify-between items-center text-white shrink-0">
+              <h3 className="font-bold flex items-center gap-2"><Layers size={18} className="text-emerald-400"/> 브랜드별 실시간 시편 데이터 (Beta)</h3>
+              <button onClick={() => setIsBoardOpen(false)} className="hover:text-red-300 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            
+            <div className="p-3 bg-white border-b border-slate-200 flex flex-col sm:flex-row gap-3 shrink-0">
+                <div className="flex gap-2 w-full sm:w-auto">
+                    {['전체', '현대', '기아', '벤츠', 'BMW', '포드'].map(b => (
+                        <button key={b} onClick={() => setBoardBrandFilter(b)} className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${boardBrandFilter === b ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300'}`}>{b}</button>
+                    ))}
+                </div>
+                <div className="relative flex-1">
+                    <input type="text" value={boardSearch} onChange={e=>setBoardSearch(e.target.value)} placeholder="컬러코드 또는 특이사항 검색" className="w-full bg-slate-50 border border-slate-300 text-sm px-3 py-1.5 rounded-lg pl-8 focus:outline-none focus:border-emerald-500" />
+                    <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
+                </div>
+            </div>
+
+            <div className="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-3 bg-slate-100">
+                {boardPosts.filter(p => (boardBrandFilter === '전체' || p.brand === boardBrandFilter) && (p.code.toLowerCase().includes(boardSearch.toLowerCase()) || p.spec.includes(boardSearch))).map(post => (
+                    <div key={post.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-400 transition-colors cursor-pointer group">
+                        <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2">
+                                <span className="bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded font-bold">{post.brand}</span>
+                                <span className="text-lg font-black text-emerald-700 uppercase tracking-wide">{post.code}</span>
+                            </div>
+                            <span className="text-xs text-slate-400 font-medium flex items-center gap-1"><Calendar size={12}/> {post.date}</span>
+                        </div>
+                        <p className="text-sm text-slate-600 font-bold mb-3 break-keep">{post.spec}</p>
+                        <div className="flex justify-between items-center border-t border-slate-100 pt-3">
+                            <span className="text-xs text-slate-500">By. <b>{post.author}</b></span>
+                            <div className="flex gap-3 text-xs font-bold text-slate-400">
+                                <span className="flex items-center gap-1 group-hover:text-emerald-600 transition-colors"><Eye size={14}/> {post.views}</span>
+                                <span className="flex items-center gap-1 hover:text-blue-600 transition-colors"><ThumbsUp size={14}/> {post.likes}</span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                {boardPosts.length === 0 && <div className="text-center py-10 text-slate-500">등록된 시편 데이터가 없습니다.</div>}
+            </div>
+            
+            <div className="p-3 bg-emerald-50 border-t border-emerald-200 shrink-0 text-center">
+                <p className="text-xs text-emerald-800 font-bold mb-2">※ 현재 내 기기(로컬)에서 작성한 배합 데이터만 연동 테스트 중입니다.</p>
+                <button onClick={saveToBoard} className="bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-black text-sm shadow-md hover:bg-emerald-700 transition-colors">현재 작업 중인 배합 게시판에 등록하기</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 다이렉트 피드백 모달 */}
       {isEmailModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
-            <div className="p-4 bg-indigo-600 flex justify-between items-center text-white">
-              <h3 className="font-bold flex items-center gap-2"><Mail size={18} /> 개발자에게 피드백 보내기</h3>
-              <button onClick={() => setIsEmailModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
+            <div className="p-4 bg-yellow-500 flex justify-between items-center text-slate-900">
+              <h3 className="font-black flex items-center gap-2"><Mail size={18} /> 개발자에게 피드백 보내기</h3>
+              <button onClick={() => setIsEmailModalOpen(false)} className="hover:text-red-600 transition-colors bg-yellow-400 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             <div className="p-6 flex flex-col gap-4 bg-slate-50">
               <p className="text-sm text-slate-600 text-center font-medium break-keep">버그 제보, 기능 추가 요청 등 어떤 의견이든 환영합니다!<br/>어떤 메일 서비스로 보내시겠습니까?</p>
@@ -3726,12 +3892,13 @@ export default function App() {
                     <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#34A853" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#4A90E2" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><path fill="#FBBC05" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg> 구글 메일
                   </a>
               </div>
-              <button onClick={() => { navigator.clipboard.writeText('ysm0427@gmail.com'); alert('이메일 주소가 복사되었습니다.'); }} className="text-xs text-slate-400 underline mt-2 hover:text-indigo-500 transition-colors">주소만 복사하기 (ysm0427@gmail.com)</button>
+              <button onClick={() => { navigator.clipboard.writeText('ysm0427@gmail.com'); alert('이메일 주소가 복사되었습니다.'); }} className="text-xs text-slate-400 underline mt-2 hover:text-yellow-600 transition-colors">주소만 복사하기 (ysm0427@gmail.com)</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* 제작 비하인드 히스토리 모달 */}
       {isHistoryModalOpen && (
         <div className="fixed inset-0 bg-slate-950/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-900 rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700 my-8">
@@ -3824,6 +3991,7 @@ export default function App() {
         </div>
       )}
 
+      {/* 과거 연동 데이터 모달 */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
@@ -3908,6 +4076,7 @@ export default function App() {
         </div>
       )}
 
+     {/* 먼셀 컬러 믹싱 스튜디오 */}
      {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-scroll custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
