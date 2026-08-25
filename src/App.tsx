@@ -112,9 +112,11 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 3080': { role: '스페셜 애디티브', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '도막 보정 및 흐름 방지 특수 첨가제.', details: [['일반 특성', '도막 보정 및 흐름 방지 전용 특수 첨가제입니다.'], ['색상 및 외관 변화', '건조 후 투명하게 유지됩니다.'], ['용도 및 적용 컬러', '도막 두께 보정이 필요한 모든 수성 도료에 사용됩니다.'], ['배합 및 혼합 비율', '시스템 지시에 따라 사용합니다.'], ['경고 및 주의사항', '과도한 첨가는 도막 품질 저하를 유발합니다.']] }
 };
 
+// 💡 [2번 구역] FORD 2,610종 색상 데이터 공간 확보
 export const OEM_COLORS = [
 /* 
   👇👇👇 여기에 2610줄짜리 엑셀 데이터를 복사해서 붙여넣으세요! 👇👇👇
+  (예: { code: 'UG4', name: 'WHITE PLATINUM' }, ...)
 */
 { code: `AZ`, name: `펄` },
 { code: `RR`, name: `틴티드 투명` },
@@ -2967,30 +2969,6 @@ const MUNSELL_WHEEL_COLORS = [
     { name: '연지', symbol: 'pR', hex: '#BE0081' },
 ];
 
-// 💡 1번 에러 원인 해결: 객체 복구 및 전역 배치
-const MIXING_DATA: Record<string, any> = {
-    'R': { c1: '빨강 (R)', h1: '#ff0000', r1: 100 },
-    'yR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 },
-    'YR': { c1: '빨강 (R)', h1: '#ff0000', r1: 50, c2: '노랑 (Y)', h2: '#ffff00', r2: 50 },
-    'rY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 75, c2: '빨강 (R)', h2: '#ff0000', r2: 25 },
-    'Y': { c1: '노랑 (Y)', h1: '#ffff00', r1: 100 },
-    'gY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 75, c2: '녹색 (G)', h2: '#009900', r2: 25 },
-    'GY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 50, c2: '녹색 (G)', h2: '#009900', r2: 50 },
-    'yG': { c1: '녹색 (G)', h1: '#009900', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 },
-    'G': { c1: '녹색 (G)', h1: '#009900', r1: 100 },
-    'bG': { c1: '녹색 (G)', h1: '#009900', r1: 75, c2: '파랑 (B)', h2: '#0000ff', r2: 25 },
-    'BG': { c1: '녹색 (G)', h1: '#009900', r1: 50, c2: '파랑 (B)', h2: '#0000ff', r2: 50 },
-    'gB': { c1: '파랑 (B)', h1: '#0000ff', r1: 75, c2: '녹색 (G)', h2: '#009900', r2: 25 },
-    'B': { c1: '파랑 (B)', h1: '#0000ff', r1: 100 },
-    'pB': { c1: '파랑 (B)', h1: '#0000ff', r1: 75, c2: '보라 (P)', h2: '#700070', r2: 25 },
-    'PB': { c1: '파랑 (B)', h1: '#0000ff', r1: 50, c2: '보라 (P)', h2: '#700070', r2: 50 },
-    'bP': { c1: '보라 (P)', h1: '#700070', r1: 75, c2: '파랑 (B)', h2: '#0000ff', r2: 25 },
-    'P': { c1: '보라 (P)', h1: '#700070', r1: 100 },
-    'rP': { c1: '보라 (P)', h1: '#700070', r1: 75, c2: '빨강 (R)', h2: '#ff0000', r2: 25 },
-    'RP': { c1: '보라 (P)', h1: '#700070', r1: 50, c2: '빨강 (R)', h2: '#ff0000', r2: 50 },
-    'pR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '보라 (P)', h2: '#700070', r2: 25 },
-};
-
 const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
   const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
   return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) };
@@ -3408,6 +3386,7 @@ export default function App() {
               
               <div className="flex w-full gap-2 mt-2">
                 <button onClick={() => setIsExcelModalOpen(true)} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
+                <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.5] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
                 <button onClick={() => setIsShareModalOpen(true)} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
                     <Share2 size={18} className="mr-1.5"/> 공유 전송
                 </button>
@@ -3474,12 +3453,19 @@ export default function App() {
                               <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-2 pt-2 border-t border-slate-200">
                                   {info.details && info.details.length > 0 ? (
                                       <div className="flex flex-col gap-1.5 w-full">
-                                          {info.details.map((d: any, idx: number) => (
-                                              <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2">
-                                                  <span className={`shrink-0 inline-flex items-center justify-center w-[140px] px-1.5 py-1.5 text-[10px] font-bold rounded-md border text-center break-keep leading-tight mt-0.5 ${getBadgeClass(d[0])}`}>{d[0]}</span>
-                                                  <span className="text-[11px] text-slate-600 leading-normal break-keep pt-0.5">{d[1]}</span>
+                                          {info.details.map((d: any, idx: number) => {
+                                              const splitIndex = d[0].indexOf('(');
+                                              let mainTitle = d[0]; let subTitle = '';
+                                              if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim(); }
+                                              return (
+                                              <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2.5 mb-2">
+                                                  <div className={`shrink-0 flex flex-col items-center justify-center w-[130px] sm:w-[140px] px-1 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
+                                                      <span className="text-[10px] font-black leading-none">{mainTitle}</span>
+                                                      {subTitle && <span className="text-[8.5px] font-bold mt-1 opacity-80 leading-none">{subTitle}</span>}
+                                                  </div>
+                                                  <span className="text-[11px] text-slate-700 leading-relaxed break-keep pt-0.5">{d[1]}</span>
                                               </div>
-                                          ))}
+                                          )})}
                                       </div>
                                   ) : <p className="text-[11px] text-slate-500 leading-tight break-keep">{info.desc}</p>}
                               </div>
@@ -3583,12 +3569,19 @@ export default function App() {
                                 <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-2 pt-2 border-t border-purple-200">
                                     {info.details && info.details.length > 0 ? (
                                         <div className="flex flex-col gap-1.5 w-full">
-                                            {info.details.map((d: any, idx: number) => (
-                                                <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2">
-                                                    <span className={`shrink-0 inline-flex items-center justify-center w-[140px] px-1.5 py-1.5 text-[10px] font-bold rounded-md border text-center break-keep leading-tight mt-0.5 ${getBadgeClass(d[0])}`}>{d[0]}</span>
-                                                    <span className="text-[11px] text-slate-600 leading-normal break-keep pt-0.5">{d[1]}</span>
+                                            {info.details.map((d: any, idx: number) => {
+                                                const splitIndex = d[0].indexOf('(');
+                                                let mainTitle = d[0]; let subTitle = '';
+                                                if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim(); }
+                                                return (
+                                                <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2.5 mb-2">
+                                                    <div className={`shrink-0 flex flex-col items-center justify-center w-[130px] sm:w-[140px] px-1 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
+                                                        <span className="text-[10px] font-black leading-none">{mainTitle}</span>
+                                                        {subTitle && <span className="text-[8.5px] font-bold mt-1 opacity-80 leading-none">{subTitle}</span>}
+                                                    </div>
+                                                    <span className="text-[11px] text-slate-600 leading-relaxed break-keep pt-0.5">{d[1]}</span>
                                                 </div>
-                                            ))}
+                                            )})}
                                         </div>
                                     ) : <p className="text-[11px] text-slate-500 leading-tight break-keep">{info.desc}</p>}
                                 </div>
@@ -3656,18 +3649,18 @@ export default function App() {
                   </div>
               </div>
 
-              <div className="flex gap-2 mt-3">
+              <div className="flex gap-2 mt-3 relative z-10">
                   <button 
                       onClick={() => setIsEmailModalOpen(true)}
-                      className="flex-1 bg-yellow-400 border border-yellow-500 text-slate-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-yellow-500 transition-colors shadow-sm"
+                      className="flex-1 bg-yellow-400 border border-yellow-500 text-slate-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-yellow-500 transition-colors shadow-sm cursor-pointer"
                   >
-                      <Mail size={16} className="mr-1.5 text-slate-800" /> 다이렉트 피드백 보내기
+                      <Mail size={16} className="mr-1.5 text-slate-800 pointer-events-none" /> <span className="pointer-events-none">다이렉트 피드백 보내기</span>
                   </button>
                   <button 
                       onClick={() => setIsHistoryModalOpen(true)}
-                      className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white transition-colors shadow-sm"
+                      className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white transition-colors shadow-sm cursor-pointer"
                   >
-                      <Code size={16} className="mr-1.5 text-slate-400" /> PRO 제작 과정 보기
+                      <Code size={16} className="mr-1.5 text-slate-400 pointer-events-none" /> <span className="pointer-events-none">PRO 제작 과정 보기</span>
                   </button>
               </div>
             </div>
@@ -3712,10 +3705,16 @@ export default function App() {
                             </div>
                             <div className="p-3 flex flex-col gap-1.5">
                                 {item.details?.map((d: any, idx: number) => {
+                                    const splitIndex = d[0].indexOf('(');
+                                    let mainTitle = d[0]; let subTitle = '';
+                                    if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim(); }
                                     return (
-                                    <div key={idx} className="flex items-start gap-2">
-                                        <span className={`shrink-0 inline-flex items-center justify-center w-[140px] px-1.5 py-1.5 text-[9px] font-bold rounded-md border text-center break-keep leading-tight mt-0.5 ${getBadgeClass(d[0])}`}>{d[0]}</span>
-                                        <span className="text-[11px] text-slate-700 leading-snug break-keep mt-0.5 pt-0.5">{d[1]}</span>
+                                    <div key={idx} className="flex items-start gap-2.5 mb-2">
+                                        <div className={`shrink-0 flex flex-col items-center justify-center w-[130px] sm:w-[140px] px-1 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
+                                            <span className="text-[10px] font-black leading-none">{mainTitle}</span>
+                                            {subTitle && <span className="text-[8.5px] font-bold mt-1 opacity-80 leading-none">{subTitle}</span>}
+                                        </div>
+                                        <span className="text-[11px] text-slate-700 leading-relaxed break-keep pt-0.5">{d[1]}</span>
                                     </div>
                                 )})}
                             </div>
@@ -3791,30 +3790,145 @@ export default function App() {
           </div>
       </div>
 
-      {/* 공유하기 모달 */}
-      {isShareModalOpen && (
+      {/* ========================================================= */}
+      {/* 💡 모든 팝업(Modal) 컴포넌트는 오직 최하단 여기에만 배치됩니다! */}
+      {/* ========================================================= */}
+
+      {/* 1. 이메일 팝업 */}
+      {isEmailModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
-            <div className="p-4 bg-slate-800 flex justify-between items-center text-white">
-              <h3 className="font-bold flex items-center gap-2"><Share2 size={18} /> 배합 데이터 공유하기</h3>
-              <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
+            <div className="p-4 bg-yellow-500 flex justify-between items-center text-slate-900">
+              <h3 className="font-black flex items-center gap-2"><Mail size={18} /> 개발자에게 피드백 보내기</h3>
+              <button onClick={() => setIsEmailModalOpen(false)} className="hover:text-red-600 transition-colors bg-yellow-400 p-1.5 rounded-full"><X size={16} /></button>
             </div>
-            <div className="p-6 flex flex-col gap-3 bg-slate-50">
-                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2">
-                    <MessageSquare size={18}/> 카카오톡 복사 전송
-                </button>
-                <button onClick={handleShareSMS} className="w-full bg-blue-500 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
-                    <Send size={18}/> 문자(SMS)로 보내기
-                </button>
-                <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2">
-                    <Mail size={18}/> 이메일로 보내기
-                </button>
+            <div className="p-6 flex flex-col gap-4 bg-slate-50">
+              <p className="text-sm text-slate-600 text-center font-medium break-keep">버그 제보, 기능 추가 요청 등 어떤 의견이든 환영합니다!<br/>어떤 메일 서비스로 보내시겠습니까?</p>
+              <div className="flex gap-3 mt-2">
+                  <a href="https://mail.naver.com/v2/new?to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-[#03C75A] text-white py-3 rounded-xl font-black text-center shadow-md hover:bg-[#02b350] transition-colors">네이버 메일</a>
+                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-white border border-slate-300 text-slate-700 py-3 rounded-xl font-black text-center shadow-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
+                    구글 메일
+                  </a>
+              </div>
+              <button onClick={() => { navigator.clipboard.writeText('ysm0427@gmail.com'); alert('이메일 주소가 복사되었습니다.'); }} className="text-xs text-slate-400 underline mt-2 hover:text-yellow-600 transition-colors">주소만 복사하기 (ysm0427@gmail.com)</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 엑셀 연동 모달 */}
+      {/* 2. 제작 비하인드 히스토리 모달 */}
+      {isHistoryModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
+          <div className="bg-slate-900 rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700 my-8">
+            <div className="p-4 border-b border-slate-800 bg-slate-900 flex justify-between items-center sticky top-0 z-10">
+              <h3 className="text-white font-black text-lg flex items-center gap-2"><Code className="text-blue-400" /> 조색 PRO 한계 돌파의 기록</h3>
+              <button onClick={() => setIsHistoryModalOpen(false)} className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"><X size={18} /></button>
+            </div>
+            <div className="p-6 overflow-y-auto custom-scrollbar space-y-6 text-slate-300 text-sm leading-relaxed">
+                <p className="text-blue-200 font-bold text-base border-l-4 border-blue-500 pl-3">"이 앱은 단순한 웹 툴이 아닙니다. 색채 공학과 극한의 코드 최적화가 낳은 피와 땀의 결과물입니다."</p>
+                <div className="space-y-4">
+                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                        <h4 className="text-white font-bold mb-2 flex items-center gap-2"><Zap size={14} className="text-yellow-400"/> 1. 광학 엔진(Vector HSL Engine) 자체 개발</h4>
+                        <p>기존 조색 앱들의 단순 더하기 방식이 아닌, 안료의 고유 파장과 반사각을 수학적 벡터로 계산하여 혼합하는 엔진을 밑바닥부터 다시 설계했습니다.</p>
+                    </div>
+                </div>
+            </div>
+            <div className="p-4 border-t border-slate-800 bg-slate-900 flex justify-end">
+                <button onClick={() => setIsHistoryModalOpen(false)} className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/20">닫기</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. 안료 클릭 상세 분석 보드 모달 */}
+      {selectedTonerForView && TONER_DB[selectedTonerForView] && (
+        <div className="fixed inset-0 bg-slate-900/90 z-[700] flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in">
+           <div className="bg-white rounded-2xl w-[650px] max-w-full shadow-2xl overflow-hidden border flex flex-col max-h-[90vh]">
+              <div className="bg-slate-900 p-3.5 flex justify-between items-center text-white shrink-0 border-b-4 border-blue-600">
+                 <h3 className="text-sm font-black flex items-center"><Droplet size={16} className="mr-1.5 text-blue-400"/> {selectedTonerForView} 정밀 광학 & 먼셀 분석 보드</h3>
+                 <button onClick={() => setSelectedTonerForView(null)} className="hover:text-red-400 transition-colors bg-slate-800 p-1 rounded-full"><X size={18}/></button>
+              </div>
+              <div className="p-5 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
+                 <div className="text-xl font-black text-slate-800 mb-3">{TONER_DB[selectedTonerForView].role}</div>
+                 
+                 {(()=>{
+                     const activeT = [...toners, ...pearlToners].find(t => t.code === selectedTonerForView);
+                     const cWeight = activeT ? (parseFloat(activeT.adjustedWeight) || 0) : 0;
+                     return getMunsellDynamicDescription(selectedTonerForView, TONER_DB[selectedTonerForView].role, TONER_DB[selectedTonerForView].type, cWeight);
+                 })()}
+
+                 <div className="flex flex-col gap-2 bg-white p-4 rounded-lg border border-slate-200 mb-4 shadow-sm">
+                    {TONER_DB[selectedTonerForView].details?.map((d: any, idx: number) => {
+                        const splitIndex = d[0].indexOf('(');
+                        let mainTitle = d[0]; let subTitle = '';
+                        if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim(); }
+                        return (
+                        <div key={idx} className="flex items-start gap-2.5 mb-2">
+                            <div className={`shrink-0 flex flex-col items-center justify-center w-[130px] sm:w-[140px] px-2 py-1.5 text-[10px] font-bold rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
+                                <span className="text-[10px] font-black leading-none">{mainTitle}</span>
+                                {subTitle && <span className="text-[8.5px] font-bold mt-1 opacity-80 leading-none">{subTitle}</span>}
+                            </div>
+                            <span className="text-xs text-slate-700 leading-relaxed break-keep pt-0.5">{d[1]}</span>
+                        </div>
+                    )})}
+                 </div>
+
+                 <div className="mb-4">
+                     <div className="text-[10px] font-black text-slate-500 mb-1 flex items-center"><Search size={10} className="mr-1"/> 수동 특이사항 메모 (자동 저장)</div>
+                     <textarea
+                         value={tonerMemos[selectedTonerForView] || ''}
+                         onChange={(e) => setTonerMemos(prev => ({ ...prev, [selectedTonerForView]: e.target.value }))}
+                         placeholder={`여기에 [${selectedTonerForView}] 안료에 대한 현장 작업 메모나 특이사항을 직접 기록하세요...\n(※ 작성하신 메모는 안료별로 영구 저장됩니다.)`}
+                         className="w-full bg-yellow-50 border border-yellow-300 p-3 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-inner resize-none h-20"
+                     />
+                 </div>
+
+                 <div className="flex gap-4 mt-2">
+                    <div className="flex-1">
+                       <div className="text-[10px] font-black text-center text-white bg-slate-800 py-1.5 rounded-t-lg tracking-widest">정면 반사광 (Face 15°)</div>
+                       <div className="h-32 rounded-b-lg border border-slate-300 relative overflow-hidden shadow-inner" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'face')}}>
+                           {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-50"></div>}
+                       </div>
+                    </div>
+                    <div className="flex-1">
+                       <div className="text-[10px] font-black text-center text-white bg-slate-800 py-1.5 rounded-t-lg tracking-widest">측면 음영 (Flop 110°)</div>
+                       <div className="h-32 rounded-b-lg border border-slate-300 relative overflow-hidden shadow-inner" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'flop')}}>
+                           {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-30"></div>}
+                       </div>
+                    </div>
+                 </div>
+                 <button onClick={() => setSelectedTonerForView(null)} className="bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-black w-full text-sm mt-5 shadow-md transition-colors">분석창 닫기</button>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {/* 4. 과거 연동 데이터 모달 */}
+      {restoredViewData && (
+        <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
+            <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-[#1e293b]">
+              <h3 className="text-white font-bold flex items-center gap-2">
+                <History size={18} className="text-blue-400" /> 과거 구성에 따른 구성
+              </h3>
+              <button 
+                onClick={() => { setRestoredViewData(null); window.close(); }} 
+                className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto custom-scrollbar max-h-[70vh] bg-[#0f172a] space-y-6">
+                <div className="text-white">과거 데이터 로드 완료</div>
+            </div>
+            <div className="p-4 bg-[#1e293b] border-t border-slate-700/50">
+              <button onClick={() => { setRestoredViewData(null); window.close(); }} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-colors">닫기 및 진행 중으로 돌아가기</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. 엑셀 연동 모달 */}
       {isExcelModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border-2 border-green-600">
@@ -3842,7 +3956,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 월 구독 승인요청 모달 */}
+      {/* 6. 월 구독 승인요청 모달 */}
       {isSubscribeOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in overflow-y-auto">
           <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 my-8">
@@ -3868,7 +3982,30 @@ export default function App() {
         </div>
       )}
 
-      {/* 브랜드별 시편 공유 게시판 */}
+      {/* 7. 공유하기 다중 전송 모달 */}
+      {isShareModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-slate-800 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><Share2 size={18} /> 배합 데이터 공유 전송</h3>
+              <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-3 bg-slate-50">
+                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2">
+                    <MessageSquare size={18}/> 카카오톡 복사 전송
+                </button>
+                <button onClick={handleShareSMS} className="w-full bg-blue-500 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                    <Send size={18}/> 문자(SMS)로 앱 열기
+                </button>
+                <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2">
+                    <Mail size={18}/> 이메일 앱 열기
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 8. 브랜드별 시편 공유 게시판 */}
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
@@ -3923,192 +4060,14 @@ export default function App() {
             </div>
             
             <div className="p-3 bg-emerald-50 border-t border-emerald-200 shrink-0 text-center">
-                <p className="text-xs text-emerald-800 font-bold">※ 현재 내 기기(로컬)에서 작성한 배합 데이터만 연동 테스트 중입니다. 워크시트에서 새 배합을 만들고 위 <b>[+ 현재 배합 등록]</b> 버튼을 누르면 계속 추가할 수 있습니다.</p>
+                <p className="text-xs text-emerald-800 font-bold">※ 워크시트에서 새 배합을 만들고 위 <b>[+ 현재 배합 등록]</b> 버튼을 누르면 계속 추가할 수 있습니다.</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* 제작 비하인드 히스토리 모달 */}
-      {isHistoryModalOpen && (
-        <div className="fixed inset-0 bg-slate-950/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
-          <div className="bg-slate-900 rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700 my-8">
-            <div className="p-4 border-b border-slate-800 bg-slate-900 flex justify-between items-center sticky top-0 z-10">
-              <h3 className="text-white font-black text-lg flex items-center gap-2"><Code className="text-blue-400" /> 조색 PRO 한계 돌파의 기록</h3>
-              <button onClick={() => setIsHistoryModalOpen(false)} className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"><X size={18} /></button>
-            </div>
-            <div className="p-6 overflow-y-auto custom-scrollbar space-y-6 text-slate-300 text-sm leading-relaxed">
-                <p className="text-blue-200 font-bold text-base border-l-4 border-blue-500 pl-3">"이 앱은 단순한 웹 툴이 아닙니다. 색채 공학과 극한의 코드 최적화가 낳은 피와 땀의 결과물입니다."</p>
-                
-                <div className="space-y-4">
-                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                        <h4 className="text-white font-bold mb-2 flex items-center gap-2"><Zap size={14} className="text-yellow-400"/> 1. 광학 엔진(Vector HSL Engine) 자체 개발</h4>
-                        <p>기존 조색 앱들의 단순 더하기 방식이 아닌, 안료의 고유 파장과 반사각을 수학적 벡터(Vector)로 계산하여 혼합하는 엔진을 밑바닥부터 다시 설계했습니다. 특정 고농축 안료(WT144 등)와 투명 안료의 혼합 시 실제 페인트처럼 오묘한 청록색(Teal)을 브라우저에 렌더링하기 위해 수백 번의 수학적 파라미터 조정이 필요했습니다.</p>
-                    </div>
-                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                        <h4 className="text-white font-bold mb-2 flex items-center gap-2"><Lock size={14} className="text-green-400"/> 2. 아이폰(iOS Safari) 렌더링 크래시 극복</h4>
-                        <p>펄 입자를 사실적으로 구현하기 위한 SVG 특수 필터가 아이폰 환경에서 치명적인 렌더링 붕괴를 일으키는 것을 발견했습니다. 이를 해결하기 위해 웹 표준에 가장 안전한 코드로 질감 엔진을 완전히 재구축하여 모바일 크래시를 100% 방지해냈습니다.</p>
-                    </div>
-                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                        <h4 className="text-white font-bold mb-2 flex items-center gap-2"><BookOpen size={14} className="text-purple-400"/> 3. 5단계 전문가용 안료 DB 마이그레이션</h4>
-                        <p>50여 개가 넘는 스피스헥커 안료의 특성을 단순히 나열하는 것을 넘어, Face & Flop, 은폐력, 입자 특성 등 현장 전문가 수준의 5단계 포맷으로 데이터를 전면 리팩토링했습니다. 이 과정에서 발생한 수많은 데이터 충돌과 누락 위기를 극복하고 완벽한 무결성 DB를 완성했습니다.</p>
-                    </div>
-                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                        <h4 className="text-white font-bold mb-2 flex items-center gap-2"><Layers size={14} className="text-rose-400"/> 4. 복합 UI 아키텍처 및 상태 관리의 지옥</h4>
-                        <p>모바일 겹침 방지, 아이폰 전용 '왕숫자 키패드' 강제 호출, 복잡한 아코디언 토글 내부에 숨은 데이터의 비동기적 노출, 그리고 무려 2,610종에 달하는 포드(FORD) 컬러 엑셀 연동까지... 수십 개의 컴포넌트 상태(State)가 엉키는 '콜백 지옥'을 뚫고 물 흐르듯 자연스러운 UI/UX를 기어코 완성해 냈습니다.</p>
-                    </div>
-                </div>
-            </div>
-            <div className="p-4 border-t border-slate-800 bg-slate-900 flex justify-end">
-                <button onClick={() => setIsHistoryModalOpen(false)} className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/20">닫기</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {selectedTonerForView && TONER_DB[selectedTonerForView] && (
-        <div className="fixed inset-0 bg-slate-900/90 z-[700] flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in">
-           <div className="bg-white rounded-2xl w-[650px] max-w-full shadow-2xl overflow-hidden border flex flex-col max-h-[90vh]">
-              <div className="bg-slate-900 p-3.5 flex justify-between items-center text-white shrink-0 border-b-4 border-blue-600">
-                 <h3 className="text-sm font-black flex items-center"><Droplet size={16} className="mr-1.5 text-blue-400"/> {selectedTonerForView} 정밀 광학 & 먼셀 분석 보드</h3>
-                 <button onClick={() => setSelectedTonerForView(null)} className="hover:text-red-400 transition-colors bg-slate-800 p-1 rounded-full"><X size={18}/></button>
-              </div>
-              <div className="p-5 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
-                 <div className="text-xl font-black text-slate-800 mb-3">{TONER_DB[selectedTonerForView].role}</div>
-                 
-                 {(()=>{
-                     const activeT = [...toners, ...pearlToners].find(t => t.code === selectedTonerForView);
-                     const cWeight = activeT ? (parseFloat(activeT.adjustedWeight) || 0) : 0;
-                     return getMunsellDynamicDescription(selectedTonerForView, TONER_DB[selectedTonerForView].role, TONER_DB[selectedTonerForView].type, cWeight);
-                 })()}
-
-                 <div className="flex flex-col gap-2 bg-white p-4 rounded-lg border border-slate-200 mb-4 shadow-sm">
-                    {TONER_DB[selectedTonerForView].details?.map((d: any, idx: number) => {
-                        return (
-                        <div key={idx} className="flex items-start gap-2.5">
-                            <span className={`shrink-0 inline-flex items-center justify-center w-[140px] px-2 py-1.5 text-[10px] font-bold rounded-md border text-center break-keep leading-tight ${getBadgeClass(d[0])}`}>{d[0]}</span>
-                            <span className="text-xs text-slate-700 leading-relaxed break-keep pt-0.5">{d[1]}</span>
-                        </div>
-                    )})}
-                 </div>
-
-                 <div className="mb-4">
-                     <div className="text-[10px] font-black text-slate-500 mb-1 flex items-center"><Search size={10} className="mr-1"/> 수동 특이사항 메모 (자동 저장)</div>
-                     <textarea
-                         value={tonerMemos[selectedTonerForView] || ''}
-                         onChange={(e) => setTonerMemos(prev => ({ ...prev, [selectedTonerForView]: e.target.value }))}
-                         placeholder={`여기에 [${selectedTonerForView}] 안료에 대한 현장 작업 메모나 특이사항을 직접 기록하세요...\n(※ 작성하신 메모는 안료별로 영구 저장됩니다.)`}
-                         className="w-full bg-yellow-50 border border-yellow-300 p-3 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-inner resize-none h-20"
-                     />
-                 </div>
-
-                 <div className="flex gap-4 mt-2">
-                    <div className="flex-1">
-                       <div className="text-[10px] font-black text-center text-white bg-slate-800 py-1.5 rounded-t-lg tracking-widest">정면 반사광 (Face 15°)</div>
-                       <div className="h-32 rounded-b-lg border border-slate-300 relative overflow-hidden shadow-inner" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'face')}}>
-                           {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-50"></div>}
-                       </div>
-                    </div>
-                    <div className="flex-1">
-                       <div className="text-[10px] font-black text-center text-white bg-slate-800 py-1.5 rounded-t-lg tracking-widest">측면 음영 (Flop 110°)</div>
-                       <div className="h-32 rounded-b-lg border border-slate-300 relative overflow-hidden shadow-inner" style={{background: getTonerDetailBackground(selectedTonerForView, TONER_DB[selectedTonerForView].role, 'flop')}}>
-                           {isTonerMetallic(TONER_DB[selectedTonerForView].role) && <div className="metallic-flake opacity-30"></div>}
-                       </div>
-                    </div>
-                 </div>
-                 <button onClick={() => setSelectedTonerForView(null)} className="bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-black w-full text-sm mt-5 shadow-md transition-colors">분석창 닫기</button>
-              </div>
-           </div>
-        </div>
-      )}
-
-      {/* 과거 연동 데이터 모달 */}
-      {restoredViewData && (
-        <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
-            <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-[#1e293b]">
-              <h3 className="text-white font-bold flex items-center gap-2">
-                <History size={18} className="text-blue-400" /> 과거 구성에 따른 구성
-              </h3>
-              <button 
-                onClick={() => { setRestoredViewData(null); window.close(); }} 
-                className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto custom-scrollbar max-h-[70vh] bg-[#0f172a] space-y-6">
-              <div className="grid grid-cols-2 gap-4 bg-[#1e293b] p-4 rounded-xl border border-slate-700/50">
-                <div>
-                  <div className="text-[10px] text-slate-400 mb-1">차량번호</div>
-                  <div className="text-sm font-bold text-white">{restoredViewData.v || restoredViewData.vehicleNumber || '미입력'}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 mb-1">브랜드/차종</div>
-                  <div className="text-sm font-bold text-white">{restoredViewData.m || restoredViewData.carModel || '미입력'}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 mb-1">컬러코드</div>
-                  <div className="text-sm font-bold text-blue-400 uppercase">{restoredViewData.c || restoredViewData.targetColorCode || '미지정'}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 mb-1">작업 내용</div>
-                  <div className="text-sm font-bold text-white leading-snug">{restoredViewData.j || restoredViewData.jobDescription || '미입력'}</div>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-slate-300 mb-3 flex items-center gap-2">
-                  <Layers size={14} /> 베이스 코트 (Ground Coat)
-                </h4>
-                <div className="space-y-2">
-                  {(restoredViewData.b || restoredViewData.toners || [])?.filter((t: any) => t.code).map((t: any, idx: number) => (
-                    <div key={idx} className="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-xl border border-slate-700/50">
-                      <div className="flex items-center gap-3">
-                        <span className="text-white font-bold text-sm">무게 {t.code.replace('WT ', '')}</span>
-                        <span className="text-xs text-slate-500">{TONER_DB[t.code]?.role || ''}</span>
-                      </div>
-                      <span className="text-blue-400 font-bold">{t.adjustedWeight}g</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {((restoredViewData.t !== undefined ? restoredViewData.t : restoredViewData.isThreeCoatMode)) && (restoredViewData.p || restoredViewData.pearlToners || [])?.filter((t: any) => t.code).length > 0 && (
-                <div>
-                  <h4 className="text-xs font-bold text-purple-400 mb-3 flex items-center gap-2 mt-2">
-                    <Zap size={14} /> 펄코트 (Mid Coat)
-                  </h4>
-                  <div className="space-y-2">
-                    {(restoredViewData.p || restoredViewData.pearlToners || []).filter((t: any) => t.code).map((t: any, idx: number) => (
-                      <div key={idx} className="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-xl border border-purple-900/30">
-                        <div className="flex items-center gap-3">
-                          <span className="text-white font-bold text-sm">무게 {t.code.replace('WT ', '')}</span>
-                          <span className="text-xs text-slate-500">{TONER_DB[t.code]?.role || ''}</span>
-                        </div>
-                        <span className="text-purple-400 font-bold">{t.adjustedWeight}g</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="p-4 bg-[#1e293b] border-t border-slate-700/50">
-              <button 
-                onClick={() => { setRestoredViewData(null); window.close(); }} 
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
-              >
-                닫기 및 진행 중으로 돌아가기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-     {/* 먼셀 컬러 믹싱 스튜디오 */}
-     {isConfiguratorOpen && (
+      {/* 9. 먼셀 컬러 믹싱 스튜디오 (최하단 배치로 오류 방지) */}
+      {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-scroll custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
             <h2 className="text-base font-black tracking-widest text-slate-300 uppercase flex items-center"><Beaker className="mr-2 text-indigo-500"/> 먼셀 컬러 믹싱 스튜디오 (Munsell Mixing Lab)</h2>
@@ -4118,6 +4077,7 @@ export default function App() {
           <main className="flex-1 p-6 md:p-10 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950 overflow-x-hidden">
              <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 mb-8 items-start">
                  
+                 {/* 1. 먼셀 20 색상환 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                      <h3 className="text-lg font-black text-white mb-6 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg shrink-0">
                          <Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)
@@ -4144,7 +4104,7 @@ export default function App() {
                                         stroke={isSelected ? "#ffffff" : "transparent"} 
                                         strokeWidth={isSelected ? "3" : "0"}
                                         className={`cursor-pointer transition-all duration-300 hover:opacity-80`}
-                                        onClick={(e) => { e.stopPropagation(); handleWheelClick(index); }}
+                                        onClick={(e) => handleWheelClick(index)}
                                         style={{ transformOrigin: '200px 200px', transform: isSelected ? 'scale(1.05)' : 'scale(1)' }}
                                     />
                                 );
@@ -4184,6 +4144,7 @@ export default function App() {
                      </div>
                  </div>
 
+                 {/* 2. RGB Additive Color */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
                         <h4 className="text-xl font-black text-white mb-6 tracking-widest flex items-center shrink-0">
@@ -4219,6 +4180,7 @@ export default function App() {
                     </div>
                  </div>
 
+                 {/* 3. 선택된 컬러 배합 규격 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
                         <div className="bg-slate-800 p-6 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] h-[420px] flex flex-col justify-center text-center">
@@ -4260,6 +4222,7 @@ export default function App() {
                     )}
                  </div>
 
+                 {/* 4. CMYK Subtractive Color */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
                         <h4 className="text-xl font-black text-slate-900 mb-6 tracking-widest flex items-center shrink-0">
