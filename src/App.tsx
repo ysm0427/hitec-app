@@ -2967,6 +2967,30 @@ const MUNSELL_WHEEL_COLORS = [
     { name: '연지', symbol: 'pR', hex: '#BE0081' },
 ];
 
+// 💡 1번 에러 원인 해결: 객체 복구 및 전역 배치
+const MIXING_DATA: Record<string, any> = {
+    'R': { c1: '빨강 (R)', h1: '#ff0000', r1: 100 },
+    'yR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 },
+    'YR': { c1: '빨강 (R)', h1: '#ff0000', r1: 50, c2: '노랑 (Y)', h2: '#ffff00', r2: 50 },
+    'rY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 75, c2: '빨강 (R)', h2: '#ff0000', r2: 25 },
+    'Y': { c1: '노랑 (Y)', h1: '#ffff00', r1: 100 },
+    'gY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 75, c2: '녹색 (G)', h2: '#009900', r2: 25 },
+    'GY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 50, c2: '녹색 (G)', h2: '#009900', r2: 50 },
+    'yG': { c1: '녹색 (G)', h1: '#009900', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 },
+    'G': { c1: '녹색 (G)', h1: '#009900', r1: 100 },
+    'bG': { c1: '녹색 (G)', h1: '#009900', r1: 75, c2: '파랑 (B)', h2: '#0000ff', r2: 25 },
+    'BG': { c1: '녹색 (G)', h1: '#009900', r1: 50, c2: '파랑 (B)', h2: '#0000ff', r2: 50 },
+    'gB': { c1: '파랑 (B)', h1: '#0000ff', r1: 75, c2: '녹색 (G)', h2: '#009900', r2: 25 },
+    'B': { c1: '파랑 (B)', h1: '#0000ff', r1: 100 },
+    'pB': { c1: '파랑 (B)', h1: '#0000ff', r1: 75, c2: '보라 (P)', h2: '#700070', r2: 25 },
+    'PB': { c1: '파랑 (B)', h1: '#0000ff', r1: 50, c2: '보라 (P)', h2: '#700070', r2: 50 },
+    'bP': { c1: '보라 (P)', h1: '#700070', r1: 75, c2: '파랑 (B)', h2: '#0000ff', r2: 25 },
+    'P': { c1: '보라 (P)', h1: '#700070', r1: 100 },
+    'rP': { c1: '보라 (P)', h1: '#700070', r1: 75, c2: '빨강 (R)', h2: '#ff0000', r2: 25 },
+    'RP': { c1: '보라 (P)', h1: '#700070', r1: 50, c2: '빨강 (R)', h2: '#ff0000', r2: 50 },
+    'pR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '보라 (P)', h2: '#700070', r2: 25 },
+};
+
 const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
   const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
   return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) };
@@ -3363,8 +3387,8 @@ export default function App() {
                    <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="예: 12가3456" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
                 </div>
                 <div className="flex flex-col">
-                   <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 브랜드(차종)</label>
-                   <input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 현대, 제네시스" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
+                   <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 브랜드 등록</label>
+                   <input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 현대, BMW..." className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
                 </div>
                 <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🎨 컬러코드</label>
@@ -3660,6 +3684,7 @@ export default function App() {
             </div>
             
             <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-slate-100">
+                {/* 💡 FORD 검색 결과 표시 영역 */}
                 {catalogSearch.trim() !== '' && OEM_COLORS.some(c => c.code.toUpperCase().includes(catalogSearch.toUpperCase()) || c.name.toUpperCase().includes(catalogSearch.toUpperCase())) && (
                     <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm">
                         <h4 className="text-xs font-black text-blue-800 mb-2">🔍 FORD 색상코드 검색 결과</h4>
@@ -3766,6 +3791,7 @@ export default function App() {
           </div>
       </div>
 
+      {/* 공유하기 모달 */}
       {isShareModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -3788,6 +3814,7 @@ export default function App() {
         </div>
       )}
 
+      {/* 엑셀 연동 모달 */}
       {isExcelModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border-2 border-green-600">
@@ -3815,6 +3842,7 @@ export default function App() {
         </div>
       )}
 
+      {/* 월 구독 승인요청 모달 */}
       {isSubscribeOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in overflow-y-auto">
           <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 my-8">
@@ -3840,6 +3868,7 @@ export default function App() {
         </div>
       )}
 
+      {/* 브랜드별 시편 공유 게시판 */}
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
@@ -3848,19 +3877,19 @@ export default function App() {
               <button onClick={() => setIsBoardOpen(false)} className="hover:text-red-300 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             
-            <div className="p-3 bg-white border-b border-slate-200 flex flex-col sm:flex-row justify-between gap-3 shrink-0">
-                <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            <div className="p-3 bg-white border-b border-slate-200 flex flex-col gap-3 shrink-0">
+                <div className="flex gap-2 w-full overflow-x-auto pb-2">
                     {['전체', '현대', '기아', '제네시스', '쉐보레', '르노', 'KGM', '벤츠', 'BMW', '아우디', '포드', '렉서스'].map(b => (
                         <button key={b} onClick={() => setBoardBrandFilter(b)} className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${boardBrandFilter === b ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300'}`}>{b}</button>
                     ))}
                 </div>
-                <div className="flex gap-2 flex-1 max-w-md">
-                    <div className="relative flex-1">
-                        <input type="text" value={boardSearch} onChange={e=>setBoardSearch(e.target.value)} placeholder="컬러코드 등 검색" className="w-full bg-slate-50 border border-slate-300 text-sm px-3 py-1.5 rounded-lg pl-8 focus:outline-none focus:border-emerald-500" />
-                        <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
+                <div className="flex flex-col sm:flex-row gap-2 w-full items-center">
+                    <div className="relative w-full">
+                        <input type="text" value={boardSearch} onChange={e=>setBoardSearch(e.target.value)} placeholder="브랜드, 컬러코드, 특이사항 동시 검색" className="w-full bg-slate-50 border border-slate-300 text-sm px-3 py-2 rounded-lg pl-9 focus:outline-none focus:border-emerald-500 shadow-sm" />
+                        <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
                     </div>
-                    <button onClick={saveToBoard} className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-bold text-xs shadow-md hover:bg-emerald-700 transition-colors shrink-0 whitespace-nowrap flex items-center gap-1">
-                        <Plus size={14}/> 현재 배합 등록
+                    <button onClick={saveToBoard} className="w-full sm:w-auto bg-emerald-600 text-white px-5 py-2 rounded-lg font-bold text-sm shadow-md hover:bg-emerald-700 transition-colors shrink-0 whitespace-nowrap flex items-center justify-center gap-1.5">
+                        <Plus size={16}/> 현재 배합 등록
                     </button>
                 </div>
             </div>
@@ -3900,6 +3929,7 @@ export default function App() {
         </div>
       )}
 
+      {/* 제작 비하인드 히스토리 모달 */}
       {isHistoryModalOpen && (
         <div className="fixed inset-0 bg-slate-950/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-900 rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700 my-8">
@@ -3992,6 +4022,7 @@ export default function App() {
         </div>
       )}
 
+      {/* 과거 연동 데이터 모달 */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
@@ -4076,6 +4107,7 @@ export default function App() {
         </div>
       )}
 
+     {/* 먼셀 컬러 믹싱 스튜디오 */}
      {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-scroll custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
