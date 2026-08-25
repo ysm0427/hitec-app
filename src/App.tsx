@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Sliders, Trash2, Plus, Minus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket, Columns, Mail, Code, Users, CreditCard, AlertTriangle, ThumbsUp, Eye, Calendar
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket, Columns, Mail, Code, Users, CreditCard, AlertTriangle, ThumbsUp, Eye, Calendar, RefreshCw
 } from 'lucide-react';
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
+
+const LAST_PATCH_DATE = "2026.08.25"; // 최신 패치 날짜 
 
 // 💡 [1번 구역] 전면 업그레이드된 전문가용 안료 데이터베이스 (모든 안료 5단계 표준 포맷 적용)
 export const TONER_DB: Record<string, TonerData> = {
@@ -2998,7 +3000,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
 
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
-  // 💡 배포용 클린 뷰: 접속 시 무조건 빈 상태로 시작
+  // 💡 배포용 클린 뷰: 접속 시 무조건 빈 상태로 시작 (제 테스트 데이터 완전 제거)
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
@@ -3016,12 +3018,12 @@ export default function App() {
   const [originalFinalOptics, setOriginalFinalOptics] = useState<any>(null); 
   const [restoredViewData, setRestoredViewData] = useState<any>(null); 
   
-  // 💡 피드백, 히스토리, 가입/승인 모달, 사전공지 State 추가
+  // 💡 피드백 모달, 히스토리 모달, 가입/승인 모달, 사전공지 State 
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
-  const [isNoticeOpen, setIsNoticeOpen] = useState(true);
-  const [isBoardOpen, setIsBoardOpen] = useState(false); 
+  const [isNoticeOpen, setIsNoticeOpen] = useState(true); // 업데이트 공지 팝업
+  const [isBoardOpen, setIsBoardOpen] = useState(false); // 시편 게시판 모달
 
   // 구독 폼 데이터
   const [subName, setSubName] = useState('');
@@ -3030,7 +3032,7 @@ export default function App() {
   const [subBiz, setSubBiz] = useState('');
   const [subEmail, setSubEmail] = useState('');
 
-  // 💡 게시판 목업(Mock) 데이터 및 State
+  // 💡 게시판 목업(Mock) 데이터
   const [boardSearch, setBoardSearch] = useState('');
   const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
   const [boardPosts, setBoardPosts] = useState([
@@ -3290,7 +3292,6 @@ export default function App() {
     );
   };
 
-  // 💡 [신규] 승인 요청 폼 이메일 전송 핸들러
   const handleSubscribeSubmit = () => {
       if(!subName || !subAge || !subRegion || !subBiz || !subEmail) {
           alert("모든 항목을 입력해주세요."); return;
@@ -3301,12 +3302,12 @@ export default function App() {
       setIsSubscribeOpen(false);
   };
 
-  // 💡 [신규] 시편 게시판 내 배합 저장 핸들러 (Mock DB 활용)
+  // 💡 게시판에 "워크시트에 작성된 현재 배합"을 계속 추가할 수 있는 핸들러
   const saveToBoard = () => {
-      if(!targetColorCode) { alert("컬러코드를 입력해야 게시판에 저장할 수 있습니다."); return; }
+      if(!targetColorCode) { alert("워크시트에 컬러코드를 입력해야 게시판에 등록할 수 있습니다."); return; }
       const newPost = {
           id: Date.now(),
-          brand: carModel || '미지정', // 차종 필드를 브랜드처럼 임시 활용
+          brand: carModel || '미지정', 
           code: targetColorCode,
           date: registrationDate,
           likes: 0,
@@ -3315,24 +3316,24 @@ export default function App() {
           spec: specialNotes || '특이사항 없음'
       };
       setBoardPosts([newPost, ...boardPosts]);
-      alert("게시판에 내 시편 데이터가 등록되었습니다! (현재는 내 기기에서만 보입니다. 추후 DB 연동 시 전체 공유됩니다.)");
+      alert("게시판에 새로운 시편 데이터가 등록되었습니다!\n(※ 현재는 로컬 테스트 환경입니다.)");
   };
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[320px] lg:pb-[140px]">
       
-      {/* 💡 [신규] 최초 공지사항 모달 */}
+      {/* 💡 1. 멘트가 간소화된 시스템 업데이트 공지사항 모달 */}
       {isNoticeOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[2000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
             <div className="p-4 bg-rose-600 flex justify-between items-center text-white">
-              <h3 className="font-bold flex items-center gap-2"><AlertTriangle size={18} /> 업데이트 사전 공지</h3>
+              <h3 className="font-bold flex items-center gap-2"><AlertTriangle size={18} /> 시스템 업데이트 안내</h3>
               <button onClick={() => setIsNoticeOpen(false)} className="hover:text-red-200 transition-colors bg-rose-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             <div className="p-6 flex flex-col gap-4 bg-slate-50">
               <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl text-rose-800 text-sm leading-relaxed font-medium">
-                  <p className="mb-2"><span className="font-black text-rose-600">[중요]</span> 조색 PRO의 대규모 시스템 패치가 예정되어 있습니다.</p>
-                  <p>업데이트가 진행되는 동안 기존에 저장해 두셨던 임시 배합 데이터가 초기화될 수 있습니다. <b>업데이트 전 기존 시편 데이터를 반드시 엑셀로 복사하시거나 따로 저장(백업)해 주시기 바랍니다.</b></p>
+                  <p className="mb-2"><span className="font-black text-rose-600">[안내]</span> 조색 PRO 시스템이 최신 버전으로 업데이트 되었습니다.</p>
+                  <p>안전한 데이터 관리를 위해 등록된 배합은 정기적으로 <b>엑셀 복사(백업)</b> 해두시는 것을 권장합니다.</p>
               </div>
               <button onClick={() => setIsNoticeOpen(false)} className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-slate-700 transition-colors">확인했습니다</button>
             </div>
@@ -3340,22 +3341,26 @@ export default function App() {
         </div>
       )}
 
-      {/* 헤더 + 상단 메뉴 (승인요청, 게시판) */}
+      {/* 💡 2, 5, 6. 상단 헤더 (패치날짜, 동기화버튼, 게시판, 승인요청) */}
       <header className="bg-slate-900 flex flex-col sm:flex-row justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0 gap-3">
         <div className="flex items-center space-x-3 w-full sm:w-auto">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
           <h1 className="text-lg md:text-xl font-semibold flex items-center gap-2 w-full">
               <span className="text-white tracking-wide truncate">윤성만님을 위한</span>
               <span className="text-blue-400 font-normal shrink-0">조색 PRO</span>
-              <span className="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-full border border-slate-700 ml-1 hidden sm:inline-block shrink-0">Last Patch: 2026.08.24</span>
+              <span className="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-full border border-slate-700 ml-1 hidden sm:inline-block shrink-0">Last Patch: {LAST_PATCH_DATE}</span>
           </h1>
         </div>
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            {/* 최신버전 동기화 버튼 (강제 새로고침) */}
+            <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                <RefreshCw size={14} /> 업데이트
+            </button>
             <button onClick={() => setIsBoardOpen(true)} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                <Layers size={14} /> 브랜드 시편 공유
+                <Layers size={14} /> 시편 게시판
             </button>
             <button onClick={() => setIsSubscribeOpen(true)} className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                <Users size={14} /> PRO 사용 승인요청
+                <Users size={14} /> PRO 승인요청
             </button>
         </div>
       </header>
@@ -3405,10 +3410,10 @@ export default function App() {
               
               <div className="flex w-full gap-2 mt-2">
                 <button onClick={copyToExcel} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
-                <button onClick={saveToBoard} className="flex-[1.5] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
                 <button onClick={shareToKakao} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
-                    <Share2 size={18} className="mr-1.5"/> 톡 전송
+                    <Share2 size={18} className="mr-1.5"/> 확정 (카톡 전송)
                 </button>
+                {/* 💡 배합 리셋 전용 버튼 (확인창 없이 즉시 삭제) */}
                 <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 transition-colors shadow-sm whitespace-nowrap">
                     <Trash2 size={18} className="mb-0.5" />
                     <span className="text-[9px] font-black">배합 리셋</span>
@@ -3795,7 +3800,7 @@ export default function App() {
           </div>
       </div>
 
-      {/* 월 구독 승인요청 모달 */}
+      {/* 💡 3. 월 구독 승인요청 모달 */}
       {isSubscribeOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in overflow-y-auto">
           <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 my-8">
@@ -3821,7 +3826,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 브랜드별 시편 공유 게시판 (Mock) */}
+      {/* 💡 4. 브랜드별 시편 공유 게시판 (추가 버튼 생성 반영) */}
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
@@ -3830,15 +3835,21 @@ export default function App() {
               <button onClick={() => setIsBoardOpen(false)} className="hover:text-red-300 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             
-            <div className="p-3 bg-white border-b border-slate-200 flex flex-col sm:flex-row gap-3 shrink-0">
+            <div className="p-3 bg-white border-b border-slate-200 flex flex-col sm:flex-row justify-between gap-3 shrink-0">
                 <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
                     {['전체', '현대', '기아', '벤츠', 'BMW', '포드'].map(b => (
                         <button key={b} onClick={() => setBoardBrandFilter(b)} className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${boardBrandFilter === b ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300'}`}>{b}</button>
                     ))}
                 </div>
-                <div className="relative flex-1">
-                    <input type="text" value={boardSearch} onChange={e=>setBoardSearch(e.target.value)} placeholder="컬러코드 또는 특이사항 검색" className="w-full bg-slate-50 border border-slate-300 text-sm px-3 py-1.5 rounded-lg pl-8 focus:outline-none focus:border-emerald-500" />
-                    <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
+                <div className="flex gap-2 flex-1 max-w-md">
+                    <div className="relative flex-1">
+                        <input type="text" value={boardSearch} onChange={e=>setBoardSearch(e.target.value)} placeholder="컬러코드 등 검색" className="w-full bg-slate-50 border border-slate-300 text-sm px-3 py-1.5 rounded-lg pl-8 focus:outline-none focus:border-emerald-500" />
+                        <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
+                    </div>
+                    {/* 💡 [신규] 게시판 상단 우측에 [+ 현재 배합 등록] 버튼 추가 */}
+                    <button onClick={saveToBoard} className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-bold text-xs shadow-md hover:bg-emerald-700 transition-colors shrink-0 whitespace-nowrap flex items-center gap-1">
+                        <Plus size={14}/> 현재 배합 등록
+                    </button>
                 </div>
             </div>
 
@@ -3866,8 +3877,7 @@ export default function App() {
             </div>
             
             <div className="p-3 bg-emerald-50 border-t border-emerald-200 shrink-0 text-center">
-                <p className="text-xs text-emerald-800 font-bold mb-2">※ 현재 내 기기(로컬)에서 작성한 배합 데이터만 연동 테스트 중입니다.</p>
-                <button onClick={saveToBoard} className="bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-black text-sm shadow-md hover:bg-emerald-700 transition-colors">현재 작업 중인 배합 게시판에 등록하기</button>
+                <p className="text-xs text-emerald-800 font-bold">※ 현재 내 기기(로컬)에서 작성한 배합 데이터만 연동 테스트 중입니다. 워크시트에서 새 배합을 만들고 위 <b>[+ 현재 배합 등록]</b> 버튼을 누르면 계속 추가할 수 있습니다.</p>
             </div>
           </div>
         </div>
