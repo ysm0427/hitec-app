@@ -111,6 +111,8 @@ export const TONER_DB: Record<string, TonerData> = {
 };
 
 // 💡 [2번 구역] FORD 2,610종 색상 데이터 공간 확보 (여기에 엑셀 데이터를 붙여넣으세요)
+export const OEM_COLORS =
+  // 💡 [2번 구역] FORD 2,610종 색상 데이터 공간 확보 (여기에 엑셀 데이터를 붙여넣으세요)
 export const OEM_COLORS = [
 /* 
   👇👇👇 여기에 2610줄짜리 엑셀 데이터를 복사해서 붙여넣으세요! 👇👇👇
@@ -3033,6 +3035,7 @@ export default function App() {
   
   const [isBoardOpen, setIsBoardOpen] = useState(false); 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false); 
+  const [isExcelModalOpen, setIsExcelModalOpen] = useState(false); 
   const [viewingPost, setViewingPost] = useState<any>(null); 
 
   const [subName, setSubName] = useState('');
@@ -3067,8 +3070,6 @@ export default function App() {
   const [selectedWheelIndex, setSelectedWheelIndex] = useState<number | null>(null);
 
   const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
-
-  const tonersRef = useRef<any[]>([]); const pearlTonersRef = useRef<any[]>([]); const isThreeCoatModeRef = useRef<boolean>(true);
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   const sortedCatalog = [...catalogData].sort((a, b) => { 
@@ -3302,7 +3303,6 @@ export default function App() {
       return `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`;
   }
   
-  // 💡 [초간단 엑셀 복사] 복잡한 팝업 없이 원클릭으로 클립보드 복사
   const handleDirectExcelCopy = () => {
       const linkStr = `=HYPERLINK("${generateShareUrl()}", "[팝업으로 복원]")`;
       const rowData = [
@@ -3325,6 +3325,23 @@ export default function App() {
       } else {
           alert("클립보드 복사를 지원하지 않는 브라우저입니다.");
       }
+  };
+
+  const handleCopyExcelTemplate = () => {
+      const headerRow = ['등록 날짜', '차량 번호', '브랜드/차종', '컬러코드', '작업내용', '특이사항', '배합보기'].join('\t');
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+          navigator.clipboard.writeText(headerRow); 
+          alert("엑셀 헤더(제목 표시줄)가 복사되었습니다. 엑셀 A1 셀에 붙여넣기 하세요.");
+      } else {
+          alert("클립보드 복사를 지원하지 않는 브라우저입니다.");
+      }
+  }
+  const copyToExcelData = () => {
+    const linkStr = `=HYPERLINK("${generateShareUrl()}", "[팝업으로 복원]")`; 
+    const rowData = [registrationDate, vehicleNumber || '미입력', carModel || '미입력', targetColorCode || '미지정', jobDescription || '미입력', specialNotes || '', linkStr].join('\t');
+    if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(rowData).catch(err => console.error(err)); }
+    alert("현재 데이터가 복사되었습니다. 엑셀의 빈 줄에 붙여넣기 하세요.");
+    setIsExcelModalOpen(false);
   };
 
   const handleSubscribeSubmit = () => {
@@ -3450,8 +3467,7 @@ export default function App() {
               </div>
               
               <div className="flex w-full gap-2 mt-2">
-                {/* 💡 초간단 다이렉트 엑셀 복사 버튼 적용 */}
-                <button onClick={handleDirectExcelCopy} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
+                <button onClick={() => setIsExcelModalOpen(true)} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 transition-colors shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
                 <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.5] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
                 <button onClick={() => setIsShareModalOpen(true)} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] transition-colors shadow-sm">
                     <Share2 size={18} className="mr-1.5"/> 공유 전송
@@ -3528,8 +3544,8 @@ export default function App() {
                                               }
                                               return (
                                               <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2.5 mb-2">
-                                                  <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-1 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
-                                                      <span className="text-[11px] font-black leading-tight break-keep">{mainTitle}</span>
+                                                  <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-2 py-1.5 text-[10px] font-bold rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
+                                                      <span className="text-[10.5px] font-black leading-tight">{mainTitle}</span>
                                                       {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
                                                   </div>
                                                   <span className="text-[11px] text-slate-700 leading-relaxed break-keep pt-0.5">{d[1]}</span>
@@ -4085,7 +4101,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 5. 엑셀 연동 모달 (더 이상 사용 안 해도 되지만, 이전 사용자들을 위해 모달 유지/설명 수정) */}
+      {/* 5. 엑셀 연동 모달 */}
       {isExcelModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border-2 border-green-600">
@@ -4095,16 +4111,16 @@ export default function App() {
             </div>
             <div className="p-5 flex flex-col gap-4 bg-slate-50">
               <div className="text-sm text-slate-700 leading-relaxed bg-green-50 p-4 rounded-xl border border-green-200">
-                  <p className="font-black text-green-800 mb-2">✅ 초간단 엑셀 복사 사용 방법 (매크로 불필요!)</p>
-                  <p><b>Step 1.</b> 처음 사용하실 때만 아래 <b>'엑셀 기본 양식 복사'</b>를 눌러 엑셀 A1 셀에 붙여넣어 <b>제목 틀</b>을 만드세요.</p>
-                  <p className="mt-1"><b>Step 2.</b> 데이터 입력 후 <b>초록색 [엑셀 복사] 버튼을 누른 다음, 엑셀의 빈 줄 첫 칸(A열)에 바로 붙여넣기(Ctrl+V)</b> 하시면 자동으로 팝업 복원 링크가 생성됩니다.</p>
+                  <p className="font-black text-green-800 mb-2">✅ 사용 방법</p>
+                  <p><b>Step 1.</b> 처음 등록 시 아래 <b>'엑셀 기본 양식 복사'</b>를 눌러 본인의 엑셀 A1 셀에 붙여넣어 <b>제목 틀</b>을 만드세요.</p>
+                  <p className="mt-1"><b>Step 2.</b> 작업이 끝난 후 <b>'현재 데이터 엑셀 복사'</b>를 누르고 엑셀의 빈 줄 첫 칸에 붙여넣으면 깔끔하게 연동됩니다.</p>
               </div>
 
               <div className="flex flex-col gap-2 mt-2">
                   <button onClick={handleCopyExcelTemplate} className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold shadow-sm hover:bg-slate-700 transition-colors">
                       📋 Step 1. 엑셀 기본 양식 복사 (제목줄 만들기)
                   </button>
-                  <button onClick={handleDirectExcelCopy} className="w-full bg-green-600 text-white py-3 rounded-xl font-black shadow-md hover:bg-green-700 transition-colors">
+                  <button onClick={copyToExcelData} className="w-full bg-green-600 text-white py-3 rounded-xl font-black shadow-md hover:bg-green-700 transition-colors">
                       🚀 Step 2. 현재 데이터 엑셀 복사 (배합 저장하기)
                   </button>
               </div>
@@ -4434,4 +4450,60 @@ export default function App() {
                             <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg shrink-0">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
                         </div>
                     ) : (
-                        <div className="bg-slate-8저는 언어 모델이라서 그것은 도와드릴 수가 없습니다.
+                        <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700 border-dashed w-full max-w-[420px] h-[420px] flex flex-col items-center justify-center gap-4 text-center text-slate-500">
+                            <Sun className="text-slate-600 mb-2" size={40} />
+                            <p className="text-base font-bold text-slate-400">색상환에서 컬러를 클릭하세요.</p>
+                            <p className="text-sm">선택된 색상의 원색 조색 배율이<br/>이곳에 표시됩니다.</p>
+                        </div>
+                    )}
+                 </div>
+
+                 {/* 4. CMYK Subtractive Color */}
+                 <div className="w-full flex flex-col items-center justify-center h-[460px]">
+                    <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
+                        <h4 className="text-xl font-black text-slate-900 mb-6 tracking-widest flex items-center shrink-0">
+                            <BookOpen className="mr-2 text-pink-500" size={20}/>CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color (물감의 혼합)</span>
+                        </h4>
+                        <div className="w-60 h-60 relative shrink-0">
+                            <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
+                                <circle cx="75" cy="75" r="55" fill="#00FFFF" style={{ mixBlendMode: 'multiply' }} />
+                                <circle cx="125" cy="75" r="55" fill="#FF00FF" style={{ mixBlendMode: 'multiply' }} />
+                                <circle cx="100" cy="120" r="55" fill="#FFFF00" style={{ mixBlendMode: 'multiply' }} />
+                                
+                                <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
+                                    <line x1="75" y1="75" x2="30" y2="40" />
+                                    <line x1="125" y1="75" x2="170" y2="40" />
+                                    <line x1="100" y1="120" x2="100" y2="175" />
+                                    <line x1="100" y1="55" x2="100" y2="25" /> 
+                                    <line x1="75" y1="105" x2="30" y2="130" /> 
+                                    <line x1="125" y1="105" x2="170" y2="130" /> 
+                                    <line x1="100" y1="90" x2="150" y2="90" /> 
+                                </g>
+                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle">
+                                    <text x="25" y="35">Cyan</text>
+                                    <text x="175" y="35">Magenta</text>
+                                    <text x="100" y="185">Yellow</text>
+                                    <text x="100" y="20" fill="#0000FF">Blue</text>
+                                    <text x="25" y="140" fill="#008000">Green</text>
+                                    <text x="175" y="140" fill="#FF0000">Red</text>
+                                    <rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" />
+                                    <text x="170" y="93" fill="#ffffff">Black</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                 </div>
+
+             </div>
+
+             <div className="mt-4 pb-12 w-full flex justify-center shrink-0">
+                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg">
+                    <X size={24} /> 믹싱 스튜디오 닫기
+                </button>
+             </div>
+          </main>
+        </div>
+      )}
+    </div>
+  );
+}
