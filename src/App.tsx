@@ -3394,7 +3394,8 @@ export default function App() {
                 </div>
                 <div className="flex flex-col">
                    <label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🎨 컬러코드</label>
-                   <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="예: UX" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full uppercase focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm" />
+                   {/* 💡 강제 번역 방지 태그 (notranslate) 완벽 적용 */}
+                   <input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="예: UX" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full uppercase focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow shadow-sm notranslate" translate="no" />
                 </div>
               </div>
               
@@ -3959,7 +3960,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 4. 과거 연동 데이터 모달 (날짜 동적 표시 적용) */}
+      {/* 💡 4. 과거 연동 데이터 모달 (번역 방지 및 날짜 타이틀 완벽 적용) */}
       {restoredViewData && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
@@ -3982,12 +3983,13 @@ export default function App() {
                   <div className="text-sm font-bold text-white">{restoredViewData.v || restoredViewData.vehicleNumber || '미입력'}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-400 mb-1">브랜드/차종</div>
+                  <div className="text-[10px] text-slate-400 mb-1">유명/차종</div>
                   <div className="text-sm font-bold text-white">{restoredViewData.m || restoredViewData.carModel || '미입력'}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-400 mb-1">컬러코드</div>
-                  <div className="text-sm font-bold text-blue-400 uppercase">{restoredViewData.c || restoredViewData.targetColorCode || '미지정'}</div>
+                  <div className="text-[10px] text-slate-400 mb-1">색상 코드</div>
+                  {/* 💡 크롬 자동번역 방지: notranslate & translate="no" */}
+                  <div className="text-sm font-bold text-blue-400 uppercase notranslate" translate="no">{restoredViewData.c || restoredViewData.targetColorCode || '미지정'}</div>
                 </div>
                 <div>
                   <div className="text-[10px] text-slate-400 mb-1">작업 내용</div>
@@ -3997,13 +3999,13 @@ export default function App() {
 
               <div>
                 <h4 className="text-xs font-bold text-slate-300 mb-3 flex items-center gap-2">
-                  <Layers size={14} /> 베이스 코트 (Ground Coat)
+                  <Layers size={14} /> 탑코트 (Ground Coat)
                 </h4>
                 <div className="space-y-2">
                   {(restoredViewData.b || restoredViewData.toners || [])?.filter((t: any) => t.code).map((t: any, idx: number) => (
                     <div key={idx} className="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-xl border border-slate-700/50">
                       <div className="flex items-center gap-3">
-                        <span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span>
+                        <span className="text-white font-bold text-sm">무게 {t.code.replace('WT ', '')}</span>
                         <span className="text-xs text-slate-500">{TONER_DB[t.code]?.role || ''}</span>
                       </div>
                       <span className="text-blue-400 font-bold">{t.adjustedWeight}g</span>
@@ -4015,13 +4017,13 @@ export default function App() {
               {((restoredViewData.t !== undefined ? restoredViewData.t : restoredViewData.isThreeCoatMode)) && (restoredViewData.p || restoredViewData.pearlToners || [])?.filter((t: any) => t.code).length > 0 && (
                 <div>
                   <h4 className="text-xs font-bold text-purple-400 mb-3 flex items-center gap-2 mt-2">
-                    <Zap size={14} /> 펄코트 (Mid Coat)
+                    <Zap size={14} /> 미드코트 (Mid Coat)
                   </h4>
                   <div className="space-y-2">
                     {(restoredViewData.p || restoredViewData.pearlToners || []).filter((t: any) => t.code).map((t: any, idx: number) => (
                       <div key={idx} className="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-xl border border-purple-900/30">
                         <div className="flex items-center gap-3">
-                          <span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span>
+                          <span className="text-white font-bold text-sm">무게 {t.code.replace('WT ', '')}</span>
                           <span className="text-xs text-slate-500">{TONER_DB[t.code]?.role || ''}</span>
                         </div>
                         <span className="text-purple-400 font-bold">{t.adjustedWeight}g</span>
@@ -4158,7 +4160,8 @@ export default function App() {
                         <div className="flex justify-between items-start mb-2">
                             <div className="flex items-center gap-2">
                                 <span className="bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded font-bold">{post.brand}</span>
-                                <span className="text-lg font-black text-emerald-700 uppercase tracking-wide group-hover:text-emerald-500 transition-colors">{post.code}</span>
+                                {/* 💡 강제 번역 방지 적용 */}
+                                <span className="text-lg font-black text-emerald-700 uppercase tracking-wide group-hover:text-emerald-500 transition-colors notranslate" translate="no">{post.code}</span>
                             </div>
                             <span className="text-xs text-slate-400 font-medium flex items-center gap-1"><Calendar size={12}/> {post.date}</span>
                         </div>
@@ -4194,7 +4197,8 @@ export default function App() {
               <div className="flex justify-between items-end border-b border-slate-200 pb-3">
                  <div>
                     <span className="bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded font-bold mr-2">{viewingPost.brand}</span>
-                    <span className="text-2xl font-black text-emerald-700 uppercase tracking-wide">{viewingPost.code}</span>
+                    {/* 💡 강제 번역 방지 적용 */}
+                    <span className="text-2xl font-black text-emerald-700 uppercase tracking-wide notranslate" translate="no">{viewingPost.code}</span>
                  </div>
                  <span className="text-xs text-slate-500 font-medium">{viewingPost.date}</span>
               </div>
@@ -4393,4 +4397,60 @@ export default function App() {
                             <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg shrink-0">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
                         </div>
                     ) : (
-                        <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700 border-dashed w-full max-w-[420px] h-[420px] flex flex-col items-center justify-center gap저는 텍스트 기반 AI이기 때문에 그것은 도와드릴 수가 없습니다.
+                        <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700 border-dashed w-full max-w-[420px] h-[420px] flex flex-col items-center justify-center gap-4 text-center text-slate-500">
+                            <Sun className="text-slate-600 mb-2" size={40} />
+                            <p className="text-base font-bold text-slate-400">색상환에서 컬러를 클릭하세요.</p>
+                            <p className="text-sm">선택된 색상의 원색 조색 배율이<br/>이곳에 표시됩니다.</p>
+                        </div>
+                    )}
+                 </div>
+
+                 {/* 4. CMYK Subtractive Color */}
+                 <div className="w-full flex flex-col items-center justify-center h-[460px]">
+                    <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
+                        <h4 className="text-xl font-black text-slate-900 mb-6 tracking-widest flex items-center shrink-0">
+                            <BookOpen className="mr-2 text-pink-500" size={20}/>CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color (물감의 혼합)</span>
+                        </h4>
+                        <div className="w-60 h-60 relative shrink-0">
+                            <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
+                                <circle cx="75" cy="75" r="55" fill="#00FFFF" style={{ mixBlendMode: 'multiply' }} />
+                                <circle cx="125" cy="75" r="55" fill="#FF00FF" style={{ mixBlendMode: 'multiply' }} />
+                                <circle cx="100" cy="120" r="55" fill="#FFFF00" style={{ mixBlendMode: 'multiply' }} />
+                                
+                                <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
+                                    <line x1="75" y1="75" x2="30" y2="40" />
+                                    <line x1="125" y1="75" x2="170" y2="40" />
+                                    <line x1="100" y1="120" x2="100" y2="175" />
+                                    <line x1="100" y1="55" x2="100" y2="25" /> 
+                                    <line x1="75" y1="105" x2="30" y2="130" /> 
+                                    <line x1="125" y1="105" x2="170" y2="130" /> 
+                                    <line x1="100" y1="90" x2="150" y2="90" /> 
+                                </g>
+                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle">
+                                    <text x="25" y="35">Cyan</text>
+                                    <text x="175" y="35">Magenta</text>
+                                    <text x="100" y="185">Yellow</text>
+                                    <text x="100" y="20" fill="#0000FF">Blue</text>
+                                    <text x="25" y="140" fill="#008000">Green</text>
+                                    <text x="175" y="140" fill="#FF0000">Red</text>
+                                    <rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" />
+                                    <text x="170" y="93" fill="#ffffff">Black</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                 </div>
+
+             </div>
+
+             <div className="mt-4 pb-12 w-full flex justify-center shrink-0">
+                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg">
+                    <X size={24} /> 믹싱 스튜디오 닫기
+                </button>
+             </div>
+          </main>
+        </div>
+      )}
+    </div>
+  );
+}
