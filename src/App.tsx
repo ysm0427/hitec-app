@@ -113,7 +113,7 @@ export const TONER_DB: Record<string, TonerData> = {
 // 💡 [2번 구역] FORD 2,610종 색상 데이터 붙여넣는 자리
 export const OEM_COLORS: { code: string; name: string }[] = [
   // 👇👇👇 여기에 엑셀 데이터 [{ code: 'UG4', name: 'WHITE PLATINUM' }, ...] 를 붙여넣으세요! 👇👇👇
-{ code: `AZ`, name: `펄` },
+  { code: `AZ`, name: `펄` },
 { code: `RR`, name: `틴티드 투명` },
 { code: `AZ`, name: `바탕` },
 { code: `6999`, name: `ZINC YELLOW` },
@@ -2722,7 +2722,7 @@ export const OEM_COLORS: { code: string; name: string }[] = [
 { code: `PN4DG`, name: `` },
 { code: `UG`, name: `` },
 { code: `D4`, name: `` },
-// 👆👆👆 여기에 엑셀 데이터 [{ code: 'UG4', name: 'WHITE PLATINUM' }, ...] 를 붙여넣으세요! 👆👆👆
+  // 👆👆👆 여기에 엑셀 데이터 [{ code: 'UG4', name: 'WHITE PLATINUM' }, ...] 를 붙여넣으세요! 👆👆👆
 ];
 
 export const catalogData = Object.entries(TONER_DB).map(([code, data]) => {
@@ -2986,6 +2986,10 @@ export default function App() {
   const [boardSearch, setBoardSearch] = useState('');
   const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
   
+  const [snapshots, setSnapshots] = useState<any[]>([]);
+  const [isSnapshotModalOpen, setIsSnapshotModalOpen] = useState(false);
+  const [selectedSnapshot, setSelectedSnapshot] = useState<any>(null);
+  
   const [boardPosts, setBoardPosts] = useState([
       { id: 1, brand: '현대', code: 'UG4', date: '2026-08-20', likes: 12, views: 45, author: '김프로', spec: '이색 심함, 블랜딩 필수', baseFormula: [{code: 'WT 321', adjustedWeight: '15.5'}, {code: 'WT 328', adjustedWeight: '2.1'}], pearlFormula: [], isThreeCoat: false },
       { id: 2, brand: '기아', code: 'SWP', date: '2026-08-22', likes: 28, views: 102, author: '이반장', spec: '정면 밝음, 측면 어두움', baseFormula: [{code: 'WT 321', adjustedWeight: '20.0'}], pearlFormula: [{code: 'WT 368', adjustedWeight: '5.0'}], isThreeCoat: true },
@@ -3078,9 +3082,11 @@ export default function App() {
         
         if (!loadedFromUrl) {
             const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedMemos = localStorage.getItem('hitec_toner_memos'); const savedBoard = localStorage.getItem('hitec_board_mock');
+            const savedSnapshots = localStorage.getItem('hitec_snapshots');
             
             if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedMemos) setTonerMemos(JSON.parse(savedMemos));
             if (savedBoard) setBoardPosts(JSON.parse(savedBoard));
+            if (savedSnapshots) setSnapshots(JSON.parse(savedSnapshots));
         }
         setIsLoaded(true); 
     }
@@ -3091,8 +3097,9 @@ export default function App() {
       if (isLoaded && typeof window !== 'undefined') {
           localStorage.setItem('hitec_base', JSON.stringify(toners)); localStorage.setItem('hitec_pearl', JSON.stringify(pearlToners)); localStorage.setItem('hitec_code', targetColorCode); localStorage.setItem('hitec_mode', JSON.stringify(isThreeCoatMode)); localStorage.setItem('hitec_vehicle', vehicleNumber); localStorage.setItem('hitec_carmodel', carModel); localStorage.setItem('hitec_job', jobDescription); localStorage.setItem('hitec_notes', specialNotes); localStorage.setItem('hitec_toner_memos', JSON.stringify(tonerMemos));
           localStorage.setItem('hitec_board_mock', JSON.stringify(boardPosts));
+          localStorage.setItem('hitec_snapshots', JSON.stringify(snapshots));
       }
-  }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, tonerMemos, boardPosts, isLoaded]);
+  }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, tonerMemos, boardPosts, snapshots, isLoaded]);
 
   useEffect(() => {
     const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
@@ -3320,11 +3327,34 @@ export default function App() {
       alert("🎉 게시판에 성공적으로 시편 데이터가 등록되었습니다!\n(※ 현재는 로컬 테스트 환경에 저장됩니다.)");
   };
 
-  // 💡 [추가] 개별 시편 삭제 로직
   const deleteBoardPost = (id: number, e: React.MouseEvent) => {
-      e.stopPropagation(); // 모달이 열리는 것을 방지
+      e.stopPropagation(); 
       if (window.confirm("해당 시편 배합 데이터를 삭제하시겠습니까?")) {
           setBoardPosts(prev => prev.filter(post => post.id !== id));
+      }
+  };
+
+  const handleSaveSnapshot = () => {
+      const newSnapshot = {
+          id: Date.now(),
+          timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+          dateStr: new Date().toLocaleDateString('ko-KR'),
+          base: JSON.parse(JSON.stringify(toners)),
+          pearl: JSON.parse(JSON.stringify(pearlToners)),
+          isThreeCoat: isThreeCoatMode,
+          totalFinal: totalFinalWeight
+      };
+      setSnapshots(prev => [newSnapshot, ...prev]);
+      alert(`[${newSnapshot.timestamp}] 현재 데이터가 확정(저장)되었습니다.\n'수정 내역' 버튼을 눌러 언제든 확인 및 복원할 수 있습니다.`);
+  };
+
+  const restoreSnapshot = (snapshot: any) => {
+      if (window.confirm("현재 작업 중인 데이터가 지워지고 선택한 시점의 배합으로 복원됩니다.\n진행하시겠습니까?")) {
+          setToners(JSON.parse(JSON.stringify(snapshot.base)));
+          setPearlToners(JSON.parse(JSON.stringify(snapshot.pearl)));
+          setIsThreeCoatMode(snapshot.isThreeCoat);
+          setSelectedSnapshot(null);
+          setIsSnapshotModalOpen(false);
       }
   };
 
@@ -3543,14 +3573,33 @@ export default function App() {
                 )
               })}
               
-              <button 
-                  onMouseDown={(e) => e.preventDefault()} 
-                  onTouchStart={(e) => e.preventDefault()}
-                  onClick={() => addToner(false)} 
-                  className="w-full py-3 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center transition-all shadow-sm mt-2"
-              >
-                  <Plus size={18} className="mr-1"/>베이스 안료 추가
-              </button>
+              <div className="flex w-full gap-2 mt-2">
+                  <button 
+                      onMouseDown={(e) => e.preventDefault()} 
+                      onTouchStart={(e) => e.preventDefault()}
+                      onClick={() => addToner(false)} 
+                      className="flex-1 py-3 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center transition-all shadow-sm"
+                  >
+                      <Plus size={18} className="mr-1"/>베이스 안료 추가
+                  </button>
+                  <button 
+                      onClick={handleSaveSnapshot} 
+                      className="w-[100px] sm:w-[130px] bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold text-[11px] sm:text-sm flex flex-col sm:flex-row justify-center items-center transition-all shadow-sm"
+                  >
+                      <Save size={16} className="mb-1 sm:mb-0 sm:mr-1.5"/>데이터 확정
+                  </button>
+                  <button 
+                      onClick={() => setIsSnapshotModalOpen(true)} 
+                      className="w-[100px] sm:w-[130px] bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-bold text-[11px] sm:text-sm flex flex-col sm:flex-row justify-center items-center transition-all shadow-sm relative"
+                  >
+                      <History size={16} className="mb-1 sm:mb-0 sm:mr-1.5"/>수정 내역
+                      {snapshots.length > 0 && (
+                          <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-md border border-white">
+                              {snapshots.length}
+                          </span>
+                      )}
+                  </button>
+              </div>
             </div>
             
             <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between">
@@ -3971,87 +4020,104 @@ export default function App() {
         </div>
       )}
 
-      {/* 💡 4. 과거 연동 데이터 모달 (번역 방지 및 날짜 타이틀 완벽 적용) */}
-      {restoredViewData && (
+      {/* 💡 4. 데이터 확정 수정 내역(스냅샷) 목록 모달 */}
+      {isSnapshotModalOpen && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1e293b] rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700">
-            <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-[#1e293b]">
+          <div className="bg-[#1e293b] rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-700">
+            <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-slate-900">
               <h3 className="text-white font-bold flex items-center gap-2">
-                <History size={18} className="text-blue-400" /> {restoredViewData.date ? `[${restoredViewData.date}-데이터] 복원된 배합` : '[복원된 배합] 상세 보기'}
+                <History size={18} className="text-blue-400" /> 현제 페이지 데이터 수정 내역 보기
               </h3>
               <button 
-                onClick={() => { setRestoredViewData(null); window.close(); }} 
+                onClick={() => setIsSnapshotModalOpen(false)} 
                 className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"
               >
                 <X size={16} />
               </button>
             </div>
             
-            <div className="p-6 overflow-y-auto custom-scrollbar max-h-[70vh] bg-[#0f172a] space-y-6">
-              <div className="grid grid-cols-2 gap-4 bg-[#1e293b] p-4 rounded-xl border border-slate-700/50">
-                <div>
-                  <div className="text-[10px] text-slate-400 mb-1">차량번호</div>
-                  <div className="text-sm font-bold text-white">{restoredViewData.v || restoredViewData.vehicleNumber || '미입력'}</div>
+            <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-[#0f172a]">
+                {/* 왼쪽: 스냅샷 리스트 */}
+                <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r border-slate-700/50 overflow-y-auto bg-slate-900/50 flex flex-col">
+                    {snapshots.length === 0 ? (
+                        <div className="p-6 text-center text-slate-500 text-sm">확정된 기록이 없습니다.</div>
+                    ) : (
+                        snapshots.map((snap, idx) => (
+                            <button 
+                                key={snap.id} 
+                                onClick={() => setSelectedSnapshot(snap)}
+                                className={`p-4 text-left border-b border-slate-800 transition-colors flex flex-col gap-1 ${selectedSnapshot?.id === snap.id ? 'bg-indigo-900/40 border-l-4 border-indigo-500' : 'hover:bg-slate-800'}`}
+                            >
+                                <span className="text-xs text-slate-400 font-bold">{snap.dateStr}</span>
+                                <span className="text-white font-black text-sm">{snapshots.length - idx}차 확정 데이터</span>
+                                <span className="text-xs text-emerald-400 font-bold flex items-center"><CheckCircle size={12} className="mr-1"/> {snap.timestamp}</span>
+                            </button>
+                        ))
+                    )}
                 </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 mb-1">유명/차종</div>
-                  <div className="text-sm font-bold text-white">{restoredViewData.m || restoredViewData.carModel || '미입력'}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 mb-1">색상 코드</div>
-                  {/* 💡 크롬 자동번역 방지: notranslate & translate="no" */}
-                  <div className="text-sm font-bold text-blue-400 uppercase notranslate" translate="no">{restoredViewData.c || restoredViewData.targetColorCode || '미지정'}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 mb-1">작업 내용</div>
-                  <div className="text-sm font-bold text-white leading-snug">{restoredViewData.j || restoredViewData.jobDescription || '미입력'}</div>
-                </div>
-              </div>
+                
+                {/* 오른쪽: 선택된 스냅샷 상세 보기 */}
+                <div className="flex-1 p-6 overflow-y-auto bg-[#0f172a] custom-scrollbar">
+                    {selectedSnapshot ? (
+                        <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                            <h4 className="text-lg font-black text-white mb-4 flex items-center gap-2 border-b border-slate-700 pb-3">
+                                <Search size={20} className="text-yellow-400"/> 데이터 상세 보기 및 복원
+                            </h4>
+                            
+                            <div className="bg-[#1e293b] p-4 rounded-xl border border-slate-700/50 mb-4 flex justify-between items-center">
+                                <span className="text-sm text-slate-300 font-bold">최종 혼합 총량</span>
+                                <span className="text-xl font-black text-yellow-400">{selectedSnapshot.totalFinal}g</span>
+                            </div>
 
-              <div>
-                <h4 className="text-xs font-bold text-slate-300 mb-3 flex items-center gap-2">
-                  <Layers size={14} /> 탑코트 (Ground Coat)
-                </h4>
-                <div className="space-y-2">
-                  {(restoredViewData.b || restoredViewData.toners || [])?.filter((t: any) => t.code).map((t: any, idx: number) => (
-                    <div key={idx} className="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-xl border border-slate-700/50">
-                      <div className="flex items-center gap-3">
-                        <span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span>
-                        <span className="text-xs text-slate-500">{TONER_DB[t.code]?.role || ''}</span>
-                      </div>
-                      <span className="text-blue-400 font-bold">{t.adjustedWeight}g</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                            <div className="mb-4">
+                                <h5 className="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1 uppercase"><Layers size={14} className="text-blue-400"/> 베이스 코트 내역</h5>
+                                <div className="space-y-2">
+                                    {selectedSnapshot.base?.filter((t: any) => t.code).map((t: any, i: number) => (
+                                        <div key={i} className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-slate-700/50">
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span>
+                                                <span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span>
+                                            </div>
+                                            <span className="text-blue-400 font-bold">{t.adjustedWeight}g</span>
+                                        </div>
+                                    ))}
+                                    {(!selectedSnapshot.base || selectedSnapshot.base.filter((t: any) => t.code).length === 0) && (
+                                        <div className="text-xs text-slate-500 italic p-2">베이스 데이터 없음</div>
+                                    )}
+                                </div>
+                            </div>
 
-              {((restoredViewData.t !== undefined ? restoredViewData.t : restoredViewData.isThreeCoatMode)) && (restoredViewData.p || restoredViewData.pearlToners || [])?.filter((t: any) => t.code).length > 0 && (
-                <div>
-                  <h4 className="text-xs font-bold text-purple-400 mb-3 flex items-center gap-2 mt-2">
-                    <Zap size={14} /> 미드코트 (Mid Coat)
-                  </h4>
-                  <div className="space-y-2">
-                    {(restoredViewData.p || restoredViewData.pearlToners || []).filter((t: any) => t.code).map((t: any, idx: number) => (
-                      <div key={idx} className="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-xl border border-purple-900/30">
-                        <div className="flex items-center gap-3">
-                          <span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span>
-                          <span className="text-xs text-slate-500">{TONER_DB[t.code]?.role || ''}</span>
+                            {selectedSnapshot.isThreeCoat && selectedSnapshot.pearl?.filter((t: any) => t.code).length > 0 && (
+                                <div className="mb-6">
+                                    <h5 className="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1 uppercase"><Zap size={14} className="text-purple-400"/> 펄 코트 내역</h5>
+                                    <div className="space-y-2">
+                                        {selectedSnapshot.pearl?.filter((t: any) => t.code).map((t: any, i: number) => (
+                                            <div key={i} className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-purple-900/30">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span>
+                                                    <span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span>
+                                                </div>
+                                                <span className="text-purple-400 font-bold">{t.adjustedWeight}g</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <button 
+                                onClick={() => restoreSnapshot(selectedSnapshot)}
+                                className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl mt-4 hover:bg-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all flex justify-center items-center gap-2 text-base"
+                            >
+                                <RefreshCw size={20}/> 이 상태로 완벽하게 덮어쓰기 (복원)
+                            </button>
                         </div>
-                        <span className="text-purple-400 font-bold">{t.adjustedWeight}g</span>
-                      </div>
-                    ))}
-                  </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
+                            <History size={64} className="mb-4"/>
+                            <p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p>
+                        </div>
+                    )}
                 </div>
-              )}
-            </div>
-
-            <div className="p-4 bg-[#1e293b] border-t border-slate-700/50">
-              <button 
-                onClick={() => { setRestoredViewData(null); window.close(); }} 
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
-              >
-                닫기 및 진행 중으로 돌아가기
-              </button>
             </div>
           </div>
         </div>
@@ -4199,7 +4265,7 @@ export default function App() {
             </div>
             
             <div className="p-3 bg-emerald-50 border-t border-emerald-200 shrink-0 text-center">
-                <p className="text-xs text-emerald-800 font-bold">※ 워크시트에서 새 배합을 만들고 위 <b>[+ 현재 배합 등록]</b> 버튼을 누르면 계속 추가할 수 있습니다.</p>
+                <p className="text-xs text-emerald-800 font-bold">※ 등록된 시편을 클릭하시면 상세 배합량 확인이 가능합니다.</p>
             </div>
           </div>
         </div>
@@ -4217,6 +4283,7 @@ export default function App() {
               <div className="flex justify-between items-end border-b border-slate-200 pb-3">
                  <div>
                     <span className="bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded font-bold mr-2">{viewingPost.brand}</span>
+                    {/* 💡 강제 번역 방지 적용 */}
                     <span className="text-2xl font-black text-emerald-700 uppercase tracking-wide notranslate" translate="no">{viewingPost.code}</span>
                  </div>
                  <span className="text-xs text-slate-500 font-medium">{viewingPost.date}</span>
@@ -4462,4 +4529,5 @@ export default function App() {
 
              </div>
 
-             <div className="mt-4 pb-그것을 도와드릴 수는 없습니다. 저는 언어 모델일 뿐이에요.
+             <div className="mt-4 pb-12 w-full flex justify-center shrink-0">
+                <button저는 언어 모델입니다. 그것은 제가 할 수 있는 범위를 넘어서는 것이라 할 수 없어요.
