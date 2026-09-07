@@ -8,7 +8,6 @@ interface TonerData { role: string; type: string; face: string; flop: string; de
 
 const LAST_PATCH_DATE = "2026.09.07"; 
 
-// 펄 마스터 인덱스 (원문 100% 보존)
 export const PEARL_LEVELS = [
   { level: 1, name: 'Ultra Micro 울트라 마이크로', size: '1~5µm', desc: '지문 사이로 스며드는 전분 가루 수준의 극미세 입자 크기를 가진 진주빛 조색제입니다.', faceFlop: '진주조개 안쪽을 긁어낸 듯한 뽀얗고 탁한 우윳빛을 띱니다. 정면과 측면 모두 왜곡 없이 은은하고 부드러운 실키 글로우(Silky Glow)를 일정하게 유지합니다.', usage: '최고급 세단의 깊은 화이트 펄 바탕을 깔거나, 입자가 거친 안료의 톤을 부드럽게 눌러줄 때 처방됩니다.', mix: '투명도가 낮고 은폐력이 매우 뛰어나, 베이스의 밀도를 높이기 위해 지시된 조색 데이터 수치를 정확히 계량합니다.', warning: '메탈릭이 뭉치는 얼룩(Mottling) 현상이 거의 발생하지 않아 초급자도 수월하게 도장할 수 있습니다.', codes: [] },
   { level: 2, name: 'Micro 마이크로', size: '5~10µm', desc: '고운 밀가루 수준의 미세 입자로, 도장 표면을 매끄럽고 차분하게 정돈하는 안료입니다.', faceFlop: 'WT 322 (화이트): 맑은 물에 우유를 한 방울 떨어뜨린 듯한 반투명하고 뽀얀 흰빛을 냅니다.\nWT 357 (실버): 고운 알루미늄 호일을 갈아 넣은 듯 차분하고 매끄러운 쥐색(은빛)이 돕니다.', usage: '매끄러운 질감과 차분한 바탕색이 요구되는 부드러운 순정(OEM) 펄 계열 도장에 광범위하게 적용됩니다.', mix: '입자 배열이 안정적이므로 기본 배합 비율에 맞춰 혼합하며, 타 안료와 섞일 때 변수가 적습니다.', warning: '얼룩 발생 위험이 적어 숨김 도장(보카시) 작업 시 신구 도막의 경계면을 자연스럽게 잇기 유리합니다.', codes: ['WT 322', 'WT 357'] },
@@ -186,7 +185,7 @@ export const TONER_DB: Record<string, TonerData> = {
     desc: '341(아주르)의 은폐력을 빼고 투명하게 만들어 캔디 블루처럼 맑은 심도를 냅니다.', 
     details: [
       ['🎨 광학적 특성', 'WT 341 고채도 아주르 블루 원액에서 은폐력(Hiding Power)만 물리적으로 제거하여, 거울처럼 맑은 하이 채도 스카이 블루 캔디 이펙트를 뿜어냅니다.'],
-      ['📌 일반 특성', '채도 높은 청색 조색제로 이펙트 컬러에서 15도는 녹색이 강한 청색 45&110도는 약하게 적색을 띰'],
+      ['📌 일반 특성', '채도 높은 청색 투명형 (이펙트 컬러에서 15도는 녹색이 강한 청색 45&110도는 약하게 적색을 띰)'],
       ['👀 외관 변화', '하도의 은빛을 그대로 투과시키며 시원하고 맑은 스카이 블루를 씌웁니다.'],
       ['🎯 타겟 컬러', '맑은 스포츠 블루 메탈릭 상도 및 투명 펄.'],
       ['⚗️ 배합 비율', '은폐를 방해하지 않고 파란 톤만 입힐 때 사용합니다.'],
@@ -365,7 +364,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['💡 비교 분석', '[비교] WT 340 vs WT 338\n340은 따뜻한 핑크빛 자주, 338은 차갑고 푸른빛이 도는 쿨톤 자주입니다.']
     ] 
   },
-
+  
   // === [옐로우 & 그린 (Yellow & Green)] ===
   'WT 324': { 
     role: '레디쉬 옐로우 (Reddish Yellow)', type: 'solid', face: '#f59e0b', flop: '#9a3412', 
@@ -374,7 +373,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['🎨 광학적 특성', '황색 베이스에 미세한 적색(Red) 파장을 결합하여, 도막 전체의 온도를 끌어올리는 웜톤(Warm-tone) 이펙트 필터를 발현시킵니다.'],
       ['📌 일반 특성', '적색을 띠는 맑고 채도 높은 황색 조색제 (은폐력은 떨어짐. 주로 이펙트 컬러에 사용)'],
       ['👀 외관 변화', '도막을 진한 개나리색이나 포근한 오렌지 옐로우로 톤업시킵니다.'],
-      ['🎯 타겟 컬러', '웜톤 옐로우 솔리드 및 따뜻한 샴페인 골드.'],
+      ['🎯 타겟 컬러', '웜톤 옐로우 솔리드 및 따뜻한 샴페인 골드, 웜톤 베이지 튜닝.'],
       ['⚗️ 배합 비율', '노란색에 온기를 불어넣을 때 메인으로 사용됩니다.'],
       ['⚠️ 조색 한계점', '차가운 쿨톤 레몬빛 조색 시 섞이면 칠이 더워 보이고 오염됩니다.'],
       ['💡 비교 분석', '[비교] WT 324 vs WT 326\n324는 붉은기 도는 웜톤, 326은 푸른기 도는 차가운 쿨톤 옐로우입니다.']
@@ -398,7 +397,7 @@ export const TONER_DB: Record<string, TonerData> = {
     desc: '어느 쪽으로도 치우치지 않은 가장 균형 잡힌 표준 노란색을 발현합니다.', 
     details: [
       ['🎨 광학적 특성', '적/청/녹 파장 어느 쪽으로도 치우치지 않는 가장 완벽한 밸런스의 중립 황색광 필터를 형성하여 도막의 기준점을 확립합니다.'],
-      ['📌 일반 특성', '녹색을 띠는 밝은 황색 (주로 솔리드 컬러에 사용_이펙트 컬러에서는 특히 45&110도에 밝은 황색이 필요할 경우 소량 사용)'],
+      ['📌 일반 특성', '녹색을 조금 띠는 밝은 황색 (주로 솔리드 컬러에 사용_이펙트 컬러에서는 특히 45&110도에 밝은 황색이 필요할 경우 소량 사용)'],
       ['👀 외관 변화', '튀지 않고 편안하며 화사한 정통 옐로우 질감을 유지합니다.'],
       ['🎯 타겟 컬러', '범용 노란색 솔리드 차량 및 표준 골드 메탈릭.'],
       ['⚗️ 배합 비율', '노란색 계열 조색 시 가장 다량으로 투입되는 뼈대 원액입니다.'],
@@ -686,7 +685,7 @@ export const TONER_DB: Record<string, TonerData> = {
     desc: '큰 마이카 입자에 강렬한 간섭 코팅을 올려 청색광이 측면에서 적황색(노을빛) 벤딩으로 폭발합니다.', 
     details: [
       ['📌 일반 특성', '큰 크기 맑은 청색 펄-15도 청색 45&110도는 정황색으로 변하는 간섭 펄'], 
-      ['👀 외관 변화', '정면의 쨍한 블루 스파클이 측면에선 따뜻한 황적색 노을빛으로 화려하게 반전됩니다.'], 
+      ['👀 외관 변화', '정면의 쨍한 블루 스파클이 측면에선 따뜻한 황적색 노을빛으로 화려하게 반전되는 카멜레온 질감을 냅니다.'], 
       ['🎯 타겟 컬러', '카멜레온 성향의 고급 스포츠 블루 펄 및 특수 이색 커스텀 마감.'], 
       ['⚠️ 조색 한계점', '측면 붉은빛 반사가 매우 강하므로 차가운 쿨톤 블루 유지 시엔 절대 사용 불가.'], 
       ['💡 비교 분석', '[비교] WT 370 vs WT 372\n370은 입자가 크고 역동적인 노을빛 벤딩인 반면, 372는 작은 입자의 미세한 적청색 출발입니다.']
@@ -956,13 +955,15 @@ export const TONER_DB: Record<string, TonerData> = {
   '9041': { role: '코발트 딥', type: 'candy', face: '#1d4ed8', flop: '#0f172a', desc: '채도가 가장 깊고 무거운 투명 다크 네이비 캔디.', details: [['🎯 캔디 도장', '건 거리/패스 오버랩 70~80% 겹침 유지 지도 얼룩 원천 제어']] },
 
   // === [PP - 가루타입 분말 안료 - 2종] ===
-  'PP 304': { role: '가루타입 스파클', type: 'pearl', face: '#ffffff', flop: '#fef08a', desc: '수지 완전히 뺀 100% 건식 분말 글라스 스파클. 눈부신 다이아몬드 난반사.', details: [['🎯 분말 입자', '액상 없이 가루만 존재. 원액 투입 시 100% 뭉침 클럼핑.'], ['⚠️ 주의', '반드시 WT 386(에이전트)에 선 계량 후 액상화 완벽히 개어서 투입']] },
- 'PP 305': { role: '가루타입 컬러스트림', type: 'xirallic', face: '#ffffff', flop: '#cbd5e1', desc: '포르쉐/마이바흐 전용 초고해상도 카멜레온 가루 펄. 탁색 0% 예리한 광채.', details: [['🎯 분말 입자', '바탕을 1%도 덮지 않고 투과하며 극강 카멜레온 광채만 발현.'], ['⚠️ 주의', '입자 파괴 막기 위해 교반기 금지. 수작업 완벽 분산 조색 필수']] }
+  'PP 304': { role: '가루타입 스파클', type: 'pearl', face: '#ffffff', flop: '#fef08a', desc: '수지 완전히 뺀 100% 건식 분말 글라스 스파클. 눈부신 다이아몬드 난반사.', details: [['🎯 분말 입자', '액상 없이 가루만 존재. 원액 다이렉트 투입 시 100% 뭉침 클럼핑.'], ['⚠️ 주의', '반드시 WT 386(에이전트)에 선 계량 후 액상화 완벽히 개어서 투입']] },
+  'PP 305': { role: '가루타입 컬러스트림', type: 'xirallic', face: '#ffffff', flop: '#cbd5e1', desc: '포르쉐/마이바흐 전용 초고해상도 카멜레온 가루 펄. 탁색 0% 예리한 광채.', details: [['🎯 분말 입자', '바탕을 1%도 덮지 않고 투과하며 극강 카멜레온 광채만 발현.'], ['⚠️ 주의', '입자 파괴 막기 위해 교반기 금지. 수작업 완벽 분산 조색 필수']] }
 });
-//💡💡💡 [주의] 바로 이 아래 대괄호 [ ] 사이에 엑셀 데이터 2610개를 붙여넣으세요! 💡💡💡
+// 💡💡💡 [주의] 바로 이 아래 대괄호 [ ] 사이에 엑셀 데이터 2610개를 붙여넣으세요! 💡💡💡
 export const OEM_COLORS: { code: string; name: string }[] = [
-    // 👇👇👇 여기에 엑셀 데이터 [{ code: 'UG4', name: 'WHITE PLATINUM' }, ...] 를 붙여넣으세요! 👇👇👇
-{ code: `AZ`, name: `펄` },
+    // 👇👇👇 여기에 엑셀 데이터 [{ code: 'AZ', name: '팥' }, ...] 를 붙여넣으세요! 👇👇👇
+    { code: `AZ`, name: `팥` },
+    { code: `RR`, name: `틴티드 투명` },
+    //{ code: `AZ`, name: `펄` },
 { code: `RR`, name: `틴티드 투명` },
 { code: `AZ`, name: `바탕` },
 { code: `6999`, name: `ZINC YELLOW` },
@@ -3692,6 +3693,7 @@ const MIXING_DATA: Record<string, any> = {
 
 const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => { const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0; return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) }; };
 const describeArc = (x: number, y: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number) => { const startOuter = polarToCartesian(x, y, outerRadius, endAngle); const endOuter = polarToCartesian(x, y, outerRadius, startAngle); const startInner = polarToCartesian(x, y, innerRadius, endAngle); const endInner = polarToCartesian(x, y, innerRadius, startAngle); const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1"; return [ "M", startOuter.x, startOuter.y, "A", outerRadius, outerRadius, 0, largeArcFlag, 0, endOuter.x, endOuter.y, "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z" ].join(" "); };
+
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
@@ -4010,7 +4012,7 @@ export default function App() {
                                                       <span className="text-[11px] font-black leading-tight break-keep">{mainTitle}</span>
                                                       {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
                                                   </div>
-                                                  <span className="text-[11px] text-slate-700 leading-relaxed break-keep pt-0.5 whitespace-pre-line">{d[1]}</span>
+                                                  <span className="text-[11px] text-slate-700 leading-relaxed break-keep pt-0.5">{d[1]}</span>
                                               </div>
                                           )})}
                                       </div>
