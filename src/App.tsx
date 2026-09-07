@@ -131,9 +131,10 @@ export const TONER_DB: Record<string, TonerData> = {
   'PP 304': { role: '가루타입 스파클', type: 'pearl', face: '#ffffff', flop: '#fef08a', desc: '수지 없는 100% 건식 분말 극강 스파클.', details: [['🎯 분말', 'WT 386에 100% 개어서 사용 (원액 투입 시 뭉침)']] },
   'PP 305': { role: '가루타입 컬러스트림', type: 'xirallic', face: '#ffffff', flop: '#cbd5e1', desc: '마이바흐 초고해상도 카멜레온 가루 펄.', details: [['🎯 분말', '탁색 0%의 순수 반사. 교반기 금지']] }
 };
+// 💡💡💡 [주의] 바로 이 아래 대괄호 [ ] 사이에 엑셀 데이터 2610개를 붙여넣으세요! 💡💡💡
+export const OEM_COLORS: { code: string; name: string }[] = [
+    // 👇👇👇 여기에 엑셀 데이터 [{ code: 'UG4', name: 'WHITE PLATINUM' }, ...] 를 붙여넣으세요! 👇👇👇
 
-// 💡 [주의] 이 아래 배열에 2610개 엑셀 데이터를 복사해서 붙여넣으세요! (현재 배열은 건드리지 마세요)
-export const OEM_COLORS: { code: string; name: string }[] = [];
 { code: `AZ`, name: `펄` },
 { code: `RR`, name: `틴티드 투명` },
 { code: `AZ`, name: `바탕` },
@@ -2743,10 +2744,16 @@ export const OEM_COLORS: { code: string; name: string }[] = [];
 { code: `PN4DG`, name: `` },
 { code: `UG`, name: `` },
 { code: `D4`, name: `` },
+
+    // 👆👆👆 여기에 엑셀 데이터를 붙여넣으세요! 👆👆👆
+];
+
 export const catalogData = Object.entries(TONER_DB).map(([code, data]) => { return { code, ...data }; });
 export const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
-export const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('분말') || r.includes('글라스'); }
+export const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('분말') || r.includes('글라스'); };
 
+// eslint-disable-next-line
+const textureCache: any = {};
 const textureCache: Record<string, React.CSSProperties> = {};
 export const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
     if (!isMetallic || type === 'binder' || type === 'solid' || type === 'candy') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
