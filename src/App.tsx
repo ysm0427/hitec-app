@@ -1102,9 +1102,6 @@ export const TONER_DB: Record<string, TonerData> = {
 // 💡💡💡 [주의] 바로 이 아래 대괄호 [ ] 사이에 엑셀 데이터 2610개를 붙여넣으세요! 💡💡💡
 export const OEM_COLORS: { code: string; name: string }[] = [
     // 👇👇👇 여기에 엑셀 데이터 [{ code: 'AZ', name: '팥' }, ...] 를 붙여넣으세요! 👇👇👇
-    { code: `AZ`, name: `팥` },
-    { code: `RR`, name: `틴티드 투명` },
-  { code: `AZ`, name: `펄` },
 { code: `RR`, name: `틴티드 투명` },
 { code: `AZ`, name: `바탕` },
 { code: `6999`, name: `ZINC YELLOW` },
