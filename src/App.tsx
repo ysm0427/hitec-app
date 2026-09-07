@@ -959,7 +959,6 @@ export const TONER_DB: Record<string, TonerData> = {
   'PP 304': { role: '가루타입 스파클', type: 'pearl', face: '#ffffff', flop: '#fef08a', desc: '수지 완전히 뺀 100% 건식 분말 글라스 스파클. 눈부신 다이아몬드 난반사.', details: [['🎯 분말 입자', '액상 없이 가루만 존재. 원액 투입 시 100% 뭉침 클럼핑.'], ['⚠️ 주의', '반드시 WT 386(에이전트)에 선 계량 후 액상화 완벽히 개어서 투입']] },
  'PP 305': { role: '가루타입 컬러스트림', type: 'xirallic', face: '#ffffff', flop: '#cbd5e1', desc: '포르쉐/마이바흐 전용 초고해상도 카멜레온 가루 펄. 탁색 0% 예리한 광채.', details: [['🎯 분말 입자', '바탕을 1%도 덮지 않고 투과하며 극강 카멜레온 광채만 발현.'], ['⚠️ 주의', '입자 파괴 막기 위해 교반기 금지. 수작업 완벽 분산 조색 필수']] }
 });
-};
 //💡💡💡 [주의] 바로 이 아래 대괄호 [ ] 사이에 엑셀 데이터 2610개를 붙여넣으세요! 💡💡💡
 export const OEM_COLORS: { code: string; name: string }[] = [
     // 👇👇👇 여기에 엑셀 데이터 [{ code: 'UG4', name: 'WHITE PLATINUM' }, ...] 를 붙여넣으세요! 👇👇👇
