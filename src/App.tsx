@@ -22,7 +22,7 @@ export const PEARL_LEVELS = [
 ];
 
 export const TONER_DB: Record<string, TonerData> = {
-  // [누락분 추가] 스페셜 틴트 / 기타 안료
+  // [누락분 추가] 스페셜 틴트 / 기타 안료 (303, 304, 305, 307 등)
   'WT 197': { 
     role: '스페셜 틴트 (Special Tint)', type: 'solid', face: '#64748b', flop: '#334155', 
     desc: '특수 조색 및 은폐 제어용으로 사용되는 한정판 미립자 틴트입니다.', 
@@ -32,6 +32,21 @@ export const TONER_DB: Record<string, TonerData> = {
     role: '브릴리언트 실버 화인 (Brilliant Silver Fine)', type: 'silver_fine', face: '#f8fafc', flop: '#94a3b8', 
     desc: '389보다 입자가 조금 더 큰 고휘도 광휘형 렌티큘러 실버입니다.', 
     details: [['🎨 광학적 특성', '거울 조각처럼 빛을 예리하게 튕겨내며, 일반 은분보다 정면 반사가 폭발적입니다.'], ['💡 비교 분석', '[비교] 389 < WT 303 < 390 (입자 크기 순)']] 
+  },
+  'WT 304': { 
+    role: '스페셜 틴트 304 (Special Tint)', type: 'solid', face: '#e2e8f0', flop: '#94a3b8', 
+    desc: '세밀한 톤 제어를 위해 추가된 보조 안료입니다.', 
+    details: [['🎨 광학적 특성', '조색 시스템 내 보조 틴트로 사용되며 미세한 명도와 채도를 제어합니다.']] 
+  },
+  'WT 305': { 
+    role: '스페셜 틴트 305 (Special Tint)', type: 'solid', face: '#cbd5e1', flop: '#64748b', 
+    desc: '세밀한 톤 제어를 위해 추가된 보조 안료입니다.', 
+    details: [['🎨 광학적 특성', '조색 시스템 내 보조 틴트로 사용되며 미세한 명도와 채도를 제어합니다.']] 
+  },
+  'WT 307': { 
+    role: '스페셜 틴트 307 (Special Tint)', type: 'solid', face: '#94a3b8', flop: '#475569', 
+    desc: '세밀한 톤 제어를 위해 추가된 보조 안료입니다.', 
+    details: [['🎨 광학적 특성', '조색 시스템 내 보조 틴트로 사용되며 미세한 명도와 채도를 제어합니다.']] 
   },
 
   // === [무채색 (Black & White)] ===
@@ -87,6 +102,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['💡 비교 분석', '[비교] WT 323 vs WT 388\n323은 표준 흑색, 388은 빛을 더 완벽하게 흡수하는 슈퍼 딥 블랙입니다.']
     ] 
   },
+  
   // === [블루 & 바이올렛 (Blue & Violet)] ===
   'WT 144': { 
     role: '그리니쉬 블루 (Greenish Blue)', type: 'solid', face: '#0f766e', flop: '#064e3b', 
@@ -157,7 +173,7 @@ export const TONER_DB: Record<string, TonerData> = {
     role: '블루 (표준 청색)', type: 'solid', face: '#2563eb', flop: '#1e3a8a', 
     desc: '어느 쪽으로도 치우치지 않은 가장 정직하고 차분한 파란빛을 냅니다.', 
     details: [
-      ['🎨 광학적 특성', '따뜻한 파장이나 차가운 파장 어느 쪽으로도 쏠리지 않는 완벽한 평형 상태의 중립 블루광 필터를 형성하여 도막의 명확한 기준을 세웁니다.'],
+      ['🎨 광학적 특성', '따뜻한 파장이나 차가운 파장 어느 쪽으로도 쏠리지 않는 완벽한 평형 상태의 중립 블루광 필터를 형성하여 도막의 명확한 기준 세웁니다.'],
       ['📌 일반 특성', '표준 청색 조색제로 솔리드와 이펙트 컬러에 모두 사용하는 중간 청색'],
       ['👀 외관 변화', '희석될 때도 칙칙해지지 않고 안정적인 블루 톤을 확립합니다.'],
       ['🎯 타겟 컬러', '일반 블루 솔리드 및 대중적인 블루 메탈릭 조색.'],
@@ -165,8 +181,8 @@ export const TONER_DB: Record<string, TonerData> = {
       ['⚠️ 조색 한계점', '무난하여 다루기 편하지만, 특수 고채도(시안/코발트) 표현에는 한계가 있습니다.'],
       ['💡 비교 분석', '[비교] WT 343 vs WT 344\n343은 중간 톤 파랑, 344는 무겁고 짙은 딥 다크 네이비입니다.']
     ] 
-  },
-  'WT 344': { 
+  }
+  ,'WT 344': { 
     role: '다크 블루 (Dark Blue)', type: 'solid', face: '#1e3a8a', flop: '#0f172a', 
     desc: '가벼움을 죽이고 묵직한 남색(네이비)의 진중한 섀도우를 뿜어냅니다.', 
     details: [
@@ -3732,6 +3748,7 @@ const MIXING_DATA: Record<string, any> = {
 
 const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => { const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0; return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) }; };
 const describeArc = (x: number, y: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number) => { const startOuter = polarToCartesian(x, y, outerRadius, endAngle); const endOuter = polarToCartesian(x, y, outerRadius, startAngle); const startInner = polarToCartesian(x, y, innerRadius, endAngle); const endInner = polarToCartesian(x, y, innerRadius, startAngle); const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1"; return [ "M", startOuter.x, startOuter.y, "A", outerRadius, outerRadius, 0, largeArcFlag, 0, endOuter.x, endOuter.y, "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z" ].join(" "); };
+
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
@@ -3771,7 +3788,7 @@ export default function App() {
   const [activePearlLevel, setActivePearlLevel] = useState(6);
   
   const [boardPosts, setBoardPosts] = useState([
-      { id: 1, brand: '현대', code: 'UG4', date: '2026-09-07', likes: 12, views: 45, author: '윤프로', spec: '이색 심함, 보카시 블렌딩 필수', baseFormula: [{code: 'WT 321', adjustedWeight: '15.5'}], pearlFormula: [], isThreeCoat: false }
+      { id: 1, brand: '현대', code: 'UG4', date: '2026-09-10', likes: 12, views: 45, author: '윤프로', spec: '이색 심함, 보카시 블렌딩 필수', baseFormula: [{code: 'WT 321', adjustedWeight: '15.5'}], pearlFormula: [], isThreeCoat: false }
   ]);
 
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
@@ -3887,15 +3904,30 @@ export default function App() {
       setSnapshots([]); // 스냅샷(수정 내역) 초기화 추가
   };
   
+  // [버그 수정 완료] 입력 시 PP 및 캔디(90) 자동 분류 정밀도 향상
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
-    const rawVal = newCode.toUpperCase(); let finalCode = '';
-    if (rawVal.startsWith('90') && rawVal.length >= 4) finalCode = rawVal.substring(0, 4);
-    else if (rawVal.startsWith('P') || rawVal.startsWith('PP')) { const n = rawVal.replace(/[^0-9]/g, ''); if(n.length >= 3) finalCode = `PP ${n}`; }
-    else if (rawVal === '1051' || rawVal === '1500' || rawVal === '455') finalCode = rawVal;
-    else { const numOnly = rawVal.replace(/[^0-9]/g, ''); if(numOnly) finalCode = `WT ${numOnly}`; }
+    const rawVal = newCode.toUpperCase(); 
+    const numOnly = rawVal.replace(/[^0-9]/g, '');
+    let finalCode = '';
+    
+    if (rawVal.startsWith('90') || (numOnly.startsWith('90') && numOnly.length >= 4)) {
+        finalCode = numOnly.substring(0, 4); // 캔디 도료 (90XX)
+    } else if (rawVal.startsWith('P') || ['304', '305'].includes(numOnly)) { 
+        if(numOnly) finalCode = `PP ${numOnly}`; // PP 분말
+    } else if (['1051', '1500', '455'].includes(numOnly)) {
+        finalCode = numOnly; // 특수 첨가제
+    } else if (numOnly) {
+        finalCode = `WT ${numOnly}`; // 기본은 WT
+    }
 
     const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(toner => { if (toner.id === id) { if (TONER_DB[finalCode]) { setFocusTarget({ id: id, type: 'weight' }); } return { ...toner, code: finalCode }; } return toner; }));
+    setter(prev => prev.map(toner => { 
+        if (toner.id === id) { 
+            if (TONER_DB[finalCode]) { setFocusTarget({ id: id, type: 'weight' }); } 
+            return { ...toner, code: finalCode }; 
+        } 
+        return toner; 
+    }));
   };
 
   const handleWeightInputChange = (id: string, rawValue: string, isPearl = false) => {
