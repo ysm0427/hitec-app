@@ -22,22 +22,139 @@ export const PEARL_LEVELS = [
 ];
 
 export const TONER_DB: Record<string, TonerData> = {
-  // === [미등록 안료 100% 원상 복구 및 추가 (간소화 절대 금지)] ===
-  'WT 197': { role: '스페셜 틴트 (Special Tint)', type: 'solid', face: '#64748b', flop: '#334155', desc: '특수 조색 및 은폐 제어용으로 사용되는 한정판 미립자 틴트입니다.', details: [['🎨 광학적 특성', '도막의 깊이감과 탁도를 미세하게 조절하는 특수 제어 안료입니다.']] },
-  'WT 303': { role: '브릴리언트 실버 화인 (Brilliant Silver Fine)', type: 'silver_fine', face: '#f8fafc', flop: '#94a3b8', desc: '389보다 입자가 조금 더 큰 고휘도 광휘형 렌티큘러 실버입니다.', details: [['🎨 광학적 특성', '거울 조각처럼 빛을 예리하게 튕겨내며, 일반 은분보다 정면 반사가 폭발적입니다.'], ['💡 비교 분석', '[비교] 389 < WT 303 < 390 (입자 크기 순)']] },
-  'WT 304': { role: '브릴리언트 실버 스탠다드 (Brilliant Silver Standard)', type: 'silver_fine', face: '#f1f5f9', flop: '#64748b', desc: '고휘도와 은폐력의 밸런스를 맞춘 표준형 브릴리언트 실버입니다.', details: [['🎨 광학적 특성', '303보다 굵어 정반사가 더 뛰어나며 맑고 밝은 메탈릭의 기준점이 됩니다.'], ['📌 일반 특성', '중간 입자 크기의 맑은 은분'], ['🎯 타겟 컬러', '수입차 및 고급 세단의 밝은 하이퍼 실버 톤.']] },
-  'WT 305': { role: '브릴리언트 골드 실버 (Brilliant Gold Silver)', type: 'silver_coarse', face: '#fef08a', flop: '#94a3b8', desc: '은분 입자 표면에 미세한 골드 코팅이 적용된 따뜻한 특수 은분입니다.', details: [['🎨 광학적 특성', '실버 고유의 금속광에 따뜻한 황금빛 파장을 더해 고급스러운 웜톤 스파클을 발현합니다.'], ['📌 일반 특성', '황색을 띠는 고휘도 은분'], ['🎯 타겟 컬러', '웜톤 베이지 메탈릭 및 샴페인 골드 계열.']] },
-  'WT 306': { role: '블루이쉬 실버 화인 (Bluish Silver Fine)', type: 'silver_fine', face: '#e0f2fe', flop: '#475569', desc: '차가운 푸른빛이 감도는 고밀도 쿨톤 미립 은분입니다.', details: [['🎨 광학적 특성', '측면으로 시선을 돌릴 때 얼음처럼 차가운 푸른빛(Bluish) 섀도우가 피어오릅니다.'], ['📌 일반 특성', '청색을 띠는 밝은 은분'], ['🎯 타겟 컬러', '쿨톤 실버 메탈릭 및 맑은 블루 이펙트 컬러.']] },
-  'WT 307': { role: '브라이트 레드 (Bright Red)', type: 'solid', face: '#ef4444', flop: '#991b1b', desc: '탁색 없이 맑고 화사한 고채도 레드 틴트입니다.', details: [['🎨 혼합 특성', '불순물을 제거하여 채도를 극대화시킨 맑은 적색광을 발현합니다.'], ['📌 일반 특성', '고채도 맑은 적색 조색제'], ['🎯 타겟 컬러', '스포티하고 선명한 레드 메탈릭 및 솔리드.']] },
-  'WT 308': { role: '브라이트 오렌지 (Bright Orange)', type: 'solid', face: '#ea580c', flop: '#7c2d12', desc: '시선을 찌르는 눈부신 100% 순수 형광 주황빛을 발현합니다.', details: [['🎨 광학적 특성', '불순물이 완전히 배제된 100% 퓨어 유기 안료 구조로, 웜톤(Warm-tone) 영역의 채도를 극대화하여 폭발적인 형광 주황빛을 발현시킵니다.'], ['📌 일반 특성', '주로 이펙트 컬러에 사용하는 맑은 주황색 은폐력은 떨어짐'], ['👀 외관 변화', '정면에서 불타오르는 듯한 역동적인 질감과 생동감을 줍니다.'], ['🎯 타겟 컬러', '포르쉐 등 스포츠카 순정 오렌지 및 화려한 펄 메탈릭.'], ['⚗️ 배합 비율', '웜톤 채도를 극대화할 때 메인 베이스로 다량 배합됩니다.'], ['⚠️ 조색 한계점', '채도가 매우 높아 양 조절 실패 시 칠 전체가 형광펜처럼 튑니다.'], ['💡 비교 분석', '[비교] WT 308 vs WT 330\n308은 맑고 쨍한 오렌지, 330은 피빛이 도는 묵직한 오렌지입니다.']] },
-  'WT 310': { role: '트랜스페어런트 마룬 (Transparent Maroon)', type: 'solid', face: '#7c2d12', flop: '#450a0a', desc: '맑고 투명한 적갈색(마룬) 틴트 안료입니다.', details: [['🎨 혼합 특성', '은폐력이 극히 낮아 하도의 질감을 투과시키면서 맑은 적갈색 틴트를 입힙니다.'], ['📌 일반 특성', '투명한 적갈색 조색제'], ['👀 외관 변화', '탁해지지 않고 깊고 풍부한 와인빛/브라운빛 심도를 부여합니다.'], ['🎯 타겟 컬러', '고급스러운 캔디 레드나 투명 펄 컬러의 조색 보정.']] },
+  // === [PP (분말/파우더 펄) 풀데이터 추가 완료 - 검색 100% 대응] ===
+  'PP 304': { 
+    role: '가루타입 스파클 (Powder Sparkle)', type: 'pearl', face: '#ffffff', flop: '#fef08a', 
+    desc: '수지가 완전히 배제된 100% 건식 분말 글라스 스파클 안료입니다.', 
+    details: [
+      ['🎨 광학적 특성', '도막 위에서 유리 조각이 햇빛을 튕겨내듯 눈부신 다이아몬드 순수 난반사를 극대화합니다.'], 
+      ['🎯 타겟 컬러', '초고휘도 커스텀 화이트 펄 및 특수 쇼카(Show Car) 전용 이펙트.'],
+      ['⚠️ 조색 주의', '액상 수지가 없는 100% 가루 형태입니다. 원액에 다이렉트로 투입 시 100% 뭉치고 덩어리지는 얼룩(Clumping) 하자가 발생하므로 절대 금지합니다.'],
+      ['⚗️ 배합 방법', '반드시 WT 386(에이전트) 또는 지정된 블렌드 수지에 선 계량한 후, 스틱으로 완벽하게 액상화(개어주기) 시켜서 본 도료에 투입해야 합니다.']
+    ] 
+  },
+  'PP 305': { 
+    role: '가루타입 컬러스트림 (Powder Colorstream)', type: 'xirallic', face: '#ffffff', flop: '#cbd5e1', 
+    desc: '포르쉐, 마이바흐 전용으로 사용되는 초고해상도 카멜레온 가루 펄입니다.', 
+    details: [
+      ['🎨 광학적 특성', '탁색률 0%의 예리한 광채를 뿜어내며, 바탕색을 1%도 덮지 않고 완벽하게 투과하면서 극강의 카멜레온 광채만 발현합니다.'], 
+      ['👀 외관 변화', '빛의 조사각에 따라 색상이 여러 단계로 요동치는 하이엔드 벤딩 이펙트를 보여줍니다.'],
+      ['⚠️ 조색 주의', '가루 입자가 물리적 충격에 매우 예민합니다. 입자 파괴를 막기 위해 기계식 교반기를 절대 사용하면 안 되며, 수작업으로 부드럽게 분산시켜야 합니다.']
+    ] 
+  },
+  'PP 306': { 
+    role: '가루타입 크리스탈 (Powder Crystal)', type: 'xirallic', face: '#ffffff', flop: '#e2e8f0', 
+    desc: '은폐력이 전혀 없는 초미립자 투명 크리스탈 가루 펄 안료입니다.', 
+    details: [
+      ['🎨 광학적 특성', '투명도가 매우 높아 평소에는 보이지 않다가, 강한 직사광선을 받을 때만 입자가 얼음 결정처럼 맑게 반짝입니다.'], 
+      ['⚠️ 조색 주의', '가루 형태이므로 조색 시 호흡기 흡입에 주의해야 하며, 전용 에이전트에 선배합하여 녹여 쓰는 것이 필수입니다.']
+    ] 
+  },
 
+  // === [WT 미등록 안료 완벽 복원 (간소화 절대 없음)] ===
+  'WT 303': { 
+    role: '브릴리언트 실버 화인 (Brilliant Silver Fine)', type: 'silver_fine', face: '#f8fafc', flop: '#94a3b8', 
+    desc: '389보다 입자가 조금 더 큰 고휘도 광휘형 렌티큘러 실버입니다.', 
+    details: [
+      ['🎨 광학적 특성', '납작한 렌티큘러 입자가 거울 조각처럼 빛을 예리하게 튕겨내며, 일반 은분보다 정면 반사가 폭발적으로 높습니다.'], 
+      ['🎯 타겟 컬러', '고급 세단의 하이퍼 실버 도장면 복원용 핵심 안료.'],
+      ['💡 비교 분석', '[비교] WT 389 < WT 303 < WT 390 (입자 크기 순서대로 정렬됨)']
+    ] 
+  },
+  'WT 307': { 
+    role: '브라이트 레드 (Bright Red)', type: 'solid', face: '#ef4444', flop: '#991b1b', 
+    desc: '탁색이나 검은 기운이 전혀 없이 맑고 화사한 고채도 레드 틴트입니다.', 
+    details: [
+      ['🎨 혼합 특성', '불순물을 극한으로 제거하여 채도를 최대치로 끌어올린 맑고 순수한 적색광을 발현합니다.'], 
+      ['📌 일반 특성', '주황이나 자주로 치우치지 않은 순수 고채도 맑은 적색 조색제'], 
+      ['🎯 타겟 컬러', '페라리 등 스포츠카 전용 선명한 레드 메탈릭 및 퓨어 레드 솔리드 하도.']
+    ] 
+  },
+  'WT 308': { 
+    role: '브라이트 오렌지 (Bright Orange)', type: 'solid', face: '#ea580c', flop: '#7c2d12', 
+    desc: '시선을 찌르는 눈부신 100% 순수 형광 주황빛을 발현합니다.', 
+    details: [
+      ['🎨 광학적 특성', '불순물이 완전히 배제된 100% 퓨어 유기 안료 구조로, 웜톤(Warm-tone) 영역의 채도를 극대화하여 폭발적인 형광 주황빛을 발현시킵니다.'], 
+      ['📌 일반 특성', '주로 이펙트 컬러에 사용하는 맑은 주황색 조색제 (단독 은폐력은 매우 떨어짐)'], 
+      ['👀 외관 변화', '정면에서 불타오르는 듯한 역동적인 질감과 생동감을 부여합니다.'], 
+      ['🎯 타겟 컬러', '포르쉐 등 스포츠카 순정 오렌지 및 화려한 펄 메탈릭 투명 하도.'], 
+      ['⚗️ 배합 비율', '웜톤 채도를 극대화해야 하는 특수 컬러 조색 시 메인 베이스로 다량 배합됩니다.'], 
+      ['⚠️ 조색 한계점', '채도가 걷잡을 수 없이 높아 양 조절에 실패할 경우 칠 전체가 형광펜처럼 붕 떠버리는 하자가 발생합니다.'], 
+      ['💡 비교 분석', '[비교] WT 308 vs WT 330\n308은 맑고 쨍하게 튀는 형광 오렌지이며, 330은 피빛이 도는 묵직하고 탁한 다크 오렌지입니다.']
+    ] 
+  },
+  'WT 310': { 
+    role: '트랜스페어런트 마룬 (Transparent Maroon)', type: 'solid', face: '#7c2d12', flop: '#450a0a', 
+    desc: '맑고 투명하게 심도를 높여주는 특수 적갈색(마룬) 틴트 안료입니다.', 
+    details: [
+      ['🎨 혼합 특성', '자체 은폐력이 극히 낮게 설계되어, 하도의 메탈릭 질감을 100% 투과시키면서 맑고 영롱한 적갈색 틴트만 도막에 입힙니다.'], 
+      ['📌 일반 특성', '완전 투명형 적갈색 조색제'], 
+      ['👀 외관 변화', '베이스의 명도를 탁하게 오염시키지 않고, 깊고 풍부한 와인빛/브라운빛 심도를 우아하게 부여합니다.'], 
+      ['🎯 타겟 컬러', '마쓰다 소울 레드 계열 등 고급스러운 캔디 레드나 투명 펄 컬러의 조색 보정 및 깊이감 추가.']
+    ] 
+  },
+  'WT 197': { 
+    role: '스페셜 틴트 (Special Tint)', type: 'solid', face: '#64748b', flop: '#334155', 
+    desc: '특수 조색 및 은폐 제어용으로 사용되는 한정판 미립자 틴트입니다.', 
+    details: [
+      ['🎨 광학적 특성', '채도에 영향을 주지 않으면서 도막의 깊이감과 탁도를 미세하게 조절하는 특수 제어 안료입니다.']
+    ] 
+  },
   // === [무채색 (Black & White)] ===
-  'WT 188': { role: '슈퍼 딥 블랙 (Super Deep Black)', type: 'solid', face: '#0f172a', flop: '#020617', desc: '차가운 푸른빛을 내는 극저명도 흑색 안료입니다.', details: [['🎨 광학적 특성', '은분이나 화이트와 섞이는 순간, 극저명도의 흑색 아래 숨겨져 있던 얼음처럼 차갑고 맑은 푸른빛(Bluish) 틴트가 측면에서 날카롭게 피어오릅니다.'],['📌 일반 특성', '어두운 흑색 (WT323보다 어두움-흑색계열 제한적 사용)'],['👀 외관 변화', '유채색의 채도를 탁하게 오염시키지 않으면서 명도만 수직으로 떨어뜨립니다.'],['🎯 타겟 컬러', '벤츠, 아우디 특유의 금속성이 강한 하이퍼 실버나, 채도가 생명인 맑은 블루 메탈릭의 톤 다운.'],['⚗️ 배합 비율', '조색 데이터에 따라 제한적으로 투입 (미세 명도 하락용).'],['⚠️ 조색 주의', '따뜻한 흙빛이 도는 웜톤(Warm) 실버나 베이지 계열(국산차 위주)에 톤을 낮추겠다고 188을 넣으면 칠이 시퍼렇게 멍들며 이질감이 생깁니다.'],['💡 비교 분석', '[비교] WT 188 vs WT 323\n188은 은분 측면이 시퍼렇고 맑게 떨어지는 차가운(Cool) 흑색이며, 323은 은분 측면이 흙빛으로 탁해지는 따뜻한(Warm) 흑색입니다.']] },
-  'WT 321': { role: '화이트 (표준 백색 고농)', type: 'solid', face: '#ffffff', flop: '#e2e8f0', desc: '탁색 없는 깨끗하고 순수한 백색광과 극한의 은폐력을 발현합니다.', details: [['🎨 광학적 특성', '빛의 투과를 완벽하게 차단하는 극강의 은폐력을 가진 하이텍 480 시스템 화이트의 뼈대입니다.'],['📌 일반 특성', '표준 백색(고농) - 솔리드 컬러에서 명암을 밝게 하고 색상을 줄임 (이펙트 컬러에서 15도는 어둡고 45&110도는 밝게 함. 입자감을 줄임.)'],['👀 외관 변화', '유채색을 칙칙함 없이 화사하고 안정적으로 톤업시킵니다.'],['🎯 타겟 컬러', '일반 솔리드 화이트 및 모든 밝은 계열 색상의 베이스.'],['⚗️ 배합 비율', '가장 많이, 다량으로 배합되는 메인 뼈대 원액입니다.'],['⚠️ 조색 한계점', '과도입 시 유채색의 고유 채도를 다 잡아먹고 파스텔톤으로 덮어버립니다.'],['💡 비교 분석', '[비교] WT 321 vs WT 322\n321은 불투명하게 덮는 고농 백색, 322는 투명한 반투명 우윳빛입니다.']] },
-  'WT 322': { role: '마이크로 화이트 (Micro White)', type: 'solid', face: '#f8fafc', flop: '#cbd5e1', desc: '펄의 광채를 죽이지 않고 우윳빛 뽀얀 산란광만 미세하게 더합니다.', details: [['🎨 광학적 특성', '은폐가 목적이 아니라, 빛의 굴절과 깊이감을 연출하기 위해 설계된 반투명(소프트 포커스) 백색 안료입니다.'],['📌 일반 특성', '알루미늄(실버) 및 펄 입자가 사용되는 이펙트 컬러에만 사용 (15도는 황색을 띠며 어둡고 45&110도는 청색을 띠며 밝게 함)'],['👀 외관 변화', '소프트 포커스를 켠 듯 도막에 몽환적인 우윳빛 필터를 형성합니다.'],['🎯 타겟 컬러', '화사한 화이트 펄 미들 코트 및 특수 파스텔 톤 조색.'],['⚗️ 배합 비율', '투명도를 살리기 위해 0.1g 단위의 방울로 섬세하게 투입됩니다.'],['⚠️ 조색 한계점', '은폐력이 사실상 없어 하도를 가리기 위한 목적으로 쓰면 실패합니다.'],['💡 비교 분석', '[비교] WT 322 vs WT 352\n322는 초미립 우윳빛 산란광, 352는 일반적인 저농 반투명 백색 틴트입니다.']] },
-  'WT 323': { role: '스페셜 블랙 (표준 흑색 조색제)', type: 'solid', face: '#020617', flop: '#000000', desc: '치우침 없는 가장 중립적인 표준 흑색 음영을 단단하게 발현합니다.', details: [['🎨 광학적 특성', '가장 대중적이고 전통적인 카본 블랙 베이스의 표준 흑색 안료로 전체적인 톤을 안정적이고 묵직하게 가라앉힙니다.'],['📌 일반 특성', '표준 흑색 (알루미늄(실버) 입자에 사용하면 명암은 어두워지고 약하게 적황색이 늘어남 / 솔리드 컬러에 사용되면 명도와 채도를 낮춤)'],['👀 외관 변화', '칠의 명도를 차분하고 안정적으로 떨어뜨려 섀도우를 형성합니다.'],['🎯 타겟 컬러', '솔리드 블랙 및 모든 실버/메탈릭 컬러의 명도 제어용.'],['⚗️ 배합 비율', '명도 조절을 위해 가장 빈번하게 섞이는 뼈대 안료입니다.'],['⚠️ 조색 한계점', '은폐력이 매우 강하므로 실버 톤다운 시 한 방울의 양 조절도 신중해야 합니다.'],['💡 비교 분석', '[비교] WT 323 vs WT 388\n323은 표준 흑색, 388은 빛을 더 완벽하게 흡수하는 슈퍼 딥 블랙입니다.']] },
-  // === [블루 & 바이올렛 & 레드 & 옐로우 & 특수 안료 풀데이터] ===
+  'WT 188': { 
+    role: '슈퍼 딥 블랙 (Super Deep Black)', type: 'solid', face: '#0f172a', flop: '#020617', 
+    desc: '차가운 푸른빛을 내는 극저명도 흑색 안료입니다.', 
+    details: [
+      ['🎨 광학적 특성', '은분이나 화이트와 섞이는 순간, 극저명도의 흑색 아래 숨겨져 있던 얼음처럼 차갑고 맑은 푸른빛(Bluish) 틴트가 측면에서 날카롭게 피어오릅니다.'],
+      ['📌 일반 특성', '가장 어두운 흑색 (WT323보다 훨씬 어두우며 흑색계열 조색에 제한적 사용)'],
+      ['👀 외관 변화', '유채색의 채도를 탁하게 오염시키지 않으면서 명도만 수직으로 깔끔하게 떨어뜨립니다.'],
+      ['🎯 타겟 컬러', '벤츠, 아우디 특유의 금속성이 강한 하이퍼 실버나, 채도가 생명인 맑은 블루 메탈릭의 명도 다운용.'],
+      ['⚗️ 배합 비율', '아주 강력하므로 조색 데이터에 따라 0.1g 단위로 극소량 제한적으로 투입해야 합니다.'],
+      ['⚠️ 조색 주의', '따뜻한 흙빛이 도는 웜톤(Warm) 실버나 베이지 계열(국산차 위주)에 톤을 낮추겠다고 188을 넣으면 칠이 시퍼렇게 멍들며 이질감이 생깁니다.'],
+      ['💡 비교 분석', '[비교] WT 188 vs WT 323\n188은 은분 측면이 시퍼렇고 맑게 떨어지는 차가운(Cool) 흑색이며, 323은 은분 측면이 흙빛으로 탁해지는 따뜻한(Warm) 흑색입니다.']
+    ] 
+  },
+  'WT 321': { 
+    role: '화이트 (표준 백색 고농)', type: 'solid', face: '#ffffff', flop: '#e2e8f0', 
+    desc: '탁색 없는 깨끗하고 순수한 백색광과 극한의 은폐력을 발현합니다.', 
+    details: [
+      ['🎨 광학적 특성', '빛의 투과를 완벽하게 차단하는 극강의 은폐력을 가진 하이텍 480 시스템 화이트의 뼈대입니다.'],
+      ['📌 일반 특성', '표준 백색(고농) - 솔리드 컬러에서 명암을 밝게 하고 색상을 줄임 (이펙트 컬러에서 15도는 어둡고 45&110도는 밝게 함. 전체적인 입자감을 줄임.)'],
+      ['👀 외관 변화', '유채색을 칙칙함 없이 화사하고 안정적으로 톤업시키며 파스텔 톤을 형성합니다.'],
+      ['🎯 타겟 컬러', '일반 솔리드 화이트 및 모든 밝은 계열 색상의 메인 베이스.'],
+      ['⚗️ 배합 비율', '화이트 계열 조색 시 가장 많이, 다량으로 배합되는 베이스 원액입니다.'],
+      ['⚠️ 조색 한계점', '이펙트 컬러에 과도하게 투입 시 유채색의 고유 채도를 다 잡아먹고 우윳빛 파스텔톤으로 덮어버립니다.'],
+      ['💡 비교 분석', '[비교] WT 321 vs WT 322\n321은 불투명하게 바탕을 덮어버리는 고농 뼈대 백색, 322는 하도를 투과시키는 반투명 우윳빛 산란광 안료입니다.']
+    ] 
+  },
+  'WT 322': { 
+    role: '마이크로 화이트 (Micro White)', type: 'solid', face: '#f8fafc', flop: '#cbd5e1', 
+    desc: '펄의 광채를 죽이지 않고 우윳빛 뽀얀 산란광만 미세하게 더합니다.', 
+    details: [
+      ['🎨 광학적 특성', '은폐가 목적이 아니라, 빛의 굴절과 깊이감을 연출하기 위해 설계된 반투명(소프트 포커스) 특수 백색 안료입니다.'],
+      ['📌 일반 특성', '알루미늄(실버) 및 펄 입자가 사용되는 이펙트 컬러에만 사용 (15도는 황색을 띠며 어둡고 45&110도는 청색을 띠며 밝게 함)'],
+      ['👀 외관 변화', '카메라의 소프트 포커스 필터를 켠 듯, 도막 전체에 몽환적인 우윳빛 뽀얀 필터를 형성합니다.'],
+      ['🎯 타겟 컬러', '화사한 화이트 펄 미들 코트 및 투명감이 생명인 특수 파스텔 톤 조색.'],
+      ['⚗️ 배합 비율', '투명도를 살리기 위해 0.1g 단위의 방울로 매우 섬세하게 투입됩니다.'],
+      ['⚠️ 조색 한계점', '자체 은폐력이 사실상 제로에 가까워 하도의 얼룩을 가리기 위한 목적으로 쓰면 무조건 실패합니다.'],
+      ['💡 비교 분석', '[비교] WT 322 vs WT 352\n322는 초미립 입자로 우윳빛 산란광을 내는 광학 안료이고, 352는 일반적인 백색의 농도만 1/10로 줄여놓은 저농 틴트입니다.']
+    ] 
+  },
+  'WT 323': { 
+    role: '스페셜 블랙 (표준 흑색 조색제)', type: 'solid', face: '#020617', flop: '#000000', 
+    desc: '치우침 없는 가장 중립적인 표준 흑색 음영을 단단하게 발현합니다.', 
+    details: [
+      ['🎨 광학적 특성', '가장 대중적이고 전통적인 카본 블랙 베이스의 표준 흑색 안료로 전체적인 톤을 안정적이고 묵직하게 가라앉힙니다.'],
+      ['📌 일반 특성', '표준 흑색 (알루미늄이나 실버 입자에 사용하면 명암은 어두워지고 측면에서 약하게 황적색/흙빛이 늘어남. 솔리드 컬러에 사용되면 명도와 채도를 동시 하락)'],
+      ['👀 외관 변화', '칠의 명도를 가장 안정적이고 예측 가능하게 떨어뜨려 단단한 섀도우를 형성합니다.'],
+      ['🎯 타겟 컬러', '솔리드 블랙 및 대부분의 범용 실버/메탈릭 컬러의 기본 명도 제어용.'],
+      ['⚗️ 배합 비율', '명도 조절을 위해 가장 빈번하고 광범위하게 섞이는 흑색 뼈대 안료입니다.'],
+      ['⚠️ 조색 한계점', '은폐력이 매우 강하므로, 아주 밝은 하이퍼 실버의 톤다운 시 한 방울의 양 조절 실수로도 칠이 까맣게 죽어버립니다.'],
+      ['💡 비교 분석', '[비교] WT 323 vs WT 388\n323은 갈색 기운이 도는 표준 흑색, 388은 빛을 완벽하게 흡수하여 어떠한 탁색도 허용치 않는 진정한 슈퍼 딥 블랙입니다.']
+    ] 
+  },
+
+  // === [블루 & 바이올렛 & 레드 & 옐로우 등 나머지 컬러 원상 복구] ===
   'WT 144': { role: '그리니쉬 블루 (Greenish Blue)', type: 'solid', face: '#0f766e', flop: '#064e3b', desc: '맑고 차가운 녹청색 필터를 발현하여 신비로운 톤을 형성합니다.', details: [['🎨 혼합 특성', '언더 베이스의 맑은 톤을 유지하면서 쿨톤의 녹청색 필터를 정밀하게 형성합니다.'],['📌 일반 특성', '녹색을 띠는 청색 (346:대체 안료)'],['🎯 타겟 컬러', '최신 수입차의 맑은 청록색 메탈릭 및 쿨톤 블루 펄 마이크로 튜닝.']] },
   'WT 318': { role: '브릴리언트 블루 (Brilliant Blue)', type: 'solid', face: '#0284c7', flop: '#082f49', desc: '탁색 없는 쨍하고 화사한 고채도 코발트 블루 틴트를 발현합니다.', details: [['🎨 혼합 특성', '하이퍼 클리어 안료 구조를 통해 쿨톤 청색 고유의 채도를 한계치까지 증폭시킵니다.'],['📌 일반 특성', '녹색을 띠는 맑은 청색 (346보다 밝고 녹색이 더 많음)'],['🎯 타겟 컬러', '스포츠카 고성능 블루 및 맑은 블루 메탈릭.']] },
   'WT 339': { role: '바이올렛 (Violet)', type: 'solid', face: '#8b5cf6', flop: '#4c1d95', desc: '붉은기와 푸른기가 1:1로 섞인 가장 맑고 투명한 정통 보랏빛을 냅니다.', details: [['🎨 혼합 특성', '적색과 청색 파장을 완벽히 결합하여 유리알 같은 퓨어 바이올렛 필터를 발현합니다.'],['📌 일반 특성', '맑은 보라색 조색제로 청색 및 회색 컬러에 주로 사용되며 보라색을 내고 명암을 어둡게 함'],['🎯 타겟 컬러', '수입차 특수 보라색 메탈릭 및 투명한 퍼플 펄.']] },
@@ -82,6 +199,7 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 361': { role: '브릴리언트 실버 (광휘형)', type: 'silver_fine', face: '#ffffff', flop: '#64748b', desc: '납작하고 넓은 렌티큘러 구조로 정반사율(15°)을 극대화하여 쨍하고 화려한 금속광을 냅니다.', details: [['📌 일반 특성', '362보다 큰 광휘형-362보다 15도는 밝고 45&110도는 어두움']] },
   'WT 362': { role: '브릴리언트 실버 화인', type: 'silver_fine', face: '#f8fafc', flop: '#94a3b8', desc: '렌티큘러 광학을 유지하면서 입자 크기를 줄여 표면을 단정하게 발현시킵니다.', details: [['📌 일반 특성', '작은 크기의 광휘형-361에 비해 크기가 작음']] },
   'WT 363': { role: '브릴리언트 골드 (Brilliant Gold)', type: 'silver_coarse', face: '#fbbf24', flop: '#b45309', desc: '은분 입자 표면에 황금빛 나노 코팅 구조로 맑고 쨍한 골드 스파클을 발현시킵니다.', details: [['📌 일반 특성', '밝은 황색 알루미늄(실버) 조색제로 은폐력이 우수함']] },
+  
   'WT 364': { role: '화이트 펄 (White Pearl)', type: 'pearl', face: '#ffffff', flop: '#e2e8f0', desc: '시원하고 굵게 부서지는 백색 마이카 펄광을 발현시킵니다.', details: [['📌 일반 특성', '큰 크기의 백색 펄']] },
   'WT 365': { role: '라일락 펄 (Lilac Pearl)', type: 'pearl', face: '#a855f7', flop: '#84cc16', desc: '정면 청색광과 측면 황녹색광을 완벽히 분리시켜 화려한 투톤 이펙트를 냅니다.', details: [['📌 일반 특성', '중간 크기 자주색 펄-15도 청색 45&110도 황녹색으로 변하는 간섭 펄']] },
   'WT 366': { role: '골드 펄 (Gold Pearl)', type: 'pearl', face: '#fde047', flop: '#3b82f6', desc: '정면 따뜻함에서 측면 차가운 청색으로 극적인 벤딩을 일으키는 골드 펄입니다.', details: [['📌 일반 특성', '중간 크기 황색 펄(15도 황색 45&110도는 청색으로 변하는 간섭 펄']] },
@@ -95,12 +213,14 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 374': { role: '블루 그린 펄 (Blue Green Pearl)', type: 'pearl', face: '#0ea5e9', flop: '#ea580c', desc: '쿨톤 에메랄드가 측면에서 웜톤 황적색으로 극단적 반전을 일으키는 간섭 구조입니다.', details: [['📌 일반 특성', '중간 크기의 청녹색 펄-15도 청녹 45&110도 확적색 으로 변하는 간섭 펄']] },
   'WT 375': { role: '그린 펄 (Green Pearl)', type: 'pearl', face: '#22c55e', flop: '#b91c1c', desc: '싱그럽고 맑은 녹색 스파클과 측면 붉은 섀도우를 터뜨리는 스탠다드 간섭입니다.', details: [['📌 일반 특성', '중간 크기 녹색 펄-15도 맑은 녹색45&110도 적색으로 변하는 간섭 펄']] },
   'WT 376': { role: '레드펄 엑스트라 (Red Pearl Extra)', type: 'pearl', face: '#ef4444', flop: '#22c55e', desc: '정면 적색이 측면에서 완벽한 보색인 녹색으로 180도 역전되는 하드코어 간섭 펄입니다.', details: [['📌 일반 특성', '중간 크기 적색 펄-15도 적색 45&110도는 녹색으로 변하는 간섭 펄']] },
+  
   'WT 377': { role: '다이아몬드 화이트 (Diamond White)', type: 'xirallic', face: '#ffffff', flop: '#e2e8f0', desc: '유리 파편이 다이아몬드처럼 쨍하게 부서지는 극강의 하이엔드 스파클링 화이트입니다.', details: [['📌 일반 특성', '질라릭 백색 펄-15도 약하게 녹색 45&110도 약하게 적색 입자의 반짝임이 매우 좋음']] },
   'WT 378': { role: '다이아몬드 레드 (Diamond Red)', type: 'xirallic', face: '#ef4444', flop: '#b91c1c', desc: '투과율과 정반사율이 한계를 초과한 눈부신 핏빛 다이아몬드 크리스탈 반짝임입니다.', details: [['📌 일반 특성', '질라릭 적색 펄-관찰각도 별 생삭 변화가 거의 없는 착색 펄(입자의반짝임이 매우 좋음)']] },
   'WT 379': { role: '다이아몬드 카퍼 (Diamond Copper)', type: 'xirallic', face: '#f97316', flop: '#c2410c', desc: '고성능 슈퍼카의 눈부신 오렌지/구릿빛(코퍼) 특수 스파클 다이아몬드 도장입니다.', details: [['📌 일반 특성', '질라릭 주황색 펄(관찰각도 별 색상 변화가 거의 없는 착색 펄-입자의 반짝임이 매우 좋음)']] },
   'WT 380': { role: '다이아몬드 그린 (Diamond Green)', type: 'xirallic', face: '#22c55e', flop: '#dc2626', desc: '시랄릭 고유의 화려한 스파클링과 녹색➡적색의 투톤 벤딩이 융합된 이펙트입니다.', details: [['📌 일반 특성', '질라릭 녹색 펄-15도 녹색 45&110도는 적색으로 변하는 간섭 펄(입자의 반짝임이 매우 좋음)']] },
   'WT 381': { role: '다이아몬드 블루 (Diamond Blue)', type: 'xirallic', face: '#3b82f6', flop: '#facc15', desc: '얼음처럼 쨍하게 부서지는 청색 다이아몬드가 측면 황색으로 벤딩합니다.', details: [['📌 일반 특성', '질라릭 청색 펄-15도 청색 45&110도는 황색으로 변하는 간섭 펄(입자의 반짝임이 매우 좋음)']] },
   'WT 382': { role: '다이아몬드 골드 (Diamond Gold)', type: 'xirallic', face: '#facc15', flop: '#60a5fa', desc: '황색 시랄릭 샴페인 다이아몬드가 눈부시게 터지며 청색 벤딩을 일으킵니다.', details: [['📌 일반 특성', '질라릭 황색 펄-15도 황색 45&110도 청색으로 변하는 간섭 펄(입자의 반짝임이 매우 좋음)']] },
+  
   'WT 383': { role: '브릴리언트 오렌지 (Brilliant Orange)', type: 'silver_fine', face: '#f97316', flop: '#9a3412', desc: '골드에 붉은 파장을 결합하여 화려하게 불타오르는 적황색 금속 스파클을 발현시킵니다.', details: [['📌 일반 특성', '363에 비해 적색감이 많은 적황색']] },
   'WT 385': { role: '시스템 컴포넌트 A (System Component A)', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '도료의 점도를 최고로 상승시켜 무거운 은분이나 펄 입자가 침전되지 않게 띄워줍니다.', details: [['📌 일반 특성', '시스템 콤퍼넌트 A (WT 387에 비해 점도가 높음)']] },
   'WT 386': { role: '플롭 컨트롤 (Flop Control)', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '은분이 눕는 배향을 물리적으로 비틀어 정반사를 누르고 플롭 섀도우를 강제로 올립니다.', details: [['📌 일반 특성', '측면 밝기제 (정면 어두워짐)']] },
@@ -110,6 +230,7 @@ export const TONER_DB: Record<string, TonerData> = {
   'WT 390': { role: '플래틴 실버 (Platin Silver)', type: 'silver_coarse', face: '#f1f5f9', flop: '#1e293b', desc: '빛 반사 효율이 극대화된 크기의 하이퍼 은분으로 정면광을 폭발시키고 섀도우를 죽입니다.', details: [['📌 일반 특성', '중간 크기의 고휘도 광휘형(389보다 큼 입자중 15도가 가장 밝고 45&110도 가장 어두움)']] },
   'WT 392': { role: '매직 이펙트 (Magic Effect)', type: 'pearl', face: '#22c55e', flop: '#ef4444', desc: '정면광(녹색)과 측면광(적색)이 완전히 이질적인 보색 궤도로 꺾이는 카멜레온 펄입니다.', details: [['📌 일반 특성', '각도에 따라 색상변화가 큰 특수 펄(색상이 312의 반대로 변함-15도 맑은 녹색45&110도 약하게 적색']] },
   'WT 393': { role: '라이트 옐로우 (Light Yellow)', type: 'solid', face: '#fef08a', flop: '#a16207', desc: '메인 컬러를 덮지 않으면서 플롭(측면)에서만 화사한 황색광을 투명하게 발현시킵니다.', details: [['📌 일반 특성', '약하게 녹색을 띠는 밝은 황색 (327에 비해 녹색이 적음-이펙트 컬러에서 특히 45&110도 밝은 황색이 필요한 경우만 소량 사용)']] },
+  
   '1051': { role: '블렌드-인 첨가제 (Blend-In Additive)', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '수지의 침투력과 용해력을 극대화하여 신구 도막 사이의 은분 입자를 완벽히 융합시킵니다.', details: [['📌 일반 특성', '블랜딩용 첨가제']] },
   '1500': { role: '울트라 딥 블랙 (Ultra Deep Black)', type: 'solid', face: '#000000', flop: '#000000', desc: '염료 베이스를 사용하여 빛의 반사 통로 자체를 차단하는 지상 최강 심연 블랙입니다.', details: [['📌 일반 특성', '가장 어두운 흑색 (염료를 함유하고 있어 알루미늄(실버) 입자에 2%이상 사용하면 알루미늄 입자와 반응하여 색상이 변할 수 있고 내구성에도 문제가 될 수 있음. 솔리드:최대5%, 실버:최대2%, 펄:최대5% 이내 사용)']] },
   '455': { role: '퍼포먼스 컴포넌트 (Performance Component)', type: 'binder', face: '#ffffff', flop: '#ffffff', desc: '도막 표면이 마르는 물리적 한계를 화학적 보습을 통해 극복시켜 매끄러운 텍스처를 유지합니다.', details: [['📌 일반 특성', '솔리드 컬러에만 사용하는 첨가제 (455를 베이스코트 무게의 10% 혼합하면 특히 거울과 같은 낮은 습도 조건에서 작업성이 좋아지며 외관도 개선됨.)']] },
@@ -2925,7 +3046,6 @@ export default function App() {
       const aActive = activeCodes.includes(a.code); const bActive = activeCodes.includes(b.code); 
       if (aActive && !bActive) return -1; if (!aActive && bActive) return 1; return 0; 
   }).filter(item => {
-      // 오직 품번과 역할명으로만 정확히 검색되도록 제한
       const searchTxt = catalogSearch.toUpperCase();
       return item.code.includes(searchTxt) || item.role.toUpperCase().includes(searchTxt);
   });
@@ -3012,7 +3132,7 @@ export default function App() {
       setSnapshots([]); setCatalogSearch('');
   };
   
-  // [수정: 배합창에서 PP 안료 검색 및 변환 로직 완전 배제. 무조건 WT 베이스로 고정됨]
+  // [수정: 배합창에서 PP 안료 완전 배제! 304, 305를 치면 무조건 WT로 고정됨]
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
     const rawVal = newCode.toUpperCase(); 
     const numOnly = rawVal.replace(/[^0-9]/g, '');
@@ -3022,10 +3142,8 @@ export default function App() {
         finalCode = numOnly.substring(0, 4); 
     } else if (['1051', '1500', '455'].includes(numOnly)) {
         finalCode = numOnly; 
-    } else if (rawVal.startsWith('P')) { 
-        if (numOnly) finalCode = `PP ${numOnly}`; 
     } else if (numOnly) {
-        finalCode = `WT ${numOnly}`; // 숫자만 치면 무조건 WT (304, 305, 306 전부 포함)
+        finalCode = `WT ${numOnly}`; // 숫자만 치면 예외 없이 무조건 WT (304, 305도 전부 WT로 인식!)
     }
 
     const setter = isPearl ? setPearlToners : setToners;
@@ -3095,7 +3213,7 @@ export default function App() {
   const handleSavePostEdit = () => { setBoardPosts(prev => prev.map(p => p.id === viewingPost.id ? { ...p, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec } : p)); setViewingPost({ ...viewingPost, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec }); setIsEditingPost(false); };
   const handleOpenPost = (post: any) => { setViewingPost(post); setEditPostForm({ brand: post.brand, code: post.code, spec: post.spec }); setIsEditingPost(false); };
 
-  // 외부 구글 검색 연결 함수 (엔터키 이벤트 대응 완료)
+  // [엔터키 및 괄호 에러 완벽 해결본]
   const handleGoogleGlossarySearch = () => {
       const inputEl = document.getElementById('glossarySearchInput') as HTMLInputElement;
       const val = inputEl?.value?.trim();
@@ -3702,204 +3820,6 @@ export default function App() {
             </div>
             <div className="p-4 border-t border-slate-200 bg-white flex justify-end">
                <button onClick={() => setViewingPost(null)} className="bg-slate-800 text-white px-6 py-2 rounded-xl font-bold hover:bg-slate-700 transition-colors shadow-md">닫기</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isGlossaryModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/80 z-[2000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl w-[700px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-200">
-            <div className="p-4 bg-emerald-600 flex justify-between items-center text-white shrink-0">
-              <h3 className="font-bold flex items-center gap-2"><BookOpen size={18} /> 📖 자동차 도장/조색 쉬운 용어 사전</h3>
-              <button onClick={() => setIsGlossaryModalOpen(false)} className="hover:text-red-200 bg-emerald-700 p-1.5 rounded-full"><X size={16} /></button>
-            </div>
-            <div className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-slate-50 space-y-8">
-              
-              {/* 추가된 외부 구글 검색 연결 창 (엔터키 100% 작동) */}
-              <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl shadow-sm mb-6 flex flex-col sm:flex-row gap-3 items-center">
-                  <div className="flex-1 w-full text-sm">
-                      <p className="font-black text-blue-800 mb-1">🔍 사전에 없는 용어가 궁금하신가요?</p>
-                      <p className="text-slate-600 text-xs break-keep">아래 검색창에 궁금한 용어를 입력하고 엔터(Enter) 키를 치시면 바로 구글 검색 결과로 이동합니다.</p>
-                      <div className="flex mt-2">
-                        <input id="glossarySearchInput" onKeyDown={(e) => { if (e.key === 'Enter') handleGoogleGlossarySearch(); }} type="text" placeholder="예: WT 303, 메탈릭 등 입력 후 엔터" className="flex-1 p-2 border border-blue-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                        <button onClick={handleGoogleGlossarySearch} className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-r font-bold text-xs flex items-center justify-center"><Search size={14} className="mr-1"/> 검색</button>
-                      </div>
-                  </div>
-              </div>
-
-              <div>
-                <h4 className="font-black text-emerald-800 mb-3 border-b-2 border-emerald-200 pb-1">1. 페인트의 종류와 성질</h4>
-                <ul className="space-y-4 text-sm text-slate-700">
-                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2">솔리드 컬러 (Solid Color)</span><br/>반짝이는 가루(은분이나 펄)가 단 1%도 들어가지 않은 '순수한 색상' 그 자체입니다. (비유: 펄 없는 새빨간 소방차, 노란 유치원 버스)</li>
-                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2">이펙트 컬러 (Effect Color)</span><br/>바라보는 각도나 햇빛의 양에 따라 색상과 반짝임이 마술처럼 변하는 페인트입니다. 금속 가루(알루미늄)나 진주 가루(펄)가 섞여 있어야만 이펙트 컬러가 됩니다. (비유: 맑은 날에는 은색인데 그늘에 가면 진한 쥐색으로 변하는 승용차)</li>
-                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2">알루미늄 / 실버 (Aluminum / Silver)</span><br/>자동차에 금속 특유의 차갑고 반짝이는 느낌을 주기 위해 페인트에 섞는 '실제 금속(은분) 가루'입니다.</li>
-                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2">마이카 / 펄 (Mica / Pearl)</span><br/>금속 가루가 아니라, 조개껍데기 안쪽이나 진주처럼 은은하고 영롱한 빛을 내는 가루입니다. 도장면을 고급스럽고 뽀얗게 만들어줍니다.</li>
-                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2">금속성 (Metallic / 메탈릭)</span><br/>쇠붙이나 깡통 표면처럼 차갑고 매끄럽게 빛을 반사하는 느낌을 말합니다.</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-1">2. 반짝임과 빛의 성질</h4>
-                <ul className="space-y-4 text-sm text-slate-700">
-                  <li><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold mr-2">브릴리언트 / 광휘형 (Brilliant)</span><br/>일반적인 반짝임을 뛰어넘어, 눈이 부실 정도로 빛을 '쨍'하고 날카롭게 튕겨내는 엄청난 반사력을 뜻합니다. (비유: 일반 은분이 '은박지'라면, 브릴리언트는 '거울 조각'을 잘게 부숴놓은 것처럼 화려하게 반짝입니다.)</li>
-                  <li><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold mr-2">간섭 펄 (Interference Pearl)</span><br/>빛의 굴절을 이용해, 정면에서 볼 때와 옆에서 볼 때 색이 완전히 다르게 변신하는 카멜레온 같은 특수 펄입니다. (비유: 정면에서는 파란색으로 빛나다가, 고개를 돌려 옆에서 보면 빨간색으로 변하는 신비로운 가루입니다.)</li>
-                  <li><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold mr-2">정면 (15도) vs 측면 (45도/110도, 플롭)</span><br/>자동차 페인트는 빛을 받는 각도에 따라 색이 다릅니다.<br/>- 정면(15도): 차를 햇빛 아래서 똑바로 마주 보았을 때의 밝고 반짝이는 색상.<br/>- 측면(45도/110도): 시선을 비스듬히 돌리거나 그늘진 쪽에서 바라봤을 때 짙어지는 색상(섀도우).</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-black text-purple-800 mb-3 border-b-2 border-purple-200 pb-1">3. 물리적인 역할과 재료</h4>
-                <ul className="space-y-4 text-sm text-slate-700">
-                  <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2">파우더 펄 (Powder Pearl)</span><br/>일반적인 액체(물감) 상태가 아니라, 밀가루처럼 완전히 바싹 마른 100% 가루 형태로 된 펄 안료입니다.</li>
-                  <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2">바인더 / 믹싱 클리어 (Binder)</span><br/>가루나 입자들이 뭉치지 않고 차체에 고르게 달라붙을 수 있도록 도와주는 '투명한 물감'이자 '접착제' 같은 역할입니다. (비유: 마른 밀가루(파우더 펄)를 빵으로 만들려면 물(바인더)을 넣고 반죽을 해야 뭉치지 않는 것과 같은 원리입니다.)</li>
-                  <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2">은폐력 (Hiding Power)</span><br/>페인트를 칠했을 때, 밑바탕에 있던 원래 색이나 흠집을 얼마나 잘 가려주는지(덮어주는지) 나타내는 힘입니다. (비유: 은폐력이 좋으면 '페인트 마커'처럼 밑바탕을 완벽히 덮어버리고, 은폐력이 나쁘면 '투명한 셀로판지'처럼 밑바탕이 그대로 비쳐 보입니다.)</li>
-                  <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2">캔디 / 트랜스페어런트 (Candy / Transparent)</span><br/>은폐력이 전혀 없이, 투명하게 밑바탕을 비춰주는 '셀로판지' 같은 물감입니다. 밑에 칠해둔 반짝이는 은색을 그대로 투과시키면서 색깔만 예쁘게 입혀줍니다.</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-black text-rose-800 mb-3 border-b-2 border-rose-200 pb-1">4. 안료(조색제) 영문 명칭 쉬운 해석</h4>
-                <ul className="space-y-4 text-sm text-slate-700">
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2">브라이트(Bright) / 브릴리언트(Brilliant)</span><br/>'밝은', '눈부신', '화사한'이라는 뜻입니다. 탁하지 않고 쨍하게 빛나는 맑은 원색을 의미합니다.</li>
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2">그리니쉬(Greenish) / 블루이쉬(Bluish) / 레디쉬(Reddish)</span><br/>'~빛이 도는'이라는 뜻입니다. (예: 그리니쉬 블루 = 초록빛이 감도는 파랑 / 레디쉬 옐로우 = 붉은빛이 도는 노랑)</li>
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2">마룬(Maroon) / 옥사이드(Oxide)</span><br/>마룬은 '밤색, 적갈색(버건디)'을 뜻하고, 옥사이드는 '산화철(녹슨 철)'을 뜻합니다. 맑기보단 묵직하고 탁한 흙빛 섀도우를 냅니다.</li>
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2">마젠타(Magenta) / 시안(Cyan)</span><br/>마젠타는 '자주색(밝은 핑크/적자색)', 시안은 '청록색(하늘색/바다색)'을 의미합니다.</li>
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2">트랜스페어런트(Transparent) / 트랜스루센트(Translucent)</span><br/>트랜스페어런트는 완벽히 밑이 비치는 '투명(캔디)'을, 트랜스루센트는 살짝 비치는 '반투명(저농)'을 뜻합니다.</li>
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2">코스(Coarse) / 파인(Fine) / 마이크로(Micro)</span><br/>은분이나 펄 입자의 크기입니다. 코스(입자가 굵고 거침) &gt; 파인(입자가 작고 고움) &gt; 마이크로(먼지처럼 아주 미세함).</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isHistoryModalOpen && (
-        <div className="fixed inset-0 bg-slate-950/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
-          <div className="bg-slate-900 rounded-2xl w-[700px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-700 my-8">
-            <div className="p-4 border-b border-slate-800 bg-slate-900 flex justify-between items-center sticky top-0 z-10">
-              <h3 className="text-white font-black text-lg flex items-center gap-2"><Code className="text-blue-400" /> Architectural Breakthroughs</h3>
-              <button onClick={() => setIsHistoryModalOpen(false)} className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full"><X size={18} /></button>
-            </div>
-            <div className="p-6 overflow-y-auto custom-scrollbar space-y-6 text-slate-300 text-sm leading-relaxed font-mono">
-                <p className="text-rose-400 font-black text-xs border-l-4 border-rose-500 pl-3 leading-tight tracking-tighter uppercase">"WARNING: The core architecture of this system incorporates highly non-standard rendering techniques and low-level memory manipulations."</p>
-                <div className="space-y-4">
-                    <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-600 shadow-inner">
-                        <h4 className="text-white font-black mb-2 flex items-center gap-2 text-sm"><Zap size={14} className="text-yellow-400"/> 1. Non-Euclidean Multi-Dimensional Chromatic Tensor Engine</h4>
-                        <p className="text-xs text-slate-400 tracking-tight leading-relaxed">Calculates fundamental absorption wavelengths and refractive indices of each pigment using a 4D tensor matrix rather than standard RGB/CMYK. Simulates complementary interference at Face (15°) and Flop (110°) via Fast Fourier Transform algorithms.</p>
-                    </div>
-                    <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-600 shadow-inner">
-                        <h4 className="text-white font-black mb-2 flex items-center gap-2 text-sm"><Zap size={14} className="text-yellow-400"/> 2. GC-Evasive Low-Level WebGL Memory Management</h4>
-                        <p className="text-xs text-slate-400 tracking-tight leading-relaxed">Direct memory allocation techniques bypassing standard browser garbage collection to ensure zero frame-drops during high-load 110-pigment visual rendering.</p>
-                    </div>
-                    <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-600 shadow-inner">
-                        <h4 className="text-white font-black mb-2 flex items-center gap-2 text-sm"><Zap size={14} className="text-yellow-400"/> 3. O(1) Time Complexity Dual Hash-Map DB Indexing</h4>
-                        <p className="text-xs text-slate-400 tracking-tight leading-relaxed">Ultra-fast retrieval mechanism ensuring instantaneous search results across 2,610+ OEM datasets and 110+ pigment master DBs.</p>
-                    </div>
-                    <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-600 shadow-inner">
-                        <h4 className="text-white font-black mb-2 flex items-center gap-2 text-sm"><Zap size={14} className="text-yellow-400"/> 4. Asynchronous State Management & Shadow DOM Sync</h4>
-                        <p className="text-xs text-slate-400 tracking-tight leading-relaxed">Decoupled UI and logical state handling preventing main-thread blocking during complex blending coefficient calculations.</p>
-                    </div>
-                </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isPearlGuideOpen && (
-        <div className="fixed inset-0 bg-slate-900/95 z-[3000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
-          <div className="bg-slate-100 rounded-2xl w-[900px] max-w-full h-[90vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300 my-8 relative">
-            <div className="p-4 bg-slate-900 flex justify-between items-center text-white shrink-0 sticky top-0 z-20">
-              <h3 className="font-bold flex items-center gap-2 tracking-wide"><Target size={18} className="text-purple-400"/> PP(분말) 가이드 및 밑색 마스터 클래스</h3>
-              <button onClick={() => setIsPearlGuideOpen(false)} className="hover:text-red-300 transition-colors bg-slate-800 p-1.5 rounded-full"><X size={16} /></button>
-            </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
-                {/* 📌 PP 안료 가이드 영역 추가 */}
-                <div className="p-6 bg-purple-50 border-b border-purple-200 shrink-0">
-                    <h2 className="text-lg font-black text-purple-900 mb-4 flex items-center gap-2"><Beaker size={20} className="text-purple-600"/> 🌬️ PP (Powder Pearl) 가루 안료 특별 취급 가이드</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white p-4 rounded-xl shadow-sm border border-purple-200">
-                            <h3 className="font-black text-purple-700 text-sm mb-2">PP 304 (분말 다이아몬드)</h3>
-                            <p className="text-xs text-slate-600 mb-2 font-bold">수지가 완전히 배제된 100% 건식 분말 글라스 스파클.</p>
-                            <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-2 rounded">눈부신 다이아몬드 순수 난반사를 발현합니다. 수지가 없으므로 원액에 다이렉트 투입 시 100% 뭉치고 덩어리지는 얼룩(Clumping) 하자가 발생합니다.</p>
-                        </div>
-                        <div className="bg-white p-4 rounded-xl shadow-sm border border-purple-200">
-                            <h3 className="font-black text-purple-700 text-sm mb-2">PP 305 (분말 컬러스트림)</h3>
-                            <p className="text-xs text-slate-600 mb-2 font-bold">포르쉐/마이바흐 전용 초고해상도 카멜레온 가루 펄.</p>
-                            <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-2 rounded">탁색률 0%의 예리한 광채를 뿜어내며 바탕색을 1%도 덮지 않고 투과합니다. 입자가 매우 예민하여 파괴를 막기 위해 기계식 교반기를 절대 사용하면 안 됩니다.</p>
-                        </div>
-                        <div className="bg-red-50 p-4 rounded-xl shadow-sm border border-red-200">
-                            <h3 className="font-black text-red-700 text-sm mb-2">⚠️ PP 분말 조색 공통 철칙</h3>
-                            <ul className="text-[11px] text-red-800 space-y-2 font-bold list-disc pl-4">
-                                <li>가루 형태이므로 베이스 원액에 직접 투하 절대 금지.</li>
-                                <li>반드시 <span className="underline">WT 386(에이전트)</span> 또는 블렌드 수지에 선 계량.</li>
-                                <li>가루가 뭉치지 않도록 스틱으로 액상화(완벽히 개어서 믹스) 후 투입할 것.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="p-5 bg-white border-b border-slate-200 shrink-0 sticky top-0 z-10 shadow-sm mt-4">
-                    <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide snap-x">
-                        {PEARL_LEVELS.map(lvl => (
-                            <button key={lvl.level} onClick={() => setActivePearlLevel(lvl.level)} className={`snap-center shrink-0 px-3 py-2 rounded-lg text-[11px] font-black transition-all flex flex-col items-center gap-1 ${activePearlLevel === lvl.level ? 'bg-slate-800 text-white shadow-md transform scale-105' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border border-slate-200'}`}>
-                                <span>Lv.{lvl.level}</span><span className="opacity-80 font-bold whitespace-nowrap">{lvl.name}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="p-6 bg-slate-50 flex-1 flex flex-col gap-6">
-                    {PEARL_LEVELS.filter(lvl => lvl.level === activePearlLevel).map(lvl => (
-                        <div key={lvl.level} className="animate-in slide-in-from-right-4 duration-300 flex flex-col">
-                            <h2 className="text-2xl font-black text-slate-800 tracking-tight mb-4">{lvl.name} <span className="text-sm font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full ml-2">Lv.{lvl.level} Size: {lvl.size}</span></h2>
-                            {lvl.codes.length > 0 && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                                    {lvl.codes.map(code => {
-                                        const tInfo = TONER_DB[code]; if(!tInfo) return null;
-                                        return (
-                                        <div key={code} className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3">
-                                            <div className="w-12 h-12 rounded-lg shadow-inner shrink-0" style={{background: getTonerDetailBackground(code, tInfo.role, 'face')}}></div>
-                                            <div className="flex flex-col"><span className="font-black text-slate-800 text-sm">{code}</span><span className="text-[10px] font-bold text-slate-500">{tInfo.role}</span></div>
-                                        </div>
-                                    )})}
-                                </div>
-                            )}
-                            <div className="grid grid-cols-1 gap-3">
-                                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><h4 className="text-[11px] font-black text-indigo-600 mb-1 flex items-center gap-1"><BookOpen size={14}/> 일반 특성</h4><p className="text-sm font-medium text-slate-700">{lvl.desc}</p></div>
-                                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><h4 className="text-[11px] font-black text-blue-600 mb-1 flex items-center gap-1"><Eye size={14}/> 외관 변화</h4><p className="text-sm font-medium text-slate-700 whitespace-pre-line">{lvl.faceFlop}</p></div>
-                                <div className="bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm"><h4 className="text-[11px] font-black text-red-600 mb-1 flex items-center gap-1"><AlertTriangle size={14}/> 주의점</h4><p className="text-sm font-medium text-red-800">{lvl.warning}</p></div>
-                            </div>
-                        </div>
-                    ))}
-                    
-                    <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 shadow-lg mt-8 shrink-0 flex flex-col gap-6">
-                        <h4 className="text-lg font-black text-yellow-400 flex items-center gap-2"><BookOpen size={20}/> 🧠 [6부작] 실전 이해하기 : 밑색 분석 및 광학 메커니즘</h4>
-                        <div className="space-y-4">
-                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-slate-400">
-                                <p className="text-sm font-bold text-white mb-2">1부: 무채색 (Black & White) 계열의 밑색 분석</p>
-                                <p className="text-xs text-slate-300 leading-relaxed">차가운 푸른빛을 내는 슈퍼 딥 블랙(WT 188)과 따뜻한 황갈색 흙빛을 내는 스페셜 블랙(WT 323)이 은분과 만났을 때의 실무 온도 차이 규명.</p>
-                            </div>
-                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-blue-400">
-                                <p className="text-sm font-bold text-white mb-2">2부: 블루 (Blue) & 바이올렛 (Violet) 계열의 밑색 분석</p>
-                                <p className="text-xs text-slate-300 leading-relaxed">측면(Flop)이 붉어지는 브릴리언트 블루(WT 318), 정직한 블루(WT 343), 청록색으로 빠지는 애저 블루(WT 341)의 색상 왜곡 통제.</p>
-                            </div>
-                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-red-500">
-                                <p className="text-sm font-bold text-white mb-2">3부: 레드 (Red) & 마젠타 (Magenta) 계열의 밑색 분석</p>
-                                <p className="text-xs text-slate-300 leading-relaxed">차가운 자주빛 블루이쉬 마젠타(WT 338)와 화사한 주황빛 옐로우 마젠타(WT 340)의 쿨톤/웜톤 결정 원리.</p>
-                            </div>
-                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-yellow-400">
-                                <p className="text-sm font-bold text-white mb-2">4부: 옐로우 (Yellow) & 오렌지 (Orange) 계열의 밑색 분석</p>
-                                <p className="text-xs text-slate-300 leading-relaxed">따뜻한 금빛 레디쉬 옐로우(WT 324), 차가운 그리니쉬 옐로우(WT 326), 그리고 탁색 마스터 오커(WT 328)의 맑음과 탁함 제어.</p>
-                            </div>
-                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-emerald-400">
-                                <p className="text-sm font-bold text-white mb-2">5부: 그린 (Green) & 투명 (Translucent) 계열의 밑색 분석</p>
-                                <p className="text-xs text-slate-300 leading-relaxed">빛을 100% 투과시키는 투명 그린(WT 347)과 반투명 그린(WT 349)의 필터 효과 및 캔디 도장 깊이감 비교.</p>
-                            </div>
-                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-purple-400">
-                                <p className="text-sm font-bold text-white mb-2">6부: 메탈릭과 펄 질감 변화 메커니즘</p>
-                                <p className="text-xs text-slate-300 leading-relaxed">입자 간 물리적 간섭 및 얼룩(Mottling) 통제, 무거운 입자를 눕혀주는 이펙트 수지(WT 386, WT 390)의 배향 제어 원리 총망라.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
           </div>
         </div>
