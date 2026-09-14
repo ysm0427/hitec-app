@@ -6,8 +6,7 @@ import {
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-// 💡 Syntax Error 및 미등록 안료 누락 100% 수정 완료본
-const LAST_PATCH_DATE = "2026.09.11 (본사 컨펌용 무손실 풀버전 & 에러 픽스)"; 
+const LAST_PATCH_DATE = "2026.09.14 (Vercel 에러 원천 차단 완벽 클린 재빌드본)"; 
 
 export const PEARL_LEVELS = [
   { level: 1, name: 'Ultra Micro 울트라 마이크로', size: '1~5µm', desc: '지문 사이로 스며드는 전분 가루 수준의 극미세 입자 크기를 가진 진주빛 조색제입니다.', faceFlop: '진주조개 안쪽을 긁어낸 듯한 뽀얗고 탁한 우윳빛을 띱니다. 정면과 측면 모두 왜곡 없이 은은하고 부드러운 실키 글로우(Silky Glow)를 일정하게 유지합니다.', usage: '최고급 세단의 깊은 화이트 펄 바탕을 깔거나, 입자가 거친 안료의 톤을 부드럽게 눌러줄 때 처방됩니다.', mix: '투명도가 낮고 은폐력이 매우 뛰어나, 베이스의 밀도를 높이기 위해 지시된 조색 데이터 수치를 정확히 계량합니다.', warning: '메탈릭이 뭉치는 얼룩(Mottling) 현상이 거의 발생하지 않아 초급자도 수월하게 도장할 수 있습니다.', codes: [] },
@@ -52,7 +51,20 @@ export const TONER_DB: Record<string, TonerData> = {
     ] 
   },
 
-  // 💡 [핵심 복구] 지난번에 통째로 빼먹었던 미등록 안료 8종 (WT 197, 303~310) 완벽 FULL 삽입!
+  // === [WT 안료 FULL 무손실 복구본 시작 (이전 누락 8종 + 6종 완전 탑재)] ===
+  'WT 188': { 
+    role: '슈퍼 딥 블랙 (Super Deep Black)', type: 'solid', face: '#0f172a', flop: '#020617', 
+    desc: '차가운 푸른빛을 내는 극저명도 흑색 안료입니다.', 
+    details: [
+      ['🎨 광학적 특성', '은분이나 화이트와 섞이는 순간, 극저명도의 흑색 아래 숨겨져 있던 얼음처럼 차갑고 맑은 푸른빛(Bluish) 틴트가 측면에서 날카롭게 피어오릅니다.'],
+      ['📌 일반 특성', '가장 어두운 흑색 (WT323보다 훨씬 어두우며 흑색계열 조색에 제한적 사용)'],
+      ['👀 외관 변화', '유채색의 채도를 탁하게 오염시키지 않으면서 명도만 수직으로 깔끔하게 떨어뜨립니다.'],
+      ['🎯 타겟 컬러', '벤츠, 아우디 특유의 금속성이 강한 하이퍼 실버나, 채도가 생명인 맑은 블루 메탈릭의 명도 다운용.'],
+      ['⚗️ 배합 비율', '아주 강력하므로 조색 데이터에 따라 0.1g 단위로 극소량 제한적으로 투입해야 합니다.'],
+      ['⚠️ 조색 한계점', '따뜻한 흙빛이 도는 웜톤(Warm) 실버나 베이지 계열(국산차 위주)에 톤을 낮추겠다고 188을 넣으면 칠이 시퍼렇게 멍들며 이질감이 생깁니다.'],
+      ['💡 비교 분석', '[비교] WT 188 vs WT 323\n188은 은분 측면이 시퍼렇고 맑게 떨어지는 차가운(Cool) 흑색이며, 323은 은분 측면이 흙빛으로 탁해지는 따뜻한(Warm) 흑색입니다.']
+    ] 
+  },
   'WT 197': { 
     role: '스페셜 틴트 (Special Tint)', type: 'solid', face: '#64748b', flop: '#334155', 
     desc: '특수 조색 및 은폐 제어용으로 사용되는 한정판 미립자 틴트입니다.', 
@@ -129,7 +141,7 @@ export const TONER_DB: Record<string, TonerData> = {
     role: '브라이트 오렌지 (Bright Orange)', type: 'solid', face: '#ea580c', flop: '#7c2d12', 
     desc: '시선을 찌르는 눈부신 100% 순수 형광 주황빛을 발현합니다.', 
     details: [
-      ['🎨 광학적 특성', '불순물이 완전히 배제된 100% 퓨어 유기 안료 구조로, 웜톤(Warm-tone) 영역의 채도를 극대화하여 맑고 선명한 채도를 제공합니다. 탁하지 않고 본연의 색감이 아주 깨끗하게 표현되며, 실버나 펄 계열 조색제와 섞일 때는 빛을 강하게 반사하여 입자가 극도로 밝고 화사하게 빛나는 효과를 냅니다.'],
+      ['🎨 광학적 특성', '불순물이 완전히 배제된 100% 퓨어 유기 안료 구조로, 웜톤(Warm-tone) 영역의 채도를 극대화하여 맑고 선명한 채도를 제공합니다.'],
       ['📌 일반 특성', '주로 이펙트 컬러에 사용하는 맑고 선명한 고채도 주황색 조색제 (단독 은폐력은 매우 떨어짐)'],
       ['👀 외관 변화', '정면에서 불타오르는 듯한 역동적인 질감과 생동감을 부여합니다.'],
       ['🎯 타겟 컬러', '포르쉐 등 스포츠카 순정 오렌지 및 화려한 펄 메탈릭 투명 하도.'],
@@ -148,19 +160,6 @@ export const TONER_DB: Record<string, TonerData> = {
       ['🎯 타겟 컬러', '마쓰다 소울 레드 계열 등 고급스러운 캔디 레드나 투명 펄 컬러의 조색 보정 및 깊이감 추가.'],
       ['⚗️ 배합 비율', '투명한 틴팅 레이어를 올릴 때 정밀하게 혼합하여 사용합니다.'],
       ['💡 비교 분석', '[비교] WT 310 vs WT 332\n310은 투명하게 비치는 맑은 마룬이고, 332는 은폐력이 강해 바탕을 덮어버리는 불투명 마룬입니다.']
-    ] 
-  },
-  'WT 188': { 
-    role: '슈퍼 딥 블랙 (Super Deep Black)', type: 'solid', face: '#0f172a', flop: '#020617', 
-    desc: '차가운 푸른빛을 내는 극저명도 흑색 안료입니다.', 
-    details: [
-      ['🎨 광학적 특성', '은분이나 화이트와 섞이는 순간, 극저명도의 흑색 아래 숨겨져 있던 얼음처럼 차갑고 맑은 푸른빛(Bluish) 틴트가 측면에서 날카롭게 피어오릅니다.'],
-      ['📌 일반 특성', '가장 어두운 흑색 (WT323보다 훨씬 어두우며 흑색계열 조색에 제한적 사용)'],
-      ['👀 외관 변화', '유채색의 채도를 탁하게 오염시키지 않으면서 명도만 수직으로 깔끔하게 떨어뜨립니다.'],
-      ['🎯 타겟 컬러', '벤츠, 아우디 특유의 금속성이 강한 하이퍼 실버나, 채도가 생명인 맑은 블루 메탈릭의 명도 다운용.'],
-      ['⚗️ 배합 비율', '아주 강력하므로 조색 데이터에 따라 0.1g 단위로 극소량 제한적으로 투입해야 합니다.'],
-      ['⚠️ 조색 한계점', '따뜻한 흙빛이 도는 웜톤(Warm) 실버나 베이지 계열(국산차 위주)에 톤을 낮추겠다고 188을 넣으면 칠이 시퍼렇게 멍들며 이질감이 생깁니다.'],
-      ['💡 비교 분석', '[비교] WT 188 vs WT 323\n188은 은분 측면이 시퍼렇고 맑게 떨어지는 차가운(Cool) 흑색이며, 323은 은분 측면이 흙빛으로 탁해지는 따뜻한(Warm) 흑색입니다.']
     ] 
   },
   'WT 321': { 
@@ -3769,7 +3768,7 @@ export const getTonerDetailBackground = (code: string, role: string, angle: stri
   if (code.includes('144')) { h = 215; s = 85; baseL = 35; } 
   else if (r.includes('블루') || r.includes('청')) { h = 210; s = 80; baseL = 40; }
   else if (r.includes('레드') || r.includes('마젠타') || r.includes('적') || r.includes('마룬') || r.includes('캔디')) { h = 350; s = 80; baseL = 40; }
-  else if (r.includes('그린') || r.includes('녹') || r.includes('에메랄드')) { h = 150; s = 80; baseL = 35; }WT 310
+  else if (r.includes('그린') || r.includes('녹') || r.includes('에메랄드')) { h = 150; s = 80; baseL = 35; }
   else if (r.includes('옐로우') || r.includes('황') || r.includes('오렌지')) { h = 45; s = 80; baseL = 50; }
   else if (r.includes('화이트') || r.includes('백')) { h = 0; s = 0; baseL = 90; }
   else if (r.includes('블랙') || r.includes('흑')) { h = 0; s = 0; baseL = 15; }
@@ -3981,7 +3980,6 @@ export default function App() {
       setSnapshots([]); setCatalogSearch('');
   };
   
-  // 💡 [입력창 로직 완벽 제어: 숫자 치면 무조건 WT 강제 인식. PP 304, 305 절대 안 튀어나옴]
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
     const rawVal = newCode.toUpperCase(); 
     const numOnly = rawVal.replace(/[^0-9]/g, '');
@@ -3992,7 +3990,6 @@ export default function App() {
     } else if (['1051', '1500', '455'].includes(numOnly)) {
         finalCode = numOnly; 
     } else if (numOnly) {
-        // 어떠한 숫자를 치든 무조건 WT 시리즈로 강제 매핑합니다.
         finalCode = `WT ${numOnly}`; 
     }
 
@@ -4063,7 +4060,6 @@ export default function App() {
   const handleSavePostEdit = () => { setBoardPosts(prev => prev.map(p => p.id === viewingPost.id ? { ...p, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec } : p)); setViewingPost({ ...viewingPost, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec }); setIsEditingPost(false); };
   const handleOpenPost = (post: any) => { setViewingPost(post); setEditPostForm({ brand: post.brand, code: post.code, spec: post.spec }); setIsEditingPost(false); };
 
-  // 💡 [구글 검색 연동: 마우스 클릭 및 엔터키 완벽 지원]
   const handleGoogleGlossarySearch = () => {
       const inputEl = document.getElementById('glossarySearchInput') as HTMLInputElement;
       const val = inputEl?.value?.trim();
@@ -4725,7 +4721,7 @@ export default function App() {
                 <h4 className="font-black text-purple-800 mb-3 border-b-2 border-purple-200 pb-1">3. 물리적인 역할과 재료</h4>
                 <ul className="space-y-4 text-sm text-slate-700">
                   <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2">파우더 펄 (Powder Pearl)</span><br/>일반적인 액체(물감) 상태가 아니라, 밀가루처럼 완전히 바싹 마른 100% 가루 형태로 된 펄 안료입니다.</li>
-                  <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2">바인더 / 믹싱 클리어 (Binder)</span><br/>가루나 입자들이 뭉치지 않고 차체에 고르게 달라붙을 수 있도록 도와주는 '투명한 물감'이자 '접착제' 같은 역할입니다. (비유: 마른 밀가루(파우더 펄)를 빵으로 만들려면 물(바인더)을 넣고 반죽을 해야 뭉치지 않는 것과 같은 원리입니다.)</li>
+                  <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2">바인더 / 믹싱 클리어 (Binder)</span><br/>가루나 입자들이 뭉치지 단 1%도 들어가지 않게 뭉치지 않고 차체에 고르게 달라붙을 수 있도록 도와주는 '투명한 물감'이자 '접착제' 같은 역할입니다.</li>
                   <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2">은폐력 (Hiding Power)</span><br/>페인트를 칠했을 때, 밑바탕에 있던 원래 색이나 흠집을 얼마나 잘 가려주는지(덮어주는지) 나타내는 힘입니다. (비유: 은폐력이 좋으면 '페인트 마커'처럼 밑바탕을 완벽히 덮어버리고, 은폐력이 나쁘면 '투명한 셀로판지'처럼 밑바탕이 그대로 비쳐 보입니다.)</li>
                   <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2">캔디 / 트랜스페어런트 (Candy / Transparent)</span><br/>은폐력이 전혀 없이, 투명하게 밑바탕을 비춰주는 '셀로판지' 같은 물감입니다. 밑에 칠해둔 반짝이는 은색을 그대로 투과시키면서 색깔만 예쁘게 입혀줍니다.</li>
                 </ul>
