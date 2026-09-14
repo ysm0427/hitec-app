@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Sliders, Trash2, Plus, Minus, X, FolderOpen, Maximize, Camera, ScanLine, Beaker, Sun, Droplet, 
-  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket, Columns, Mail, Code, Users, CreditCard, AlertTriangle, ThumbsUp, Eye, Calendar, RefreshCw, MessageSquare, Send, Save, CheckCircle, Edit3, Target
+  Image as ImageIcon, Lock, Unlock, Layers, ChevronRight, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, FileSpreadsheet, History, PaintBucket, Columns, Mail, Code, Users, CreditCard, AlertTriangle, ThumbsUp, Eye, Calendar, RefreshCw, MessageSquare, Send, Save, CheckCircle, Edit3, Target, Edit
 } from 'lucide-react';
 
 interface TonerData { role: string; type: string; face: string; flop: string; desc: string; details?: [string, string][]; }
 
-const LAST_PATCH_DATE = "2026.09.14 (Vercel 에러 원천 차단 완벽 클린 재빌드본)"; 
+const LAST_PATCH_DATE = "2026.09.14 (완벽 클린 빌드 + 메모 UI + 안료 디테일 보강)"; 
 
 export const PEARL_LEVELS = [
   { level: 1, name: 'Ultra Micro 울트라 마이크로', size: '1~5µm', desc: '지문 사이로 스며드는 전분 가루 수준의 극미세 입자 크기를 가진 진주빛 조색제입니다.', faceFlop: '진주조개 안쪽을 긁어낸 듯한 뽀얗고 탁한 우윳빛을 띱니다. 정면과 측면 모두 왜곡 없이 은은하고 부드러운 실키 글로우(Silky Glow)를 일정하게 유지합니다.', usage: '최고급 세단의 깊은 화이트 펄 바탕을 깔거나, 입자가 거친 안료의 톤을 부드럽게 눌러줄 때 처방됩니다.', mix: '투명도가 낮고 은폐력이 매우 뛰어나, 베이스의 밀도를 높이기 위해 지시된 조색 데이터 수치를 정확히 계량합니다.', warning: '메탈릭이 뭉치는 얼룩(Mottling) 현상이 거의 발생하지 않아 초급자도 수월하게 도장할 수 있습니다.', codes: [] },
@@ -51,7 +51,7 @@ export const TONER_DB: Record<string, TonerData> = {
     ] 
   },
 
-  // === [WT 안료 FULL 무손실 복구본 시작 (이전 누락 8종 + 6종 완전 탑재)] ===
+  // === [WT 안료 FULL 데이터] ===
   'WT 188': { 
     role: '슈퍼 딥 블랙 (Super Deep Black)', type: 'solid', face: '#0f172a', flop: '#020617', 
     desc: '차가운 푸른빛을 내는 극저명도 흑색 안료입니다.', 
@@ -209,8 +209,8 @@ export const TONER_DB: Record<string, TonerData> = {
       ['📌 일반 특성', '녹색을 띠는 청색 (346의 대체 안료 성격)'],
       ['👀 외관 변화', '파란색에 차가운 녹색 기운이 감돌게 하여 세련된 분위기를 연출합니다.'],
       ['🎯 타겟 컬러', '최신 수입차의 맑은 청록색 메탈릭 및 쿨톤 블루 펄 마이크로 튜닝.'],
-      ['⚗️ 배합 비율', '미세한 톤 보정을 위해 소량씩 계량하여 투입합니다.'],
-      ['⚠️ 조색 한계점', '과도하게 사용 시 채도가 떨어지고 칠이 시퍼렇게 질려 보일 수 있습니다.']
+      ['⚠️ 조색 필수 확인', '품번 또는 생산 시기에 따라 적청 또는 녹청으로 변할 수 있으므로 상시 확인이 필요합니다.'],
+      ['⚗️ 배합 비율', '미세한 톤 보정을 위해 소량씩 계량하여 투입합니다.']
     ] 
   },
   'WT 318': { 
@@ -246,7 +246,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['👀 외관 변화', '에메랄드 바다처럼 청량하고 맑은 색감을 제공하며, 각도에 따라 색상 변화가 매우 드라마틱합니다.'],
       ['🎯 타겟 컬러', '고채도 스포티 스카이 블루 및 화사한 청색 펄.'],
       ['⚗️ 배합 비율', '밝고 청량한 블루 계열 조색 시 메인 베이스로 다량 사용됩니다.'],
-      ['⚠️ 조색 한계점', '다른 컬러와 섞일 때 특유의 맑은 시안빛이 탁해지기 쉬우므로, 탁색 안료(오크, 블랙 등)와의 혼합 시 극도의 주의가 필요합니다.']
+      ['⚠️ 조색 한계점', '다른 컬러와 섞일 때 특유의 맑은 시안빛이 탁해질 수 있으므로 탁색 안료와의 혼합 시 주의가 필요합니다.']
     ] 
   },
   'WT 342': { 
@@ -293,7 +293,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['📌 일반 특성', '녹색을 띠는 청색 조색제로 특히 45&110도 에서 녹색이 가장 많은 청색 조색제임 (이펙트 컬러에 가장 많이 사용하는 청색)'],
       ['👀 외관 변화', '측면으로 눕혀 볼수록 깊은 심해의 녹색 기운이 진하게 묻어납니다.'],
       ['🎯 타겟 컬러', '어두운 청록색 펄 및 수입차 특수 다크 블루.'],
-      ['⚗️ 배합 비율', '이펙트 컬러의 깊이감과 녹색 음영을 줄 때 가장 빈번하게 사용됩니다.'],
+      ['⚗️ 배합 유동성', 'WT 144의 적청/녹청 상태 변화에 따라 346의 배합 비율을 유동적으로 조절하여 사용해야 합니다.'],
       ['⚠️ 조색 한계점', '투명형 안료이므로 자체 은폐력이 떨어져 하도의 영향을 크게 받습니다.']
     ] 
   },
@@ -449,7 +449,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['👀 외관 변화', '단순한 노란색이 아니라 잘 익은 망고나 호박처럼 따뜻하고 깊은 골드 옐로우 톤을 냅니다.'],
       ['🎯 타겟 컬러', '웜톤 옐로우 솔리드 및 따뜻한 샴페인 골드, 웜톤 베이지 튜닝.'],
       ['⚗️ 배합 비율', '색상의 온도를 높이거나 깊은 황금빛을 낼 때 베이스로 다량 혼합됩니다.'],
-      ['⚠️ 조색 주의', '은폐력이 약하므로 하도 세팅을 꼼꼼하게 해야 제 색상이 나옵니다.']
+      ['⚠️ 조색 한계점', '은폐력이 약하므로 하도 세팅을 꼼꼼하게 해야 제 색상이 나옵니다.']
     ] 
   },
   'WT 326': { 
@@ -484,7 +484,7 @@ export const TONER_DB: Record<string, TonerData> = {
       ['👀 외관 변화', '전체적인 톤을 어둡고 빈티지한 황토빛으로 무겁게 덮어버립니다.'],
       ['🎯 타겟 컬러', '구형 베이지 솔리드 및 묵직한 탁색 브라운/골드 메탈릭 하도.'],
       ['⚗️ 배합 비율', '은폐력을 극대화하거나 톤을 칙칙하게 누를 때 기본으로 쓰입니다.'],
-      ['⚠️ 조색 주의', '착색력과 은폐력이 강력하여 맑은 메탈릭에 한 방울만 들어가도 칠 전체가 흙탕물처럼 탁해집니다.']
+      ['⚠️ 조색 주의', '착색력과 은폐력이 강력하여 맑은 메탈릭에 한 방울만 들어가도 칠 전체가 구정물처럼 탁해집니다.']
     ] 
   },
   'WT 329': { 
@@ -534,8 +534,6 @@ export const TONER_DB: Record<string, TonerData> = {
       ['⚠️ 조색 한계점', '은폐력이 낮아 하도가 어두우면 특유의 맑은 색상이 나타나지 않습니다.']
     ] 
   },
-
-  // === 저농 (Translucent) 안료 시리즈 (미세 보정용 완벽 FULL 버전) ===
   'WT 349': { 
     role: '트랜스루센트 그린', type: 'solid', face: '#86efac', flop: '#14532d', 
     desc: '원색의 짙은 착색력을 1/10 수준으로 희석한 녹색 저농 조색제입니다.', 
@@ -576,7 +574,7 @@ export const TONER_DB: Record<string, TonerData> = {
     desc: '원색의 짙은 착색력을 1/10 수준으로 희석한 백색 저농 조색제입니다.', 
     details: [
       ['🎨 광학적 특성', '하도를 완벽히 덮는 321(고농 화이트)과 달리, 하도의 질감을 살리면서 반투명한 우윳빛 산란광만 미세하게 더합니다.'],
-      ['📌 일반 특성', '저농 백색 조색제로 321의 저농 버전입니다. 파스텔 톤을 만들 때 색이 완전히 덮이지 않도록 미세 조절할 때 사용합니다.'],
+      ['📌 일반 특성', '저농 백색 조색제로 321의 저농 버전입니다. 파스텔 톤을 만들 때 색이 완전히 덮이지 않도록 미세 조절할 때 사용됩니다.'],
       ['👀 외관 변화', '도막 전체에 부드러운 안개가 낀 듯한 몽환적이고 뽀얀 파스텔 질감을 냅니다.'],
       ['🎯 타겟 컬러', '고급스러운 투명 파스텔톤 컬러 및 화사한 미드코트 펄 보정.'],
       ['⚗️ 배합 비율', '탁색을 방지하면서 밝기를 미세하게 올리고 싶을 때 소량 사용됩니다.']
@@ -643,10 +641,22 @@ export const TONER_DB: Record<string, TonerData> = {
     desc: '특정 OEM 차량의 묘한 금속광 밸런스를 맞추기 위해 컷팅된 특수 입자입니다.', 
     details: [
       ['🎨 광학적 특성', '일반 코발트형과 렌티큘러형의 중간 형태를 띠며, 특정 각도에서 예상치 못한 묘한 난반사를 일으킵니다.'],
-      ['📌 일반 특성', '이펙트 컬러 전용으로 사용되는 특수 실버 안료'],
+      ['📌 일반 특성', '이펙트 컬러 전용으로 사용되는 특수 실버 안료 (WT 400으로 대체 진행 중)'],
       ['👀 외관 변화', '바라보는 각도에 따라 입자감이 거칠어졌다가 고와지는 독특한 변환을 보여줍니다.'],
       ['🎯 타겟 컬러', '스탠다드 은분만으로는 각이 맞지 않는 까다로운 수입차 특수 실버 메탈릭.'],
       ['⚗️ 배합 비율', '메인 실버를 보완하기 위해 소량 정밀하게 투입됩니다.']
+    ] 
+  },
+  'WT 400': { 
+    role: '스페셜 실버 (WT 358 완벽 대체 규격)', type: 'silver_fine', face: '#cbd5e1', flop: '#475569', 
+    desc: 'WT 358을 대체하는 최신 스펙의 특수 은분으로, 개선된 묘한 금속광 밸런스를 맞춥니다.', 
+    details: [
+      ['🎨 광학적 특성', '기존 358 안료의 불안정한 입자 컷팅을 개선하여, 더욱 균일하고 안정적인 특수 난반사를 일으킵니다.'],
+      ['📌 일반 특성', 'WT 358 단종 및 대체용으로 투입된 최신 규격 특수 실버 안료'],
+      ['👀 외관 변화', '358과 동일하게 보는 각도에 따라 입자감이 달라지는 변환을 주면서도 표면 뭉침 현상이 현저히 줄었습니다.'],
+      ['🎯 타겟 컬러', '최신 수입 차량의 까다로운 특수 실버 메탈릭 코트 보정용.'],
+      ['⚠️ 조색 필수 확인', '기존 조색 데이터에 358이 적혀있더라도, 현재 보유한 조색기 세팅에 따라 400번으로 1:1 대용량 치환하여 사용해야 합니다.'],
+      ['💡 비교 분석', '[비교] WT 358 vs WT 400\n광학적 성질과 타겟은 사실상 동일하지만, 400번이 더 최신화된 결합 구조를 가져 칠 퍼짐성과 안정성이 뛰어납니다.']
     ] 
   },
   'WT 359': { 
@@ -3756,9 +3766,9 @@ export const getCachedTexture = (type: string, faceColor: string, flopColor: str
 
 export const getBadgeClass = (title: string) => {
     if(title.includes("특성") || title.includes("분말") || title.includes("캔디") || title.includes("배합")) return "bg-teal-50 text-teal-700 border-teal-300 shadow-sm";
-    if(title.includes("용도") || title.includes("컬러")) return "bg-indigo-50 text-indigo-700 border-indigo-300 shadow-sm";
+    if(title.includes("용도") || title.includes("컬러") || title.includes("확인")) return "bg-indigo-50 text-indigo-700 border-indigo-300 shadow-sm";
     if(title.includes("외관")) return "bg-blue-50 text-blue-700 border-blue-300 shadow-sm";
-    if(title.includes("비교")) return "bg-yellow-100 text-yellow-800 border-yellow-400 shadow-md font-black";
+    if(title.includes("비교") || title.includes("유동성")) return "bg-yellow-100 text-yellow-800 border-yellow-400 shadow-md font-black";
     if(title.includes("경고") || title.includes("주의") || title.includes("한계") || title.includes("철칙")) return "bg-red-50 text-red-700 border-red-300 shadow-sm font-black";
     return "bg-slate-50 text-slate-700 border-slate-300 shadow-sm";
 };
@@ -3851,6 +3861,9 @@ export default function App() {
   const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
   
+  // 💡 메모 모달창을 띄우기 위한 새로운 State
+  const [memoModal, setMemoModal] = useState<{isOpen: boolean, id: string, code: string, isPearl: boolean, text: string, history: string[]}>({isOpen: false, id: '', code: '', isPearl: false, text: '', history: []});
+
   const [activeTab, setActiveTab] = useState<'WT'|'PP'|'CANDY'>('WT');
   
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -4137,9 +4150,12 @@ export default function App() {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center w-full">
                       <div className="flex flex-col flex-1 w-full overflow-hidden">
                           <div className="flex items-center gap-2 mb-1 w-full">
-                              <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
+                              {/* 💡 안료 이미지 클릭 시 메모장 팝업 오픈 */}
+                              <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative" 
+                                   onClick={() => setMemoModal({isOpen: true, id: toner.id, code: toner.code, isPearl: false, text: toner.memo || '', history: toner.history || []})}>
                                    <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
                                    <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
+                                   {toner.memo && <div className="absolute -top-1 -right-1 bg-yellow-400 w-3 h-3 rounded-full border border-white shadow-sm"></div>}
                               </div>
                               <input 
                                   ref={el => { codeRefs.current[toner.id] = el; }} 
@@ -4228,9 +4244,12 @@ export default function App() {
                       <div className="flex flex-col sm:flex-row items-start sm:items-center w-full">
                         <div className="flex flex-col flex-1 w-full overflow-hidden pl-2">
                             <div className="flex items-center gap-2 mb-1 w-full">
-                                <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer" onClick={() => { if(TONER_DB[toner.code]) setSelectedTonerForView(toner.code); }}>
+                                {/* 💡 안료 이미지 클릭 시 메모장 팝업 오픈 */}
+                                <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative" 
+                                     onClick={() => setMemoModal({isOpen: true, id: toner.id, code: toner.code, isPearl: true, text: toner.memo || '', history: toner.history || []})}>
                                      <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
                                      <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
+                                     {toner.memo && <div className="absolute -top-1 -right-1 bg-yellow-400 w-3 h-3 rounded-full border border-white shadow-sm"></div>}
                                 </div>
                                 <input 
                                     ref={el => { codeRefs.current[toner.id] = el; }} 
@@ -4427,6 +4446,49 @@ export default function App() {
             </div>
           </div>
       </div>
+
+      {/* 💡 안료 클릭 시 열리는 메모 작성 팝업 */}
+      {memoModal.isOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[2000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-indigo-600 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><Edit3 size={18} /> {memoModal.code || '선택된 안료'} 메모 및 히스토리</h3>
+              <button onClick={() => setMemoModal({...memoModal, isOpen: false})} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-5 flex flex-col gap-4 bg-slate-50">
+              <div>
+                <label className="text-xs font-black text-indigo-800 mb-1.5 flex items-center gap-1"><Edit3 size={14}/> 조색 커스텀 메모</label>
+                <textarea 
+                    value={memoModal.text} 
+                    onChange={e => setMemoModal({...memoModal, text: e.target.value})} 
+                    placeholder="이 안료에 대한 특별한 조색 팁이나 주의사항을 자유롭게 적어두세요." 
+                    className="w-full border border-slate-300 p-3 rounded-lg text-sm text-slate-800 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-inner font-medium" 
+                />
+              </div>
+              {memoModal.history.length > 0 && (
+                <div>
+                  <label className="text-xs font-black text-slate-500 mb-1.5 flex items-center gap-1"><History size={14}/> 용량(g) 변경 히스토리 기록</label>
+                  <div className="flex flex-wrap gap-1.5 bg-white p-3 rounded-lg border border-slate-200 shadow-sm max-h-32 overflow-y-auto">
+                    {memoModal.history.map((h, i) => (
+                      <span key={i} className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded border border-slate-200">{h}g</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <button 
+                  onClick={() => {
+                      if(memoModal.isPearl) setPearlToners(prev => prev.map(t => t.id === memoModal.id ? {...t, memo: memoModal.text} : t));
+                      else setToners(prev => prev.map(t => t.id === memoModal.id ? {...t, memo: memoModal.text} : t));
+                      setMemoModal({...memoModal, isOpen: false});
+                  }} 
+                  className="w-full bg-indigo-600 text-white py-3 rounded-xl font-black shadow-md hover:bg-indigo-700 transition-colors flex justify-center items-center gap-2"
+              >
+                <Save size={18}/> 메모 저장하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isExcelModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
