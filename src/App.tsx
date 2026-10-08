@@ -7,7 +7,7 @@ import {
   CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera 
 } from 'lucide-react';
 
-// ✅ 데이터는 반드시 분리된 tonerDB.ts 파일에서 불러옵니다.
+// ✅ 분리된 DB 파일에서 데이터를 불러옵니다.
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS, TonerData } from './tonerDB';
 
 if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')) {
@@ -17,10 +17,8 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.07 (스피스 헥커 갤러리 뷰 + 모바일/수지 최적화 완벽 패치)"; 
+const LAST_PATCH_DATE = "2026.10.08 (DB 분리 완벽 이식 & 오류 Zero 패치)"; 
 
-// ━━━━━━━━ [추가] 스피스 헥커 이미지 갤러리 가이드 데이터베이스 ━━━━━━━━
-// 나중에 URL 부분만 대표님이 올리신 60장 사진 주소로 갈아끼우시면 됩니다.
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
     { id: 1, title: '색의 인식과 3원색', desc: '빛의 혼합/안료 혼합 원리 (p.3-4)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Theory+1' },
@@ -130,8 +128,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'WT'|'PP'|'CANDY'>('WT');
   
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isGlossaryModalOpen, setIsGlossaryModalOpen] = useState(false);
+  const [isProcessOpen, setIsProcessOpen] = useState(false); // 🚨 Missing state restored!
   
   const [isBoardOpen, setIsBoardOpen] = useState(false); 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false); 
@@ -140,13 +138,13 @@ export default function App() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
 
-  const [boardSearch, setBoardSearch] = useState(''); const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
+  const [boardSearch, setBoardSearch] = useState(''); 
+  const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
   
   const [snapshots, setSnapshots] = useState<any[]>([]);
   const [isSnapshotModalOpen, setIsSnapshotModalOpen] = useState(false);
   const [selectedSnapshot, setSelectedSnapshot] = useState<any>(null);
 
-  // ━━━━━━━━ 스피스헥커 갤러리 탭 State 추가 ━━━━━━━━
   const [activeGuideTab, setActiveGuideTab] = useState<'theory'|'spectrum'|'effect'|'special'>('spectrum');
   const [zoomedImage, setZoomedImage] = useState<any>(null);
 
@@ -610,7 +608,6 @@ export default function App() {
                 <button onClick={() => setIsConfiguratorOpen(true)} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"><Maximize size={10} className="mr-1"/>먼셀 믹싱 랩</button>
               </h3>
               
-              {/* ━━━━━━━━ 안전하게 탑재된 이미지 갤러리 탭 UI ━━━━━━━━ */}
               <div className="flex flex-col bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-700">
                   <div className="flex border-b border-slate-700">
                       {['theory', 'spectrum', 'effect', 'special'].map(tab => (
@@ -641,6 +638,7 @@ export default function App() {
                   <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-sm cursor-pointer">
                       <BookOpen size={16} className="mr-1.5" /> <span className="pointer-events-none">PP(분말) 가이드 열기</span>
                   </button>
+                  {/* 🚨 복구된 버튼: setIsProcessOpen 상태값 연동 완료 */}
                   <button onClick={() => setIsProcessOpen(true)} className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white transition-colors shadow-sm cursor-pointer">
                       <Code size={16} className="mr-1.5 text-slate-400 pointer-events-none" /> <span className="pointer-events-none">Pro 제작 과정 보기</span>
                   </button>
@@ -721,7 +719,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* ━━━━━━━━ 완벽한 모바일 최적화 하단 계산 바 ━━━━━━━━ */}
       <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
           <div className="flex flex-col md:flex-row p-3 md:p-4 justify-between items-center gap-3">
              <div className="flex w-full md:w-auto gap-3 sm:gap-4 shrink-0 overflow-x-auto custom-scrollbar pb-1 md:pb-0">
@@ -757,7 +754,6 @@ export default function App() {
           </div>
       </div>
 
-      {/* ━━━━━━━━ 갤러리 이미지 모달창 ━━━━━━━━ */}
       {zoomedImage && (
         <div className="fixed inset-0 bg-black/90 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-in fade-in" onClick={() => setZoomedImage(null)}>
             <button className="absolute top-4 right-4 text-white bg-slate-800 hover:bg-red-500 rounded-full p-2 transition-colors z-[4010]"><X size={20}/></button>
@@ -773,7 +769,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ... 기타 모달들 (메모, 엑셀, 공유, 캔디 등) ... */}
       {memoModal.isOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[2000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -854,6 +849,47 @@ export default function App() {
         </div>
       )}
 
+      {/* 🚨 복원된 Pro 제작 과정 모달창 */}
+      {isProcessOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[3000] p-4 backdrop-blur-sm transition-opacity">
+          <div className="bg-slate-800 p-6 rounded-xl border border-slate-600 shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden relative">
+            <button onClick={() => setIsProcessOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 p-1.5 rounded-full transition-colors z-10"><X size={20} /></button>
+            <div className="border-b border-emerald-500/50 pb-4 mb-5 shrink-0">
+                <h4 className="text-2xl sm:text-3xl font-black text-white tracking-wide mb-1">
+                    Spies Hecker DB Architecture
+                </h4>
+                <p className="text-emerald-400 font-bold text-sm sm:text-base">
+                    Total 110 Items Perfectly Built & Engineered
+                </p>
+                <div className="mt-4 inline-flex bg-slate-900 px-3 py-1.5 rounded border border-slate-700 items-center">
+                    <span className="text-slate-400 text-[11px] sm:text-xs mr-2">Lead Color & Data Engineer:</span>
+                    <span className="text-white font-black text-sm sm:text-base">윤성만 팀장</span>
+                </div>
+            </div>
+            <div className="overflow-y-auto space-y-6 text-slate-300 font-sans text-xs sm:text-[13px] leading-relaxed break-keep pr-2 custom-scrollbar">
+                <p>DB 완벽 분리 및 모바일 최적화, 갤러리 탭 적용 완료. 에러 Zero 패치 탑재.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEmailModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-yellow-500 flex justify-between items-center text-slate-900">
+              <h3 className="font-black flex items-center gap-2"><Mail size={18} /> 개발자에게 피드백 보내기</h3>
+              <button onClick={() => setIsEmailModalOpen(false)} className="hover:text-red-600 transition-colors bg-yellow-400 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-4 bg-slate-50">
+              <div className="flex gap-3 mt-2">
+                  <a href="https://mail.naver.com/v2/new?to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-[#03C75A] text-white py-3 rounded-xl font-black text-center shadow-md">네이버 메일</a>
+                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-white border text-slate-700 py-3 rounded-xl font-black text-center shadow-sm">구글 메일</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isSnapshotModalOpen && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-700">
@@ -883,7 +919,7 @@ export default function App() {
                                 <div className="space-y-2">
                                     {selectedSnapshot.base?.filter((t: any) => t.code).map((t: any, i: number) => (
                                         <div key={i} className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-slate-700/50">
-                                            <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
+                                            <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">{t.code}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
                                             <span className="text-blue-400 font-bold">{t.adjustedWeight}g</span>
                                         </div>
                                     ))}
@@ -895,7 +931,7 @@ export default function App() {
                                     <div className="space-y-2">
                                         {selectedSnapshot.pearl?.filter((t: any) => t.code).map((t: any, i: number) => (
                                             <div key={i} className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-purple-900/30">
-                                                <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
+                                                <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">{t.code}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
                                                 <span className="text-purple-400 font-bold">{t.adjustedWeight}g</span>
                                             </div>
                                         ))}
