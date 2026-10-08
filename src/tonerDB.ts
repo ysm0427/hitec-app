@@ -1119,7 +1119,8 @@ export const OEM_COLORS: { code: string; name: string }[] = [{ code: `AZ`, name:
 { code: `5867`, name: `MEDIUM MULBERRY` },
 { code: `M4213H`, name: `MEDIUM MOCHA (7)(M)` },
 { code: `M6570`, name: `MEDIUM MOCHA (2)` },
-{ code: `M6643C`, name:
+{ code: 'M6643C', name: 'MEDIUM MOCHA (1)(M)' }
+];
   // 🚨🚨🚨 대표님! 여기에 대표님의 기존 파일에 있던 2,600줄짜리 엑셀 데이터를 그대로 붙여넣어 주세요! 🚨🚨🚨
   
 ];
