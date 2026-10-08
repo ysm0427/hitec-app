@@ -7,7 +7,6 @@ import {
   CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle
 } from 'lucide-react';
 
-// ✅ 분리된 DB 파일에서 데이터를 불러옵니다.
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS, TonerData } from './tonerDB';
 
 if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')) {
@@ -17,30 +16,31 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.08 (DB 분리 완벽 이식 & 오류 Zero 패치)"; 
+const LAST_PATCH_DATE = "2026.10.08 (화이트톤 갤러리 UI 및 화사한 컬러 패치)"; 
 
+// ━━━━━━━━ [수정됨] 임시 이미지들을 어두운 톤에서 화사한 파스텔 톤으로 변경 ━━━━━━━━
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
-    { id: 1, title: '색의 인식과 3원색', desc: '빛의 혼합/안료 혼합 원리 (p.3-4)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Theory+1' },
-    { id: 2, title: '단색안료 특성', desc: '유기안료와 무기안료의 차이점 (p.6-7)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Theory+2' },
-    { id: 3, title: '빛과 안료 상호작용', desc: '솔리드/알루미늄/간섭펄 반사 원리 (p.8)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Theory+3' },
+    { id: 1, title: '색의 인식과 3원색', desc: '빛의 혼합/안료 혼합 원리 (p.3-4)', url: 'https://via.placeholder.com/800x600/eff6ff/1e3a8a?text=Theory+1' },
+    { id: 2, title: '단색안료 특성', desc: '유기안료와 무기안료의 차이점 (p.6-7)', url: 'https://via.placeholder.com/800x600/eff6ff/1e3a8a?text=Theory+2' },
+    { id: 3, title: '빛과 안료 상호작용', desc: '솔리드/알루미늄/간섭펄 반사 원리 (p.8)', url: 'https://via.placeholder.com/800x600/eff6ff/1e3a8a?text=Theory+3' },
   ],
   spectrum: [
-    { id: 4, title: '조색제 포스터의 이해', desc: '기호 읽는 법 (p.10)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Spectrum+1' },
-    { id: 5, title: '솔리드 포지셔닝 맵', desc: '솔리드 컬러 별 위치도 (p.11)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Spectrum+2' },
-    { id: 6, title: '황색/적색 계열도', desc: '명암/채도 방향성에 따른 비교 (p.24-27)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Spectrum+3' },
-    { id: 7, title: '청색/녹색/흑색 계열도', desc: '각 계열별 측면/정면 이색 비교', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Spectrum+4' },
+    { id: 4, title: '조색제 포스터의 이해', desc: '기호 읽는 법 (p.10)', url: 'https://via.placeholder.com/800x600/ecfdf5/064e3b?text=Spectrum+1' },
+    { id: 5, title: '솔리드 포지셔닝 맵', desc: '솔리드 컬러 별 위치도 (p.11)', url: 'https://via.placeholder.com/800x600/ecfdf5/064e3b?text=Spectrum+2' },
+    { id: 6, title: '황색/적색 계열도', desc: '명암/채도 방향성에 따른 비교 (p.24-27)', url: 'https://via.placeholder.com/800x600/ecfdf5/064e3b?text=Spectrum+3' },
+    { id: 7, title: '청색/녹색/흑색 계열도', desc: '각 계열별 측면/정면 이색 비교', url: 'https://via.placeholder.com/800x600/ecfdf5/064e3b?text=Spectrum+4' },
   ],
   effect: [
-    { id: 8, title: '이펙트 포지셔닝 맵', desc: '이펙트 컬러 조색제 별 위치도 (p.12)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Effect+1' },
-    { id: 9, title: '알루미늄 입자 특성', desc: '콘플레이크 vs 실버달러 형상 비교 (p.31-38)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Effect+2' },
-    { id: 10, title: '펄(Pearl) 입자 특성', desc: '천연 마이카 vs 시라릭 펄 현미경 (p.42-47)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Effect+3' },
-    { id: 11, title: 'PP펄 (파우더) 특성', desc: 'PP201~PP901 입자/현미경 비교 (p.37)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Effect+4' },
+    { id: 8, title: '이펙트 포지셔닝 맵', desc: '이펙트 컬러 조색제 별 위치도 (p.12)', url: 'https://via.placeholder.com/800x600/fdf4ff/4a044e?text=Effect+1' },
+    { id: 9, title: '알루미늄 입자 특성', desc: '콘플레이크 vs 실버달러 형상 비교 (p.31-38)', url: 'https://via.placeholder.com/800x600/fdf4ff/4a044e?text=Effect+2' },
+    { id: 10, title: '펄(Pearl) 입자 특성', desc: '천연 마이카 vs 시라릭 펄 현미경 (p.42-47)', url: 'https://via.placeholder.com/800x600/fdf4ff/4a044e?text=Effect+3' },
+    { id: 11, title: 'PP펄 (파우더) 특성', desc: 'PP201~PP901 입자/현미경 비교 (p.37)', url: 'https://via.placeholder.com/800x600/fdf4ff/4a044e?text=Effect+4' },
   ],
   special: [
-    { id: 12, title: 'WT386 특성', desc: '측면밝기조정제 명암 변화 원리 (p.16-17)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Special+1' },
-    { id: 13, title: '3코트 컬러 특성', desc: '3코트 도장 및 얼룩 발생 주의사항 (p.58-63)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Special+2' },
-    { id: 14, title: '틴티드 크리어 (Tinted Clear)', desc: '첨가제 종류 및 적용 컬러 (p.64-71)', url: 'https://via.placeholder.com/800x600/1e293b/ffffff?text=Special+3' },
+    { id: 12, title: 'WT386 특성', desc: '측면밝기조정제 명암 변화 원리 (p.16-17)', url: 'https://via.placeholder.com/800x600/fffbeb/78350f?text=Special+1' },
+    { id: 13, title: '3코트 컬러 특성', desc: '3코트 도장 및 얼룩 발생 주의사항 (p.58-63)', url: 'https://via.placeholder.com/800x600/fffbeb/78350f?text=Special+2' },
+    { id: 14, title: '틴티드 크리어 (Tinted Clear)', desc: '첨가제 종류 및 적용 컬러 (p.64-71)', url: 'https://via.placeholder.com/800x600/fffbeb/78350f?text=Special+3' },
   ]
 };
 
@@ -129,7 +129,7 @@ export default function App() {
   
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isGlossaryModalOpen, setIsGlossaryModalOpen] = useState(false);
-  const [isProcessOpen, setIsProcessOpen] = useState(false); // 🚨 Missing state restored!
+  const [isProcessOpen, setIsProcessOpen] = useState(false);
   
   const [isBoardOpen, setIsBoardOpen] = useState(false); 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false); 
@@ -471,7 +471,6 @@ export default function App() {
                 )
               })}
               
-              {/* ━━━━━━━━ 수지 고정 UI (베이스 코트) ━━━━━━━━ */}
               <div className="flex justify-between items-center bg-blue-50/80 p-3 mt-3 rounded-xl border border-blue-200 shadow-sm">
                   <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center border border-blue-300 shadow-inner">
@@ -578,7 +577,6 @@ export default function App() {
                   )
                 })}
 
-                {/* ━━━━━━━━ 수지 고정 UI (펄 코트) ━━━━━━━━ */}
                 <div className="flex justify-between items-center bg-purple-50/80 p-3 mt-3 rounded-xl border border-purple-200 shadow-sm">
                     <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-purple-200 flex items-center justify-center border border-purple-300 shadow-inner">
@@ -608,26 +606,27 @@ export default function App() {
                 <button onClick={() => setIsConfiguratorOpen(true)} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"><Maximize size={10} className="mr-1"/>먼셀 믹싱 랩</button>
               </h3>
               
-              <div className="flex flex-col bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-700">
-                  <div className="flex border-b border-slate-700">
+              {/* ━━━━━━━━ 밝고 화사하게 변경된 이미지 갤러리 탭 UI ━━━━━━━━ */}
+              <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-md border border-blue-100">
+                  <div className="flex border-b border-blue-100 bg-slate-50">
                       {['theory', 'spectrum', 'effect', 'special'].map(tab => (
-                          <button key={tab} onClick={() => setActiveGuideTab(tab as any)} className={`flex-1 py-2.5 text-[11px] font-bold transition-colors ${activeGuideTab === tab ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}>
+                          <button key={tab} onClick={() => setActiveGuideTab(tab as any)} className={`flex-1 py-3 text-[12px] font-black transition-all ${activeGuideTab === tab ? 'bg-blue-500 text-white shadow-md transform scale-[1.02] rounded-t-xl z-10' : 'text-slate-500 hover:text-blue-600 hover:bg-blue-50'}`}>
                               {tab === 'theory' ? '이론/기초' : tab === 'spectrum' ? '컬러 맵' : tab === 'effect' ? '이펙트/펄' : '특수/3코트'}
                           </button>
                       ))}
                   </div>
-                  <div className="p-3 grid grid-cols-2 gap-2 h-44 overflow-y-auto custom-scrollbar bg-slate-800">
+                  <div className="p-4 grid grid-cols-2 gap-3 h-56 overflow-y-auto custom-scrollbar bg-slate-50/50">
                       {GUIDE_IMAGES[activeGuideTab].map(img => (
-                          <div key={img.id} onClick={() => setZoomedImage(img)} className="bg-slate-700 rounded-lg overflow-hidden cursor-pointer hover:ring-2 ring-blue-500 transition-all relative group flex flex-col">
-                              <div className="aspect-video bg-slate-800 flex items-center justify-center relative overflow-hidden border-b border-slate-600">
-                                  <img src={img.url} alt={img.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
-                                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                      <Camera size={24} className="text-white drop-shadow-md"/>
+                          <div key={img.id} onClick={() => setZoomedImage(img)} className="bg-white rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-400 hover:shadow-lg transition-all shadow-sm border border-slate-200 group flex flex-col">
+                              <div className="aspect-video bg-slate-100 flex items-center justify-center relative overflow-hidden border-b border-slate-100">
+                                  <img src={img.url} alt={img.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                  <div className="absolute inset-0 bg-blue-900/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                      <Maximize size={28} className="text-white drop-shadow-lg scale-90 group-hover:scale-100 transition-transform duration-300"/>
                                   </div>
                               </div>
-                              <div className="p-2 flex-1">
-                                  <p className="text-[10px] text-white font-bold truncate leading-tight mb-0.5">{img.title}</p>
-                                  <p className="text-[9px] text-slate-400 truncate leading-tight">{img.desc}</p>
+                              <div className="p-3 flex-1 bg-white">
+                                  <p className="text-[12px] text-slate-800 font-black truncate leading-tight mb-1">{img.title}</p>
+                                  <p className="text-[10px] text-slate-500 truncate leading-tight font-medium">{img.desc}</p>
                               </div>
                           </div>
                       ))}
@@ -638,7 +637,6 @@ export default function App() {
                   <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-sm cursor-pointer">
                       <BookOpen size={16} className="mr-1.5" /> <span className="pointer-events-none">PP(분말) 가이드 열기</span>
                   </button>
-                  {/* 🚨 복구된 버튼: setIsProcessOpen 상태값 연동 완료 */}
                   <button onClick={() => setIsProcessOpen(true)} className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white transition-colors shadow-sm cursor-pointer">
                       <Code size={16} className="mr-1.5 text-slate-400 pointer-events-none" /> <span className="pointer-events-none">Pro 제작 과정 보기</span>
                   </button>
@@ -755,15 +753,15 @@ export default function App() {
       </div>
 
       {zoomedImage && (
-        <div className="fixed inset-0 bg-black/90 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-in fade-in" onClick={() => setZoomedImage(null)}>
-            <button className="absolute top-4 right-4 text-white bg-slate-800 hover:bg-red-500 rounded-full p-2 transition-colors z-[4010]"><X size={20}/></button>
+        <div className="fixed inset-0 bg-slate-900/80 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setZoomedImage(null)}>
+            <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[4010] shadow-lg"><X size={24}/></button>
             <div className="max-w-5xl w-full flex flex-col items-center relative" onClick={e => e.stopPropagation()}>
-                <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 w-full mb-4 text-center">
-                    <h3 className="text-white font-black text-xl mb-1">{zoomedImage.title}</h3>
-                    <p className="text-blue-400 text-sm font-bold">{zoomedImage.desc}</p>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 w-full mb-4 text-center shadow-xl">
+                    <h3 className="text-slate-800 font-black text-2xl mb-1.5">{zoomedImage.title}</h3>
+                    <p className="text-blue-600 text-sm font-bold">{zoomedImage.desc}</p>
                 </div>
-                <div className="relative w-full max-h-[70vh] flex justify-center">
-                    <img src={zoomedImage.url} alt={zoomedImage.title} className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-[0_0_40px_rgba(0,0,0,0.8)] border border-slate-700" />
+                <div className="relative w-full max-h-[65vh] flex justify-center bg-white p-2 rounded-2xl shadow-2xl">
+                    <img src={zoomedImage.url} alt={zoomedImage.title} className="max-w-full max-h-[60vh] object-contain rounded-xl" />
                 </div>
             </div>
         </div>
@@ -842,14 +840,13 @@ export default function App() {
             </div>
             <div className="p-6 flex flex-col gap-3 bg-slate-50">
                 <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 복사 전송</button>
-                <button onClick={handleShareSMS} className="w-full bg-blue-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS)로 앱 열기</button>
+                <button onClick={handleShareSMS} className="w-full bg-blue-50 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS)로 앱 열기</button>
                 <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><Mail size={18}/> 이메일 앱 열기</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 🚨 복원된 Pro 제작 과정 모달창 */}
       {isProcessOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[3000] p-4 backdrop-blur-sm transition-opacity">
           <div className="bg-slate-800 p-6 rounded-xl border border-slate-600 shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden relative">
@@ -867,7 +864,7 @@ export default function App() {
                 </div>
             </div>
             <div className="overflow-y-auto space-y-6 text-slate-300 font-sans text-xs sm:text-[13px] leading-relaxed break-keep pr-2 custom-scrollbar">
-                <p>DB 완벽 분리 및 모바일 최적화, 갤러리 탭 적용 완료. 에러 Zero 패치 탑재.</p>
+                <p>DB 완벽 분리 및 모바일 최적화, 화이트톤 갤러리 탭 적용 완료. 에러 Zero 패치 탑재.</p>
             </div>
           </div>
         </div>
@@ -919,7 +916,7 @@ export default function App() {
                                 <div className="space-y-2">
                                     {selectedSnapshot.base?.filter((t: any) => t.code).map((t: any, i: number) => (
                                         <div key={i} className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-slate-700/50">
-                                            <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">{t.code}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
+                                            <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
                                             <span className="text-blue-400 font-bold">{t.adjustedWeight}g</span>
                                         </div>
                                     ))}
@@ -931,7 +928,7 @@ export default function App() {
                                     <div className="space-y-2">
                                         {selectedSnapshot.pearl?.filter((t: any) => t.code).map((t: any, i: number) => (
                                             <div key={i} className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-purple-900/30">
-                                                <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">{t.code}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
+                                                <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
                                                 <span className="text-purple-400 font-bold">{t.adjustedWeight}g</span>
                                             </div>
                                         ))}
