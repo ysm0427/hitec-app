@@ -16,31 +16,31 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.08 (화이트톤 갤러리 UI 및 화사한 컬러 패치)"; 
+const LAST_PATCH_DATE = "2026.10.08 (갤러리 텍스트 UI 최적화 & 디자인 화사하게 패치)"; 
 
-// ━━━━━━━━ [수정됨] 임시 이미지들을 어두운 톤에서 화사한 파스텔 톤으로 변경 ━━━━━━━━
+// ━━━━━━━━ [수정됨] 가짜 이미지 URL 삭제 및 페이지 표시 제거 ━━━━━━━━
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
-    { id: 1, title: '색의 인식과 3원색', desc: '빛의 혼합/안료 혼합 원리 (p.3-4)', url: 'https://via.placeholder.com/800x600/eff6ff/1e3a8a?text=Theory+1' },
-    { id: 2, title: '단색안료 특성', desc: '유기안료와 무기안료의 차이점 (p.6-7)', url: 'https://via.placeholder.com/800x600/eff6ff/1e3a8a?text=Theory+2' },
-    { id: 3, title: '빛과 안료 상호작용', desc: '솔리드/알루미늄/간섭펄 반사 원리 (p.8)', url: 'https://via.placeholder.com/800x600/eff6ff/1e3a8a?text=Theory+3' },
+    { id: 1, title: '색의 인식과 3원색', desc: '빛의 혼합 / 안료 혼합 원리', url: '' },
+    { id: 2, title: '단색안료 특성', desc: '유기안료와 무기안료의 차이점', url: '' },
+    { id: 3, title: '빛과 안료 상호작용', desc: '솔리드 / 알루미늄 / 간섭펄 반사 원리', url: '' },
   ],
   spectrum: [
-    { id: 4, title: '조색제 포스터의 이해', desc: '기호 읽는 법 (p.10)', url: 'https://via.placeholder.com/800x600/ecfdf5/064e3b?text=Spectrum+1' },
-    { id: 5, title: '솔리드 포지셔닝 맵', desc: '솔리드 컬러 별 위치도 (p.11)', url: 'https://via.placeholder.com/800x600/ecfdf5/064e3b?text=Spectrum+2' },
-    { id: 6, title: '황색/적색 계열도', desc: '명암/채도 방향성에 따른 비교 (p.24-27)', url: 'https://via.placeholder.com/800x600/ecfdf5/064e3b?text=Spectrum+3' },
-    { id: 7, title: '청색/녹색/흑색 계열도', desc: '각 계열별 측면/정면 이색 비교', url: 'https://via.placeholder.com/800x600/ecfdf5/064e3b?text=Spectrum+4' },
+    { id: 4, title: '조색제 포스터의 이해', desc: '기호 읽는 법', url: '' },
+    { id: 5, title: '솔리드 포지셔닝 맵', desc: '솔리드 컬러 별 위치도', url: '' },
+    { id: 6, title: '황색/적색 계열도', desc: '명암 및 채도 방향성에 따른 비교', url: '' },
+    { id: 7, title: '청색/녹색/흑색 계열도', desc: '각 계열별 측면/정면 이색 비교', url: '' },
   ],
   effect: [
-    { id: 8, title: '이펙트 포지셔닝 맵', desc: '이펙트 컬러 조색제 별 위치도 (p.12)', url: 'https://via.placeholder.com/800x600/fdf4ff/4a044e?text=Effect+1' },
-    { id: 9, title: '알루미늄 입자 특성', desc: '콘플레이크 vs 실버달러 형상 비교 (p.31-38)', url: 'https://via.placeholder.com/800x600/fdf4ff/4a044e?text=Effect+2' },
-    { id: 10, title: '펄(Pearl) 입자 특성', desc: '천연 마이카 vs 시라릭 펄 현미경 (p.42-47)', url: 'https://via.placeholder.com/800x600/fdf4ff/4a044e?text=Effect+3' },
-    { id: 11, title: 'PP펄 (파우더) 특성', desc: 'PP201~PP901 입자/현미경 비교 (p.37)', url: 'https://via.placeholder.com/800x600/fdf4ff/4a044e?text=Effect+4' },
+    { id: 8, title: '이펙트 포지셔닝 맵', desc: '이펙트 컬러 조색제 별 위치도', url: '' },
+    { id: 9, title: '알루미늄 입자 특성', desc: '콘플레이크 vs 실버달러 형상 비교', url: '' },
+    { id: 10, title: '펄(Pearl) 입자 특성', desc: '천연 마이카 vs 시라릭 펄 현미경', url: '' },
+    { id: 11, title: 'PP펄 (파우더) 특성', desc: 'PP201~PP901 입자 및 현미경 비교', url: '' },
   ],
   special: [
-    { id: 12, title: 'WT386 특성', desc: '측면밝기조정제 명암 변화 원리 (p.16-17)', url: 'https://via.placeholder.com/800x600/fffbeb/78350f?text=Special+1' },
-    { id: 13, title: '3코트 컬러 특성', desc: '3코트 도장 및 얼룩 발생 주의사항 (p.58-63)', url: 'https://via.placeholder.com/800x600/fffbeb/78350f?text=Special+2' },
-    { id: 14, title: '틴티드 크리어 (Tinted Clear)', desc: '첨가제 종류 및 적용 컬러 (p.64-71)', url: 'https://via.placeholder.com/800x600/fffbeb/78350f?text=Special+3' },
+    { id: 12, title: 'WT386 특성', desc: '측면밝기조정제 명암 변화 원리', url: '' },
+    { id: 13, title: '3코트 컬러 특성', desc: '3코트 도장 및 얼룩 발생 주의사항', url: '' },
+    { id: 14, title: '틴티드 크리어 (Tinted Clear)', desc: '첨가제 종류 및 적용 컬러', url: '' },
   ]
 };
 
@@ -607,26 +607,25 @@ export default function App() {
               </h3>
               
               {/* ━━━━━━━━ 밝고 화사하게 변경된 이미지 갤러리 탭 UI ━━━━━━━━ */}
-              <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-md border border-blue-100">
-                  <div className="flex border-b border-blue-100 bg-slate-50">
+              <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-md border border-blue-200">
+                  <div className="flex border-b border-blue-200 bg-slate-50">
                       {['theory', 'spectrum', 'effect', 'special'].map(tab => (
-                          <button key={tab} onClick={() => setActiveGuideTab(tab as any)} className={`flex-1 py-3 text-[12px] font-black transition-all ${activeGuideTab === tab ? 'bg-blue-500 text-white shadow-md transform scale-[1.02] rounded-t-xl z-10' : 'text-slate-500 hover:text-blue-600 hover:bg-blue-50'}`}>
+                          <button key={tab} onClick={() => setActiveGuideTab(tab as any)} className={`flex-1 py-3 text-[12px] font-black transition-all ${activeGuideTab === tab ? 'bg-blue-600 text-white shadow-md transform scale-[1.02] rounded-t-xl z-10' : 'text-slate-500 hover:text-blue-700 hover:bg-blue-50'}`}>
                               {tab === 'theory' ? '이론/기초' : tab === 'spectrum' ? '컬러 맵' : tab === 'effect' ? '이펙트/펄' : '특수/3코트'}
                           </button>
                       ))}
                   </div>
-                  <div className="p-4 grid grid-cols-2 gap-3 h-56 overflow-y-auto custom-scrollbar bg-slate-50/50">
+                  <div className="p-3 grid grid-cols-2 gap-3 h-52 overflow-y-auto custom-scrollbar bg-slate-50/50">
                       {GUIDE_IMAGES[activeGuideTab].map(img => (
-                          <div key={img.id} onClick={() => setZoomedImage(img)} className="bg-white rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-400 hover:shadow-lg transition-all shadow-sm border border-slate-200 group flex flex-col">
-                              <div className="aspect-video bg-slate-100 flex items-center justify-center relative overflow-hidden border-b border-slate-100">
-                                  <img src={img.url} alt={img.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                  <div className="absolute inset-0 bg-blue-900/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                      <Maximize size={28} className="text-white drop-shadow-lg scale-90 group-hover:scale-100 transition-transform duration-300"/>
+                          <div key={img.id} onClick={() => setZoomedImage(img)} className="bg-white rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 hover:shadow-xl transition-all shadow-sm border border-slate-200 group flex flex-col justify-center items-center text-center p-4 min-h-[90px] relative">
+                              {img.url && (
+                                  <div className="absolute inset-0 z-0">
+                                      <img src={img.url} alt={img.title} className="w-full h-full object-cover opacity-10 group-hover:opacity-100 transition-opacity duration-300" />
                                   </div>
-                              </div>
-                              <div className="p-3 flex-1 bg-white">
-                                  <p className="text-[12px] text-slate-800 font-black truncate leading-tight mb-1">{img.title}</p>
-                                  <p className="text-[10px] text-slate-500 truncate leading-tight font-medium">{img.desc}</p>
+                              )}
+                              <div className="relative z-10 flex flex-col items-center justify-center w-full h-full p-1 transition-colors duration-300">
+                                  <h4 className="text-[13px] font-black text-blue-800 group-hover:text-blue-600 mb-1.5 leading-tight drop-shadow-sm">{img.title}</h4>
+                                  <p className="text-[11px] font-bold text-slate-500 group-hover:text-slate-700 break-keep leading-tight">{img.desc}</p>
                               </div>
                           </div>
                       ))}
@@ -753,16 +752,24 @@ export default function App() {
       </div>
 
       {zoomedImage && (
-        <div className="fixed inset-0 bg-slate-900/80 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setZoomedImage(null)}>
+        <div className="fixed inset-0 bg-black/90 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setZoomedImage(null)}>
             <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[4010] shadow-lg"><X size={24}/></button>
             <div className="max-w-5xl w-full flex flex-col items-center relative" onClick={e => e.stopPropagation()}>
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 w-full mb-4 text-center shadow-xl">
-                    <h3 className="text-slate-800 font-black text-2xl mb-1.5">{zoomedImage.title}</h3>
-                    <p className="text-blue-600 text-sm font-bold">{zoomedImage.desc}</p>
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 w-full mb-4 text-center shadow-2xl">
+                    <h3 className="text-slate-900 font-black text-2xl mb-2">{zoomedImage.title}</h3>
+                    <p className="text-blue-700 text-sm font-bold">{zoomedImage.desc}</p>
                 </div>
-                <div className="relative w-full max-h-[65vh] flex justify-center bg-white p-2 rounded-2xl shadow-2xl">
-                    <img src={zoomedImage.url} alt={zoomedImage.title} className="max-w-full max-h-[60vh] object-contain rounded-xl" />
-                </div>
+                {zoomedImage.url ? (
+                    <div className="relative w-full max-h-[65vh] flex justify-center bg-white p-2 rounded-2xl shadow-2xl">
+                        <img src={zoomedImage.url} alt={zoomedImage.title} className="max-w-full max-h-[60vh] object-contain rounded-xl" />
+                    </div>
+                ) : (
+                    <div className="w-full max-w-2xl h-[40vh] flex flex-col items-center justify-center bg-slate-800/80 rounded-3xl shadow-2xl border border-slate-700">
+                        <Camera size={56} className="text-slate-500 mb-4" />
+                        <p className="text-slate-300 font-black text-lg mb-1">상세 이미지가 준비 중입니다.</p>
+                        <p className="text-slate-500 text-sm font-bold">추후 원본 데이터가 업데이트될 예정입니다.</p>
+                    </div>
+                )}
             </div>
         </div>
       )}
@@ -1141,107 +1148,6 @@ export default function App() {
                   <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2">코스(Coarse) / 파인(Fine) / 마이크로(Micro)</span><br/>은분이나 펄 입자의 크기입니다. 코스(입자가 굵고 거침) &gt; 파인(입자가 작고 고움) &gt; 마이크로(먼지처럼 아주 미세함).</li>
                 </ul>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isPearlGuideOpen && (
-        <div className="fixed inset-0 bg-slate-900/95 z-[3000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
-          <div className="bg-slate-100 rounded-2xl w-[900px] max-w-full h-[90vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300 my-8 relative">
-            <div className="p-4 bg-slate-900 flex justify-between items-center text-white shrink-0 sticky top-0 z-20">
-              <h3 className="font-bold flex items-center gap-2 tracking-wide"><Target size={18} className="text-purple-400"/> PP(분말) 가이드 및 밑색 마스터 클래스</h3>
-              <button onClick={() => setIsPearlGuideOpen(false)} className="hover:text-red-300 transition-colors bg-slate-800 p-1.5 rounded-full"><X size={16} /></button>
-            </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
-                <div className="p-6 bg-purple-50 border-b border-purple-200 shrink-0">
-                    <h2 className="text-lg font-black text-purple-900 mb-4 flex items-center gap-2"><Beaker size={20} className="text-purple-600"/> 🌬️ PP (Powder Pearl) 가루 안료 특별 취급 가이드</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white p-4 rounded-xl shadow-sm border border-purple-200">
-                            <h3 className="font-black text-purple-700 text-sm mb-2">PP 304 (분말 다이아몬드)</h3>
-                            <p className="text-xs text-slate-600 mb-2 font-bold">수지가 완전히 배제된 100% 건식 분말 글라스 스파클.</p>
-                            <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-2 rounded">눈부신 다이아몬드 순수 난반사를 발현합니다. 수지가 없으므로 원액에 다이렉트 투입 시 100% 뭉치고 덩어리지는 얼룩(Clumping) 하자가 발생합니다.</p>
-                        </div>
-                        <div className="bg-white p-4 rounded-xl shadow-sm border border-purple-200">
-                            <h3 className="font-black text-purple-700 text-sm mb-2">PP 305 (분말 컬러스트림)</h3>
-                            <p className="text-xs text-slate-600 mb-2 font-bold">포르쉐/마이바흐 전용 초고해상도 카멜레온 가루 펄.</p>
-                            <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-2 rounded">탁색률 0%의 예리한 광채를 뿜어내며 바탕색을 1%도 덮지 않고 투과합니다. 입자가 매우 예민하여 파괴를 막기 위해 기계식 교반기를 절대 사용하면 안 됩니다.</p>
-                        </div>
-                        <div className="bg-red-50 p-4 rounded-xl shadow-sm border border-red-200">
-                            <h3 className="font-black text-red-700 text-sm mb-2">⚠️ PP 분말 조색 공통 철칙</h3>
-                            <ul className="text-[11px] text-red-800 space-y-2 font-bold list-disc pl-4">
-                                <li>가루 형태이므로 베이스 원액에 직접 투하 절대 금지.</li>
-                                <li>반드시 <span className="underline">WT 386(에이전트)</span> 또는 블렌드 수지에 선 계량.</li>
-                                <li>가루가 뭉치지 않도록 스틱으로 액상화(완벽히 개어서 믹스) 후 투입할 것.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="p-5 bg-white border-b border-slate-200 shrink-0 sticky top-0 z-10 shadow-sm mt-4">
-                    <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide snap-x">
-                        {PEARL_LEVELS.map(lvl => (
-                            <button key={lvl.level} onClick={() => setActivePearlLevel(lvl.level)} className={`snap-center shrink-0 px-3 py-2 rounded-lg text-[11px] font-black transition-all flex flex-col items-center gap-1 ${activePearlLevel === lvl.level ? 'bg-slate-800 text-white shadow-md transform scale-105' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border border-slate-200'}`}>
-                                <span>Lv.{lvl.level}</span><span className="opacity-80 font-bold whitespace-nowrap">{lvl.name}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="p-6 bg-slate-50 flex-1 flex flex-col gap-6">
-                    {PEARL_LEVELS.filter(lvl => lvl.level === activePearlLevel).map(lvl => (
-                        <div key={lvl.level} className="animate-in slide-in-from-right-4 duration-300 flex flex-col">
-                            <h2 className="text-2xl font-black text-slate-800 tracking-tight mb-4">{lvl.name} <span className="text-sm font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full ml-2">Lv.{lvl.level} Size: {lvl.size}</span></h2>
-                            {lvl.codes.length > 0 && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                                    {lvl.codes.map((code: string) => {
-                                        const tInfo = TONER_DB[code]; if(!tInfo) return null;
-                                        return (
-                                        <div key={code} className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3">
-                                            <div className="w-12 h-12 rounded-lg shadow-inner shrink-0" style={{background: getTonerDetailBackground(code, tInfo.role, 'face')}}></div>
-                                            <div className="flex flex-col"><span className="font-black text-slate-800 text-sm">{code}</span><span className="text-[10px] font-bold text-slate-500">{tInfo.role}</span></div>
-                                        </div>
-                                    )})}
-                                </div>
-                            )}
-                            <div className="grid grid-cols-1 gap-3">
-                                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><h4 className="text-[11px] font-black text-indigo-600 mb-1 flex items-center gap-1"><BookOpen size={14}/> 일반 특성</h4><p className="text-sm font-medium text-slate-700">{lvl.desc}</p></div>
-                                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><h4 className="text-[11px] font-black text-blue-600 mb-1 flex items-center gap-1"><Eye size={14}/> 외관 변화</h4><p className="text-sm font-medium text-slate-700 whitespace-pre-line">{lvl.faceFlop}</p></div>
-                                <div className="bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm"><h4 className="text-[11px] font-black text-red-600 mb-1 flex items-center gap-1"><AlertTriangle size={14}/> 주의점</h4><p className="text-sm font-medium text-red-800">{lvl.warning}</p></div>
-                            </div>
-                        </div>
-                    ))}
-                    
-                    <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 shadow-lg mt-8 shrink-0 flex flex-col gap-6">
-                        <h4 className="text-lg font-black text-yellow-400 flex items-center gap-2"><BookOpen size={20}/> 🧠 [6부작] 실전 이해하기 : 밑색 분석 및 광학 메커니즘</h4>
-                        <div className="space-y-4">
-                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-slate-400">
-                                <p className="text-sm font-bold text-white mb-2">1부: 무채색 (Black & White) 계열의 밑색 분석</p>
-                                <p className="text-xs text-slate-300 leading-relaxed">차가운 푸른빛을 내는 슈퍼 딥 블랙(WT 188)과 따뜻한 황갈색 흙빛을 내는 스페셜 블랙(WT 323)이 은분과 만났을 때의 실무 온도 차이 규명.</p>
-                            </div>
-                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-blue-400">
-                                <p className="text-sm font-bold text-white mb-2">2부: 블루 (Blue) & 바이올렛 (Violet) 계열의 밑색 분석</p>
-                                <p className="text-xs text-slate-300 leading-relaxed">측면(Flop)이 붉어지는 브릴리언트 블루(WT 318), 정직한 블루(WT 343), 청록색으로 빠지는 애저 블루(WT 341)의 색상 왜곡 통제.</p>
-                            </div>
-                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-red-500">
-                                <p className="text-sm font-bold text-white mb-2">3부: 레드 (Red) & 마젠타 (Magenta) 계열의 밑색 분석</p>
-                                <p className="text-xs text-slate-300 leading-relaxed">차가운 자주빛 블루이쉬 마젠타(WT 338)와 화사한 주황빛 옐로우 마젠타(WT 340)의 쿨톤/웜톤 결정 원리.</p>
-                            </div>
-                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-yellow-400">
-                                <p className="text-sm font-bold text-white mb-2">4부: 옐로우 (Yellow) & 오렌지 (Orange) 계열의 밑색 분석</p>
-                                <p className="text-xs text-slate-300 leading-relaxed">따뜻한 금빛 레디쉬 옐로우(WT 324), 차가운 그리니쉬 옐로우(WT 326), 그리고 탁색 마스터 오커(WT 328)의 맑음과 탁함 제어.</p>
-                            </div>
-                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-emerald-400">
-                                <p className="text-sm font-bold text-white mb-2">5부: 그린 (Green) & 투명 (Translucent) 계열의 밑색 분석</p>
-                                <p className="text-xs text-slate-300 leading-relaxed">빛을 100% 투과시키는 투명 그린(WT 347)과 반투명 그린(WT 349)의 필터 효과 및 캔디 도장 깊이감 비교.</p>
-                            </div>
-                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-purple-400">
-                                <p className="text-sm font-bold text-white mb-2">6부: 메탈릭과 펄 질감 변화 메커니즘</p>
-                                <p className="text-xs text-slate-300 leading-relaxed">입자 간 물리적 간섭 및 얼룩(Mottling) 통제, 무거운 입자를 눕혀주는 이펙트 수지(WT 386, WT 390)의 배향 제어 원리 총망라.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
           </div>
         </div>
