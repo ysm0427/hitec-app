@@ -16,31 +16,78 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.08 (갤러리 텍스트 UI 최적화 & 디자인 화사하게 패치)"; 
+const LAST_PATCH_DATE = "2026.10.12 (총 61장 마스터 갤러리 풀세팅 완료!)"; 
 
-// ━━━━━━━━ [수정됨] 텅 비어있던 url에 파일 주소 1번부터 14번까지 꽉 채움 ━━━━━━━━
+// ━━━━━━━━ [최종 완성본] 61장 전체 이미지 경로 1:1 매칭 완료 ━━━━━━━━
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
     { id: 1, title: '색의 인식과 3원색', desc: '빛의 혼합 / 안료 혼합 원리', url: '/image1.jpg' },
     { id: 2, title: '단색안료 특성', desc: '유기안료와 무기안료의 차이점', url: '/image2.jpg' },
     { id: 3, title: '빛과 안료 상호작용', desc: '솔리드 / 알루미늄 / 간섭펄 반사 원리', url: '/image3.jpg' },
+    { id: 15, title: '추가 이론 자료 1', desc: '상세 가이드 페이지 (15)', url: '/image15.jpg' },
+    { id: 16, title: '추가 이론 자료 2', desc: '상세 가이드 페이지 (16)', url: '/image16.jpg' },
+    { id: 17, title: '추가 이론 자료 3', desc: '상세 가이드 페이지 (17)', url: '/image17.jpg' },
+    { id: 18, title: '추가 이론 자료 4', desc: '상세 가이드 페이지 (18)', url: '/image18.jpg' },
+    { id: 19, title: '추가 이론 자료 5', desc: '상세 가이드 페이지 (19)', url: '/image19.jpg' },
+    { id: 20, title: '추가 이론 자료 6', desc: '상세 가이드 페이지 (20)', url: '/image20.jpg' },
+    { id: 21, title: '추가 이론 자료 7', desc: '상세 가이드 페이지 (21)', url: '/image21.jpg' },
+    { id: 22, title: '추가 이론 자료 8', desc: '상세 가이드 페이지 (22)', url: '/image22.jpg' },
+    { id: 23, title: '추가 이론 자료 9', desc: '상세 가이드 페이지 (23)', url: '/image23.jpg' },
+    { id: 24, title: '추가 이론 자료 10', desc: '상세 가이드 페이지 (24)', url: '/image24.jpg' },
+    { id: 25, title: '추가 이론 자료 11', desc: '상세 가이드 페이지 (25)', url: '/image25.jpg' },
   ],
   spectrum: [
     { id: 4, title: '조색제 포스터의 이해', desc: '기호 읽는 법', url: '/image4.jpg' },
     { id: 5, title: '솔리드 포지셔닝 맵', desc: '솔리드 컬러 별 위치도', url: '/image5.jpg' },
     { id: 6, title: '황색/적색 계열도', desc: '명암 및 채도 방향성에 따른 비교', url: '/image6.jpg' },
     { id: 7, title: '청색/녹색/흑색 계열도', desc: '각 계열별 측면/정면 이색 비교', url: '/image7.jpg' },
+    { id: 26, title: '추가 컬러 맵 자료 1', desc: '상세 가이드 페이지 (26)', url: '/image26.jpg' },
+    { id: 27, title: '추가 컬러 맵 자료 2', desc: '상세 가이드 페이지 (27)', url: '/image27.jpg' },
+    { id: 28, title: '추가 컬러 맵 자료 3', desc: '상세 가이드 페이지 (28)', url: '/image28.jpg' },
+    { id: 29, title: '추가 컬러 맵 자료 4', desc: '상세 가이드 페이지 (29)', url: '/image29.jpg' },
+    { id: 30, title: '추가 컬러 맵 자료 5', desc: '상세 가이드 페이지 (30)', url: '/image30.jpg' },
+    { id: 31, title: '추가 컬러 맵 자료 6', desc: '상세 가이드 페이지 (31)', url: '/image31.jpg' },
+    { id: 32, title: '추가 컬러 맵 자료 7', desc: '상세 가이드 페이지 (32)', url: '/image32.jpg' },
+    { id: 33, title: '추가 컬러 맵 자료 8', desc: '상세 가이드 페이지 (33)', url: '/image33.jpg' },
+    { id: 34, title: '추가 컬러 맵 자료 9', desc: '상세 가이드 페이지 (34)', url: '/image34.jpg' },
+    { id: 35, title: '추가 컬러 맵 자료 10', desc: '상세 가이드 페이지 (35)', url: '/image35.jpg' },
+    { id: 36, title: '추가 컬러 맵 자료 11', desc: '상세 가이드 페이지 (36)', url: '/image36.jpg' },
+    { id: 37, title: '추가 컬러 맵 자료 12', desc: '상세 가이드 페이지 (37)', url: '/image37.jpg' },
   ],
   effect: [
     { id: 8, title: '이펙트 포지셔닝 맵', desc: '이펙트 컬러 조색제 별 위치도', url: '/image8.jpg' },
     { id: 9, title: '알루미늄 입자 특성', desc: '콘플레이크 vs 실버달러 형상 비교', url: '/image9.jpg' },
     { id: 10, title: '펄(Pearl) 입자 특성', desc: '천연 마이카 vs 시라릭 펄 현미경', url: '/image10.jpg' },
     { id: 11, title: 'PP펄 (파우더) 특성', desc: 'PP201~PP901 입자 및 현미경 비교', url: '/image11.jpg' },
+    { id: 38, title: '추가 이펙트 자료 1', desc: '상세 가이드 페이지 (38)', url: '/image38.jpg' },
+    { id: 39, title: '추가 이펙트 자료 2', desc: '상세 가이드 페이지 (39)', url: '/image39.jpg' },
+    { id: 40, title: '추가 이펙트 자료 3', desc: '상세 가이드 페이지 (40)', url: '/image40.jpg' },
+    { id: 41, title: '추가 이펙트 자료 4', desc: '상세 가이드 페이지 (41)', url: '/image41.jpg' },
+    { id: 42, title: '추가 이펙트 자료 5', desc: '상세 가이드 페이지 (42)', url: '/image42.jpg' },
+    { id: 43, title: '추가 이펙트 자료 6', desc: '상세 가이드 페이지 (43)', url: '/image43.jpg' },
+    { id: 44, title: '추가 이펙트 자료 7', desc: '상세 가이드 페이지 (44)', url: '/image44.jpg' },
+    { id: 45, title: '추가 이펙트 자료 8', desc: '상세 가이드 페이지 (45)', url: '/image45.jpg' },
+    { id: 46, title: '추가 이펙트 자료 9', desc: '상세 가이드 페이지 (46)', url: '/image46.jpg' },
+    { id: 47, title: '추가 이펙트 자료 10', desc: '상세 가이드 페이지 (47)', url: '/image47.jpg' },
+    { id: 48, title: '추가 이펙트 자료 11', desc: '상세 가이드 페이지 (48)', url: '/image48.jpg' },
+    { id: 49, title: '추가 이펙트 자료 12', desc: '상세 가이드 페이지 (49)', url: '/image49.jpg' },
   ],
   special: [
     { id: 12, title: 'WT386 특성', desc: '측면밝기조정제 명암 변화 원리', url: '/image12.jpg' },
     { id: 13, title: '3코트 컬러 특성', desc: '3코트 도장 및 얼룩 발생 주의사항', url: '/image13.jpg' },
     { id: 14, title: '틴티드 크리어 (Tinted Clear)', desc: '첨가제 종류 및 적용 컬러', url: '/image14.jpg' },
+    { id: 50, title: '추가 특수 자료 1', desc: '상세 가이드 페이지 (50)', url: '/image50.jpg' },
+    { id: 51, title: '추가 특수 자료 2', desc: '상세 가이드 페이지 (51)', url: '/image51.jpg' },
+    { id: 52, title: '추가 특수 자료 3', desc: '상세 가이드 페이지 (52)', url: '/image52.jpg' },
+    { id: 53, title: '추가 특수 자료 4', desc: '상세 가이드 페이지 (53)', url: '/image53.jpg' },
+    { id: 54, title: '추가 특수 자료 5', desc: '상세 가이드 페이지 (54)', url: '/image54.jpg' },
+    { id: 55, title: '추가 특수 자료 6', desc: '상세 가이드 페이지 (55)', url: '/image55.jpg' },
+    { id: 56, title: '추가 특수 자료 7', desc: '상세 가이드 페이지 (56)', url: '/image56.jpg' },
+    { id: 57, title: '추가 특수 자료 8', desc: '상세 가이드 페이지 (57)', url: '/image57.jpg' },
+    { id: 58, title: '추가 특수 자료 9', desc: '상세 가이드 페이지 (58)', url: '/image58.jpg' },
+    { id: 59, title: '추가 특수 자료 10', desc: '상세 가이드 페이지 (59)', url: '/image59.jpg' },
+    { id: 60, title: '추가 특수 자료 11', desc: '상세 가이드 페이지 (60)', url: '/image60.jpg' },
+    { id: 61, title: '추가 특수 자료 12', desc: '상세 가이드 페이지 (61)', url: '/image61.jpg' },
   ]
 };
 
@@ -1148,6 +1195,107 @@ export default function App() {
                   <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2">코스(Coarse) / 파인(Fine) / 마이크로(Micro)</span><br/>은분이나 펄 입자의 크기입니다. 코스(입자가 굵고 거침) &gt; 파인(입자가 작고 고움) &gt; 마이크로(먼지처럼 아주 미세함).</li>
                 </ul>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isPearlGuideOpen && (
+        <div className="fixed inset-0 bg-slate-900/95 z-[3000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
+          <div className="bg-slate-100 rounded-2xl w-[900px] max-w-full h-[90vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300 my-8 relative">
+            <div className="p-4 bg-slate-900 flex justify-between items-center text-white shrink-0 sticky top-0 z-20">
+              <h3 className="font-bold flex items-center gap-2 tracking-wide"><Target size={18} className="text-purple-400"/> PP(분말) 가이드 및 밑색 마스터 클래스</h3>
+              <button onClick={() => setIsPearlGuideOpen(false)} className="hover:text-red-300 transition-colors bg-slate-800 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
+                <div className="p-6 bg-purple-50 border-b border-purple-200 shrink-0">
+                    <h2 className="text-lg font-black text-purple-900 mb-4 flex items-center gap-2"><Beaker size={20} className="text-purple-600"/> 🌬️ PP (Powder Pearl) 가루 안료 특별 취급 가이드</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white p-4 rounded-xl shadow-sm border border-purple-200">
+                            <h3 className="font-black text-purple-700 text-sm mb-2">PP 304 (분말 다이아몬드)</h3>
+                            <p className="text-xs text-slate-600 mb-2 font-bold">수지가 완전히 배제된 100% 건식 분말 글라스 스파클.</p>
+                            <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-2 rounded">눈부신 다이아몬드 순수 난반사를 발현합니다. 수지가 없으므로 원액에 다이렉트 투입 시 100% 뭉치고 덩어리지는 얼룩(Clumping) 하자가 발생합니다.</p>
+                        </div>
+                        <div className="bg-white p-4 rounded-xl shadow-sm border border-purple-200">
+                            <h3 className="font-black text-purple-700 text-sm mb-2">PP 305 (분말 컬러스트림)</h3>
+                            <p className="text-xs text-slate-600 mb-2 font-bold">포르쉐/마이바흐 전용 초고해상도 카멜레온 가루 펄.</p>
+                            <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-2 rounded">탁색률 0%의 예리한 광채를 뿜어내며 바탕색을 1%도 덮지 않고 투과합니다. 입자가 매우 예민하여 파괴를 막기 위해 기계식 교반기를 절대 사용하면 안 됩니다.</p>
+                        </div>
+                        <div className="bg-red-50 p-4 rounded-xl shadow-sm border border-red-200">
+                            <h3 className="font-black text-red-700 text-sm mb-2">⚠️ PP 분말 조색 공통 철칙</h3>
+                            <ul className="text-[11px] text-red-800 space-y-2 font-bold list-disc pl-4">
+                                <li>가루 형태이므로 베이스 원액에 직접 투하 절대 금지.</li>
+                                <li>반드시 <span className="underline">WT 386(에이전트)</span> 또는 블렌드 수지에 선 계량.</li>
+                                <li>가루가 뭉치지 않도록 스틱으로 액상화(완벽히 개어서 믹스) 후 투입할 것.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-5 bg-white border-b border-slate-200 shrink-0 sticky top-0 z-10 shadow-sm mt-4">
+                    <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                        {PEARL_LEVELS.map(lvl => (
+                            <button key={lvl.level} onClick={() => setActivePearlLevel(lvl.level)} className={`snap-center shrink-0 px-3 py-2 rounded-lg text-[11px] font-black transition-all flex flex-col items-center gap-1 ${activePearlLevel === lvl.level ? 'bg-slate-800 text-white shadow-md transform scale-105' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border border-slate-200'}`}>
+                                <span>Lv.{lvl.level}</span><span className="opacity-80 font-bold whitespace-nowrap">{lvl.name}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="p-6 bg-slate-50 flex-1 flex flex-col gap-6">
+                    {PEARL_LEVELS.filter(lvl => lvl.level === activePearlLevel).map(lvl => (
+                        <div key={lvl.level} className="animate-in slide-in-from-right-4 duration-300 flex flex-col">
+                            <h2 className="text-2xl font-black text-slate-800 tracking-tight mb-4">{lvl.name} <span className="text-sm font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full ml-2">Lv.{lvl.level} Size: {lvl.size}</span></h2>
+                            {lvl.codes.length > 0 && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                                    {lvl.codes.map((code: string) => {
+                                        const tInfo = TONER_DB[code]; if(!tInfo) return null;
+                                        return (
+                                        <div key={code} className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3">
+                                            <div className="w-12 h-12 rounded-lg shadow-inner shrink-0" style={{background: getTonerDetailBackground(code, tInfo.role, 'face')}}></div>
+                                            <div className="flex flex-col"><span className="font-black text-slate-800 text-sm">{code}</span><span className="text-[10px] font-bold text-slate-500">{tInfo.role}</span></div>
+                                        </div>
+                                    )})}
+                                </div>
+                            )}
+                            <div className="grid grid-cols-1 gap-3">
+                                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><h4 className="text-[11px] font-black text-indigo-600 mb-1 flex items-center gap-1"><BookOpen size={14}/> 일반 특성</h4><p className="text-sm font-medium text-slate-700">{lvl.desc}</p></div>
+                                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><h4 className="text-[11px] font-black text-blue-600 mb-1 flex items-center gap-1"><Eye size={14}/> 외관 변화</h4><p className="text-sm font-medium text-slate-700 whitespace-pre-line">{lvl.faceFlop}</p></div>
+                                <div className="bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm"><h4 className="text-[11px] font-black text-red-600 mb-1 flex items-center gap-1"><AlertTriangle size={14}/> 주의점</h4><p className="text-sm font-medium text-red-800">{lvl.warning}</p></div>
+                            </div>
+                        </div>
+                    ))}
+                    
+                    <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 shadow-lg mt-8 shrink-0 flex flex-col gap-6">
+                        <h4 className="text-lg font-black text-yellow-400 flex items-center gap-2"><BookOpen size={20}/> 🧠 [6부작] 실전 이해하기 : 밑색 분석 및 광학 메커니즘</h4>
+                        <div className="space-y-4">
+                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-slate-400">
+                                <p className="text-sm font-bold text-white mb-2">1부: 무채색 (Black & White) 계열의 밑색 분석</p>
+                                <p className="text-xs text-slate-300 leading-relaxed">차가운 푸른빛을 내는 슈퍼 딥 블랙(WT 188)과 따뜻한 황갈색 흙빛을 내는 스페셜 블랙(WT 323)이 은분과 만났을 때의 실무 온도 차이 규명.</p>
+                            </div>
+                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-blue-400">
+                                <p className="text-sm font-bold text-white mb-2">2부: 블루 (Blue) & 바이올렛 (Violet) 계열의 밑색 분석</p>
+                                <p className="text-xs text-slate-300 leading-relaxed">측면(Flop)이 붉어지는 브릴리언트 블루(WT 318), 정직한 블루(WT 343), 청록색으로 빠지는 애저 블루(WT 341)의 색상 왜곡 통제.</p>
+                            </div>
+                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-red-500">
+                                <p className="text-sm font-bold text-white mb-2">3부: 레드 (Red) & 마젠타 (Magenta) 계열의 밑색 분석</p>
+                                <p className="text-xs text-slate-300 leading-relaxed">차가운 자주빛 블루이쉬 마젠타(WT 338)와 화사한 주황빛 옐로우 마젠타(WT 340)의 쿨톤/웜톤 결정 원리.</p>
+                            </div>
+                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-yellow-400">
+                                <p className="text-sm font-bold text-white mb-2">4부: 옐로우 (Yellow) & 오렌지 (Orange) 계열의 밑색 분석</p>
+                                <p className="text-xs text-slate-300 leading-relaxed">따뜻한 금빛 레디쉬 옐로우(WT 324), 차가운 그리니쉬 옐로우(WT 326), 그리고 탁색 마스터 오커(WT 328)의 맑음과 탁함 제어.</p>
+                            </div>
+                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-emerald-400">
+                                <p className="text-sm font-bold text-white mb-2">5부: 그린 (Green) & 투명 (Translucent) 계열의 밑색 분석</p>
+                                <p className="text-xs text-slate-300 leading-relaxed">빛을 100% 투과시키는 투명 그린(WT 347)과 반투명 그린(WT 349)의 필터 효과 및 캔디 도장 깊이감 비교.</p>
+                            </div>
+                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-purple-400">
+                                <p className="text-sm font-bold text-white mb-2">6부: 메탈릭과 펄 질감 변화 메커니즘</p>
+                                <p className="text-xs text-slate-300 leading-relaxed">입자 간 물리적 간섭 및 얼룩(Mottling) 통제, 무거운 입자를 눕혀주는 이펙트 수지(WT 386, WT 390)의 배향 제어 원리 총망라.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
           </div>
         </div>
