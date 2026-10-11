@@ -18,29 +18,29 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
 
 const LAST_PATCH_DATE = "2026.10.08 (갤러리 텍스트 UI 최적화 & 디자인 화사하게 패치)"; 
 
-// ━━━━━━━━ [수정됨] 가짜 이미지 URL 삭제 및 페이지 표시 제거 ━━━━━━━━
+// ━━━━━━━━ [수정됨] 텅 비어있던 url에 파일 주소 1번부터 14번까지 꽉 채움 ━━━━━━━━
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
-    { id: 1, title: '색의 인식과 3원색', desc: '빛의 혼합 / 안료 혼합 원리', url: '' },
-    { id: 2, title: '단색안료 특성', desc: '유기안료와 무기안료의 차이점', url: '' },
-    { id: 3, title: '빛과 안료 상호작용', desc: '솔리드 / 알루미늄 / 간섭펄 반사 원리', url: '' },
+    { id: 1, title: '색의 인식과 3원색', desc: '빛의 혼합 / 안료 혼합 원리', url: '/image1.jpg' },
+    { id: 2, title: '단색안료 특성', desc: '유기안료와 무기안료의 차이점', url: '/image2.jpg' },
+    { id: 3, title: '빛과 안료 상호작용', desc: '솔리드 / 알루미늄 / 간섭펄 반사 원리', url: '/image3.jpg' },
   ],
   spectrum: [
-    { id: 4, title: '조색제 포스터의 이해', desc: '기호 읽는 법', url: '' },
-    { id: 5, title: '솔리드 포지셔닝 맵', desc: '솔리드 컬러 별 위치도', url: '' },
-    { id: 6, title: '황색/적색 계열도', desc: '명암 및 채도 방향성에 따른 비교', url: '' },
-    { id: 7, title: '청색/녹색/흑색 계열도', desc: '각 계열별 측면/정면 이색 비교', url: '' },
+    { id: 4, title: '조색제 포스터의 이해', desc: '기호 읽는 법', url: '/image4.jpg' },
+    { id: 5, title: '솔리드 포지셔닝 맵', desc: '솔리드 컬러 별 위치도', url: '/image5.jpg' },
+    { id: 6, title: '황색/적색 계열도', desc: '명암 및 채도 방향성에 따른 비교', url: '/image6.jpg' },
+    { id: 7, title: '청색/녹색/흑색 계열도', desc: '각 계열별 측면/정면 이색 비교', url: '/image7.jpg' },
   ],
   effect: [
-    { id: 8, title: '이펙트 포지셔닝 맵', desc: '이펙트 컬러 조색제 별 위치도', url: '' },
-    { id: 9, title: '알루미늄 입자 특성', desc: '콘플레이크 vs 실버달러 형상 비교', url: '' },
-    { id: 10, title: '펄(Pearl) 입자 특성', desc: '천연 마이카 vs 시라릭 펄 현미경', url: '' },
-    { id: 11, title: 'PP펄 (파우더) 특성', desc: 'PP201~PP901 입자 및 현미경 비교', url: '' },
+    { id: 8, title: '이펙트 포지셔닝 맵', desc: '이펙트 컬러 조색제 별 위치도', url: '/image8.jpg' },
+    { id: 9, title: '알루미늄 입자 특성', desc: '콘플레이크 vs 실버달러 형상 비교', url: '/image9.jpg' },
+    { id: 10, title: '펄(Pearl) 입자 특성', desc: '천연 마이카 vs 시라릭 펄 현미경', url: '/image10.jpg' },
+    { id: 11, title: 'PP펄 (파우더) 특성', desc: 'PP201~PP901 입자 및 현미경 비교', url: '/image11.jpg' },
   ],
   special: [
-    { id: 12, title: 'WT386 특성', desc: '측면밝기조정제 명암 변화 원리', url: '' },
-    { id: 13, title: '3코트 컬러 특성', desc: '3코트 도장 및 얼룩 발생 주의사항', url: '' },
-    { id: 14, title: '틴티드 크리어 (Tinted Clear)', desc: '첨가제 종류 및 적용 컬러', url: '' },
+    { id: 12, title: 'WT386 특성', desc: '측면밝기조정제 명암 변화 원리', url: '/image12.jpg' },
+    { id: 13, title: '3코트 컬러 특성', desc: '3코트 도장 및 얼룩 발생 주의사항', url: '/image13.jpg' },
+    { id: 14, title: '틴티드 크리어 (Tinted Clear)', desc: '첨가제 종류 및 적용 컬러', url: '/image14.jpg' },
   ]
 };
 
