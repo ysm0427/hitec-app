@@ -4,7 +4,7 @@ import {
   Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, 
   Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
   FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp, 
-  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle
+  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, ZoomIn, ZoomOut
 } from 'lucide-react';
 
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS, TonerData } from './tonerDB';
@@ -16,7 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.12 (WT386 2D 디지털 표 업데이트!)"; 
+const LAST_PATCH_DATE = "2026.10.12 (이미지 독립 확대/축소 줌 엔진 탑재)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -192,7 +192,11 @@ export default function App() {
   const [selectedSnapshot, setSelectedSnapshot] = useState<any>(null);
 
   const [activeGuideTab, setActiveGuideTab] = useState<'theory'|'spectrum'|'effect'|'special'>('spectrum');
+  
+  // ━━━━━━━━ [NEW] 이미지 줌 상태 관리 ━━━━━━━━
   const [zoomedImage, setZoomedImage] = useState<any>(null);
+  const [imgScale, setImgScale] = useState(1);
+  const [pinchDist, setPinchDist] = useState(0);
 
   const [isPearlGuideOpen, setIsPearlGuideOpen] = useState(false);
   const [activePearlLevel, setActivePearlLevel] = useState(6);
@@ -230,6 +234,52 @@ export default function App() {
   });
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
+
+  // ━━━━━━━━ [NEW] 모바일 핀치줌(배경화면 커짐 현상) 완벽 차단 로직 ━━━━━━━━
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="viewport"]');
+    if (zoomedImage) {
+        document.body.style.overflow = 'hidden'; // 뒤쪽 배경 스크롤 차단
+        if (meta) {
+            meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); // 배경 강제 줌 차단
+        }
+    } else {
+        document.body.style.overflow = '';
+        if (meta) {
+            meta.setAttribute('content', 'width=device-width, initial-scale=1'); // 닫으면 원상복구
+        }
+    }
+    return () => {
+        document.body.style.overflow = '';
+        if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1');
+    };
+  }, [zoomedImage]);
+
+  // ━━━━━━━━ [NEW] 이미지 전용 멀티터치 핀치줌 엔진 ━━━━━━━━
+  const handleTouchStart = (e: React.TouchEvent) => {
+      if (e.touches.length === 2) {
+          const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+          setPinchDist(dist);
+      }
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+      if (e.touches.length === 2) {
+          const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+          if (pinchDist > 0) {
+              const delta = (dist - pinchDist) / 100;
+              setImgScale(s => Math.min(Math.max(1, s + delta), 4)); // 최소 100% ~ 최대 400%
+          }
+          setPinchDist(dist);
+      }
+  };
+  const handleTouchEnd = () => { setPinchDist(0); };
+
+  // 이미지 열기 (초기 줌 1배율 세팅)
+  const openImageModal = (img: any) => {
+      setZoomedImage(img);
+      setImgScale(1);
+  };
+
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -662,7 +712,7 @@ export default function App() {
                   </div>
                   <div className="p-3 grid grid-cols-2 gap-3 h-52 overflow-y-auto custom-scrollbar bg-slate-50/50">
                       {GUIDE_IMAGES[activeGuideTab].map(img => (
-                          <div key={img.id} onClick={() => setZoomedImage(img)} className="bg-white rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 hover:shadow-xl transition-all shadow-sm border border-slate-200 group flex flex-col justify-center items-center text-center p-4 min-h-[90px] relative">
+                          <div key={img.id} onClick={() => openImageModal(img)} className="bg-white rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 hover:shadow-xl transition-all shadow-sm border border-slate-200 group flex flex-col justify-center items-center text-center p-4 min-h-[90px] relative">
                               {img.url && (
                                   <div className="absolute inset-0 z-0">
                                       <img src={img.url} alt={img.title} className="w-full h-full object-cover opacity-10 group-hover:opacity-100 transition-opacity duration-300" />
@@ -797,13 +847,13 @@ export default function App() {
       </div>
 
       {zoomedImage && (
-        <div className="fixed inset-0 bg-black/90 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setZoomedImage(null)}>
+        <div className="fixed inset-0 bg-black/95 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setZoomedImage(null)}>
             <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[4010] shadow-lg"><X size={24}/></button>
-            <div className="max-w-5xl w-full flex flex-col items-center relative" onClick={e => e.stopPropagation()}>
+            <div className="w-full h-full max-w-5xl flex flex-col items-center relative py-12" onClick={e => e.stopPropagation()}>
                 
                 {zoomedImage.id === 12 ? (
                     // 🎨 [핵심] 코딩으로 짜여진 고화질 2D 뷰어 (WT386 특성 전용)
-                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-[80vh] custom-scrollbar text-left border-4 border-slate-100">
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-100 mt-8">
                         <div className="border-b-4 border-red-600 pb-2 mb-6 flex justify-between items-end">
                             <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center flex-wrap gap-2">
                                 WT386 <span className="text-lg text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded">(측면밝기조정제)</span>의 역할
@@ -858,7 +908,6 @@ export default function App() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {/* WT386 */}
                                     <tr className="bg-white border-b border-slate-200">
                                         <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-50" rowSpan={2}>
                                             <div className="flex flex-col items-center">
@@ -874,7 +923,6 @@ export default function App() {
                                         <td className="border-r border-slate-200 font-bold text-blue-600 p-3">약하게 청색이 짙어짐</td>
                                         <td className="font-bold text-yellow-600 p-3">약하게 황색이 짙어짐</td>
                                     </tr>
-                                    {/* WT352 */}
                                     <tr className="bg-slate-50 border-b border-slate-200">
                                         <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-100" rowSpan={2}>
                                             <div className="flex flex-col items-center">
@@ -890,7 +938,6 @@ export default function App() {
                                         <td className="border-r border-slate-200 font-black text-blue-700 p-3">강하게 청색이 짙어짐</td>
                                         <td className="font-bold text-red-500 p-3">약하게 적색이 짙어짐</td>
                                     </tr>
-                                    {/* WT322 */}
                                     <tr className="bg-white border-b border-slate-200">
                                         <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-50" rowSpan={2}>
                                             <div className="flex flex-col items-center">
@@ -911,24 +958,53 @@ export default function App() {
                         </div>
                     </div>
                 ) : (
-                    // 일반 이미지 뷰어
-                    <>
-                        <div className="bg-white p-6 rounded-2xl border border-slate-200 w-full mb-4 text-center shadow-2xl shrink-0">
-                            <h3 className="text-slate-900 font-black text-2xl mb-2">{zoomedImage.title}</h3>
-                            <p className="text-blue-700 text-sm font-bold">{zoomedImage.desc}</p>
+                    // 🔍 [NEW] 모바일 줌인/아웃 완벽 지원 이미지 뷰어
+                    <div className="w-full h-full flex flex-col justify-center relative">
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 w-full mb-3 text-center shadow-2xl shrink-0 z-10">
+                            <h3 className="text-slate-900 font-black text-xl mb-1">{zoomedImage.title}</h3>
+                            <p className="text-blue-700 text-xs font-bold">{zoomedImage.desc}</p>
                         </div>
                         {zoomedImage.url ? (
-                            <div className="relative w-full max-h-[65vh] flex justify-center bg-white p-2 rounded-2xl shadow-2xl">
-                                <img src={zoomedImage.url} alt={zoomedImage.title} className="max-w-full max-h-[60vh] object-contain rounded-xl" />
+                            <div className="relative w-full h-[65vh] flex flex-col bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
+                                
+                                {/* 스크롤/줌 터치 감지 영역 */}
+                                <div 
+                                    className="w-full h-full overflow-auto custom-scrollbar flex items-center justify-center relative touch-pan-x touch-pan-y"
+                                    onTouchStart={handleTouchStart}
+                                    onTouchMove={handleTouchMove}
+                                    onTouchEnd={handleTouchEnd}
+                                >
+                                    <img 
+                                        src={zoomedImage.url} 
+                                        alt={zoomedImage.title} 
+                                        style={{ 
+                                            width: imgScale === 1 ? 'auto' : `${imgScale * 100}%`, 
+                                            maxHeight: imgScale === 1 ? '100%' : 'none',
+                                            objectFit: 'contain',
+                                            transition: pinchDist > 0 ? 'none' : 'width 0.2s ease-out' 
+                                        }}
+                                        className="origin-center"
+                                    />
+                                </div>
+                                
+                                {/* 이미지 하단 줌 컨트롤 UI */}
+                                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full px-5 py-2 flex items-center gap-6 z-50 shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-slate-600">
+                                    <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.max(1, s - 0.5)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">-</button>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-white text-sm font-black min-w-[45px] text-center tracking-wider">{Math.round(imgScale * 100)}%</span>
+                                        <button onClick={(e) => { e.stopPropagation(); setImgScale(1); }} className="text-[10px] text-blue-400 font-bold hover:text-white mt-0.5">RESET</button>
+                                    </div>
+                                    <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.min(4, s + 0.5)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">+</button>
+                                </div>
                             </div>
                         ) : (
-                            <div className="w-full max-w-2xl h-[40vh] flex flex-col items-center justify-center bg-slate-800/80 rounded-3xl shadow-2xl border border-slate-700">
+                            <div className="w-full h-[65vh] flex flex-col items-center justify-center bg-slate-800/80 rounded-3xl shadow-2xl border border-slate-700">
                                 <Camera size={56} className="text-slate-500 mb-4" />
                                 <p className="text-slate-300 font-black text-lg mb-1">상세 이미지가 준비 중입니다.</p>
                                 <p className="text-slate-500 text-sm font-bold">추후 원본 데이터가 업데이트될 예정입니다.</p>
                             </div>
                         )}
-                    </>
+                    </div>
                 )}
             </div>
         </div>
