@@ -16,7 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.12 (조색 용어 사전 - 영문 안료명 대폭 확장!)"; 
+const LAST_PATCH_DATE = "2026.10.12 (조색 용어 사전 - 안료 영문 수식어 전면 통합 업데이트!)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -1092,10 +1092,7 @@ export default function App() {
                 <ul className="space-y-4 text-sm text-slate-700">
                   <li><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">브릴리언트 / 광휘형 (Brilliant)</span><br/>일반적인 반짝임을 뛰어넘어, 눈이 부실 정도로 빛을 '쨍'하고 날카롭게 튕겨내는 엄청난 반사력을 뜻합니다. (비유: 일반 은분이 '은박지'라면, 브릴리언트는 '거울 조각'을 잘게 부숴놓은 것처럼 화려하게 반짝입니다.)</li>
                   <li><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">간섭 펄 (Interference Pearl)</span><br/>빛의 굴절을 이용해, 정면에서 볼 때와 옆에서 볼 때 색이 완전히 다르게 변신하는 카멜레온 같은 특수 펄입니다. (비유: 정면에서는 파란색으로 빛나다가, 고개를 돌려 옆에서 보면 빨간색으로 변하는 신비로운 가루입니다.)</li>
-                  
-                  {/* 🚨 착색 펄 추가됨 */}
-                  <li className="bg-blue-50/50 p-2 rounded-lg border border-blue-100"><span className="bg-blue-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">착색 펄 (Tinted / Colored Pearl)</span><br/><span className="font-bold text-blue-900">하얀 진주 가루(마이카) 표면에 산화철 같은 색상을 미리 코팅(착색)해 둔 펄</span>입니다. 단순히 빛만 하얗게 튕겨내는 것이 아니라, 가루 자체가 색깔을 품고 있어서 도장면의 색감을 훨씬 깊고 묵직하고 화려하게 만들어줍니다.</li>
-                  
+                  <li><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">착색 펄 (Tinted / Colored Pearl)</span><br/>하얀 진주 가루(마이카) 표면에 산화철 같은 색상을 미리 코팅(착색)해 둔 펄입니다. 단순히 빛만 하얗게 튕겨내는 것이 아니라, 가루 자체가 색깔을 품고 있어서 도장면의 색감을 훨씬 깊고 묵직하게 만들어줍니다.</li>
                   <li><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">정면 (15도) vs 측면 (45도/110도, 플롭)</span><br/>자동차 페인트는 빛을 받는 각도에 따라 색이 다릅니다.<br/>- 정면(15도): 차를 햇빛 아래서 똑바로 마주 보았을 때의 밝고 반짝이는 색상.<br/>- 측면(45도/110도): 시선을 비스듬히 돌리거나 그늘진 쪽에서 바라봤을 때 짙어지는 색상(섀도우).</li>
                 </ul>
               </div>
@@ -1113,26 +1110,21 @@ export default function App() {
               <div>
                 <h4 className="font-black text-rose-800 mb-3 border-b-2 border-rose-200 pb-1 text-lg">4. 안료(조색제) 영문 명칭 쉬운 해석</h4>
                 <ul className="space-y-4 text-sm text-slate-700">
-                  
-                  {/* 🚨 영문 명칭 대폭 추가됨 */}
-                  <li className="bg-rose-50/50 p-2 rounded-lg border border-rose-100"><span className="bg-rose-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">프리즈마 (Prisma)</span><br/><span className="font-bold text-rose-900">빛을 무지개색으로 나누는 다면체(Prism)에서 따온 이름</span>입니다. 일반 은분/펄과 달리 햇빛을 받으면 <b>무지갯빛 오로라 광채</b>를 뿜어내는 최고급 안료입니다. (예: 프리즈마 실버 = 무지갯빛 눈부신 은분)</li>
-                  
-                  <li className="bg-rose-50/50 p-2 rounded-lg border border-rose-100"><span className="bg-rose-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">그라나다 (Granada)</span><br/><span className="font-bold text-rose-900">스페인어로 '석류'를 뜻합니다.</span> 가벼운 빨강이 아니라, 잘 익은 석류알처럼 <b>아주 검붉고 깊이감 있는 핏빛/와인빛 붉은색</b>을 의미합니다. (예: 그라나다 레드)</li>
-                  
-                  <li className="bg-rose-50/50 p-2 rounded-lg border border-rose-100"><span className="bg-rose-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">애저 (Azure)</span><br/>맑고 화창한 가을 하늘빛이나 투명한 바다를 연상시키는 <b>청량하고 맑은 하늘색(청록빛 파랑)</b>을 의미합니다. 탁한 느낌이 전혀 없는 맑은 파랑입니다. (예: 애저 블루)</li>
-                  
-                  <li className="bg-rose-50/50 p-2 rounded-lg border border-rose-100"><span className="bg-rose-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">오커 (Ochre)</span><br/><span className="font-bold text-rose-900">황토(황토색 흙)를 의미합니다.</span> 맑은 노랑이 아니라, 무게감 있고 탁한 흙빛이 도는 옐로우나 브라운 섀도우를 만들 때 씁니다. (예: 마스터 오커)</li>
-                  
-                  <li className="bg-rose-50/50 p-2 rounded-lg border border-rose-100"><span className="bg-rose-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">트랜스페어런트 (Transparent)</span><br/><span className="font-bold text-rose-900">셀로판지처럼 맑고 '투명하다'는 뜻</span>입니다. 밑바탕을 가리는 힘(은폐력)이 제로(0)인 안료로, 캔디 컬러나 밑색을 화사하게 비춰줄 때 사용합니다. (예: 트랜스페어런트 옐로우 = 아주 맑고 투명한 노란색)</li>
-
-                  <li className="bg-rose-50/50 p-2 rounded-lg border border-rose-100"><span className="bg-rose-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">러스터 (Luster)</span><br/>은은하고 부드러운 '윤기'나 '광택'을 뜻합니다. 금속 특유의 쨍하고 차가운 번쩍임보다는 <b>비단결처럼 우아하고 부드러운 반짝임</b>을 냅니다.</li>
-
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">브라이트(Bright) / 브릴리언트(Brilliant)</span><br/>'밝은', '눈부신', '화사한'이라는 뜻입니다. 탁하지 않고 쨍하게 빛나는 맑은 원색을 의미합니다.</li>
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">그리니쉬(Greenish) / 블루이쉬(Bluish) / 레디쉬(Reddish)</span><br/>'~빛이 도는'이라는 뜻입니다. (예: 그리니쉬 블루 = 초록빛이 감도는 파랑 / 레디쉬 옐로우 = 붉은빛이 도는 노랑)</li>
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">마룬(Maroon) / 옥사이드(Oxide)</span><br/>마룬은 '밤색, 적갈색(버건디)'을 뜻하고, 옥사이드는 '산화철(녹슨 철)'을 뜻합니다. 맑기보단 묵직하고 탁한 흙빛 섀도우를 냅니다.</li>
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">마젠타(Magenta) / 시안(Cyan)</span><br/>마젠타는 '자주색(밝은 핑크/적자색)', 시안은 '청록색(하늘색/바다색)'을 의미합니다.</li>
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">트랜스루센트(Translucent)</span><br/>완전 투명(트랜스페어런트)이 아니라, 불투명 유리처럼 살짝 비치는 '반투명(저농)'을 뜻합니다.</li>
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">코스(Coarse) / 파인(Fine) / 마이크로(Micro)</span><br/>은분이나 펄 입자의 크기입니다. 코스(입자가 굵고 거침) &gt; 파인(입자가 작고 고움) &gt; 마이크로(먼지처럼 아주 미세함).</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">브라이트 (Bright) / 브릴리언트 (Brilliant)</span><br/>'밝은', '눈부신', '화사한'이라는 뜻입니다. 탁하지 않고 쨍하게 빛나는 맑은 원색을 의미합니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">딥 (Deep) / 인텐스 (Intense)</span><br/>'깊은', '강렬한'이라는 뜻입니다. 밝고 쨍하기보다는 색감이 아주 진하고 묵직하게 올라오는 특성을 가집니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">라이트 (Light) / 다크 (Dark)</span><br/>'밝은(연한)'과 '어두운'을 뜻합니다. 같은 원색 계열이라도 명도가 높거나 낮을 때 붙습니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">그리니쉬 (Greenish) / 블루이쉬 (Bluish) / 레디쉬 (Reddish)</span><br/>'~빛이 도는'이라는 뜻입니다. (예: 그리니쉬 블루 = 초록빛이 감도는 파랑 / 레디쉬 옐로우 = 붉은빛이 도는 노랑)</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">마룬 (Maroon) / 옥사이드 (Oxide)</span><br/>마룬은 '밤색, 적갈색(버건디)', 옥사이드는 '산화철(녹슨 철)'을 뜻합니다. 맑기보단 묵직하고 탁한 흙빛 섀도우를 냅니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">루비 (Ruby) / 그라나다 (Granada)</span><br/>루비는 맑은 핏빛 붉은색을, 그라나다는 스페인어 '석류'에서 따온 말로 아주 깊고 검붉은 와인빛 붉은색을 의미합니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">시안 (Cyan) / 애저 (Azure)</span><br/>시안은 잉크의 기본색인 '청록색', 애저는 맑고 화창한 가을 하늘이나 투명한 바다를 연상시키는 '청량한 하늘색(청록빛 파랑)'을 의미합니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">마젠타 (Magenta)</span><br/>자주색(밝은 핑크/적자색)을 의미합니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">오커 (Ochre) / 카퍼 (Copper) / 브론즈 (Bronze)</span><br/>오커는 '황토색', 카퍼는 '붉은 구리빛', 브론즈는 '짙은 청동빛'을 뜻하며 주로 묵직한 메탈릭/펄을 만들 때 씁니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">프리즈마 (Prisma)</span><br/>빛을 나누는 프리즘에서 유래했으며, 일반 은분과 달리 햇빛을 받으면 무지갯빛 오로라 광채를 뿜어내는 최고급 안료입니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">매직 (Magic) / 컬러스트림 (Colorstream)</span><br/>보는 각도(정면, 측면 등)에 따라 전혀 다른 색으로 여러 번 변하는 카멜레온 특성을 가진 특수 안료입니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">스파클 (Sparkle) / 러스터 (Luster)</span><br/>스파클은 굵은 유리 입자가 강하게 '번쩍번쩍' 빛나는 느낌이며, 러스터는 비단결처럼 '은은하고 우아한 윤기'를 냅니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">트랜스페어런트 (Transparent) / 오파크 (Opaque)</span><br/>트랜스페어런트는 100% 투명한 안료(캔디)를 뜻하고, 오파크는 밑바탕을 완벽히 덮어버리는 불투명(강한 은폐력)을 뜻합니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">트랜스루센트 (Translucent)</span><br/>완전 투명(트랜스페어런트)이 아니라, 불투명 유리처럼 빛만 살짝 비치는 '반투명(저농)'을 뜻합니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">코스 (Coarse) / 파인 (Fine) / 마이크로 (Micro)</span><br/>은분이나 펄 입자의 크기입니다. 코스(입자가 굵고 거침) &gt; 파인(입자가 작고 고움) &gt; 마이크로(먼지처럼 아주 미세함).</li>
                 </ul>
               </div>
             </div>
