@@ -16,9 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-// 🚨 에러를 뿜어내던 가짜 카카오 SDK 로드 코드는 완전히 삭제했습니다.
-
-const LAST_PATCH_DATE = "2026.10.14 (자동 키패드 & 네이티브 카톡/문자 공유 픽스!)"; 
+const LAST_PATCH_DATE = "2026.10.14 (애니메이션 스무스 안정화 & 공유 버튼 원상복구)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -213,7 +211,7 @@ export default function App() {
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   
-  // 🚨 [NEW] 모바일 키패드 강제 팝업을 위한 tempInput 상태 추가
+  // 🚨 [수정됨] 화면 널뛰기 현상을 막기 위해 자동 포커스 상태 관리 개선
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight', tempInput?: HTMLInputElement} | null>(null); 
   
   const [catalogSearch, setCatalogSearch] = useState('');
@@ -365,7 +363,7 @@ export default function App() {
     setIsBaseMetallic(checkMetallic(toners)); setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
-  // 🚨 [NEW] 모바일 키패드 포커스 인터벌 해소 로직 (해킹 기법)
+  // 🚨 [수정됨] 화면 널뛰기 방지를 위한 스무스 포커스 로직
   useEffect(() => {
     if (focusTarget) {
       let attempts = 0; 
@@ -373,21 +371,18 @@ export default function App() {
         const el = focusTarget.type === 'code' ? codeRefs.current[focusTarget.id] : weightRefs.current[focusTarget.id];
         if (el) { 
             el.focus(); 
-            // 키패드 유지를 위해 만들었던 임시 투명 인풋 삭제
-            if (focusTarget.tempInput) {
-                focusTarget.tempInput.remove();
-            }
-            setTimeout(() => { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 30); 
+            if (focusTarget.tempInput) focusTarget.tempInput.remove(); // 사용한 트릭 제거
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' }); // 부드럽게 화면 이동
             clearInterval(interval); 
             setFocusTarget(null); 
         }
         attempts++; 
-        if (attempts > 30) { 
+        if (attempts > 20) { 
             clearInterval(interval); 
             if (focusTarget.tempInput) focusTarget.tempInput.remove();
             setFocusTarget(null); 
         }
-      }, 20); 
+      }, 50); // 인터벌 속도를 조절하여 화면 번쩍임 방지
       return () => { clearInterval(interval); };
     }
   }, [focusTarget, toners, pearlToners]);
@@ -439,17 +434,20 @@ export default function App() {
   const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => { if (e.key === 'Enter') { e.preventDefault(); const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); } };
   const removeToner = (id: string, isPearl = false) => { if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
   
-  // 🚨 [NEW] 모바일 키패드 강제 팝업 (사용자 터치 순간 빈 인풋 생성)
+  // 🚨 [수정됨] 화면 널뛰기 완벽 차단! 투명 키패드 유도기를 화면 고정(fixed)으로 변경
   const addToner = (isPearl = false) => { 
       let tempInput: HTMLInputElement | undefined;
-      // 모바일 기기일 때만 트릭 사용
       if (typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
           tempInput = document.createElement('input');
-          tempInput.type = 'number'; // 숫자 패드 강제 유도
-          tempInput.style.position = 'absolute';
-          tempInput.style.top = '-9999px';
+          tempInput.type = 'number';
+          tempInput.style.position = 'fixed'; // 화면 위로 튕기는 버그 완벽 차단
+          tempInput.style.top = '50%';
+          tempInput.style.left = '50%';
+          tempInput.style.opacity = '0';
+          tempInput.style.width = '1px';
+          tempInput.style.height = '1px';
           document.body.appendChild(tempInput);
-          tempInput.focus(); // 터치 이벤트 사이클 안에서 동기적으로 포커스! (키보드 팝업됨)
+          tempInput.focus(); 
       }
 
       const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
@@ -457,7 +455,6 @@ export default function App() {
       if (isPearl) setPearlToners([...pearlToners, newToner]); 
       else setToners([...toners, newToner]); 
       
-      // 렌더링 후 진짜 input으로 포커스 넘겨주기
       setFocusTarget({ id: newId, type: 'code', tempInput }); 
   };
   
@@ -479,30 +476,23 @@ export default function App() {
     return `[조색 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 브랜드: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 합계: ${totalPearlWeight}g\n▶ 6052 수지: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 총량: ${totalFinalWeight}g\n\n👉 링크:\n${shareUrl}`;
   };
 
-  // 🚨 [NEW] 네이티브 공유 API 적용 (카카오톡, 문자 완벽 지원 / SDK 에러 영구 제거)
-  const handleNativeShare = async () => {
+  // 🚨 [NEW] 에러 없는 카카오톡 즉시 열기 및 버튼들 원상복구
+  const handleShareKakao = () => { 
       const shareText = generateShareText();
-      if (typeof navigator !== 'undefined' && navigator.share) {
-          try {
-              await navigator.share({
-                  title: '조색 Pro 배합 지시서',
-                  text: shareText
-              });
-          } catch (error) {
-              console.log('사용자가 공유를 취소했거나 오류 발생');
-          }
-      } else {
-          // PC 등 지원하지 않는 브라우저일 경우 클립보드 복사로 대체
-          if (typeof navigator !== 'undefined' && navigator.clipboard) { 
-              navigator.clipboard.writeText(shareText); 
-              alert("모바일 다이렉트 전송을 지원하지 않는 환경입니다. 클립보드에 텍스트가 복사되었습니다."); 
-          } else { 
-              alert("클립보드 복사 미지원 브라우저입니다."); 
-          } 
-      }
+      if (typeof navigator !== 'undefined' && navigator.clipboard) { 
+          navigator.clipboard.writeText(shareText).then(() => {
+              // 텍스트를 클립보드에 복사한 후, 스마트폰의 카카오톡 앱을 강제로 즉시 실행시킵니다.
+              window.location.href = 'kakaotalk://'; 
+          }).catch(() => {
+              alert("복사 실패. 브라우저 환경을 확인해주세요.");
+          });
+      } else { 
+          alert("클립보드 기능을 지원하지 않는 브라우저입니다."); 
+      } 
       setIsShareModalOpen(false);
   };
-
+  const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
+  const handleShareMail = () => { window.location.href = `mailto:?subject=${encodeURIComponent('[조색 Pro] 배합 지시서 공유')}&body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const generateShareUrl = () => { let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin; const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); return `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`; }
 
   const handleDirectExcelCopy = () => {
@@ -601,7 +591,6 @@ export default function App() {
                 return (
                   <div key={toner.id} className="flex flex-col bg-slate-50 hover:bg-blue-50/50 p-2.5 rounded-xl border border-slate-200 shadow-sm transition-colors">
                     
-                    {/* 🚨 가로 압축형 UI (썸네일 + 번호 + 무게 한 줄 배치) */}
                     <div className="flex items-center w-full gap-2">
                       <button 
                            type="button"
@@ -641,7 +630,6 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* 안료 풀네임 왼쪽 정렬 (잘림 방지) */}
                     <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, false)}>
                         <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep">
                             {info.role || '미등록 안료'}
@@ -673,7 +661,6 @@ export default function App() {
                 )
               })}
               
-              {/* 🚨 수지 계산기 모바일에서 숨김 처리 완료 */}
               <div className="hidden md:flex justify-between items-center bg-blue-50/80 p-3 mt-3 rounded-xl border border-blue-200 shadow-sm">
                   <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center border border-blue-300 shadow-inner">
@@ -929,7 +916,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* 🚨 하단 총량 바 완전히 영구 삭제 됨 (공간 대폭 확보) */}
+      {/* 🚨 기존 중복 총량 바 삭제 및 레이아웃 정리 */}
       <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.4)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
           <div className="flex flex-col md:flex-row p-3 justify-between items-center gap-2">
              <div className="flex w-full md:w-auto gap-2 overflow-x-auto custom-scrollbar">
@@ -1131,7 +1118,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 🚨 안료 메모 모달 */}
       {memoModal.isOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[2000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -1196,7 +1182,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 🚨 공유 모달 (네이티브 API 적용, 버튼 색상 통일) */}
+      {/* 🚨 복구 완료된 공유 전송 모달 */}
       {isShareModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -1205,11 +1191,9 @@ export default function App() {
               <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             <div className="p-6 flex flex-col gap-3 bg-slate-50">
-                <button onClick={handleNativeShare} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 스마트폰 앱으로 즉시 전송 (카톡/문자)</button>
-                <button onClick={() => {
-                    if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(generateShareText()); alert("복사되었습니다. 원하시는 곳에 붙여넣기 하세요."); } else { alert("클립보드 미지원."); }
-                    setIsShareModalOpen(false);
-                }} className="w-full bg-blue-500 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"><FileSpreadsheet size={18}/> 텍스트 내용만 복사하기</button>
+                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 복사 및 앱 열기</button>
+                <button onClick={handleShareSMS} className="w-full bg-blue-500 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS) 앱 열기</button>
+                <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><Mail size={18}/> 이메일 앱 열기</button>
             </div>
           </div>
         </div>
