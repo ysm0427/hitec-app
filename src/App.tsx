@@ -16,7 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.14 (애니메이션 스무스 안정화 & 공유 버튼 원상복구)"; 
+const LAST_PATCH_DATE = "2026.10.14 (안료 이름 복원 & 실버 톤 요약 박스 적용)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -210,10 +210,7 @@ export default function App() {
 
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  
-  // 🚨 [수정됨] 화면 널뛰기 현상을 막기 위해 자동 포커스 상태 관리 개선
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight', tempInput?: HTMLInputElement} | null>(null); 
-  
   const [catalogSearch, setCatalogSearch] = useState('');
   
   const [isBaseMetallic, setIsBaseMetallic] = useState(false); 
@@ -363,7 +360,7 @@ export default function App() {
     setIsBaseMetallic(checkMetallic(toners)); setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
-  // 🚨 [수정됨] 화면 널뛰기 방지를 위한 스무스 포커스 로직
+  // 부드러운 스무스 포커스 (화면 널뛰기 방지)
   useEffect(() => {
     if (focusTarget) {
       let attempts = 0; 
@@ -371,8 +368,8 @@ export default function App() {
         const el = focusTarget.type === 'code' ? codeRefs.current[focusTarget.id] : weightRefs.current[focusTarget.id];
         if (el) { 
             el.focus(); 
-            if (focusTarget.tempInput) focusTarget.tempInput.remove(); // 사용한 트릭 제거
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' }); // 부드럽게 화면 이동
+            if (focusTarget.tempInput) focusTarget.tempInput.remove();
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
             clearInterval(interval); 
             setFocusTarget(null); 
         }
@@ -382,7 +379,7 @@ export default function App() {
             if (focusTarget.tempInput) focusTarget.tempInput.remove();
             setFocusTarget(null); 
         }
-      }, 50); // 인터벌 속도를 조절하여 화면 번쩍임 방지
+      }, 50); 
       return () => { clearInterval(interval); };
     }
   }, [focusTarget, toners, pearlToners]);
@@ -434,13 +431,13 @@ export default function App() {
   const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => { if (e.key === 'Enter') { e.preventDefault(); const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); } };
   const removeToner = (id: string, isPearl = false) => { if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
   
-  // 🚨 [수정됨] 화면 널뛰기 완벽 차단! 투명 키패드 유도기를 화면 고정(fixed)으로 변경
+  // 🚨 [수정됨] 안료 추가 시 즉시 숫자 키패드 팝업 (고정형 투명 트리거)
   const addToner = (isPearl = false) => { 
       let tempInput: HTMLInputElement | undefined;
       if (typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
           tempInput = document.createElement('input');
           tempInput.type = 'number';
-          tempInput.style.position = 'fixed'; // 화면 위로 튕기는 버그 완벽 차단
+          tempInput.style.position = 'fixed';
           tempInput.style.top = '50%';
           tempInput.style.left = '50%';
           tempInput.style.opacity = '0';
@@ -476,12 +473,11 @@ export default function App() {
     return `[조색 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 브랜드: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 합계: ${totalPearlWeight}g\n▶ 6052 수지: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 총량: ${totalFinalWeight}g\n\n👉 링크:\n${shareUrl}`;
   };
 
-  // 🚨 [NEW] 에러 없는 카카오톡 즉시 열기 및 버튼들 원상복구
+  // 🚨 [원상복구 완료] 카카오톡 복사 전송 (클립보드 복사 + 카카오톡 앱 즉시 열기)
   const handleShareKakao = () => { 
       const shareText = generateShareText();
       if (typeof navigator !== 'undefined' && navigator.clipboard) { 
           navigator.clipboard.writeText(shareText).then(() => {
-              // 텍스트를 클립보드에 복사한 후, 스마트폰의 카카오톡 앱을 강제로 즉시 실행시킵니다.
               window.location.href = 'kakaotalk://'; 
           }).catch(() => {
               alert("복사 실패. 브라우저 환경을 확인해주세요.");
@@ -630,9 +626,10 @@ export default function App() {
                       </div>
                     </div>
 
+                    {/* 🚨 안료 이름 복원 및 왼쪽 정렬 */}
                     <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, false)}>
                         <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep">
-                            {info.role || '미등록 안료'}
+                            {toner.code ? (info.role || '등록된 안료 정보 없음') : '안료 번호를 입력하세요 (예: 321, 385...)'}
                         </span>
                         {toner.isExpanded ? <ChevronUp size={16} className="text-blue-400 shrink-0" /> : <ChevronDown size={16} className="text-blue-400 shrink-0" />}
                     </div>
@@ -661,19 +658,6 @@ export default function App() {
                 )
               })}
               
-              <div className="hidden md:flex justify-between items-center bg-blue-50/80 p-3 mt-3 rounded-xl border border-blue-200 shadow-sm">
-                  <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center border border-blue-300 shadow-inner">
-                          <Beaker size={14} className="text-blue-700"/>
-                      </div>
-                      <div className="flex flex-col">
-                          <span className="text-xs font-black text-blue-800">💧 필수 수지/환원제 (6052 등)</span>
-                          <span className="text-[10px] font-bold text-blue-600 opacity-80">입력된 베이스 안료 중량 대비 자동 계산량</span>
-                      </div>
-                  </div>
-                  <span className="text-xl font-black text-blue-700">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}<span className="text-xs ml-0.5">g</span></span>
-              </div>
-
               <div className="flex w-full gap-2 mt-3">
                   <button onClick={() => addToner(false)} className="flex-1 py-3 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center transition-all shadow-sm">
                       <Plus size={18} className="mr-1"/>베이스 안료 추가
@@ -749,7 +733,7 @@ export default function App() {
 
                       <div className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, true)}>
                           <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep">
-                              {info.role || '미등록 안료'}
+                              {toner.code ? (info.role || '등록된 펄 정보 없음') : '펄 번호를 입력하세요 (예: PP201...)'}
                           </span>
                           {toner.isExpanded ? <ChevronUp size={16} className="text-purple-400 shrink-0" /> : <ChevronDown size={16} className="text-purple-400 shrink-0" />}
                       </div>
@@ -777,19 +761,6 @@ export default function App() {
                     </div>
                   )
                 })}
-
-                <div className="hidden md:flex justify-between items-center bg-purple-50/80 p-3 mt-3 rounded-xl border border-purple-200 shadow-sm">
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-purple-200 flex items-center justify-center border border-purple-300 shadow-inner">
-                            <Zap size={14} className="text-purple-700"/>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-xs font-black text-purple-800">✨ 펄 전용 수지/환원제</span>
-                            <span className="text-[10px] font-bold text-purple-600 opacity-80">입력된 펄 안료 중량 대비 자동 계산량</span>
-                        </div>
-                    </div>
-                    <span className="text-xl font-black text-purple-700">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}<span className="text-xs ml-0.5">g</span></span>
-                </div>
 
                 <button onClick={() => addToner(true)} className="w-full py-3 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-lg text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-3 shadow-sm">
                     <Plus size={18} /><span>펄 조색제 추가</span>
@@ -916,29 +887,29 @@ export default function App() {
         </div>
       </div>
 
-      {/* 🚨 기존 중복 총량 바 삭제 및 레이아웃 정리 */}
-      <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.4)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
+      {/* 🚨 [NEW] 하단 '베이스 코트 중량' 칸을 은은한 실버 그라데이션 톤으로 변경 및 콤팩트 배치 */}
+      <div className="fixed bottom-0 left-0 w-full z-[500] bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 backdrop-blur-xl border-t border-slate-300 shadow-[0_-8px_30px_rgba(0,0,0,0.15)] text-slate-900 pb-[env(safe-area-inset-bottom)]">
           <div className="flex flex-col md:flex-row p-3 justify-between items-center gap-2">
              <div className="flex w-full md:w-auto gap-2 overflow-x-auto custom-scrollbar">
                 <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
-                   <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Layers size={11} className="mr-1 text-blue-400"/> A. 베이스 코트 중량</span>
-                   <div className="flex items-center justify-between bg-slate-800/80 px-2 py-2 rounded-xl border border-slate-700 shadow-inner text-xs">
-                       <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-white text-[13px]">{totalBaseWeight}g</span></div>
-                       <span className="text-slate-600 font-black text-xs">+</span>
-                       <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold">필수 수지</span><span className="font-black text-blue-400 text-[13px]">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
-                       <span className="text-slate-600 font-black text-xs">=</span>
-                       <div className="flex flex-col items-center bg-blue-950/60 px-2 py-0.5 rounded border border-blue-900"><span className="text-[9px] text-emerald-400 font-bold">합계</span><span className="font-black text-emerald-400 text-sm">{(parseFloat(totalBaseWeight) + parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
+                   <span className="text-[10px] text-slate-600 font-black tracking-widest flex items-center uppercase"><Layers size={11} className="mr-1 text-blue-600"/> A. 베이스 코트 중량</span>
+                   <div className="flex items-center justify-between bg-white px-2.5 py-2 rounded-xl border border-slate-300 shadow-sm text-xs">
+                       <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-slate-900 text-[13px]">{totalBaseWeight}g</span></div>
+                       <span className="text-slate-400 font-black text-xs">+</span>
+                       <div className="flex flex-col items-center"><span className="text-[9px] text-blue-600 font-bold">필수 수지</span><span className="font-black text-blue-600 text-[13px]">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                       <span className="text-slate-400 font-black text-xs">=</span>
+                       <div className="flex flex-col items-center bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200"><span className="text-[9px] text-blue-700 font-bold">합계</span><span className="font-black text-blue-700 text-sm">{(parseFloat(totalBaseWeight) + parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
                    </div>
                 </div>
                 {isThreeCoatMode && (
                 <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
-                   <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Zap size={11} className="mr-1 text-purple-400"/> B. 펄 코트 중량</span>
-                   <div className="flex items-center justify-between bg-slate-800/80 px-2 py-2 rounded-xl border border-slate-700 shadow-inner text-xs">
-                       <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 펄</span><span className="font-black text-white text-[13px]">{totalPearlWeight}g</span></div>
-                       <span className="text-slate-600 font-black text-xs">+</span>
-                       <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold">펄 수지</span><span className="font-black text-purple-400 text-[13px]">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
-                       <span className="text-slate-600 font-black text-xs">=</span>
-                       <div className="flex flex-col items-center bg-purple-950/60 px-2 py-0.5 rounded border border-purple-900"><span className="text-[9px] text-emerald-400 font-bold">합계</span><span className="font-black text-emerald-400 text-sm">{(parseFloat(totalPearlWeight) + parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
+                   <span className="text-[10px] text-slate-600 font-black tracking-widest flex items-center uppercase"><Zap size={11} className="mr-1 text-purple-600"/> B. 펄 코트 중량</span>
+                   <div className="flex items-center justify-between bg-white px-2.5 py-2 rounded-xl border border-slate-300 shadow-sm text-xs">
+                       <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 펄</span><span className="font-black text-slate-900 text-[13px]">{totalPearlWeight}g</span></div>
+                       <span className="text-slate-400 font-black text-xs">+</span>
+                       <div className="flex flex-col items-center"><span className="text-[9px] text-purple-600 font-bold">펄 수지</span><span className="font-black text-purple-600 text-[13px]">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                       <span className="text-slate-400 font-black text-xs">=</span>
+                       <div className="flex flex-col items-center bg-purple-50 px-2.5 py-0.5 rounded border border-purple-200"><span className="text-[9px] text-purple-700 font-bold">합계</span><span className="font-black text-purple-700 text-sm">{(parseFloat(totalPearlWeight) + parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
                    </div>
                 </div>
                 )}
@@ -1182,7 +1153,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 🚨 복구 완료된 공유 전송 모달 */}
+      {/* 🚨 공유 모달 (카카오톡, 문자, 이메일 모두 포함) */}
       {isShareModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
