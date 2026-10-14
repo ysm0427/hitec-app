@@ -16,7 +16,21 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.14 (모바일 키보드 최적화 & 터치 버그 완벽 해결!)"; 
+// 카카오 SDK 로드
+if (typeof window !== 'undefined' && !document.querySelector('#kakao-sdk')) {
+  const script = document.createElement('script');
+  script.id = 'kakao-sdk';
+  script.src = 'https://t1.kakaocdn.net/kakao_js_sdk/2.4.0/kakao.min.js';
+  script.onload = () => {
+      // 카카오톡 공유하기 초기화 (임시 JS키, 실제 서비스 시 발급받은 키로 교체 필요)
+      if ((window as any).Kakao && !(window as any).Kakao.isInitialized()) {
+          try { (window as any).Kakao.init('c089c8172def97eb00c07217cae12345'); } catch(e){} // 🚨 실제 발급받은 JS 키로 변경해야 정상 작동
+      }
+  };
+  document.head.appendChild(script);
+}
+
+const LAST_PATCH_DATE = "2026.10.14 (UI 초압축 개편 & 카톡 다이렉트 전송 탑재)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -418,7 +432,18 @@ export default function App() {
   };
   const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => { if (e.key === 'Enter') { e.preventDefault(); const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); } };
   const removeToner = (id: string, isPearl = false) => { if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
-  const addToner = (isPearl = false) => { const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); };
+  
+  // 🚨 [NEW] 안료 추가 시 즉시 코드 입력칸으로 오토 포커스 (숫자 자판 팝업)
+  const addToner = (isPearl = false) => { 
+      const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
+      const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; 
+      if (isPearl) setPearlToners([...pearlToners, newToner]); 
+      else setToners([...toners, newToner]); 
+      
+      // 약간의 지연을 주어 렌더링 완료 후 확실하게 포커스
+      setTimeout(() => setFocusTarget({ id: newId, type: 'code' }), 50); 
+  };
+  
   const quickEditWeight = (id: string, delta: number, isPearl: boolean) => {
     const setter = isPearl ? setPearlToners : setToners;
     setter(prev => prev.map(t => { if(t.id === id) { let newVal = Math.max(0, (parseFloat(t.adjustedWeight) || 0) + delta); let strVal = String(Number(Math.round(newVal * 100000) / 100000)); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== strVal) ? [...currentHistory, strVal] : currentHistory; return { ...t, adjustedWeight: strVal, history: nextHistory }; } return t; }));
@@ -437,7 +462,22 @@ export default function App() {
     return `[조색 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 브랜드: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 합계: ${totalPearlWeight}g\n▶ 6052 수지: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 총량: ${totalFinalWeight}g\n\n👉 링크:\n${shareUrl}`;
   };
 
-  const handleShareKakao = () => { if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(generateShareText()); alert("복사되었습니다. 카톡에 붙여넣으세요."); } else { alert("클립보드 미지원."); } setIsShareModalOpen(false); };
+  // 🚨 [NEW] 카카오톡 SDK 다이렉트 전송 (앱 자동 실행)
+  const handleShareKakao = () => { 
+      if ((window as any).Kakao && (window as any).Kakao.isInitialized()) {
+          const shareUrl = generateShareUrl();
+          (window as any).Kakao.Share.sendDefault({
+              objectType: 'text',
+              text: `[조색 Pro] ${targetColorCode || '새로운'} 컬러 배합 데이터가 도착했습니다. 아래 링크를 눌러 확인하세요!`,
+              link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
+          });
+          setIsShareModalOpen(false);
+      } else {
+          // 카카오 SDK 오류 시 기존 복사 방식으로 폴백
+          if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(generateShareText()); alert("카카오톡 다이렉트 연결 실패. 클립보드에 복사되었습니다. 카톡에 붙여넣으세요."); } else { alert("클립보드 미지원."); } 
+          setIsShareModalOpen(false);
+      }
+  };
   const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareMail = () => { window.location.href = `mailto:?subject=${encodeURIComponent('[조색 Pro] 배합 지시서 공유')}&body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const generateShareUrl = () => { let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin; const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); return `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`; }
@@ -536,80 +576,84 @@ export default function App() {
                 const info = TONER_DB[toner.code] || { role: '', type: 'solid', face: '#e2e8f0', flop: '#e2e8f0', desc: '' };
                 const isEffect = info.type !== 'solid' && info.type !== 'binder' && info.type !== 'candy';
                 return (
-                  <div key={toner.id} className="flex flex-col bg-slate-50 hover:bg-blue-50/50 p-2.5 mb-1.5 rounded-xl border border-slate-200 shadow-sm transition-colors">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center w-full">
-                      <div className="flex flex-col flex-1 w-full overflow-hidden">
-                          <div className="flex items-center gap-2 mb-1 w-full">
-                              
-                              {/* 🚨 안료 이미지 버튼 (모바일 터치 완벽 호환 및 노란 점 강조) */}
-                              <button 
-                                   type="button"
-                                   className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-blue-400" 
-                                   onClick={() => setMemoModal({isOpen: true, id: toner.id, code: toner.code, isPearl: false, text: toner.memo || '', history: toner.history || []})}
-                                   title="메모 및 히스토리 보기"
-                              >
-                                   <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
-                                   <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
-                                   {/* 노란 점 UI 확대 및 명확화 */}
-                                   {toner.memo && <div className="absolute -top-1.5 -right-1.5 bg-yellow-400 w-4 h-4 rounded-full border-2 border-white shadow-md z-20"></div>}
-                              </button>
-                              
-                              {/* 🚨 안료 번호 입력창 (숫자 키패드 즉시 호출) */}
-                              <input 
-                                  ref={el => { codeRefs.current[toner.id] = el; }} 
-                                  value={toner.code.replace('WT ', '').replace('PP ', '')} 
-                                  onChange={e => handleCodeChange(toner.id, e.target.value, false)} 
-                                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }}
-                                  type="text"
-                                  inputMode="decimal" 
-                                  pattern="[0-9]*" 
-                                  className="w-20 text-center text-sm font-black border border-slate-300 rounded p-1.5 focus:border-blue-500 focus:outline-none shadow-inner shrink-0 uppercase" 
-                                  placeholder="번호" 
-                              />
-                              
-                              <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1 px-1.5 rounded transition-colors flex-1 overflow-hidden" onClick={() => toggleExpand(toner.id, false)}>
-                                  <span className="font-bold text-blue-700 text-sm truncate">{info.role || '미등록 안료'}</span>
-                                  {toner.isExpanded ? <ChevronUp size={16} className="text-blue-400 shrink-0" /> : <ChevronDown size={16} className="text-blue-400 shrink-0" />}
-                              </div>
-                          </div>
-                          {toner.isExpanded && (
-                              <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-2 pt-2 border-t border-slate-200">
-                                  {info.details && info.details.length > 0 ? (
-                                      <div className="flex flex-col gap-1.5 w-full">
-                                          {info.details.map((d: any, idx: number) => {
-                                              const splitIndex = d[0].indexOf('('); let mainTitle = d[0]; let subTitle = '';
-                                              if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim().replace(/\s*&\s*/g, '&'); }
-                                              return (
-                                              <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2.5 mb-2">
-                                                  <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-1 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
-                                                      <span className="text-[11px] font-black leading-tight break-keep">{mainTitle}</span>
-                                                      {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
-                                                  </div>
-                                                  <span className="text-[11px] text-slate-700 leading-relaxed break-keep pt-0.5 whitespace-pre-line">{d[1]}</span>
-                                              </div>
-                                          )})}
-                                      </div>
-                                  ) : <p className="text-[11px] text-slate-500 leading-tight break-keep">{info.desc}</p>}
-                              </div>
-                          )}
-                      </div>
-                      <div className="flex items-center self-end sm:self-auto bg-white border rounded-md px-1.5 py-0.5 shrink-0 shadow-sm mt-2 sm:mt-0">
+                  <div key={toner.id} className="flex flex-col bg-slate-50 hover:bg-blue-50/50 p-2.5 rounded-xl border border-slate-200 shadow-sm transition-colors">
+                    
+                    {/* 🚨 [NEW] 가로 압축형 UI 개편 (썸네일 + 번호입력 + 무게입력 1열 배치) */}
+                    <div className="flex items-center w-full gap-2">
+                      {/* 썸네일 (메모 버튼 겸용) */}
+                      <button 
+                           type="button"
+                           className="flex w-[50px] h-[36px] rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-blue-400" 
+                           onClick={() => setMemoModal({isOpen: true, id: toner.id, code: toner.code, isPearl: false, text: toner.memo || '', history: toner.history || []})}
+                           title="메모 및 히스토리 보기"
+                      >
+                           <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
+                           <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
+                           {toner.memo && <div className="absolute -top-1.5 -right-1.5 bg-yellow-400 w-4 h-4 rounded-full border-2 border-white shadow-md z-20"></div>}
+                      </button>
+                      
+                      {/* 안료 번호 입력칸 */}
+                      <input 
+                          ref={el => { codeRefs.current[toner.id] = el; }} 
+                          value={toner.code.replace('WT ', '').replace('PP ', '')} 
+                          onChange={e => handleCodeChange(toner.id, e.target.value, false)} 
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }}
+                          type="text"
+                          inputMode="decimal" 
+                          pattern="[0-9]*" 
+                          className="w-16 h-[36px] text-center text-sm font-black border border-slate-300 rounded focus:border-blue-500 focus:outline-none shadow-inner shrink-0 uppercase" 
+                          placeholder="번호" 
+                      />
+
+                      {/* 빈 여백 (플렉스 그로우) */}
+                      <div className="flex-1"></div>
+
+                      {/* 데이터(무게) 입력기 */}
+                      <div className="flex items-center bg-white border rounded-md px-1 h-[36px] shrink-0 shadow-sm">
                          <button onClick={() => quickEditWeight(toner.id, -0.1, false)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
                          <input 
                              ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} 
                              onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} onBlur={e => handleWeightBlur(toner.id, e.target.value, false)} onKeyDown={e => handleWeightKeyDown(e, toner.id, false)} 
-                             className="w-16 text-right text-base font-black text-blue-600 focus:outline-none clean-number-input mx-1" placeholder="0.0" 
+                             className="w-14 text-right text-[15px] font-black text-blue-600 focus:outline-none clean-number-input" placeholder="0.0" 
                          />
                          <button onClick={() => quickEditWeight(toner.id, 0.1, false)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
-                         <span className="text-[10px] font-bold text-slate-400 ml-1 mr-1">g</span>
-                         <button onClick={() => removeToner(toner.id, false)} className="ml-1"><Trash2 size={18} className="text-slate-300 hover:text-red-500 transition-colors"/></button>
+                         <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
+                         <button onClick={() => removeToner(toner.id, false)} className="ml-1 px-1"><Trash2 size={16} className="text-slate-300 hover:text-red-500 transition-colors"/></button>
                       </div>
                     </div>
+
+                    {/* 🚨 [NEW] 안료 풀네임 (왼쪽 정렬, 잘림 없이 출력) */}
+                    <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, false)}>
+                        <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 pl-1">
+                            {info.role || '미등록 안료'}
+                        </span>
+                        {toner.isExpanded ? <ChevronUp size={16} className="text-blue-400 shrink-0" /> : <ChevronDown size={16} className="text-blue-400 shrink-0" />}
+                    </div>
+
+                    {toner.isExpanded && (
+                        <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-1 pt-2 border-t border-slate-200">
+                            {info.details && info.details.length > 0 ? (
+                                <div className="flex flex-col gap-1.5 w-full">
+                                    {info.details.map((d: any, idx: number) => {
+                                        const splitIndex = d[0].indexOf('('); let mainTitle = d[0]; let subTitle = '';
+                                        if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim().replace(/\s*&\s*/g, '&'); }
+                                        return (
+                                        <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2.5 mb-2">
+                                            <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-1 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
+                                                <span className="text-[11px] font-black leading-tight break-keep">{mainTitle}</span>
+                                                {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
+                                            </div>
+                                            <span className="text-[11px] text-slate-700 leading-relaxed break-keep pt-0.5 whitespace-pre-line">{d[1]}</span>
+                                        </div>
+                                    )})}
+                                </div>
+                            ) : <p className="text-[11px] text-slate-500 leading-tight break-keep pl-1">{info.desc}</p>}
+                        </div>
+                    )}
                   </div>
                 )
               })}
               
-              {/* 🚨 모바일에서는 안료 밑의 수지 계산기를 감춤 (hidden md:flex 적용) */}
               <div className="hidden md:flex justify-between items-center bg-blue-50/80 p-3 mt-3 rounded-xl border border-blue-200 shadow-sm">
                   <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center border border-blue-300 shadow-inner">
@@ -655,78 +699,80 @@ export default function App() {
                   const info = TONER_DB[toner.code] || { role: '', type: 'solid', face: '#e2e8f0', flop: '#e2e8f0', desc: '' };
                   const isEffect = info.type !== 'solid' && info.type !== 'binder' && info.type !== 'candy';
                   return (
-                    <div key={toner.id} className="flex flex-col bg-purple-50 p-2.5 mb-1.5 rounded-xl border border-purple-200 shadow-sm transition-colors hover:bg-purple-100/50">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center w-full">
-                        <div className="flex flex-col flex-1 w-full overflow-hidden pl-2">
-                            <div className="flex items-center gap-2 mb-1 w-full">
-                                
-                                {/* 🚨 안료 이미지 버튼 (펄 안료 부분 동일 적용) */}
-                                <button 
-                                     type="button"
-                                     className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-purple-400" 
-                                     onClick={() => setMemoModal({isOpen: true, id: toner.id, code: toner.code, isPearl: true, text: toner.memo || '', history: toner.history || []})}
-                                     title="메모 및 히스토리 보기"
-                                >
-                                     <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
-                                     <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
-                                     {toner.memo && <div className="absolute -top-1.5 -right-1.5 bg-yellow-400 w-4 h-4 rounded-full border-2 border-white shadow-md z-20"></div>}
-                                </button>
-                                
-                                {/* 🚨 숫자 패드 즉시 호출 */}
-                                <input 
-                                    ref={el => { codeRefs.current[toner.id] = el; }} 
-                                    value={toner.code.replace('WT ', '').replace('PP ', '')} 
-                                    onChange={e => handleCodeChange(toner.id, e.target.value, true)} 
-                                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }}
-                                    type="text" 
-                                    inputMode="decimal"
-                                    pattern="[0-9]*"
-                                    className="w-20 text-center text-sm font-black border border-purple-200 rounded px-1.5 py-1 text-purple-800 shadow-inner focus:outline-none focus:border-purple-500 shrink-0 uppercase" 
-                                    placeholder="번호" 
-                                />
-                                <div className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1 px-1.5 rounded transition-colors flex-1 overflow-hidden" onClick={() => toggleExpand(toner.id, true)}>
-                                    <span className="font-bold text-purple-700 text-sm truncate">{info.role || '미등록 안료'}</span>
-                                    {toner.isExpanded ? <ChevronUp size={16} className="text-purple-400 shrink-0" /> : <ChevronDown size={16} className="text-purple-400 shrink-0" />}
-                                </div>
-                            </div>
-                            {toner.isExpanded && (
-                                <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-2 pt-2 border-t border-purple-200">
-                                    {info.details && info.details.length > 0 ? (
-                                        <div className="flex flex-col gap-1.5 w-full">
-                                            {info.details.map((d: any, idx: number) => {
-                                                const splitIndex = d[0].indexOf('('); let mainTitle = d[0]; let subTitle = '';
-                                                if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim().replace(/\s*&\s*/g, '&'); }
-                                                return (
-                                                <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2.5 mb-2">
-                                                    <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-2 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
-                                                        <span className="text-[10.5px] font-black leading-tight">{mainTitle}</span>
-                                                        {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
-                                                    </div>
-                                                    <span className={`text-[11.5px] leading-relaxed break-keep pt-0.5 whitespace-pre-line ${getBadgeClass(d[0]).includes('yellow') ? 'text-yellow-800 font-bold' : 'text-slate-700'}`}>{d[1]}</span>
-                                                </div>
-                                            )})}
-                                        </div>
-                                    ) : <p className="text-[11px] text-slate-500 leading-tight break-keep">{info.desc}</p>}
-                                </div>
-                            )}
-                        </div>
-                        <div className="flex items-center self-end sm:self-auto bg-white border border-purple-100 rounded-md px-1.5 py-0.5 shrink-0 shadow-sm mt-2 sm:mt-0">
+                    <div key={toner.id} className="flex flex-col bg-purple-50 p-2.5 rounded-xl border border-purple-200 shadow-sm transition-colors hover:bg-purple-100/50">
+                      
+                      {/* 🚨 [NEW] 가로 압축형 UI 개편 (펄 안료 부분 동일 적용) */}
+                      <div className="flex items-center w-full gap-2">
+                        <button 
+                             type="button"
+                             className="flex w-[50px] h-[36px] rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-purple-400" 
+                             onClick={() => setMemoModal({isOpen: true, id: toner.id, code: toner.code, isPearl: true, text: toner.memo || '', history: toner.history || []})}
+                             title="메모 및 히스토리 보기"
+                        >
+                             <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
+                             <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
+                             {toner.memo && <div className="absolute -top-1.5 -right-1.5 bg-yellow-400 w-4 h-4 rounded-full border-2 border-white shadow-md z-20"></div>}
+                        </button>
+                        
+                        <input 
+                            ref={el => { codeRefs.current[toner.id] = el; }} 
+                            value={toner.code.replace('WT ', '').replace('PP ', '')} 
+                            onChange={e => handleCodeChange(toner.id, e.target.value, true)} 
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }}
+                            type="text" 
+                            inputMode="decimal"
+                            pattern="[0-9]*"
+                            className="w-16 h-[36px] text-center text-sm font-black border border-purple-200 rounded text-purple-800 shadow-inner focus:outline-none focus:border-purple-500 shrink-0 uppercase" 
+                            placeholder="번호" 
+                        />
+
+                        <div className="flex-1"></div>
+
+                        <div className="flex items-center bg-white border border-purple-100 rounded-md px-1 h-[36px] shrink-0 shadow-sm">
                            <button onClick={() => quickEditWeight(toner.id, -0.1, true)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
                            <input 
                                ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} 
                                onChange={e => handleWeightInputChange(toner.id, e.target.value, true)} onBlur={e => handleWeightBlur(toner.id, e.target.value, true)} onKeyDown={e => handleWeightKeyDown(e, toner.id, true)} 
-                               className="w-16 text-right text-base font-black text-purple-600 focus:outline-none clean-number-input mx-1" placeholder="0.0" 
+                               className="w-14 text-right text-[15px] font-black text-purple-600 focus:outline-none clean-number-input" placeholder="0.0" 
                            />
                            <button onClick={() => quickEditWeight(toner.id, 0.1, true)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
-                           <span className="text-[10px] font-bold text-slate-400 ml-1 mr-1">g</span>
-                           <button onClick={() => removeToner(toner.id, true)} className="ml-1"><Trash2 size={18} className="text-purple-300 hover:text-red-500 transition-colors"/></button>
+                           <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
+                           <button onClick={() => removeToner(toner.id, true)} className="ml-1 px-1"><Trash2 size={16} className="text-purple-300 hover:text-red-500 transition-colors"/></button>
                         </div>
                       </div>
+
+                      {/* 🚨 안료 풀네임 (왼쪽 정렬) */}
+                      <div className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, true)}>
+                          <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 pl-1">
+                              {info.role || '미등록 안료'}
+                          </span>
+                          {toner.isExpanded ? <ChevronUp size={16} className="text-purple-400 shrink-0" /> : <ChevronDown size={16} className="text-purple-400 shrink-0" />}
+                      </div>
+
+                      {toner.isExpanded && (
+                          <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-1 pt-2 border-t border-purple-200">
+                              {info.details && info.details.length > 0 ? (
+                                  <div className="flex flex-col gap-1.5 w-full">
+                                      {info.details.map((d: any, idx: number) => {
+                                          const splitIndex = d[0].indexOf('('); let mainTitle = d[0]; let subTitle = '';
+                                          if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim().replace(/\s*&\s*/g, '&'); }
+                                          return (
+                                          <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2.5 mb-2">
+                                              <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-2 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
+                                                  <span className="text-[10.5px] font-black leading-tight">{mainTitle}</span>
+                                                  {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
+                                              </div>
+                                              <span className={`text-[11.5px] leading-relaxed break-keep pt-0.5 whitespace-pre-line ${getBadgeClass(d[0]).includes('yellow') ? 'text-yellow-800 font-bold' : 'text-slate-700'}`}>{d[1]}</span>
+                                          </div>
+                                      )})}
+                                  </div>
+                              ) : <p className="text-[11px] text-slate-500 leading-tight break-keep pl-1">{info.desc}</p>}
+                          </div>
+                      )}
                     </div>
                   )
                 })}
 
-                {/* 🚨 모바일 숨김 처리 */}
                 <div className="hidden md:flex justify-between items-center bg-purple-50/80 p-3 mt-3 rounded-xl border border-purple-200 shadow-sm">
                     <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-purple-200 flex items-center justify-center border border-purple-300 shadow-inner">
@@ -865,37 +911,38 @@ export default function App() {
         </div>
       </div>
 
-      {/* 🚨 하단 메인 계산기 (소수점 계산 오차 완벽 보정 및 그림자 세련되게 수정) */}
+      {/* 🚨 하단 메인 계산기 (중복 총량 바 삭제 및 깔끔하게 정돈) */}
       <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.4)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
-          <div className="flex flex-col md:flex-row p-3 md:p-4 justify-between items-center gap-3">
-             <div className="flex w-full md:w-auto gap-3 sm:gap-4 shrink-0 overflow-x-auto custom-scrollbar pb-1 md:pb-0">
-                <div className="flex flex-col gap-1 flex-1 min-w-[220px]">
+          <div className="flex flex-col md:flex-row p-3 justify-between items-center gap-2">
+             <div className="flex w-full md:w-auto gap-2 overflow-x-auto custom-scrollbar">
+                <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
                    <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Layers size={11} className="mr-1 text-blue-400"/> A. 베이스 코트 중량</span>
-                   <div className="flex items-center justify-between bg-slate-800/80 px-3 py-2.5 rounded-xl border border-slate-700 shadow-inner text-xs">
-                       <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-white text-sm">{totalBaseWeight}g</span></div>
-                       <span className="text-slate-600 font-black text-sm">+</span>
-                       <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold">필수 수지</span><span className="font-black text-blue-400 text-sm">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
-                       <span className="text-slate-600 font-black text-sm">=</span>
-                       <div className="flex flex-col items-center bg-blue-950/60 px-2 py-0.5 rounded border border-blue-900"><span className="text-[9px] text-emerald-400 font-bold">합계</span><span className="font-black text-emerald-400 text-base">{(parseFloat(totalBaseWeight) + parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
+                   <div className="flex items-center justify-between bg-slate-800/80 px-2 py-2 rounded-xl border border-slate-700 shadow-inner text-xs">
+                       <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-white text-[13px]">{totalBaseWeight}g</span></div>
+                       <span className="text-slate-600 font-black text-xs">+</span>
+                       <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold">필수 수지</span><span className="font-black text-blue-400 text-[13px]">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                       <span className="text-slate-600 font-black text-xs">=</span>
+                       <div className="flex flex-col items-center bg-blue-950/60 px-2 py-0.5 rounded border border-blue-900"><span className="text-[9px] text-emerald-400 font-bold">합계</span><span className="font-black text-emerald-400 text-sm">{(parseFloat(totalBaseWeight) + parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
                    </div>
                 </div>
                 {isThreeCoatMode && (
-                <div className="flex flex-col gap-1 flex-1 min-w-[220px]">
+                <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
                    <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Zap size={11} className="mr-1 text-purple-400"/> B. 펄 코트 중량</span>
-                   <div className="flex items-center justify-between bg-slate-800/80 px-3 py-2.5 rounded-xl border border-slate-700 shadow-inner text-xs">
-                       <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 펄</span><span className="font-black text-white text-sm">{totalPearlWeight}g</span></div>
-                       <span className="text-slate-600 font-black text-sm">+</span>
-                       <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold">펄 수지</span><span className="font-black text-purple-400 text-sm">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
-                       <span className="text-slate-600 font-black text-sm">=</span>
-                       <div className="flex flex-col items-center bg-purple-950/60 px-2 py-0.5 rounded border border-purple-900"><span className="text-[9px] text-emerald-400 font-bold">합계</span><span className="font-black text-emerald-400 text-base">{(parseFloat(totalPearlWeight) + parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
+                   <div className="flex items-center justify-between bg-slate-800/80 px-2 py-2 rounded-xl border border-slate-700 shadow-inner text-xs">
+                       <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 펄</span><span className="font-black text-white text-[13px]">{totalPearlWeight}g</span></div>
+                       <span className="text-slate-600 font-black text-xs">+</span>
+                       <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold">펄 수지</span><span className="font-black text-purple-400 text-[13px]">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                       <span className="text-slate-600 font-black text-xs">=</span>
+                       <div className="flex flex-col items-center bg-purple-950/60 px-2 py-0.5 rounded border border-purple-900"><span className="text-[9px] text-emerald-400 font-bold">합계</span><span className="font-black text-emerald-400 text-sm">{(parseFloat(totalPearlWeight) + parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
                    </div>
                 </div>
                 )}
              </div>
-             <div className="w-full md:w-auto flex flex-row md:flex-col items-center justify-between md:justify-center shrink-0 bg-gradient-to-br from-amber-950/80 to-yellow-900/40 border border-yellow-600/50 px-4 py-2 sm:px-6 sm:py-2 rounded-xl shadow-[0_0_15px_rgba(234,179,8,0.15)]">
-                <span className="text-[11px] text-yellow-500 font-black tracking-widest flex items-center uppercase"><Beaker size={13} className="mr-1"/> ✨ 혼합 총량</span>
-                <span className="text-2xl sm:text-3xl font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.3)]">
-                   {((parseFloat(totalBaseWeight) + parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1))) + (isThreeCoatMode ? (parseFloat(totalPearlWeight) + parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1))) : 0)).toFixed(2)}<span className="text-base sm:text-lg font-bold text-yellow-600 ml-0.5">g</span>
+             {/* 🚨 기존 거대한 혼합 총량 바 삭제 및 우측 콤팩트 박스로 대체 */}
+             <div className="w-full md:w-auto flex items-center justify-between md:justify-center bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 px-4 py-2 rounded-xl shadow-md">
+                <span className="text-[11px] text-slate-400 font-black flex items-center"><Beaker size={13} className="mr-1.5 text-yellow-500"/> 혼합 총량:</span>
+                <span className="text-xl sm:text-2xl font-black text-yellow-400 ml-3">
+                   {((parseFloat(totalBaseWeight) + parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1))) + (isThreeCoatMode ? (parseFloat(totalPearlWeight) + parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1))) : 0)).toFixed(2)}<span className="text-sm font-bold text-yellow-600 ml-0.5">g</span>
                 </span>
              </div>
           </div>
@@ -1073,7 +1120,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 🚨 안료 메모 모달 */}
       {memoModal.isOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[2000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -1146,8 +1192,9 @@ export default function App() {
               <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             <div className="p-6 flex flex-col gap-3 bg-slate-50">
-                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 복사 전송</button>
-                <button onClick={handleShareSMS} className="w-full bg-blue-50 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS)로 앱 열기</button>
+                {/* 🚨 카카오톡 다이렉트 버튼 & 문자 버튼 색상 파란색(blue-500)으로 고정 */}
+                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 즉시 전송</button>
+                <button onClick={handleShareSMS} className="w-full bg-blue-500 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS) 앱 열기</button>
                 <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><Mail size={18}/> 이메일 앱 열기</button>
             </div>
           </div>
@@ -1204,7 +1251,6 @@ export default function App() {
             </div>
             
             <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-[#0f172a]">
-                {/* 리스트 영역 (모바일에서는 상세 보기 시 숨김 처리) */}
                 <div className={`w-full md:w-1/3 border-b md:border-b-0 md:border-r border-slate-700/50 overflow-y-auto bg-slate-900/50 flex-col custom-scrollbar ${selectedSnapshot ? 'hidden md:flex' : 'flex'}`}>
                     {snapshots.length === 0 ? ( <div className="p-6 text-center text-slate-500 text-sm">확정된 기록이 없습니다.</div> ) : (
                         snapshots.map((snap, idx) => (
@@ -1217,11 +1263,9 @@ export default function App() {
                     )}
                 </div>
                 
-                {/* 상세 내역 영역 (모바일에서는 리스트 선택 시 전체 화면으로 전환) */}
                 <div className={`flex-1 p-6 overflow-y-auto bg-[#0f172a] custom-scrollbar ${selectedSnapshot ? 'block' : 'hidden md:block'}`}>
                     {selectedSnapshot ? (
                         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                            {/* 모바일 전용 뒤로가기 버튼 */}
                             <button onClick={() => setSelectedSnapshot(null)} className="md:hidden mb-4 bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-sm w-full flex items-center justify-center gap-2"><ChevronDown className="rotate-90"/> 목록으로 돌아가기</button>
                             
                             <h4 className="text-lg font-black text-white mb-4 flex items-center gap-2 border-b border-slate-700 pb-3"><Search size={20} className="text-yellow-400"/> 데이터 상세 보기 및 복원</h4>
@@ -1469,7 +1513,7 @@ export default function App() {
 
                   <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">브라이트(Bright) / 브릴리언트(Brilliant)</span><br/>'밝은', '눈부신', '화사한'이라는 뜻입니다. 탁하지 않고 쨍하게 빛나는 맑은 원색을 의미합니다.</li>
                   <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">딥 (Deep) / 인텐스 (Intense)</span><br/>'깊은', '강렬한'이라는 뜻입니다. 밝고 쨍하기보다는 색감이 아주 진하고 묵직하게 올라오는 특성을 가집니다.</li>
-                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">라이트 (Light) / 다크 (Dark)</span><br/>'밝은(연한)'과 '어두운'을 뜻합니다. 같은 원색 계열이라도 명도가 높거나 낮을 때 붙습니다.</li>
+<li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">라이트 (Light) / 다크 (Dark)</span><br/>'밝은(연한)'과 '어두운'을 뜻합니다. 같은 원색 계열이라도 명도가 높거나 낮을 때 붙습니다.</li>
                   <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">그리니쉬(Greenish) / 블루이쉬(Bluish) / 레디쉬(Reddish)</span><br/>'~빛이 도는'이라는 뜻입니다. (예: 그리니쉬 블루 = 초록빛이 감도는 파랑 / 레디쉬 옐로우 = 붉은빛이 도는 노랑)</li>
                   <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">마룬(Maroon) / 옥사이드(Oxide)</span><br/>마룬은 '밤색, 적갈색(버건디)'을 뜻하고, 옥사이드는 '산화철(녹슨 철)'을 뜻합니다. 맑기보단 묵직하고 탁한 흙빛 섀도우를 냅니다.</li>
                   <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">마젠타(Magenta) / 시안(Cyan)</span><br/>마젠타는 '자주색(밝은 핑크/적자색)', 시안은 '청록색(하늘색/바다색)'을 의미합니다.</li>
