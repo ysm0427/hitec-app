@@ -16,7 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.14 (안료 이름 복원 & 실버 톤 요약 박스 적용)"; 
+const LAST_PATCH_DATE = "2026.10.15 (하단 요약 박스 세로 정렬 및 다크 테마 복원)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -360,7 +360,6 @@ export default function App() {
     setIsBaseMetallic(checkMetallic(toners)); setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
 
-  // 부드러운 스무스 포커스 (화면 널뛰기 방지)
   useEffect(() => {
     if (focusTarget) {
       let attempts = 0; 
@@ -431,7 +430,6 @@ export default function App() {
   const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => { if (e.key === 'Enter') { e.preventDefault(); const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); } };
   const removeToner = (id: string, isPearl = false) => { if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
   
-  // 🚨 [수정됨] 안료 추가 시 즉시 숫자 키패드 팝업 (고정형 투명 트리거)
   const addToner = (isPearl = false) => { 
       let tempInput: HTMLInputElement | undefined;
       if (typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -473,7 +471,6 @@ export default function App() {
     return `[조색 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 브랜드: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 합계: ${totalPearlWeight}g\n▶ 6052 수지: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 총량: ${totalFinalWeight}g\n\n👉 링크:\n${shareUrl}`;
   };
 
-  // 🚨 [원상복구 완료] 카카오톡 복사 전송 (클립보드 복사 + 카카오톡 앱 즉시 열기)
   const handleShareKakao = () => { 
       const shareText = generateShareText();
       if (typeof navigator !== 'undefined' && navigator.clipboard) { 
@@ -521,7 +518,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[200px] md:pb-[140px] notranslate" translate="no">
+    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[220px] md:pb-[140px] notranslate" translate="no">
       <header className="bg-slate-900 flex flex-col sm:flex-row justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0 gap-3">
         <div className="flex items-center space-x-3 w-full sm:w-auto">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
@@ -626,7 +623,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* 🚨 안료 이름 복원 및 왼쪽 정렬 */}
+                    {/* 🚨 안료 이름이 비어있지 않도록 확실히 렌더링되게 복원 */}
                     <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, false)}>
                         <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep">
                             {toner.code ? (info.role || '등록된 안료 정보 없음') : '안료 번호를 입력하세요 (예: 321, 385...)'}
@@ -887,29 +884,29 @@ export default function App() {
         </div>
       </div>
 
-      {/* 🚨 [NEW] 하단 '베이스 코트 중량' 칸을 은은한 실버 그라데이션 톤으로 변경 및 콤팩트 배치 */}
-      <div className="fixed bottom-0 left-0 w-full z-[500] bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 backdrop-blur-xl border-t border-slate-300 shadow-[0_-8px_30px_rgba(0,0,0,0.15)] text-slate-900 pb-[env(safe-area-inset-bottom)]">
-          <div className="flex flex-col md:flex-row p-3 justify-between items-center gap-2">
-             <div className="flex w-full md:w-auto gap-2 overflow-x-auto custom-scrollbar">
-                <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
-                   <span className="text-[10px] text-slate-600 font-black tracking-widest flex items-center uppercase"><Layers size={11} className="mr-1 text-blue-600"/> A. 베이스 코트 중량</span>
-                   <div className="flex items-center justify-between bg-white px-2.5 py-2 rounded-xl border border-slate-300 shadow-sm text-xs">
-                       <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-slate-900 text-[13px]">{totalBaseWeight}g</span></div>
-                       <span className="text-slate-400 font-black text-xs">+</span>
-                       <div className="flex flex-col items-center"><span className="text-[9px] text-blue-600 font-bold">필수 수지</span><span className="font-black text-blue-600 text-[13px]">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
-                       <span className="text-slate-400 font-black text-xs">=</span>
-                       <div className="flex flex-col items-center bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200"><span className="text-[9px] text-blue-700 font-bold">합계</span><span className="font-black text-blue-700 text-sm">{(parseFloat(totalBaseWeight) + parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
+      {/* 🚨 [수정됨] 하단 요약 바 원상복구 (다크 테마 및 모바일 세로 정렬 적용) */}
+      <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.4)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
+          <div className="flex flex-col p-3 gap-2 w-full max-w-4xl mx-auto">
+             <div className="flex flex-col md:flex-row w-full gap-2">
+                <div className="flex flex-col gap-1 flex-1">
+                   <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Layers size={11} className="mr-1 text-blue-400"/> A. 베이스 코트 중량</span>
+                   <div className="flex items-center justify-between bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-700 shadow-inner text-xs">
+                       <div className="flex flex-col items-center"><span className="text-[9px] text-slate-400 font-bold">순수 안료</span><span className="font-black text-white text-[13px]">{totalBaseWeight}g</span></div>
+                       <span className="text-slate-500 font-black text-xs">+</span>
+                       <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold">필수 수지</span><span className="font-black text-blue-400 text-[13px]">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                       <span className="text-slate-500 font-black text-xs">=</span>
+                       <div className="flex flex-col items-center bg-blue-950/60 px-2.5 py-0.5 rounded border border-blue-900"><span className="text-[9px] text-emerald-400 font-bold">합계</span><span className="font-black text-emerald-400 text-sm">{(parseFloat(totalBaseWeight) + parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
                    </div>
                 </div>
                 {isThreeCoatMode && (
-                <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
-                   <span className="text-[10px] text-slate-600 font-black tracking-widest flex items-center uppercase"><Zap size={11} className="mr-1 text-purple-600"/> B. 펄 코트 중량</span>
-                   <div className="flex items-center justify-between bg-white px-2.5 py-2 rounded-xl border border-slate-300 shadow-sm text-xs">
-                       <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 펄</span><span className="font-black text-slate-900 text-[13px]">{totalPearlWeight}g</span></div>
-                       <span className="text-slate-400 font-black text-xs">+</span>
-                       <div className="flex flex-col items-center"><span className="text-[9px] text-purple-600 font-bold">펄 수지</span><span className="font-black text-purple-600 text-[13px]">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
-                       <span className="text-slate-400 font-black text-xs">=</span>
-                       <div className="flex flex-col items-center bg-purple-50 px-2.5 py-0.5 rounded border border-purple-200"><span className="text-[9px] text-purple-700 font-bold">합계</span><span className="font-black text-purple-700 text-sm">{(parseFloat(totalPearlWeight) + parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
+                <div className="flex flex-col gap-1 flex-1">
+                   <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Zap size={11} className="mr-1 text-purple-400"/> B. 펄 코트 중량</span>
+                   <div className="flex items-center justify-between bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-700 shadow-inner text-xs">
+                       <div className="flex flex-col items-center"><span className="text-[9px] text-slate-400 font-bold">순수 펄</span><span className="font-black text-white text-[13px]">{totalPearlWeight}g</span></div>
+                       <span className="text-slate-500 font-black text-xs">+</span>
+                       <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold">펄 수지</span><span className="font-black text-purple-400 text-[13px]">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                       <span className="text-slate-500 font-black text-xs">=</span>
+                       <div className="flex flex-col items-center bg-purple-950/60 px-2.5 py-0.5 rounded border border-purple-900"><span className="text-[9px] text-emerald-400 font-bold">합계</span><span className="font-black text-emerald-400 text-sm">{(parseFloat(totalPearlWeight) + parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
                    </div>
                 </div>
                 )}
@@ -1153,7 +1150,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 🚨 공유 모달 (카카오톡, 문자, 이메일 모두 포함) */}
       {isShareModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -1210,7 +1206,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 🚨 모바일 레이아웃 꼬임 해결된 수정 내역(스냅샷) 모달 */}
       {isSnapshotModalOpen && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-700">
