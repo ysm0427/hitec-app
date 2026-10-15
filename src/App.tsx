@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS, TonerData } from './tonerDB';
-import { FeedbackModal } from './FeedbackModal'; 
 
 if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')) {
   const script = document.createElement('script');
@@ -18,7 +17,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.15 (PC 와이드 가로 레이아웃 및 Spies Hecker 로고 대소문자 적용)"; 
+const LAST_PATCH_DATE = "2026.10.16 (FeedbackModal 빌드 에러 완벽 픽스 및 와이드 레이아웃 적용)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -234,6 +233,14 @@ export default function App() {
       return item.code.includes(searchTxt) || item.role.toUpperCase().includes(searchTxt);
   });
 
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  useEffect(() => {
+      const handleFocusIn = (e: FocusEvent) => { if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) setIsKeyboardOpen(true); };
+      const handleFocusOut = () => { setTimeout(() => { if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName || '')) setIsKeyboardOpen(false); }, 150); };
+      window.addEventListener('focusin', handleFocusIn); window.addEventListener('focusout', handleFocusOut);
+      return () => { window.removeEventListener('focusin', handleFocusIn); window.removeEventListener('focusout', handleFocusOut); };
+  }, []);
+
   useEffect(() => {
     let attempts = 0;
     const timer = setInterval(() => {
@@ -304,22 +311,43 @@ export default function App() {
     }
   }, [focusTarget, toners, pearlToners]);
 
+  const [attachedImages, setAttachedImages] = useState<string[]>([]);
+  const [previewModalImage, setPreviewModalImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const handleClearAllInfo = () => { 
       if(!window.confirm("모든 입력 데이터를 초기화하시겠습니까?")) return;
       setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
       setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); 
-      setSnapshots([]); setCatalogSearch('');
+      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
   };
   const handleResetFormula = () => { 
       if(!window.confirm("현재 배합과 수정 내역을 모두 리셋하시겠습니까?")) return;
       setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setSelectedTonerForView(null); 
-      setSnapshots([]); setCatalogSearch('');
+      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
   };
 
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
-    const val = newCode.toUpperCase().replace(/[^A-Z0-9/.\- ]/g, '');
+    const rawVal = newCode.toUpperCase(); 
+    const numOnly = rawVal.replace(/[^0-9]/g, '');
+    let finalCode = rawVal;
+    
+    if (rawVal.startsWith('90') && numOnly.length >= 4) {
+        finalCode = numOnly.substring(0, 4); 
+    } else if (['1051', '1500', '455', 'AXT700'].includes(numOnly) || rawVal === 'AXT700') {
+        finalCode = rawVal === 'AXT700' ? 'AXT700' : numOnly; 
+    } else if (numOnly) {
+        finalCode = `WT ${numOnly}`; 
+    }
+
     const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(t => t.id === id ? { ...t, code: val } : t));
+    setter(prev => prev.map(toner => { 
+        if (toner.id === id) { 
+            if (TONER_DB[finalCode]) { setFocusTarget({ id: id, type: 'weight' }); } 
+            return { ...toner, code: finalCode }; 
+        } 
+        return toner; 
+    }));
   };
 
   const resolveCode = (rawVal: string): string => {
@@ -460,10 +488,65 @@ export default function App() {
       setIsExcelModalOpen(false);
   };
   const handleCopyExcelTemplate = () => { const headerRow = ['등록 날짜', '차량 번호', '브랜드/차종', '컬러코드', '작업내용', '특이사항', '배합보기'].join('\t'); if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(headerRow); alert("엑셀 헤더가 복사되었습니다."); } }
+  
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+              const img = new Image();
+              img.onload = () => {
+                  const canvas = document.createElement('canvas');
+                  let width = img.width;
+                  let height = img.height;
+                  const MAX_WIDTH = 600; 
+                  const MAX_HEIGHT = 600;
+                  if (width > height) {
+                      if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                  } else {
+                      if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                  }
+                  canvas.width = width;
+                  canvas.height = height;
+                  const ctx = canvas.getContext('2d');
+                  ctx?.drawImage(img, 0, 0, width, height);
+                  const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5); 
+                  setAttachedImages(prev => [...prev, compressedBase64]);
+                  alert("📷 시편 사진이 안전하게 최적화되어 추가되었습니다!");
+              };
+              img.src = event.target?.result as string;
+          };
+          reader.readAsDataURL(file);
+      }
+  };
+
+  const removeAttachedImage = (index: number) => {
+      setAttachedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDeletePostImage = (postId: number, imgIdx: number) => {
+      if (window.confirm("이 사진만 개별적으로 삭제하시겠습니까? (복구 불가)")) {
+          setBoardPosts(prev => prev.map(p => {
+              if (p.id === postId) {
+                  const newImages = [...p.images];
+                  newImages.splice(imgIdx, 1);
+                  return { ...p, images: newImages };
+              }
+              return p;
+          }));
+          
+          if (viewingPost && viewingPost.id === postId) {
+              const newImages = [...viewingPost.images];
+              newImages.splice(imgIdx, 1);
+              setViewingPost({ ...viewingPost, images: newImages });
+          }
+      }
+  };
+
   const saveToBoard = () => {
       if(!targetColorCode) { alert("⚠️ 컬러코드를 입력해야 합니다!"); return; }
-      const newPost = { id: Date.now(), brand: carModel || '미지정', code: targetColorCode, date: registrationDate, likes: 0, views: 0, author: '내 데이터', spec: specialNotes || '특이사항 없음', baseFormula: [...toners], pearlFormula: [...pearlToners], isThreeCoat: isThreeCoatMode };
-      setBoardPosts([newPost, ...boardPosts]); alert("🎉 게시판에 데이터가 등록되었습니다!");
+      const newPost = { id: Date.now(), brand: carModel || '미지정', code: targetColorCode, date: registrationDate, likes: 0, views: 0, author: '내 데이터', spec: specialNotes || '특이사항 없음', baseFormula: [...toners], pearlFormula: [...pearlToners], isThreeCoat: isThreeCoatMode, images: [...attachedImages] };
+      setBoardPosts([newPost, ...boardPosts]); setAttachedImages([]); alert("🎉 게시판에 데이터가 등록되었습니다!");
   };
   const deleteBoardPost = (id: number, e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("삭제하시겠습니까?")) setBoardPosts(prev => prev.filter(post => post.id !== id)); };
   const handleSaveSnapshot = () => { const newSnapshot = { id: Date.now(), timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }), dateStr: new Date().toLocaleDateString('ko-KR'), base: JSON.parse(JSON.stringify(toners)), pearl: JSON.parse(JSON.stringify(pearlToners)), isThreeCoat: isThreeCoatMode, totalFinal: totalFinalWeight }; setSnapshots(prev => [newSnapshot, ...prev]); alert(`[${newSnapshot.timestamp}] 데이터가 확정 저장되었습니다.`); };
@@ -544,10 +627,27 @@ export default function App() {
               <div><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📌 특이사항 및 스펙 메모</label><input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="직접 입력 (예: 이색 심함)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400" /></div>
               <div className="flex w-full gap-2 mt-2">
                 <button onClick={() => setIsExcelModalOpen(true)} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
+                <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
+                <button onClick={() => fileInputRef.current?.click()} className={`flex-[1.5] ${attachedImages.length > 0 ? 'bg-amber-600 hover:bg-amber-700' : 'bg-slate-700 hover:bg-slate-600'} text-white p-3 rounded text-xs font-black flex items-center justify-center shadow-sm`}>
+                    <Camera size={16} className="mr-1 hidden sm:block"/> {attachedImages.length > 0 ? `사진(${attachedImages.length})` : '사진첨부'}
+                </button>
                 <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.5] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
                 <button onClick={() => setIsShareModalOpen(true)} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] shadow-sm"><Share2 size={18} className="mr-1.5"/> 공유 전송</button>
                 <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 shadow-sm whitespace-nowrap"><Trash2 size={18} className="mb-0.5" /><span className="text-[9px] font-black">리셋</span></button>
               </div>
+
+              {attachedImages.length > 0 && (
+                  <div className="flex gap-2 overflow-x-auto py-2 px-2 bg-amber-50/50 rounded-xl border border-amber-200">
+                      {attachedImages.map((imgSrc, idx) => (
+                          <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-amber-300 shrink-0 shadow-sm group bg-white">
+                              <img src={imgSrc} alt={`시편 ${idx+1}`} className="w-full h-full object-cover cursor-pointer" onClick={() => setPreviewModalImage(imgSrc)} />
+                              <button onClick={() => removeAttachedImage(idx)} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 shadow-md">
+                                  <X size={10} />
+                              </button>
+                          </div>
+                      ))}
+                  </div>
+              )}
             </div>
           </div>
           
@@ -569,7 +669,6 @@ export default function App() {
                 const isEffect = info.type !== 'solid' && info.type !== 'binder' && info.type !== 'candy';
                 return (
                   <div key={toner.id} className="flex flex-col bg-slate-50 hover:bg-blue-50/50 p-2.5 mb-1.5 rounded-xl border border-slate-200 shadow-sm transition-colors">
-                    {/* 🚨 [NEW] 모바일에서는 세로, PC(md 이상)에서는 가로로 넓게 채우는 와이드 반응형 레이아웃 */}
                     <div className="flex flex-col md:flex-row items-start md:items-center w-full gap-3">
                       <div className="flex items-center gap-2.5 w-full md:w-auto shrink-0">
                           <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative" 
@@ -595,13 +694,11 @@ export default function App() {
                           />
                       </div>
 
-                      {/* PC 화면에서 허전함을 없애고 가로로 시원하게 배치되는 안료명 영역 */}
                       <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-2 rounded transition-colors flex-1 w-full md:w-auto" onClick={() => toggleExpand(toner.id, false)}>
                           <span className="font-bold text-blue-700 text-sm truncate">{info.role || '미등록 안료 번호'}</span>
                           {toner.isExpanded ? <ChevronUp size={16} className="text-blue-400 shrink-0" /> : <ChevronDown size={16} className="text-blue-400 shrink-0" />}
                       </div>
 
-                      {/* 중량 입력 및 조작 버튼 그룹 */}
                       <div className="flex items-center self-end md:self-auto bg-white border rounded-md px-1.5 py-0.5 shrink-0 shadow-sm w-full md:w-auto justify-end">
                          <button onClick={() => quickEditWeight(toner.id, -0.1, false)} className="px-2.5 py-1 text-red-500 font-bold hover:bg-red-50 rounded text-base">-</button>
                          <input 
@@ -877,7 +974,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* ━━━━━━━━ 3번 요청 반영: 화면 하단을 꽉 채우는 기존 와이드 스타일의 요약 바 복원 ━━━━━━━━ */}
       <div className="flex flex-col lg:flex-row p-3 lg:p-4 justify-between items-center gap-3 lg:gap-4 fixed bottom-0 left-0 w-full z-[500] bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
             <div className="flex w-full lg:w-auto gap-3 flex-col sm:flex-row justify-between lg:justify-start">
                 <div className="flex flex-col gap-1 flex-1 min-w-[200px] lg:min-w-[240px]">
@@ -952,6 +1048,187 @@ export default function App() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {previewModalImage && (
+        <div className="fixed inset-0 bg-black/95 z-[5000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setPreviewModalImage(null)}>
+            <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[5010] shadow-lg"><X size={24}/></button>
+            <div className="max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl border border-slate-700 shadow-2xl bg-slate-900 p-2" onClick={e => e.stopPropagation()}>
+                <img src={previewModalImage} alt="시편 확대 사진" className="w-full h-full object-contain max-h-[80vh]" />
+            </div>
+        </div>
+      )}
+
+      {zoomedImage && (
+        <div className="fixed inset-0 bg-black/95 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setZoomedImage(null)}>
+            <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[4010] shadow-lg"><X size={24}/></button>
+            <div className="w-full h-full max-w-5xl flex flex-col items-center relative py-12" onClick={e => e.stopPropagation()}>
+                
+                {zoomedImage.id === 12 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-100 mt-8">
+                        <div className="border-b-4 border-red-600 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center flex-wrap gap-2">
+                                WT386 <span className="text-lg text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded">(측면밝기조정제)</span>의 역할
+                            </h2>
+                            <div className="text-red-600 font-black italic text-xl sm:text-2xl tracking-tighter shrink-0 ml-4">Permahyd<sup className="text-sm">®</sup> HI-TEC</div>
+                        </div>
+
+                        <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-8 flex flex-col md:flex-row gap-6 items-center">
+                            <div className="flex-1">
+                                <p className="text-slate-700 font-bold text-base leading-relaxed mb-4">
+                                    WT386(측면밝기조정제)는 마치 <span className="text-blue-600 font-black">투명한 구슬</span>과 같아서, 알루미늄 입자에 혼합하면 입자가 불규칙하게 배열되도록 만듭니다.
+                                </p>
+                                <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-r-lg shadow-sm">
+                                    <p className="text-[13px] sm:text-sm text-yellow-800 font-black leading-relaxed">
+                                        💡 핵심: 측면밝기조정제를 사용하면 입자의 배열이 불규칙해져,<br/> 
+                                        빛 반사 유사각도<span className="text-red-600 bg-red-100 px-1.5 py-0.5 mx-1 rounded">정면(15도)은 어두워지고</span> 
+                                        나머지 각도<span className="text-blue-600 bg-blue-100 px-1.5 py-0.5 mx-1 rounded">측면(45도/110도)은 밝아집니다.</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="w-full md:w-1/3 flex flex-row md:flex-col gap-3">
+                                <div className="bg-white border border-slate-300 rounded p-3 text-center shadow-inner flex-1">
+                                    <span className="text-[11px] font-bold text-slate-500 mb-2 block">&lt;사용 안 함&gt;</span>
+                                    <div className="h-6 bg-slate-300 w-full rounded flex items-center justify-around px-2">
+                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                                    </div>
+                                </div>
+                                <div className="bg-white border border-slate-300 rounded p-3 text-center shadow-inner flex-1">
+                                    <span className="text-[11px] font-bold text-blue-600 mb-2 block">&lt;사용 함&gt;</span>
+                                    <div className="h-12 bg-slate-200 w-full rounded relative overflow-hidden flex items-center justify-center">
+                                        <div className="w-6 h-6 bg-blue-300/60 rounded-full absolute left-4 top-1 blur-[1px]"></div>
+                                        <div className="w-7 h-7 bg-blue-300/60 rounded-full absolute right-6 bottom-1 blur-[1px]"></div>
+                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-45 absolute top-2 left-6"></div>
+                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full -rotate-12 absolute bottom-3 left-14"></div>
+                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-90 absolute top-4 right-10"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 className="text-xl font-black text-slate-800 mb-4 flex items-center"><Target className="text-red-600 mr-2" size={20}/> WT386 vs WT352 vs WT322 특성 비교</h3>
+                        <div className="overflow-x-auto rounded-xl border border-slate-300 shadow-sm">
+                            <table className="w-full text-sm sm:text-base text-center border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr className="bg-slate-800 text-white">
+                                        <th className="p-3 font-black w-24 border-r border-slate-700">조색제</th>
+                                        <th className="p-3 font-black w-16 border-r border-slate-700">구분</th>
+                                        <th className="p-3 font-black text-blue-300 border-r border-slate-700">15도 (정면)</th>
+                                        <th className="p-3 font-black text-yellow-300">45도 & 110도 (측면)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="bg-white border-b border-slate-200">
+                                        <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-50" rowSpan={2}>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-xl">WT386</span>
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">명암</td>
+                                        <td className="border-r border-slate-200 font-black text-white bg-slate-700/80 p-3">어두워짐</td>
+                                        <td className="font-black text-slate-800 bg-yellow-50 p-3">밝아짐</td>
+                                    </tr>
+                                    <tr className="bg-white border-b-4 border-slate-300">
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">색상</td>
+                                        <td className="border-r border-slate-200 font-bold text-blue-600 p-3">약하게 청색이 짙어짐</td>
+                                        <td className="font-bold text-yellow-600 p-3">약하게 황색이 짙어짐</td>
+                                    </tr>
+                                    <tr className="bg-slate-50 border-b border-slate-200">
+                                        <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-100" rowSpan={2}>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-xl">WT352</span>
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">명암</td>
+                                        <td className="border-r border-slate-200 font-black text-white bg-slate-700/80 p-3">어두워짐</td>
+                                        <td className="font-black text-slate-800 bg-yellow-50 p-3">밝아짐</td>
+                                    </tr>
+                                    <tr className="bg-slate-50 border-b-4 border-slate-300">
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">색상</td>
+                                        <td className="border-r border-slate-200 font-black text-blue-700 p-3">강하게 청색이 짙어짐</td>
+                                        <td className="font-bold text-red-500 p-3">약하게 적색이 짙어짐</td>
+                                    </tr>
+                                    <tr className="bg-white border-b border-slate-200">
+                                        <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-50" rowSpan={2}>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-xl">WT322</span>
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">명암</td>
+                                        <td className="border-r border-slate-200 font-black text-white bg-slate-700/80 p-3">어두워짐</td>
+                                        <td className="font-black text-slate-800 bg-yellow-50 p-3">밝아짐</td>
+                                    </tr>
+                                    <tr className="bg-white">
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">색상</td>
+                                        <td className="border-r border-slate-200 font-black text-yellow-600 p-3">강하게 황색이 짙어짐</td>
+                                        <td className="font-black text-red-600 p-3">강하게 적색이 짙어짐</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="w-full h-full flex flex-col justify-center relative">
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 w-full mb-3 text-center shadow-2xl shrink-0 z-10">
+                            <h3 className="text-slate-900 font-black text-xl mb-1">{zoomedImage.title}</h3>
+                            <p className="text-blue-700 text-xs font-bold">{zoomedImage.desc}</p>
+                        </div>
+                        {zoomedImage.url ? (
+                            <div className="relative w-full h-[65vh] flex flex-col bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
+                                <div 
+                                    ref={scrollContainerRef}
+                                    className={`w-full h-full overflow-auto custom-scrollbar touch-pan-x touch-pan-y relative ${isDragging ? 'cursor-grabbing' : (imgScale > 1 ? 'cursor-grab' : '')}`}
+                                    style={{
+                                        display: imgScale === 1 ? 'flex' : 'block',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                    onMouseDown={handleMouseDown}
+                                    onMouseMove={handleMouseMove}
+                                    onMouseUp={handleMouseUp}
+                                    onMouseLeave={handleMouseUp}
+                                    onTouchStart={handleTouchStart}
+                                    onTouchMove={handleTouchMove}
+                                    onTouchEnd={handleTouchEnd}
+                                >
+                                    <img 
+                                        draggable={false}
+                                        src={zoomedImage.url} 
+                                        alt={zoomedImage.title} 
+                                        style={{ 
+                                            display: 'block',
+                                            margin: imgScale === 1 ? '0' : 'auto', 
+                                            width: imgScale === 1 ? 'auto' : `${imgScale * 100}%`, 
+                                            height: imgScale === 1 ? '100%' : 'auto',
+                                            maxWidth: imgScale === 1 ? '100%' : 'none',
+                                            maxHeight: imgScale === 1 ? '100%' : 'none',
+                                            objectFit: 'contain',
+                                            transition: pinchDist > 0 ? 'none' : 'width 0.1s ease-out' 
+                                        }}
+                                    />
+                                </div>
+                                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full px-5 py-2 flex items-center gap-6 z-50 shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-slate-600">
+                                    <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.max(1, s - 0.2)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">-</button>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-white text-sm font-black min-w-[45px] text-center tracking-wider">{Math.round(imgScale * 100)}%</span>
+                                        <button onClick={(e) => { e.stopPropagation(); setImgScale(1); }} className="text-[10px] text-blue-400 font-bold hover:text-white mt-0.5">RESET</button>
+                                    </div>
+                                    <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.min(5, s + 0.2)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">+</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="w-full h-[65vh] flex flex-col items-center justify-center bg-slate-800/80 rounded-3xl shadow-2xl border border-slate-700">
+                                <Camera size={56} className="text-slate-500 mb-4" />
+                                <p className="text-slate-300 font-black text-lg mb-1">상세 이미지가 준비 중입니다.</p>
+                                <p className="text-slate-500 text-sm font-bold">추후 원본 데이터가 업데이트될 예정입니다.</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
         </div>
       )}
 
@@ -1035,11 +1312,23 @@ export default function App() {
         </div>
       )}
 
-      <FeedbackModal 
-        isOpen={isEmailModalOpen} 
-        onClose={() => setIsEmailModalOpen(false)} 
-        targetColorCode={targetColorCode}
-      />
+      {/* 🚨 피드백 모달 컴포넌트를 기존의 단일 파일 내장 형태로 완벽 복원 */}
+      {isEmailModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-yellow-500 flex justify-between items-center text-slate-900">
+              <h3 className="font-black flex items-center gap-2"><Mail size={18} /> 개발자에게 피드백 보내기</h3>
+              <button onClick={() => setIsEmailModalOpen(false)} className="hover:text-red-600 transition-colors bg-yellow-400 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-4 bg-slate-50">
+              <div className="flex gap-3 mt-2">
+                  <a href="https://mail.naver.com/v2/new?to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-[#03C75A] text-white py-3 rounded-xl font-black text-center shadow-md">네이버 메일</a>
+                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-white border text-slate-700 py-3 rounded-xl font-black text-center shadow-sm">구글 메일</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isSnapshotModalOpen && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
