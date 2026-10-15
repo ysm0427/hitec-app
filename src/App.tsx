@@ -16,7 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.15 (하단 요약 박스 세로 정렬 및 다크 테마 복원)"; 
+const LAST_PATCH_DATE = "2026.10.15 (시편 공유 사진 업로드 기능 추가 완료!)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -184,6 +184,10 @@ export default function App() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
 
+  // 🚨 [NEW] 시편 공유 사진 업로드 상태 관리
+  const [attachedImage, setAttachedImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const [boardSearch, setBoardSearch] = useState(''); 
   const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
   
@@ -205,7 +209,7 @@ export default function App() {
   const [activePearlLevel, setActivePearlLevel] = useState(6);
   
   const [boardPosts, setBoardPosts] = useState([
-      { id: 1, brand: '현대', code: 'UG4', date: '2026-09-11', likes: 12, views: 45, author: '윤프로', spec: '이색 심함, 보카시 블렌딩 필수', baseFormula: [{code: 'WT 321', adjustedWeight: '15.5'}], pearlFormula: [], isThreeCoat: false }
+      { id: 1, brand: '현대', code: 'UG4', date: '2026-09-11', likes: 12, views: 45, author: '윤프로', spec: '이색 심함, 보카시 블렌딩 필수', baseFormula: [{code: 'WT 321', adjustedWeight: '15.5'}], pearlFormula: [], isThreeCoat: false, image: '' }
   ]);
 
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
@@ -387,12 +391,12 @@ export default function App() {
       if(!window.confirm("모든 입력 데이터를 초기화하시겠습니까?")) return;
       setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
       setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); 
-      setSnapshots([]); setCatalogSearch('');
+      setSnapshots([]); setCatalogSearch(''); setAttachedImage(null);
   };
   const handleResetFormula = () => { 
       if(!window.confirm("현재 배합과 수정 내역을 모두 리셋하시겠습니까?")) return;
       setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setSelectedTonerForView(null); 
-      setSnapshots([]); setCatalogSearch('');
+      setSnapshots([]); setCatalogSearch(''); setAttachedImage(null);
   };
   
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
@@ -499,11 +503,41 @@ export default function App() {
       setIsExcelModalOpen(false);
   };
   const handleCopyExcelTemplate = () => { const headerRow = ['등록 날짜', '차량 번호', '브랜드/차종', '컬러코드', '작업내용', '특이사항', '배합보기'].join('\t'); if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(headerRow); alert("엑셀 헤더가 복사되었습니다."); } }
+  
+  // 🚨 [NEW] 시편 사진 업로드 핸들러
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+              setAttachedImage(reader.result as string);
+              alert("📷 시편 사진이 성공적으로 첨부되었습니다!");
+          };
+          reader.readAsDataURL(file);
+      }
+  };
+
   const saveToBoard = () => {
       if(!targetColorCode) { alert("⚠️ 컬러코드를 입력해야 합니다!"); return; }
-      const newPost = { id: Date.now(), brand: carModel || '미지정', code: targetColorCode, date: registrationDate, likes: 0, views: 0, author: '내 데이터', spec: specialNotes || '특이사항 없음', baseFormula: [...toners], pearlFormula: [...pearlToners], isThreeCoat: isThreeCoatMode };
-      setBoardPosts([newPost, ...boardPosts]); alert("🎉 게시판에 데이터가 등록되었습니다!");
+      const newPost = { 
+          id: Date.now(), 
+          brand: carModel || '미지정', 
+          code: targetColorCode, 
+          date: registrationDate, 
+          likes: 0, 
+          views: 0, 
+          author: '내 데이터', 
+          spec: specialNotes || '특이사항 없음', 
+          baseFormula: [...toners], 
+          pearlFormula: [...pearlToners], 
+          isThreeCoat: isThreeCoatMode,
+          image: attachedImage || '' 
+      };
+      setBoardPosts([newPost, ...boardPosts]); 
+      setAttachedImage(null); 
+      alert("🎉 시편 사진과 함께 게시판에 등록되었습니다!");
   };
+
   const deleteBoardPost = (id: number, e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("삭제하시겠습니까?")) setBoardPosts(prev => prev.filter(post => post.id !== id)); };
   const handleSaveSnapshot = () => { const newSnapshot = { id: Date.now(), timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }), dateStr: new Date().toLocaleDateString('ko-KR'), base: JSON.parse(JSON.stringify(toners)), pearl: JSON.parse(JSON.stringify(pearlToners)), isThreeCoat: isThreeCoatMode, totalFinal: totalFinalWeight }; setSnapshots(prev => [newSnapshot, ...prev]); alert(`[${newSnapshot.timestamp}] 데이터가 확정 저장되었습니다.`); };
   const restoreSnapshot = (snapshot: any) => { if (window.confirm("복원하시겠습니까?")) { setToners(JSON.parse(JSON.stringify(snapshot.base))); setPearlToners(JSON.parse(JSON.stringify(snapshot.pearl))); setIsThreeCoatMode(snapshot.isThreeCoat); setSelectedSnapshot(null); setIsSnapshotModalOpen(false); } };
@@ -518,7 +552,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[220px] md:pb-[140px] notranslate" translate="no">
+    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
       <header className="bg-slate-900 flex flex-col sm:flex-row justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0 gap-3">
         <div className="flex items-center space-x-3 w-full sm:w-auto">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
@@ -556,10 +590,18 @@ export default function App() {
               </div>
               <div><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🛠️ 작업 내용</label><input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="예: 조수석 앞휀다 교환 등" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm" /></div>
               <div><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📌 특이사항 및 스펙 메모</label><input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="직접 입력 (예: 이색 심함)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400" /></div>
+              
+              {/* 🚨 [NEW] 시편 사진 첨부 버튼 추가된 액션 바 */}
               <div className="flex w-full gap-2 mt-2">
-                <button onClick={() => setIsExcelModalOpen(true)} className="flex-[1.5] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
-                <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.5] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
-                <button onClick={() => setIsShareModalOpen(true)} className="flex-[2] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] shadow-sm"><Share2 size={18} className="mr-1.5"/> 공유 전송</button>
+                <button onClick={() => setIsExcelModalOpen(true)} className="flex-[1.2] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
+                
+                <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
+                <button onClick={() => fileInputRef.current?.click()} className={`flex-[1.2] ${attachedImage ? 'bg-amber-600 hover:bg-amber-700' : 'bg-slate-700 hover:bg-slate-600'} text-white p-3 rounded text-xs font-black flex items-center justify-center shadow-sm`}>
+                    <Camera size={16} className="mr-1 hidden sm:block"/> {attachedImage ? '사진첨부완료' : '사진첨부'}
+                </button>
+
+                <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.3] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
+                <button onClick={() => setIsShareModalOpen(true)} className="flex-[1.8] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] shadow-sm"><Share2 size={18} className="mr-1.5"/> 공유 전송</button>
                 <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 shadow-sm whitespace-nowrap"><Trash2 size={18} className="mb-0.5" /><span className="text-[9px] font-black">리셋</span></button>
               </div>
             </div>
@@ -623,7 +665,6 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* 🚨 안료 이름이 비어있지 않도록 확실히 렌더링되게 복원 */}
                     <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, false)}>
                         <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep">
                             {toner.code ? (info.role || '등록된 안료 정보 없음') : '안료 번호를 입력하세요 (예: 321, 385...)'}
@@ -884,7 +925,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* 🚨 [수정됨] 하단 요약 바 원상복구 (다크 테마 및 모바일 세로 정렬 적용) */}
+      {/* 🚨 [NEW] 모바일 하단 요약 바 세로 수직 정렬 및 다크 테마 원상복구 */}
       <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.4)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
           <div className="flex flex-col p-3 gap-2 w-full max-w-4xl mx-auto">
              <div className="flex flex-col md:flex-row w-full gap-2">
@@ -1307,6 +1348,14 @@ export default function App() {
                             <span className="text-xs text-slate-400 font-medium flex items-center gap-1"><Calendar size={12}/> {post.date}</span>
                         </div>
                         <p className="text-sm text-slate-600 font-bold mb-3 break-keep pr-16">{post.spec}</p>
+                        
+                        {/* 🚨 [NEW] 시편 게시판 목록에 첨부된 사진 썸네일 표시 */}
+                        {post.image && (
+                            <div className="mb-3 w-full h-32 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                <img src={post.image} alt="시편 사진" className="w-full h-full object-cover" />
+                            </div>
+                        )}
+
                         <div className="flex justify-between items-center border-t border-slate-100 pt-3">
                             <span className="text-xs text-slate-500">By. <b>{post.author}</b></span>
                             <div className="flex gap-3 text-xs font-bold text-slate-400">
@@ -1364,6 +1413,13 @@ export default function App() {
                       </div>
                       <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg text-sm font-bold text-slate-700 break-keep">{viewingPost.spec}</div>
                   </>
+              )}
+
+              {/* 🚨 [NEW] 시편 상세 보기 모달에 사진 출력 */}
+              {viewingPost.image && (
+                  <div className="w-full h-56 bg-slate-100 rounded-xl overflow-hidden border border-slate-300 shadow-inner">
+                      <img src={viewingPost.image} alt="시편 상세 사진" className="w-full h-full object-contain bg-black/5" />
+                  </div>
               )}
 
               <div>
@@ -1667,7 +1723,7 @@ export default function App() {
                                 <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
                                     <line x1="75" y1="75" x2="30" y2="40" /><line x1="125" y1="75" x2="170" y2="40" /><line x1="100" y1="120" x2="100" y2="175" /><line x1="100" y1="55" x2="100" y2="25" /> <line x1="75" y1="105" x2="30" y2="130" /> <line x1="125" y1="105" x2="170" y2="130" /> <line x1="100" y1="90" x2="150" y2="90" /> 
                                 </g>
-                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Yellow</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
+                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Green</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
                             </svg>
                         </div>
                     </div>
