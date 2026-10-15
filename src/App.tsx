@@ -4,7 +4,7 @@ import {
   Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, 
   Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
   FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp, 
-  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Link, Copy, Check, Smartphone, Monitor
+  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Link, Copy, Check, Smartphone, Monitor, Cloud, QrCode
 } from 'lucide-react';
 
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS, TonerData } from './tonerDB';
@@ -16,7 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.15 (PC-모바일 양방향 초고속 다이렉트 연동 UI 개편)"; 
+const LAST_PATCH_DATE = "2026.10.15 (TS2304 Cloud 아이콘 import 누락 에러 완벽 픽스)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -199,7 +199,6 @@ export default function App() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
 
-  // 🚨 [NEW] 서버 의존성 0% - 초고속 양방향 동기화(QR & 링크 복사) 모달 전용 상태
   const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
   const [syncLink, setSyncLink] = useState('');
   const [copied, setCopied] = useState(false);
@@ -527,14 +526,20 @@ export default function App() {
     setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
   };
 
-  // 🚨 [수정됨] URL 딥링크 생성 로직 분리 (데이터 다이어트: 사진과 이전 게시물 제외)
   const generateSyncUrl = () => { 
       let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin; 
       const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); 
       return `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`; 
   };
 
-  // 🚨 [NEW] 모바일 -> PC 연동용 카카오톡 PC 공유 기능 (가장 빠름)
+  const handleGenerateSyncLink = () => {
+      const url = generateSyncUrl();
+      setSyncLink(url);
+      if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => setCopied(true));
+      }
+  };
+
   const handleSendToPcKakao = () => {
       const shareUrl = generateSyncUrl();
       const shareText = `[조색 Pro] PC로 작업 보내기\n차량: ${vehicleNumber} / ${carModel}\n컬러: ${targetColorCode}\n👉 PC 카톡에서 아래 링크 클릭:\n${shareUrl}`;
@@ -545,7 +550,6 @@ export default function App() {
       } else { alert("클립보드를 지원하지 않습니다."); } 
   };
 
-  // 🚨 [NEW] 모바일 -> PC 연동용 수동 링크 복사 기능
   const handleCopyLinkForPc = () => {
       const url = generateSyncUrl();
       if (navigator.clipboard) {
@@ -684,8 +688,8 @@ export default function App() {
           </h1>
         </div>
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-            <button onClick={() => { setIsCloudModalOpen(true); setCopied(false); }} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                ☁️ 클라우드 기기 연동
+            <button onClick={() => { setIsCloudModalOpen(true); setSyncLink(''); setCopied(false); }} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                ☁️ 기기 간 즉시 연동
             </button>
             <button onClick={() => setIsGlossaryModalOpen(true)} className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 📖 도장/조색 용어 사전
@@ -1605,7 +1609,7 @@ export default function App() {
                                 <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
                                     <line x1="75" y1="75" x2="30" y2="40" /><line x1="125" y1="75" x2="170" y2="40" /><line x1="100" y1="120" x2="100" y2="175" /><line x1="100" y1="55" x2="100" y2="25" /> <line x1="75" y1="105" x2="30" y2="130" /> <line x1="125" y1="105" x2="170" y2="130" /> <line x1="100" y1="90" x2="150" y2="90" /> 
                                 </g>
-                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Yellow</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
+                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Green</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
                             </svg>
                         </div>
                     </div>
