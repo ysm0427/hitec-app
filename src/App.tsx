@@ -4,7 +4,7 @@ import {
   Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, 
   Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
   FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp, 
-  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon
+  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, CloudRain, CloudUpload, CloudDownload
 } from 'lucide-react';
 
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS, TonerData } from './tonerDB';
@@ -16,7 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.15 (시편 다중 사진 추가/삭제 및 관리 기능 탑재 - TS 오류 픽스)"; 
+const LAST_PATCH_DATE = "2026.10.15 (클라우드 핀번호 자동 동기화 시스템 탑재)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -153,7 +153,6 @@ const MIXING_DATA: Record<string, any> = {
 const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => { const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0; return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) }; };
 const describeArc = (x: number, y: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number) => { const startOuter = polarToCartesian(x, y, outerRadius, endAngle); const endOuter = polarToCartesian(x, y, outerRadius, startAngle); const startInner = polarToCartesian(x, y, innerRadius, endAngle); const endInner = polarToCartesian(x, y, innerRadius, startAngle); const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1"; return [ "M", startOuter.x, startOuter.y, "A", outerRadius, outerRadius, 0, largeArcFlag, 0, endOuter.x, endOuter.y, "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z" ].join(" "); };
 
-// 🚨 [NEW] TS 에러 해결을 위해 명시적 인터페이스 선언
 interface BoardPost {
   id: number;
   brand: string;
@@ -200,6 +199,11 @@ export default function App() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
 
+  // 🚨 [NEW] 클라우드 동기화 모달 및 핀번호 상태
+  const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
+  const [cloudPin, setCloudPin] = useState(() => typeof window !== 'undefined' ? (localStorage.getItem('hitec_cloud_pin') || '0427') : '0427');
+  const [isSyncing, setIsSyncing] = useState(false);
+
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [previewModalImage, setPreviewModalImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -226,7 +230,6 @@ export default function App() {
   const [isPearlGuideOpen, setIsPearlGuideOpen] = useState(false);
   const [activePearlLevel, setActivePearlLevel] = useState(6);
   
-  // 🚨 [NEW] 명시된 BoardPost 타입에 맞춰 배열 생성
   const [boardPosts, setBoardPosts] = useState<BoardPost[]>([
       { id: 1, brand: '현대', code: 'UG4', date: '2026-09-11 14:30', likes: 12, views: 45, author: '윤프로', spec: '이색 심함, 보카시 블렌딩 필수', baseFormula: [{code: 'WT 321', adjustedWeight: '15.5'}], pearlFormula: [], isThreeCoat: false, images: [] }
   ]);
@@ -579,6 +582,71 @@ export default function App() {
       setAttachedImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  // 🚨 [NEW] 클라우드 동기화 (업로드) 함수 (kvdb.io REST API 활용 - 제로콘피그)
+  const handleCloudUpload = async () => {
+      if (!cloudPin) { alert("동기화 핀번호를 입력하세요!"); return; }
+      setIsSyncing(true);
+      try {
+          const dataToSync = {
+              vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes,
+              toners, pearlToners, isThreeCoatMode, registrationDate, boardPosts,
+              updatedAt: new Date().toLocaleString()
+          };
+          const res = await fetch(`https://kvdb.io/ZosekPro_${cloudPin}/formula`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(dataToSync)
+          });
+          if (res.ok) {
+              localStorage.setItem('hitec_cloud_pin', cloudPin);
+              alert("☁️ 클라우드에 성공적으로 백업(업로드)되었습니다!\n다른 기기에서 동일한 핀번호로 불러올 수 있습니다.");
+              setIsCloudModalOpen(false);
+          } else {
+              alert("클라우드 업로드 실패. 핀번호를 확인해주세요.");
+          }
+      } catch (e) {
+          alert("네트워크 오류로 클라우드 업로드에 실패했습니다.");
+      } finally {
+          setIsSyncing(false);
+      }
+  };
+
+  // 🚨 [NEW] 클라우드 동기화 (다운로드) 함수
+  const handleCloudDownload = async () => {
+      if (!cloudPin) { alert("동기화 핀번호를 입력하세요!"); return; }
+      setIsSyncing(true);
+      try {
+          const res = await fetch(`https://kvdb.io/ZosekPro_${cloudPin}/formula`);
+          if (res.ok) {
+              const cloudData = await res.json();
+              if (cloudData) {
+                  if (cloudData.vehicleNumber !== undefined) setVehicleNumber(cloudData.vehicleNumber);
+                  if (cloudData.carModel !== undefined) setCarModel(cloudData.carModel);
+                  if (cloudData.targetColorCode !== undefined) setTargetColorCode(cloudData.targetColorCode);
+                  if (cloudData.jobDescription !== undefined) setJobDescription(cloudData.jobDescription);
+                  if (cloudData.specialNotes !== undefined) setSpecialNotes(cloudData.specialNotes);
+                  if (cloudData.toners) setToners(cloudData.toners);
+                  if (cloudData.pearlToners) setPearlToners(cloudData.pearlToners);
+                  if (cloudData.isThreeCoatMode !== undefined) setIsThreeCoatMode(cloudData.isThreeCoatMode);
+                  if (cloudData.registrationDate) setRegistrationDate(cloudData.registrationDate);
+                  if (cloudData.boardPosts) setBoardPosts(cloudData.boardPosts);
+                  
+                  localStorage.setItem('hitec_cloud_pin', cloudPin);
+                  alert("🔄 클라우드에서 최신 데이터를 성공적으로 불러왔습니다!");
+                  setIsCloudModalOpen(false);
+              } else {
+                  alert("저장된 클라우드 데이터가 없습니다.");
+              }
+          } else {
+              alert("클라우드 데이터를 찾을 수 없습니다. 핀번호를 확인해주세요.");
+          }
+      } catch (e) {
+          alert("네트워크 오류로 클라우드 다운로드에 실패했습니다.");
+      } finally {
+          setIsSyncing(false);
+      }
+  };
+
   const saveToBoard = () => {
       if(!targetColorCode) { alert("⚠️ 컬러코드를 입력해야 합니다!"); return; }
       
@@ -628,6 +696,10 @@ export default function App() {
           </h1>
         </div>
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            {/* 🚨 [NEW] 클라우드 동기화 모달 열기 버튼 */}
+            <button onClick={() => setIsCloudModalOpen(true)} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                ☁️ 클라우드 동기화
+            </button>
             <button onClick={() => setIsGlossaryModalOpen(true)} className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 📖 도장/조색 용어 사전
             </button>
@@ -1034,6 +1106,50 @@ export default function App() {
           </div>
       )}
 
+      {/* 🚨 [NEW] 클라우드 동기화 모달 */}
+      {isCloudModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[420px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-blue-600 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><Cloud size={18} /> PC ⇄ 모바일 클라우드 자동 동기화</h3>
+              <button onClick={() => setIsCloudModalOpen(false)} className="hover:text-red-200 transition-colors bg-blue-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-4 bg-slate-50">
+              <div className="text-xs text-slate-600 leading-relaxed bg-blue-50 p-3 rounded-lg border border-blue-200">
+                  <p className="font-bold text-blue-900 mb-1">💡 사용 방법</p>
+                  <p>사무실(PC)과 부스(모바일)에서 <b>동일한 핀번호</b>를 입력한 뒤 원하시는 버튼을 누르세요. 링크 복사 없이 즉시 데이터가 동기화됩니다!</p>
+              </div>
+              <div>
+                  <label className="text-xs font-black text-slate-700 mb-1 block">🔑 동기화 핀번호 (비밀코드)</label>
+                  <input 
+                      type="text" 
+                      value={cloudPin} 
+                      onChange={e => setCloudPin(e.target.value)} 
+                      placeholder="예: 성남01 또는 차량번호" 
+                      className="w-full border border-slate-300 p-3 rounded-xl font-black text-sm text-slate-900 focus:ring-2 focus:ring-blue-500 shadow-inner" 
+                  />
+              </div>
+              <div className="flex flex-col gap-2.5 mt-2">
+                  <button 
+                      onClick={handleCloudUpload} 
+                      disabled={isSyncing}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-black text-sm shadow-md transition-colors flex items-center justify-center gap-2"
+                  >
+                      <CloudUpload size={18} /> {isSyncing ? '업로드 중...' : '클라우드에 현재 배합 업로드 (백업)'}
+                  </button>
+                  <button 
+                      onClick={handleCloudDownload} 
+                      disabled={isSyncing}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-black text-sm shadow-md transition-colors flex items-center justify-center gap-2"
+                  >
+                      <CloudDownload size={18} /> {isSyncing ? '다운로드 중...' : '클라우드에서 최신 배합 불러오기'}
+                  </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {previewModalImage && (
         <div className="fixed inset-0 bg-black/95 z-[5000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setPreviewModalImage(null)}>
             <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[5010] shadow-lg"><X size={24}/></button>
@@ -1437,7 +1553,6 @@ export default function App() {
                         </div>
                         <p className="text-sm text-slate-600 font-bold mb-3 break-keep pr-16">{post.spec}</p>
                         
-                        {/* 🚨 다중 사진 보기 영역 */}
                         {post.images && post.images.length > 0 && (
                             <div className="mb-3 flex flex-wrap gap-1.5">
                                 {post.images.map((imgUrl: string, imgIdx: number) => (
@@ -1507,7 +1622,6 @@ export default function App() {
                   </>
               )}
 
-              {/* 🚨 상세 보기 창 다중 사진 버튼 */}
               {viewingPost.images && viewingPost.images.length > 0 && (
                   <div className="flex flex-col gap-2">
                       {viewingPost.images.map((imgUrl: string, imgIdx: number) => (
@@ -1563,7 +1677,7 @@ export default function App() {
               <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl shadow-sm mb-6 flex flex-col sm:flex-row gap-3 items-center">
                   <div className="flex-1 w-full text-sm">
                       <p className="font-black text-blue-800 mb-1">🔍 사전에 없는 용어가 궁금하신가요?</p>
-                      <p className="text-slate-600 text-xs break-keep">아래 검색창에 궁금한 용어를 입력하고 엔터(Enter) 키 시면 바로 구글 검색 결과로 이동합니다.</p>
+                      <p className="text-slate-600 text-xs break-keep">아래 검색창에 궁금한 용어를 입력하고 엔터(Enter) 키를 치시면 바로 구글 검색 결과로 이동합니다.</p>
                       <div className="flex mt-2 shadow-sm">
                         <input 
                             id="glossarySearchInput" 
@@ -1819,7 +1933,7 @@ export default function App() {
                                 <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
                                     <line x1="75" y1="75" x2="30" y2="40" /><line x1="125" y1="75" x2="170" y2="40" /><line x1="100" y1="120" x2="100" y2="175" /><line x1="100" y1="55" x2="100" y2="25" /> <line x1="75" y1="105" x2="30" y2="130" /> <line x1="125" y1="105" x2="170" y2="130" /> <line x1="100" y1="90" x2="150" y2="90" /> 
                                 </g>
-                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Yellow</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
+                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Green</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
                             </svg>
                         </div>
                     </div>
