@@ -16,7 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.15 (시편 사진 압축, 시간 표시 및 키패드 연동 자동 숨김)"; 
+const LAST_PATCH_DATE = "2026.10.15 (시편 다중 사진 추가/삭제 및 관리 기능 탑재)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -184,12 +184,12 @@ export default function App() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
 
-  // 🚨 [NEW] 시편 사진 업로드 및 게시판 사진 보기 상태 관리
-  const [attachedImage, setAttachedImage] = useState<string | null>(null);
+  // 🚨 [NEW] 시편 다중 사진 첨부 및 미리보기 모달 상태
+  const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [previewModalImage, setPreviewModalImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // 🚨 [NEW] 모바일 키패드 열림 여부 감지 (하단 중량 바 자동 숨김용)
+  // 🚨 [NEW] 모바일 키패드 포커스 감지 (하단 중량 바 자동 숨김)
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
   const [boardSearch, setBoardSearch] = useState(''); 
@@ -213,7 +213,7 @@ export default function App() {
   const [activePearlLevel, setActivePearlLevel] = useState(6);
   
   const [boardPosts, setBoardPosts] = useState([
-      { id: 1, brand: '현대', code: 'UG4', date: '2026-09-11 14:30', likes: 12, views: 45, author: '윤프로', spec: '이색 심함, 보카시 블렌딩 필수', baseFormula: [{code: 'WT 321', adjustedWeight: '15.5'}], pearlFormula: [], isThreeCoat: false, image: '' }
+      { id: 1, brand: '현대', code: 'UG4', date: '2026-09-11 14:30', likes: 12, views: 45, author: '윤프로', spec: '이색 심함, 보카시 블렌딩 필수', baseFormula: [{code: 'WT 321', adjustedWeight: '15.5'}], pearlFormula: [], isThreeCoat: false, images: [] }
   ]);
 
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
@@ -246,7 +246,7 @@ export default function App() {
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
-  // 🚨 [NEW] 모바일 키패드(인풋 포커스) 전역 감지 리스너 (입력 중 하단 바 숨김)
+  // 🚨 모바일 키패드 전역 감지 (입력 중 하단 바 자동 숨김)
   useEffect(() => {
       const handleFocusIn = (e: FocusEvent) => {
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) {
@@ -275,7 +275,6 @@ export default function App() {
         if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); 
     } else {
         document.body.style.overflow = '';
-        // 🚨 모바일 화면 고정 및 안정화 뷰포트
         if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'); 
     }
     return () => {
@@ -418,12 +417,12 @@ export default function App() {
       if(!window.confirm("모든 입력 데이터를 초기화하시겠습니까?")) return;
       setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
       setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); 
-      setSnapshots([]); setCatalogSearch(''); setAttachedImage(null);
+      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
   };
   const handleResetFormula = () => { 
       if(!window.confirm("현재 배합과 수정 내역을 모두 리셋하시겠습니까?")) return;
       setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setSelectedTonerForView(null); 
-      setSnapshots([]); setCatalogSearch(''); setAttachedImage(null);
+      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
   };
   
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
@@ -531,7 +530,7 @@ export default function App() {
   };
   const handleCopyExcelTemplate = () => { const headerRow = ['등록 날짜', '차량 번호', '브랜드/차종', '컬러코드', '작업내용', '특이사항', '배합보기'].join('\t'); if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(headerRow); alert("엑셀 헤더가 복사되었습니다."); } }
   
-  // 🚨 [NEW] 시편 사진 업로드 핸들러 (자동 압축 처리로 모바일 튕김 방지)
+  // 🚨 [NEW] 다중 사진 압축 업로드 핸들러
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
@@ -554,8 +553,8 @@ export default function App() {
                   const ctx = canvas.getContext('2d');
                   ctx?.drawImage(img, 0, 0, width, height);
                   const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                  setAttachedImage(compressedBase64);
-                  alert("📷 시편 사진이 압축 첨부되었습니다!");
+                  setAttachedImages(prev => [...prev, compressedBase64]);
+                  alert("📷 시편 사진이 추가되었습니다!");
               };
               img.src = event.target?.result as string;
           };
@@ -563,10 +562,15 @@ export default function App() {
       }
   };
 
+  // 🚨 [NEW] 첨부된 사진 개별 삭제 핸들러
+  const removeAttachedImage = (index: number) => {
+      setAttachedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
   const saveToBoard = () => {
       if(!targetColorCode) { alert("⚠️ 컬러코드를 입력해야 합니다!"); return; }
       
-      // 🚨 [NEW] 날짜 + 시간(시·분) 포맷 생성
+      // 🚨 [NEW] 날짜 + 시간(시·분) 자동 포맷
       const now = new Date();
       const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
@@ -582,11 +586,11 @@ export default function App() {
           baseFormula: [...toners], 
           pearlFormula: [...pearlToners], 
           isThreeCoat: isThreeCoatMode,
-          image: attachedImage || '' 
+          images: [...attachedImages] // 다중 사진 배열 저장
       };
       setBoardPosts([newPost, ...boardPosts]); 
-      setAttachedImage(null); 
-      alert("🎉 시편 데이터와 시간이 함께 등록되었습니다!");
+      setAttachedImages([]); 
+      alert("🎉 시편 사진들과 함께 게시판에 등록되었습니다!");
   };
 
   const deleteBoardPost = (id: number, e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("삭제하시겠습니까?")) setBoardPosts(prev => prev.filter(post => post.id !== id)); };
@@ -603,7 +607,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[220px] md:pb-[140px] notranslate" translate="no">
+    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
       <header className="bg-slate-900 flex flex-col sm:flex-row justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0 gap-3">
         <div className="flex items-center space-x-3 w-full sm:w-auto">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
@@ -647,14 +651,28 @@ export default function App() {
                 <button onClick={() => setIsExcelModalOpen(true)} className="flex-[1.2] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
                 
                 <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
-                <button onClick={() => fileInputRef.current?.click()} className={`flex-[1.2] ${attachedImage ? 'bg-amber-600 hover:bg-amber-700' : 'bg-slate-700 hover:bg-slate-600'} text-white p-3 rounded text-xs font-black flex items-center justify-center shadow-sm`}>
-                    <Camera size={16} className="mr-1 hidden sm:block"/> {attachedImage ? '사진첨부완료' : '사진첨부'}
+                <button onClick={() => fileInputRef.current?.click()} className={`flex-[1.2] ${attachedImages.length > 0 ? 'bg-amber-600 hover:bg-amber-700' : 'bg-slate-700 hover:bg-slate-600'} text-white p-3 rounded text-xs font-black flex items-center justify-center shadow-sm`}>
+                    <Camera size={16} className="mr-1 hidden sm:block"/> {attachedImages.length > 0 ? `사진(${attachedImages.length})` : '사진첨부'}
                 </button>
 
                 <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.3] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
                 <button onClick={() => setIsShareModalOpen(true)} className="flex-[1.8] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] shadow-sm"><Share2 size={18} className="mr-1.5"/> 공유 전송</button>
                 <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 shadow-sm whitespace-nowrap"><Trash2 size={18} className="mb-0.5" /><span className="text-[9px] font-black">리셋</span></button>
               </div>
+
+              {/* 🚨 [NEW] 첨부된 사진 미리보기 및 개별 삭제 바 */}
+              {attachedImages.length > 0 && (
+                  <div className="flex gap-2 overflow-x-auto py-2 px-2 bg-amber-50/50 rounded-xl border border-amber-200">
+                      {attachedImages.map((imgSrc, idx) => (
+                          <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-amber-300 shrink-0 shadow-sm group bg-white">
+                              <img src={imgSrc} alt={`시편 ${idx+1}`} className="w-full h-full object-cover cursor-pointer" onClick={() => setPreviewModalImage(imgSrc)} />
+                              <button onClick={() => removeAttachedImage(idx)} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 shadow-md">
+                                  <X size={10} />
+                              </button>
+                          </div>
+                      ))}
+                  </div>
+              )}
             </div>
           </div>
           
@@ -976,7 +994,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* 🚨 [NEW] 키패드 입력 중에는 하단 바 숨김, 입력 완료 시에만 표시되는 스마트 요약 바 */}
+      {/* 🚨 [NEW] 키패드 입력 중에는 자동 숨김 처리되는 스마트 하단 요약 바 */}
       {!isKeyboardOpen && (
           <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.4)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
               <div className="flex flex-col p-3 gap-2 w-full max-w-4xl mx-auto">
@@ -1008,12 +1026,12 @@ export default function App() {
           </div>
       )}
 
-      {/* 🚨 [NEW] 게시판 시편 사진 미리보기 모달 */}
+      {/* 🚨 [NEW] 시편 게시판 사진 확대 미리보기 모달 */}
       {previewModalImage && (
         <div className="fixed inset-0 bg-black/95 z-[5000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setPreviewModalImage(null)}>
             <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[5010] shadow-lg"><X size={24}/></button>
-            <div className="max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl border border-slate-700 shadow-2xl" onClick={e => e.stopPropagation()}>
-                <img src={previewModalImage} alt="시편 확대 사진" className="w-full h-full object-contain bg-slate-900" />
+            <div className="max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl border border-slate-700 shadow-2xl bg-slate-900 p-2" onClick={e => e.stopPropagation()}>
+                <img src={previewModalImage} alt="시편 확대 사진" className="w-full h-full object-contain max-h-[80vh]" />
             </div>
         </div>
       )}
@@ -1412,12 +1430,14 @@ export default function App() {
                         </div>
                         <p className="text-sm text-slate-600 font-bold mb-3 break-keep pr-16">{post.spec}</p>
                         
-                        {/* 🚨 [NEW] 시편 게시판 목록: 사진이 첨부되어 있을 때만 '사진 보기' 버튼 표시 */}
-                        {post.image && (
-                            <div className="mb-3">
-                                <button onClick={(e) => { e.stopPropagation(); setPreviewModalImage(post.image); }} className="bg-amber-50 border border-amber-300 text-amber-800 hover:bg-amber-100 text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm transition-colors">
-                                    <ImageIcon size={14} className="text-amber-600" /> 📷 첨부된 시편 사진 보기 (클릭)
-                                </button>
+                        {/* 🚨 [NEW] 시편 게시판 목록: 사진이 있을 때만 클릭 가능한 '사진 보기' 버튼 표시 */}
+                        {((post.images && post.images.length > 0) || post.image) && (
+                            <div className="mb-3 flex flex-wrap gap-1.5">
+                                {(post.images || [post.image]).map((imgUrl: string, imgIdx: number) => imgUrl ? (
+                                    <button key={imgIdx} onClick={(e) => { e.stopPropagation(); setPreviewModalImage(imgUrl); }} className="bg-amber-50 border border-amber-300 text-amber-800 hover:bg-amber-100 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition-colors">
+                                        <ImageIcon size={14} className="text-amber-600" /> 📷 시편 사진 {imgIdx + 1} 보기
+                                    </button>
+                                ) : null)}
                             </div>
                         )}
 
@@ -1480,12 +1500,14 @@ export default function App() {
                   </>
               )}
 
-              {/* 🚨 [NEW] 시편 상세 보기 모달에서도 사진 토글 보기 버튼 제공 */}
-              {viewingPost.image && (
-                  <div>
-                      <button onClick={() => setPreviewModalImage(viewingPost.image)} className="w-full bg-amber-50 border border-amber-300 text-amber-800 hover:bg-amber-100 text-xs font-bold py-2.5 rounded-lg flex items-center justify-center gap-1.5 shadow-sm transition-colors">
-                          <ImageIcon size={16} className="text-amber-600" /> 📷 첨부된 시편 사진 크게 보기
-                      </button>
+              {/* 🚨 [NEW] 상세 보기 모달에서 사진 버튼 제공 */}
+              {((viewingPost.images && viewingPost.images.length > 0) || viewingPost.image) && (
+                  <div className="flex flex-wrap gap-2">
+                      {(viewingPost.images || [viewingPost.image]).map((imgUrl: string, imgIdx: number) => imgUrl ? (
+                          <button key={imgIdx} onClick={() => setPreviewModalImage(imgUrl)} className="bg-amber-50 border border-amber-300 text-amber-800 hover:bg-amber-100 text-xs font-bold py-2.5 px-3 rounded-lg flex items-center gap-1.5 shadow-sm transition-colors">
+                              <ImageIcon size={16} className="text-amber-600" /> 📷 시편 사진 {imgIdx + 1} 보기
+                          </button>
+                      ) : null)}
                   </div>
               )}
 
