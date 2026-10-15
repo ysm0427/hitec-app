@@ -4,8 +4,7 @@ import {
   Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, 
   Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
   FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp, 
-  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon,
-  Cloud, CloudUpload, CloudDownload, QrCode // 🚨 누락되었던 Cloud 아이콘 추가 완료!
+  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Link, Copy, Check, Smartphone, Monitor
 } from 'lucide-react';
 
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS, TonerData } from './tonerDB';
@@ -17,7 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.15 (초고속 QR 스캔 & 초경량 클라우드 동기화 시스템 탑재)"; 
+const LAST_PATCH_DATE = "2026.10.15 (PC-모바일 양방향 초고속 다이렉트 연동 UI 개편)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -200,10 +199,10 @@ export default function App() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
 
-  // 🚨 클라우드 동기화 모달 및 핀번호 상태
+  // 🚨 [NEW] 서버 의존성 0% - 초고속 양방향 동기화(QR & 링크 복사) 모달 전용 상태
   const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
-  const [cloudCode, setCloudCode] = useState(() => typeof window !== 'undefined' ? (localStorage.getItem('hitec_cloud_code') || '') : '');
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncLink, setSyncLink] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [previewModalImage, setPreviewModalImage] = useState<string | null>(null);
@@ -382,7 +381,7 @@ export default function App() {
                     if(parsedData.b && parsedData.b.length > 0) setToners(parsedData.b); if(parsedData.p && parsedData.p.length > 0) setPearlToners(parsedData.p);
                     setIsThreeCoatMode(parsedData.t || false); if(parsedData.date) setRegistrationDate(parsedData.date);
                     window.history.replaceState({}, document.title, window.location.pathname); loadedFromUrl = true; 
-                    alert("✅ 링크를 통해 배합 데이터가 성공적으로 불러와졌습니다!"); // 🚨 [NEW] 링크 스캔 시 성공 피드백
+                    alert("✅ 링크를 통해 배합 데이터가 성공적으로 불러와졌습니다!");
                 }
             } catch (e) {}
         }
@@ -528,12 +527,33 @@ export default function App() {
     setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
   };
 
-  // 🚨 [NEW] 에러 없는 100% 안전한 URL 딥링크 생성 함수
+  // 🚨 [수정됨] URL 딥링크 생성 로직 분리 (데이터 다이어트: 사진과 이전 게시물 제외)
   const generateSyncUrl = () => { 
       let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin; 
-      // 🚨 클라우드 전송 데이터 다이어트: 사진(Images)과 이전 게시판 기록은 제외하여 딥링크 길이 한도 초과 방지
       const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); 
       return `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`; 
+  };
+
+  // 🚨 [NEW] 모바일 -> PC 연동용 카카오톡 PC 공유 기능 (가장 빠름)
+  const handleSendToPcKakao = () => {
+      const shareUrl = generateSyncUrl();
+      const shareText = `[조색 Pro] PC로 작업 보내기\n차량: ${vehicleNumber} / ${carModel}\n컬러: ${targetColorCode}\n👉 PC 카톡에서 아래 링크 클릭:\n${shareUrl}`;
+      if (typeof navigator !== 'undefined' && navigator.clipboard) { 
+          navigator.clipboard.writeText(shareText).then(() => {
+              window.location.href = 'kakaotalk://'; 
+          }).catch(() => { alert("복사 실패. 브라우저를 확인해주세요."); });
+      } else { alert("클립보드를 지원하지 않습니다."); } 
+  };
+
+  // 🚨 [NEW] 모바일 -> PC 연동용 수동 링크 복사 기능
+  const handleCopyLinkForPc = () => {
+      const url = generateSyncUrl();
+      if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => {
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+          });
+      }
   };
 
   const handleShareKakao = () => { 
@@ -615,79 +635,6 @@ export default function App() {
       }
   };
 
-  // 🚨 [NEW] 서버 통신 없는 초고속 클라우드 동기화 시스템 (딥링크 & QR)
-  const handleCloudUpload = async () => {
-      setIsSyncing(true);
-      try {
-          const dataToSync = {
-              v: vehicleNumber, m: carModel, c: targetColorCode, j: jobDescription, n: specialNotes,
-              b: packToners(toners), p: isThreeCoatMode ? packToners(pearlToners) : '',
-              t: isThreeCoatMode ? '1' : '0', date: registrationDate
-          };
-          
-          // 기존 에러 투성이 외부 서버 대신, 무적의 딥링크 URL 방식과 매우 가볍고 안정적인 npoint 서버 동시 활용.
-          // 여기서 용량이 터지지 않도록 데이터 다이어트 완료.
-          const res = await fetch('https://api.npoint.io/', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(dataToSync)
-          });
-          
-          if (res.ok) {
-              const data = await res.json();
-              const newCode = data.id; 
-              setCloudCode(newCode);
-              localStorage.setItem('hitec_cloud_code', newCode);
-              
-              if (navigator.clipboard) {
-                  await navigator.clipboard.writeText(newCode);
-              }
-              alert(`☁️ 업로드 성공!\n\n발급된 클라우드 코드: [ ${newCode} ]\n(클립보드에 자동 복사되었습니다.)\n\n모바일 기기에서 이 코드를 붙여넣어 즉시 다운로드하세요.`);
-              setIsCloudModalOpen(false);
-          } else {
-              alert("클라우드 서버 오류로 업로드에 실패했습니다. 데이터를 줄여서 다시 시도해주세요.");
-          }
-      } catch (e) {
-          alert("네트워크 오류가 발생했습니다.");
-      } finally {
-          setIsSyncing(false);
-      }
-  };
-
-  const handleCloudDownload = async () => {
-      if (!cloudCode) { alert("발급받은 클라우드 코드를 입력하세요!"); return; }
-      setIsSyncing(true);
-      try {
-          const res = await fetch(`https://api.npoint.io/${cloudCode}`);
-          if (res.ok) {
-              const parsedData = await res.json();
-              if (parsedData) {
-                  if (parsedData.v !== undefined) setVehicleNumber(parsedData.v);
-                  if (parsedData.m !== undefined) setCarModel(parsedData.m);
-                  if (parsedData.c !== undefined) setTargetColorCode(parsedData.c);
-                  if (parsedData.j !== undefined) setJobDescription(parsedData.j);
-                  if (parsedData.n !== undefined) setSpecialNotes(parsedData.n);
-                  if (parsedData.b) setToners(unpackToners(parsedData.b));
-                  if (parsedData.p) setPearlToners(unpackToners(parsedData.p));
-                  if (parsedData.t !== undefined) setIsThreeCoatMode(parsedData.t === '1');
-                  if (parsedData.date) setRegistrationDate(parsedData.date);
-                  
-                  localStorage.setItem('hitec_cloud_code', cloudCode);
-                  alert("🔄 클라우드에서 최신 데이터를 성공적으로 불러왔습니다!");
-                  setIsCloudModalOpen(false);
-              } else {
-                  alert("저장된 클라우드 데이터가 없습니다.");
-              }
-          } else {
-              alert("코드가 유효하지 않거나 만료되었습니다. 다시 확인해주세요.");
-          }
-      } catch (e) {
-          alert("네트워크 오류로 클라우드 다운로드에 실패했습니다.");
-      } finally {
-          setIsSyncing(false);
-      }
-  };
-
   const saveToBoard = () => {
       if(!targetColorCode) { alert("⚠️ 컬러코드를 입력해야 합니다!"); return; }
       
@@ -737,8 +684,8 @@ export default function App() {
           </h1>
         </div>
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-            <button onClick={() => setIsCloudModalOpen(true)} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                ☁️ 클라우드 동기화
+            <button onClick={() => { setIsCloudModalOpen(true); setCopied(false); }} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                ☁️ 클라우드 기기 연동
             </button>
             <button onClick={() => setIsGlossaryModalOpen(true)} className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 📖 도장/조색 용어 사전
@@ -886,6 +833,19 @@ export default function App() {
                 )
               })}
               
+              <div className="hidden md:flex justify-between items-center bg-blue-50/80 p-3 mt-3 rounded-xl border border-blue-200 shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center border border-blue-300 shadow-inner">
+                          <Beaker size={14} className="text-blue-700"/>
+                      </div>
+                      <div className="flex flex-col">
+                          <span className="text-xs font-black text-blue-800">💧 필수 수지/환원제 (6052 등)</span>
+                          <span className="text-[10px] font-bold text-blue-600 opacity-80">입력된 베이스 안료 중량 대비 자동 계산량</span>
+                      </div>
+                  </div>
+                  <span className="text-xl font-black text-blue-700">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}<span className="text-xs ml-0.5">g</span></span>
+              </div>
+
               <div className="flex w-full gap-2 mt-3">
                   <button onClick={() => addToner(false)} className="flex-1 py-3 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center transition-all shadow-sm">
                       <Plus size={18} className="mr-1"/>베이스 안료 추가
@@ -989,6 +949,19 @@ export default function App() {
                     </div>
                   )
                 })}
+
+                <div className="hidden md:flex justify-between items-center bg-purple-50/80 p-3 mt-3 rounded-xl border border-purple-200 shadow-sm">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-purple-200 flex items-center justify-center border border-purple-300 shadow-inner">
+                            <Zap size={14} className="text-purple-700"/>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xs font-black text-purple-800">✨ 펄 전용 수지/환원제</span>
+                            <span className="text-[10px] font-bold text-purple-600 opacity-80">입력된 펄 안료 중량 대비 자동 계산량</span>
+                        </div>
+                    </div>
+                    <span className="text-xl font-black text-purple-700">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}<span className="text-xs ml-0.5">g</span></span>
+                </div>
 
                 <button onClick={() => addToner(true)} className="w-full py-3 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-lg text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-3 shadow-sm">
                     <Plus size={18} /><span>펄 조색제 추가</span>
@@ -1146,65 +1119,47 @@ export default function App() {
           </div>
       )}
 
-      {/* 🚨 [NEW] 무적의 클라우드 동기화 팝업 (QR코드 + 짧은 식별 코드 동시 제공) */}
+      {/* 🚨 [NEW] 무적의 양방향 연동 모달 (QR 스캔 & PC 카카오톡 다이렉트) */}
       {isCloudModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
             <div className="p-4 bg-blue-600 flex justify-between items-center text-white">
-              <h3 className="font-bold flex items-center gap-2"><Cloud size={18} /> PC ⇄ 모바일 초고속 클라우드 동기화</h3>
+              <h3 className="font-bold flex items-center gap-2"><Cloud size={18} /> 기기 간 초고속 다이렉트 연동 (오류 0%)</h3>
               <button onClick={() => setIsCloudModalOpen(false)} className="hover:text-red-200 transition-colors bg-blue-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             
-            <div className="p-6 flex flex-col gap-4 bg-slate-50 overflow-y-auto max-h-[80vh] custom-scrollbar">
+            <div className="p-6 flex flex-col gap-6 bg-slate-50 overflow-y-auto max-h-[80vh] custom-scrollbar">
               
-              {/* 1. PC용 가장 빠른 방법: QR 코드 스캔 */}
-              <div className="bg-white p-4 rounded-xl border border-blue-200 shadow-sm flex flex-col items-center text-center">
-                  <span className="bg-blue-100 text-blue-800 text-[10px] font-black px-2 py-0.5 rounded-full mb-2">가장 빠른 방법 (PC ➔ 모바일)</span>
-                  <h4 className="text-sm font-black text-slate-800 mb-1 flex items-center gap-1"><QrCode size={16} className="text-blue-600"/> 스마트폰 카메라로 QR 스캔</h4>
-                  <p className="text-[11px] text-slate-500 mb-3">현재 PC 화면의 배합을 모바일에서 바로 띄우려면<br/>스마트폰 카메라로 아래 QR 코드를 비추세요.</p>
-                  <div className="bg-white p-2 border-2 border-dashed border-blue-300 rounded-xl">
-                      <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateSyncUrl())}`} alt="배합 동기화 QR코드" className="w-[120px] h-[120px]" />
+              {/* 1. PC -> 모바일 (QR 스캔) */}
+              <div className="bg-white p-5 rounded-xl border border-blue-200 shadow-sm flex flex-col items-center text-center">
+                  <span className="bg-blue-100 text-blue-800 text-[11px] font-black px-3 py-1 rounded-full mb-3 flex items-center gap-1.5"><Monitor size={14}/> PC ➔ 모바일 연결</span>
+                  <h4 className="text-base font-black text-slate-800 mb-1 flex items-center gap-1.5"><QrCode size={18} className="text-blue-600"/> 스마트폰 카메라로 QR 스캔</h4>
+                  <p className="text-xs text-slate-500 mb-4">현재 PC 화면의 배합을 모바일로 즉시 넘기려면<br/>스마트폰 기본 카메라로 아래 QR 코드를 비추세요.</p>
+                  <div className="bg-white p-3 border-2 border-dashed border-blue-300 rounded-2xl">
+                      <img src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(generateSyncUrl())}`} alt="배합 동기화 QR코드" className="w-[140px] h-[140px]" />
                   </div>
               </div>
 
-              <div className="relative py-2 flex items-center justify-center">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-300"></div></div>
-                  <span className="relative bg-slate-50 px-3 text-[10px] text-slate-400 font-bold uppercase tracking-widest">or</span>
-              </div>
-
-              {/* 2. 클라우드 코드 업로드/다운로드 방식 */}
-              <div className="bg-slate-100 p-4 rounded-xl border border-slate-200">
-                  <h4 className="text-sm font-black text-slate-800 mb-2 flex items-center gap-1"><Cloud size={16} className="text-indigo-600"/> 동기화 코드 방식 (양방향)</h4>
-                  <p className="text-[11px] text-slate-500 mb-4 break-keep">작업 중인 배합을 업로드하여 <b>동기화 코드</b>를 발급받고,<br/>다른 기기에서 그 코드를 입력하여 불러옵니다.</p>
+              {/* 2. 모바일 -> PC (카카오톡 전송) */}
+              <div className="bg-white p-5 rounded-xl border border-yellow-200 shadow-sm flex flex-col items-center text-center relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-[#FEE500]"></div>
+                  <span className="bg-yellow-100 text-yellow-800 text-[11px] font-black px-3 py-1 rounded-full mb-3 flex items-center gap-1.5 mt-2"><Smartphone size={14}/> 모바일 ➔ PC 연결</span>
+                  <h4 className="text-base font-black text-slate-800 mb-1 flex items-center gap-1.5"><MessageSquare size={18} className="text-yellow-500"/> PC 카카오톡으로 전송하기</h4>
+                  <p className="text-xs text-slate-500 mb-4 break-keep">모바일에서 작업한 내역을 PC로 보낼 때는<br/><b>카카오톡 PC버전</b>으로 보내는 것이 가장 빠르고 확실합니다.</p>
                   
-                  <div className="flex flex-col gap-3">
-                      <div>
-                          <label className="text-[10px] font-black text-slate-600 mb-1 block">발급받은 동기화 코드 입력</label>
-                          <input 
-                              type="text" 
-                              value={cloudCode} 
-                              onChange={e => setCloudCode(e.target.value)} 
-                              placeholder="예: 7hdquc3fl..." 
-                              className="w-full border border-slate-300 p-2.5 rounded-lg font-black text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 shadow-inner" 
-                          />
-                      </div>
-                      
-                      <div className="flex gap-2">
-                          <button 
-                              onClick={handleCloudUpload} 
-                              disabled={isSyncing}
-                              className="flex-[1] bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg font-black text-[11px] sm:text-xs shadow-sm transition-colors flex flex-col items-center justify-center gap-1"
-                          >
-                              <CloudUpload size={16} /> {isSyncing ? '업로드...' : '업로드(코드발급)'}
-                          </button>
-                          <button 
-                              onClick={handleCloudDownload} 
-                              disabled={isSyncing || !cloudCode}
-                              className={`flex-[1] text-white py-2.5 rounded-lg font-black text-[11px] sm:text-xs shadow-sm transition-colors flex flex-col items-center justify-center gap-1 ${cloudCode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-300'}`}
-                          >
-                              <CloudDownload size={16} /> {isSyncing ? '불러오는 중...' : '코드로 불러오기'}
-                          </button>
-                      </div>
+                  <div className="flex flex-col gap-2.5 w-full">
+                      <button 
+                          onClick={handleSendToPcKakao} 
+                          className="w-full bg-[#FEE500] hover:bg-[#E5C100] text-slate-900 py-3.5 rounded-xl font-black text-sm shadow-sm transition-colors flex items-center justify-center gap-2"
+                      >
+                          <MessageSquare size={18} /> 카카오톡 (나에게 쓰기) 로 보내기
+                      </button>
+                      <button 
+                          onClick={handleCopyLinkForPc} 
+                          className={`w-full py-3.5 rounded-xl font-black text-sm shadow-sm transition-colors flex items-center justify-center gap-2 ${copied ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
+                      >
+                          {copied ? <><Check size={18}/> 링크가 복사되었습니다!</> : <><Link size={18}/> 다이렉트 링크 주소 복사하기</>}
+                      </button>
                   </div>
               </div>
 
@@ -1650,7 +1605,7 @@ export default function App() {
                                 <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
                                     <line x1="75" y1="75" x2="30" y2="40" /><line x1="125" y1="75" x2="170" y2="40" /><line x1="100" y1="120" x2="100" y2="175" /><line x1="100" y1="55" x2="100" y2="25" /> <line x1="75" y1="105" x2="30" y2="130" /> <line x1="125" y1="105" x2="170" y2="130" /> <line x1="100" y1="90" x2="150" y2="90" /> 
                                 </g>
-                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Green</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
+                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Yellow</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
                             </svg>
                         </div>
                     </div>
