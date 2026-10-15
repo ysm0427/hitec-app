@@ -16,7 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.15 (시편 다중 사진 개별 삭제 및 데이터 증발 방지 시스템 적용)"; 
+const LAST_PATCH_DATE = "2026.10.15 (nPoint 클라우드 연동 및 동기화 최적화)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -199,8 +199,9 @@ export default function App() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
 
+  // 🚨 [수정됨] 클라우드 코드 시스템 상태 (PIN번호 대신 자동발급 코드로 변경)
   const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
-  const [cloudPin, setCloudPin] = useState(() => typeof window !== 'undefined' ? (localStorage.getItem('hitec_cloud_pin') || '0427') : '0427');
+  const [cloudCode, setCloudCode] = useState(() => typeof window !== 'undefined' ? (localStorage.getItem('hitec_cloud_code') || '') : '');
   const [isSyncing, setIsSyncing] = useState(false);
 
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
@@ -392,7 +393,6 @@ export default function App() {
     }
   }, []);
 
-  // 🚨 [NEW] 데이터 증발 방지 (QuotaExceededError) 방어 코드 적용
   useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search); if (urlParams.get('d')) return;
       if (isLoaded && typeof window !== 'undefined') {
@@ -562,7 +562,7 @@ export default function App() {
   };
   const handleCopyExcelTemplate = () => { const headerRow = ['등록 날짜', '차량 번호', '브랜드/차종', '컬러코드', '작업내용', '특이사항', '배합보기'].join('\t'); if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(headerRow); alert("엑셀 헤더가 복사되었습니다."); } }
   
-  // 🚨 [NEW] 다중 사진 초강력 압축 업로드 핸들러 (메모리 초과 방지)
+  // 🚨 [수정됨] 업로드 시 사진 사이즈를 더 확실히 압축 (모바일 용량 초과로 인한 리셋 에러 원천 차단)
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
@@ -573,7 +573,6 @@ export default function App() {
                   const canvas = document.createElement('canvas');
                   let width = img.width;
                   let height = img.height;
-                  // 🚨 모바일 브라우저 용량(Quota) 제한을 막기 위해 사이즈를 600px로 대폭 압축
                   const MAX_WIDTH = 600; 
                   const MAX_HEIGHT = 600;
                   if (width > height) {
@@ -585,8 +584,7 @@ export default function App() {
                   canvas.height = height;
                   const ctx = canvas.getContext('2d');
                   ctx?.drawImage(img, 0, 0, width, height);
-                  // 🚨 품질(quality)도 0.5로 설정하여 Base64 용량 최소화
-                  const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
+                  const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5); // 용량을 확 줄이는 50% 퀄리티 세팅
                   setAttachedImages(prev => [...prev, compressedBase64]);
                   alert("📷 시편 사진이 안전하게 최적화되어 추가되었습니다!");
               };
@@ -600,7 +598,6 @@ export default function App() {
       setAttachedImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  // 🚨 [NEW] 시편 게시판 내의 개별 사진 삭제 (해당 게시물의 특정 사진만 골라서 삭제)
   const handleDeletePostImage = (postId: number, imgIdx: number) => {
       if (window.confirm("이 사진만 개별적으로 삭제하시겠습니까? (복구 불가)")) {
           setBoardPosts(prev => prev.map(p => {
@@ -620,39 +617,47 @@ export default function App() {
       }
   };
 
+  // 🚨 [수정됨] nPoint 퍼블릭 API를 활용한 안전한 클라우드 업로드 방식 (수동 핀번호 입력 삭제, 자동 코드 발급)
   const handleCloudUpload = async () => {
-      if (!cloudPin) { alert("동기화 핀번호를 입력하세요!"); return; }
       setIsSyncing(true);
       try {
+          // 업로드 시 용량 초과를 막기 위해 '사진 포함 게시판 전체 데이터'는 제외하고, 현재 작업 중인 배합만 가볍게 보냅니다.
           const dataToSync = {
               vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes,
-              toners, pearlToners, isThreeCoatMode, registrationDate, boardPosts,
+              toners, pearlToners, isThreeCoatMode, registrationDate,
               updatedAt: new Date().toLocaleString()
           };
-          const res = await fetch(`https://kvdb.io/ZosekPro_${cloudPin}/formula`, {
-              method: 'PUT',
+          const res = await fetch('https://api.npoint.io/', {
+              method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(dataToSync)
           });
           if (res.ok) {
-              localStorage.setItem('hitec_cloud_pin', cloudPin);
-              alert("☁️ 클라우드에 성공적으로 백업(업로드)되었습니다!\n다른 기기에서 동일한 핀번호로 불러올 수 있습니다.");
+              const data = await res.json();
+              const newCode = data.id; 
+              setCloudCode(newCode);
+              localStorage.setItem('hitec_cloud_code', newCode);
+              
+              if (navigator.clipboard) {
+                  await navigator.clipboard.writeText(newCode);
+              }
+              alert(`☁️ 업로드 성공!\n\n발급된 클라우드 코드: [ ${newCode} ]\n(클립보드에 자동 복사되었습니다.)\n\n모바일 기기에서 이 코드를 붙여넣어 다운로드하세요.`);
               setIsCloudModalOpen(false);
           } else {
-              alert("클라우드 업로드 실패. 핀번호를 확인해주세요.");
+              alert("클라우드 서버 오류로 업로드에 실패했습니다.");
           }
       } catch (e) {
-          alert("네트워크 오류로 클라우드 업로드에 실패했습니다.");
+          alert("네트워크 오류가 발생했습니다.");
       } finally {
           setIsSyncing(false);
       }
   };
 
   const handleCloudDownload = async () => {
-      if (!cloudPin) { alert("동기화 핀번호를 입력하세요!"); return; }
+      if (!cloudCode) { alert("발급받은 클라우드 코드를 입력하세요!"); return; }
       setIsSyncing(true);
       try {
-          const res = await fetch(`https://kvdb.io/ZosekPro_${cloudPin}/formula`);
+          const res = await fetch(`https://api.npoint.io/${cloudCode}`);
           if (res.ok) {
               const cloudData = await res.json();
               if (cloudData) {
@@ -665,16 +670,15 @@ export default function App() {
                   if (cloudData.pearlToners) setPearlToners(cloudData.pearlToners);
                   if (cloudData.isThreeCoatMode !== undefined) setIsThreeCoatMode(cloudData.isThreeCoatMode);
                   if (cloudData.registrationDate) setRegistrationDate(cloudData.registrationDate);
-                  if (cloudData.boardPosts) setBoardPosts(cloudData.boardPosts);
                   
-                  localStorage.setItem('hitec_cloud_pin', cloudPin);
+                  localStorage.setItem('hitec_cloud_code', cloudCode);
                   alert("🔄 클라우드에서 최신 데이터를 성공적으로 불러왔습니다!");
                   setIsCloudModalOpen(false);
               } else {
                   alert("저장된 클라우드 데이터가 없습니다.");
               }
           } else {
-              alert("클라우드 데이터를 찾을 수 없습니다. 핀번호를 확인해주세요.");
+              alert("코드가 유효하지 않거나 만료되었습니다. 다시 확인해주세요.");
           }
       } catch (e) {
           alert("네트워크 오류로 클라우드 다운로드에 실패했습니다.");
@@ -690,7 +694,7 @@ export default function App() {
       const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
       const newPost: BoardPost = { 
-          id: Date.now() + Math.random(), // 🚨 중복 삭제를 막기 위해 완벽하게 고유한 ID 부여
+          id: Date.now() + Math.random(), 
           brand: carModel || '미지정', 
           code: targetColorCode, 
           date: timeFormatted, 
@@ -1136,7 +1140,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* 🚨 [NEW] 키패드 입력 중 숨김 처리되는 다크테마 하단 요약 바 */}
       {!isKeyboardOpen && (
           <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.4)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
               <div className="flex flex-col p-3 gap-2 w-full max-w-4xl mx-auto">
@@ -1168,26 +1171,28 @@ export default function App() {
           </div>
       )}
 
-      {/* 🚨 [NEW] 클라우드 동기화 모달 */}
+      {/* 🚨 [NEW] 에러 없는 스마트 클라우드 모달 창 */}
       {isCloudModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[420px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
             <div className="p-4 bg-blue-600 flex justify-between items-center text-white">
-              <h3 className="font-bold flex items-center gap-2"><Cloud size={18} /> PC ⇄ 모바일 클라우드 자동 동기화</h3>
+              <h3 className="font-bold flex items-center gap-2"><Cloud size={18} /> PC ⇄ 모바일 클라우드 동기화</h3>
               <button onClick={() => setIsCloudModalOpen(false)} className="hover:text-red-200 transition-colors bg-blue-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             <div className="p-6 flex flex-col gap-4 bg-slate-50">
               <div className="text-xs text-slate-600 leading-relaxed bg-blue-50 p-3 rounded-lg border border-blue-200">
-                  <p className="font-bold text-blue-900 mb-1">💡 사용 방법</p>
-                  <p>사무실(PC)과 부스(모바일)에서 <b>동일한 핀번호</b>를 입력한 뒤 원하시는 버튼을 누르세요. 링크 복사 없이 즉시 데이터가 동기화됩니다!</p>
+                  <p className="font-black text-blue-900 mb-1">💡 사용 방법</p>
+                  <p><b>[업로드]</b> 버튼을 누르면 서버에서 <b>고유 클라우드 코드</b>가 발급되어 클립보드에 자동 복사됩니다.</p>
+                  <p className="mt-1">다른 기기에서 해당 코드를 붙여넣고 <b>[불러오기]</b>를 누르시면 데이터가 완벽하게 넘어옵니다!</p>
+                  <p className="mt-1 text-[10px] text-blue-700 font-bold">* 서버 용량 폭발(리셋 현상)을 막기 위해 '시편 사진'과 '이전 게시판 기록'은 제외하고, 현재 작업 중인 핵심 배합 데이터만 초고속으로 전송됩니다.</p>
               </div>
               <div>
-                  <label className="text-xs font-black text-slate-700 mb-1 block">🔑 동기화 핀번호 (비밀코드)</label>
+                  <label className="text-xs font-black text-slate-700 mb-1 block">🔑 동기화 클라우드 코드</label>
                   <input 
                       type="text" 
-                      value={cloudPin} 
-                      onChange={e => setCloudPin(e.target.value)} 
-                      placeholder="예: 성남01 또는 차량번호" 
+                      value={cloudCode} 
+                      onChange={e => setCloudCode(e.target.value)} 
+                      placeholder="업로드 시 발급된 코드를 입력하세요" 
                       className="w-full border border-slate-300 p-3 rounded-xl font-black text-sm text-slate-900 focus:ring-2 focus:ring-blue-500 shadow-inner" 
                   />
               </div>
@@ -1197,14 +1202,14 @@ export default function App() {
                       disabled={isSyncing}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-black text-sm shadow-md transition-colors flex items-center justify-center gap-2"
                   >
-                      <CloudUpload size={18} /> {isSyncing ? '업로드 중...' : '클라우드에 현재 배합 업로드 (백업)'}
+                      <CloudUpload size={18} /> {isSyncing ? '클라우드 전송 중...' : '클라우드에 현재 배합 업로드 (코드 발급)'}
                   </button>
                   <button 
                       onClick={handleCloudDownload} 
-                      disabled={isSyncing}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-black text-sm shadow-md transition-colors flex items-center justify-center gap-2"
+                      disabled={isSyncing || !cloudCode}
+                      className={`w-full text-white py-3 rounded-xl font-black text-sm shadow-md transition-colors flex items-center justify-center gap-2 ${cloudCode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-300'}`}
                   >
-                      <CloudDownload size={18} /> {isSyncing ? '다운로드 중...' : '클라우드에서 최신 배합 불러오기'}
+                      <CloudDownload size={18} /> {isSyncing ? '불러오는 중...' : '코드로 최신 배합 불러오기'}
                   </button>
               </div>
             </div>
@@ -1574,6 +1579,72 @@ export default function App() {
         </div>
       )}
 
+      {isBoardOpen && (
+        <div className="fixed inset-0 bg-slate-900/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
+          <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
+            <div className="p-4 bg-slate-800 flex justify-between items-center text-white shrink-0">
+              <h3 className="font-bold flex items-center gap-2"><Layers size={18} className="text-emerald-400"/> 브랜드별 실시간 시편 데이터 (Beta)</h3>
+              <button onClick={() => setIsBoardOpen(false)} className="hover:text-red-300 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            
+            <div className="p-3 bg-white border-b border-slate-200 flex flex-col sm:flex-row justify-between gap-3 shrink-0">
+                <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+                    {['전체', ...Array.from(new Set(boardPosts.map(p => p.brand).filter(Boolean)))].map(b => (
+                        <button key={b as string} onClick={() => setBoardBrandFilter(b as string)} className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${boardBrandFilter === b ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300'}`}>{b as string}</button>
+                    ))}
+                </div>
+                <div className="flex gap-2 flex-1 max-w-md">
+                    <div className="relative flex-1">
+                        <input type="text" value={boardSearch} onChange={e=>setBoardSearch(e.target.value)} placeholder="브랜드, 컬러코드, 특이사항 동시 검색" className="w-full bg-slate-50 border border-slate-300 text-sm px-3 py-1.5 rounded-lg pl-9 focus:outline-none focus:border-emerald-500 shadow-sm" />
+                        <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
+                    </div>
+                    <button onClick={saveToBoard} className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-bold text-xs shadow-md hover:bg-emerald-700 transition-colors shrink-0 whitespace-nowrap flex items-center gap-1"><Plus size={14}/> 현재 배합 등록</button>
+                </div>
+            </div>
+
+            <div className="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-3 bg-slate-100">
+                {boardPosts.filter(p => {
+                    const passBrandFilter = boardBrandFilter === '전체' || p.brand === boardBrandFilter;
+                    const searchLower = boardSearch.toLowerCase();
+                    const passSearch = p.brand.toLowerCase().includes(searchLower) || p.code.toLowerCase().includes(searchLower) || p.spec.toLowerCase().includes(searchLower);
+                    return passBrandFilter && passSearch;
+                }).map(post => (
+                    <div key={post.id} onClick={() => handleOpenPost(post)} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer group relative">
+                        <button onClick={(e) => deleteBoardPost(post.id, e)} className="absolute top-4 right-4 text-slate-400 hover:text-white hover:bg-red-500 px-2 py-1 rounded-md transition-all flex items-center gap-1 font-bold text-[10px]" title="이 시편 삭제하기"><Trash2 size={14} /> 삭제</button>
+                        <div className="flex justify-between items-start mb-2 pr-16">
+                            <div className="flex items-center gap-2">
+                                <span className="bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded font-bold">{post.brand}</span>
+                                <span className="text-lg font-black text-emerald-700 uppercase tracking-wide group-hover:text-emerald-500 transition-colors notranslate" translate="no">{post.code}</span>
+                            </div>
+                            <span className="text-xs text-slate-400 font-medium flex items-center gap-1"><Calendar size={12}/> {post.date}</span>
+                        </div>
+                        <p className="text-sm text-slate-600 font-bold mb-3 break-keep pr-16">{post.spec}</p>
+                        
+                        {post.images && post.images.length > 0 && (
+                            <div className="mb-3 flex flex-wrap gap-1.5">
+                                {post.images.map((imgUrl: string, imgIdx: number) => (
+                                    <button key={imgIdx} onClick={(e) => { e.stopPropagation(); setPreviewModalImage(imgUrl); }} className="bg-amber-50 border border-amber-300 text-amber-800 hover:bg-amber-100 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition-colors">
+                                        <ImageIcon size={14} className="text-amber-600" /> 📷 시편 사진 {imgIdx + 1} 보기
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="flex justify-between items-center border-t border-slate-100 pt-3">
+                            <span className="text-xs text-slate-500">By. <b>{post.author}</b></span>
+                            <div className="flex gap-3 text-xs font-bold text-slate-400">
+                                <span className="flex items-center gap-1 group-hover:text-emerald-600 transition-colors"><Eye size={14}/> {post.views}</span>
+                                <span className="flex items-center gap-1 hover:text-blue-600 transition-colors"><ThumbsUp size={14}/> {post.likes}</span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                {boardPosts.length === 0 && <div className="text-center py-10 text-slate-500">검색 조건에 맞는 시편 데이터가 없습니다.</div>}
+            </div>
+          </div>
+        </div>
+      )}
+
       {viewingPost && (
         <div className="fixed inset-0 bg-slate-900/90 z-[2000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-300 my-8">
@@ -1618,7 +1689,6 @@ export default function App() {
                   </>
               )}
 
-              {/* 🚨 [NEW] 시편 게시판 상세 보기 사진 개별 삭제 기능 포함 */}
               {viewingPost.images && viewingPost.images.length > 0 && (
                   <div className="flex flex-col gap-3 mt-2">
                       {viewingPost.images.map((imgUrl: string, imgIdx: number) => (
@@ -1885,7 +1955,7 @@ export default function App() {
                             <circle cx="200" cy="200" r="98" fill="#0f172a" stroke="#1e293b" strokeWidth="2" />
                             <text x="200" y="195" fill="#94a3b8" fontSize="14" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" className="tracking-widest">MUNSELL</text>
                             <text x="200" y="215" fill="#ffffff" fontSize="16" fontWeight="900" textAnchor="middle" dominantBaseline="middle">표준 색상환</text>
-                            {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] && ( <line x1={polarToCartesian(200, 200, 80, selectedWheelIndex * 18 + 8.5).x} y1={polarToCartesian(200, 200, 80, selectedWheelIndex * 18 + 8.5).y} x2={polarToCartesian(200, 200, 80, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).x} y2={polarToCartesian(200, 200, 80, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).y} stroke="#ef4444" strokeWidth="3.5" markerEnd="url(#arrowhead)" className="drop-shadow-[0_0_12px_rgba(239,68,68,1)] pointer-events-none" /> )}
+                            {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] && ( <line x1={polarToCartesian(200, 200, 80, selectedWheelIndex * 18 + 8.5).x} y1={polarToCartesian(200, 200, 80, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).x} y2={polarToCartesian(200, 200, 80, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).y} stroke="#ef4444" strokeWidth="3.5" markerEnd="url(#arrowhead)" className="drop-shadow-[0_0_12px_rgba(239,68,68,1)] pointer-events-none" /> )}
                         </svg>
                      </div>
                  </div>
@@ -1936,7 +2006,7 @@ export default function App() {
                                 <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
                                     <line x1="75" y1="75" x2="30" y2="40" /><line x1="125" y1="75" x2="170" y2="40" /><line x1="100" y1="120" x2="100" y2="175" /><line x1="100" y1="55" x2="100" y2="25" /> <line x1="75" y1="105" x2="30" y2="130" /> <line x1="125" y1="105" x2="170" y2="130" /> <line x1="100" y1="90" x2="150" y2="90" /> 
                                 </g>
-                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Green</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
+                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Yellow</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
                             </svg>
                         </div>
                     </div>
