@@ -16,7 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.15 (클라우드 핀번호 자동 동기화 시스템 탑재)"; 
+const LAST_PATCH_DATE = "2026.10.15 (시편 다중 사진 개별 삭제 및 데이터 증발 방지 시스템 적용)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -199,7 +199,6 @@ export default function App() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
 
-  // 🚨 [NEW] 클라우드 동기화 모달 및 핀번호 상태
   const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
   const [cloudPin, setCloudPin] = useState(() => typeof window !== 'undefined' ? (localStorage.getItem('hitec_cloud_pin') || '0427') : '0427');
   const [isSyncing, setIsSyncing] = useState(false);
@@ -393,10 +392,26 @@ export default function App() {
     }
   }, []);
 
+  // 🚨 [NEW] 데이터 증발 방지 (QuotaExceededError) 방어 코드 적용
   useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search); if (urlParams.get('d')) return;
       if (isLoaded && typeof window !== 'undefined') {
-          localStorage.setItem('hitec_base', JSON.stringify(toners)); localStorage.setItem('hitec_pearl', JSON.stringify(pearlToners)); localStorage.setItem('hitec_code', targetColorCode); localStorage.setItem('hitec_mode', JSON.stringify(isThreeCoatMode)); localStorage.setItem('hitec_vehicle', vehicleNumber); localStorage.setItem('hitec_carmodel', carModel); localStorage.setItem('hitec_job', jobDescription); localStorage.setItem('hitec_notes', specialNotes); localStorage.setItem('hitec_board_mock', JSON.stringify(boardPosts)); localStorage.setItem('hitec_snapshots', JSON.stringify(snapshots));
+          try {
+              localStorage.setItem('hitec_base', JSON.stringify(toners)); 
+              localStorage.setItem('hitec_pearl', JSON.stringify(pearlToners)); 
+              localStorage.setItem('hitec_code', targetColorCode); 
+              localStorage.setItem('hitec_mode', JSON.stringify(isThreeCoatMode)); 
+              localStorage.setItem('hitec_vehicle', vehicleNumber); 
+              localStorage.setItem('hitec_carmodel', carModel); 
+              localStorage.setItem('hitec_job', jobDescription); 
+              localStorage.setItem('hitec_notes', specialNotes); 
+              localStorage.setItem('hitec_board_mock', JSON.stringify(boardPosts)); 
+              localStorage.setItem('hitec_snapshots', JSON.stringify(snapshots));
+          } catch (e: any) {
+              if (e.name === 'QuotaExceededError' || e.message?.includes('Quota')) {
+                  alert("⚠️ [경고] 기기의 저장 용량(5MB)이 꽉 찼습니다!\n기존 데이터가 날아가는 것을 방지하기 위해, 게시판의 불필요한 예전 시편 데이터나 사진을 삭제하여 공간을 비워주세요.");
+              }
+          }
       }
   }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, boardPosts, snapshots, isLoaded]);
 
@@ -547,6 +562,7 @@ export default function App() {
   };
   const handleCopyExcelTemplate = () => { const headerRow = ['등록 날짜', '차량 번호', '브랜드/차종', '컬러코드', '작업내용', '특이사항', '배합보기'].join('\t'); if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(headerRow); alert("엑셀 헤더가 복사되었습니다."); } }
   
+  // 🚨 [NEW] 다중 사진 초강력 압축 업로드 핸들러 (메모리 초과 방지)
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
@@ -557,8 +573,9 @@ export default function App() {
                   const canvas = document.createElement('canvas');
                   let width = img.width;
                   let height = img.height;
-                  const MAX_WIDTH = 800;
-                  const MAX_HEIGHT = 800;
+                  // 🚨 모바일 브라우저 용량(Quota) 제한을 막기 위해 사이즈를 600px로 대폭 압축
+                  const MAX_WIDTH = 600; 
+                  const MAX_HEIGHT = 600;
                   if (width > height) {
                       if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                   } else {
@@ -568,9 +585,10 @@ export default function App() {
                   canvas.height = height;
                   const ctx = canvas.getContext('2d');
                   ctx?.drawImage(img, 0, 0, width, height);
-                  const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                  // 🚨 품질(quality)도 0.5로 설정하여 Base64 용량 최소화
+                  const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
                   setAttachedImages(prev => [...prev, compressedBase64]);
-                  alert("📷 시편 사진이 추가되었습니다!");
+                  alert("📷 시편 사진이 안전하게 최적화되어 추가되었습니다!");
               };
               img.src = event.target?.result as string;
           };
@@ -582,7 +600,26 @@ export default function App() {
       setAttachedImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  // 🚨 [NEW] 클라우드 동기화 (업로드) 함수 (kvdb.io REST API 활용 - 제로콘피그)
+  // 🚨 [NEW] 시편 게시판 내의 개별 사진 삭제 (해당 게시물의 특정 사진만 골라서 삭제)
+  const handleDeletePostImage = (postId: number, imgIdx: number) => {
+      if (window.confirm("이 사진만 개별적으로 삭제하시겠습니까? (복구 불가)")) {
+          setBoardPosts(prev => prev.map(p => {
+              if (p.id === postId) {
+                  const newImages = [...p.images];
+                  newImages.splice(imgIdx, 1);
+                  return { ...p, images: newImages };
+              }
+              return p;
+          }));
+          
+          if (viewingPost && viewingPost.id === postId) {
+              const newImages = [...viewingPost.images];
+              newImages.splice(imgIdx, 1);
+              setViewingPost({ ...viewingPost, images: newImages });
+          }
+      }
+  };
+
   const handleCloudUpload = async () => {
       if (!cloudPin) { alert("동기화 핀번호를 입력하세요!"); return; }
       setIsSyncing(true);
@@ -611,7 +648,6 @@ export default function App() {
       }
   };
 
-  // 🚨 [NEW] 클라우드 동기화 (다운로드) 함수
   const handleCloudDownload = async () => {
       if (!cloudPin) { alert("동기화 핀번호를 입력하세요!"); return; }
       setIsSyncing(true);
@@ -654,7 +690,7 @@ export default function App() {
       const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
       const newPost: BoardPost = { 
-          id: Date.now(), 
+          id: Date.now() + Math.random(), // 🚨 중복 삭제를 막기 위해 완벽하게 고유한 ID 부여
           brand: carModel || '미지정', 
           code: targetColorCode, 
           date: timeFormatted, 
@@ -672,7 +708,7 @@ export default function App() {
       alert("🎉 시편 사진들과 함께 게시판에 등록되었습니다!");
   };
 
-  const deleteBoardPost = (id: number, e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("삭제하시겠습니까?")) setBoardPosts(prev => prev.filter(post => post.id !== id)); };
+  const deleteBoardPost = (id: number, e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("이 시편 데이터를 완전히 삭제하시겠습니까?")) setBoardPosts(prev => prev.filter(post => post.id !== id)); };
   const handleSaveSnapshot = () => { const newSnapshot = { id: Date.now(), timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }), dateStr: new Date().toLocaleDateString('ko-KR'), base: JSON.parse(JSON.stringify(toners)), pearl: JSON.parse(JSON.stringify(pearlToners)), isThreeCoat: isThreeCoatMode, totalFinal: totalFinalWeight }; setSnapshots(prev => [newSnapshot, ...prev]); alert(`[${newSnapshot.timestamp}] 데이터가 확정 저장되었습니다.`); };
   const restoreSnapshot = (snapshot: any) => { if (window.confirm("복원하시겠습니까?")) { setToners(JSON.parse(JSON.stringify(snapshot.base))); setPearlToners(JSON.parse(JSON.stringify(snapshot.pearl))); setIsThreeCoatMode(snapshot.isThreeCoat); setSelectedSnapshot(null); setIsSnapshotModalOpen(false); } };
   const handleSavePostEdit = () => { setBoardPosts(prev => prev.map(p => p.id === viewingPost.id ? { ...p, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec } : p)); setViewingPost({ ...viewingPost, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec }); setIsEditingPost(false); };
@@ -696,7 +732,6 @@ export default function App() {
           </h1>
         </div>
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-            {/* 🚨 [NEW] 클라우드 동기화 모달 열기 버튼 */}
             <button onClick={() => setIsCloudModalOpen(true)} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 ☁️ 클라우드 동기화
             </button>
@@ -846,6 +881,19 @@ export default function App() {
                 )
               })}
               
+              <div className="hidden md:flex justify-between items-center bg-blue-50/80 p-3 mt-3 rounded-xl border border-blue-200 shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center border border-blue-300 shadow-inner">
+                          <Beaker size={14} className="text-blue-700"/>
+                      </div>
+                      <div className="flex flex-col">
+                          <span className="text-xs font-black text-blue-800">💧 필수 수지/환원제 (6052 등)</span>
+                          <span className="text-[10px] font-bold text-blue-600 opacity-80">입력된 베이스 안료 중량 대비 자동 계산량</span>
+                      </div>
+                  </div>
+                  <span className="text-xl font-black text-blue-700">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}<span className="text-xs ml-0.5">g</span></span>
+              </div>
+
               <div className="flex w-full gap-2 mt-3">
                   <button onClick={() => addToner(false)} className="flex-1 py-3 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center transition-all shadow-sm">
                       <Plus size={18} className="mr-1"/>베이스 안료 추가
@@ -949,6 +997,19 @@ export default function App() {
                     </div>
                   )
                 })}
+
+                <div className="hidden md:flex justify-between items-center bg-purple-50/80 p-3 mt-3 rounded-xl border border-purple-200 shadow-sm">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-purple-200 flex items-center justify-center border border-purple-300 shadow-inner">
+                            <Zap size={14} className="text-purple-700"/>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xs font-black text-purple-800">✨ 펄 전용 수지/환원제</span>
+                            <span className="text-[10px] font-bold text-purple-600 opacity-80">입력된 펄 안료 중량 대비 자동 계산량</span>
+                        </div>
+                    </div>
+                    <span className="text-xl font-black text-purple-700">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}<span className="text-xs ml-0.5">g</span></span>
+                </div>
 
                 <button onClick={() => addToner(true)} className="w-full py-3 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-lg text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-3 shadow-sm">
                     <Plus size={18} /><span>펄 조색제 추가</span>
@@ -1075,6 +1136,7 @@ export default function App() {
         </div>
       </div>
 
+      {/* 🚨 [NEW] 키패드 입력 중 숨김 처리되는 다크테마 하단 요약 바 */}
       {!isKeyboardOpen && (
           <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.4)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
               <div className="flex flex-col p-3 gap-2 w-full max-w-4xl mx-auto">
@@ -1512,72 +1574,6 @@ export default function App() {
         </div>
       )}
 
-      {isBoardOpen && (
-        <div className="fixed inset-0 bg-slate-900/90 z-[1000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
-          <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
-            <div className="p-4 bg-slate-800 flex justify-between items-center text-white shrink-0">
-              <h3 className="font-bold flex items-center gap-2"><Layers size={18} className="text-emerald-400"/> 브랜드별 실시간 시편 데이터 (Beta)</h3>
-              <button onClick={() => setIsBoardOpen(false)} className="hover:text-red-300 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
-            </div>
-            
-            <div className="p-3 bg-white border-b border-slate-200 flex flex-col sm:flex-row justify-between gap-3 shrink-0">
-                <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                    {['전체', ...Array.from(new Set(boardPosts.map(p => p.brand).filter(Boolean)))].map(b => (
-                        <button key={b as string} onClick={() => setBoardBrandFilter(b as string)} className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${boardBrandFilter === b ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300'}`}>{b as string}</button>
-                    ))}
-                </div>
-                <div className="flex gap-2 flex-1 max-w-md">
-                    <div className="relative flex-1">
-                        <input type="text" value={boardSearch} onChange={e=>setBoardSearch(e.target.value)} placeholder="브랜드, 컬러코드, 특이사항 동시 검색" className="w-full bg-slate-50 border border-slate-300 text-sm px-3 py-1.5 rounded-lg pl-9 focus:outline-none focus:border-emerald-500 shadow-sm" />
-                        <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
-                    </div>
-                    <button onClick={saveToBoard} className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-bold text-xs shadow-md hover:bg-emerald-700 transition-colors shrink-0 whitespace-nowrap flex items-center gap-1"><Plus size={14}/> 현재 배합 등록</button>
-                </div>
-            </div>
-
-            <div className="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-3 bg-slate-100">
-                {boardPosts.filter(p => {
-                    const passBrandFilter = boardBrandFilter === '전체' || p.brand === boardBrandFilter;
-                    const searchLower = boardSearch.toLowerCase();
-                    const passSearch = p.brand.toLowerCase().includes(searchLower) || p.code.toLowerCase().includes(searchLower) || p.spec.toLowerCase().includes(searchLower);
-                    return passBrandFilter && passSearch;
-                }).map(post => (
-                    <div key={post.id} onClick={() => handleOpenPost(post)} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer group relative">
-                        <button onClick={(e) => deleteBoardPost(post.id, e)} className="absolute top-4 right-4 text-slate-400 hover:text-white hover:bg-red-500 px-2 py-1 rounded-md transition-all flex items-center gap-1 font-bold text-[10px]" title="이 시편 삭제하기"><Trash2 size={14} /> 삭제</button>
-                        <div className="flex justify-between items-start mb-2 pr-16">
-                            <div className="flex items-center gap-2">
-                                <span className="bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded font-bold">{post.brand}</span>
-                                <span className="text-lg font-black text-emerald-700 uppercase tracking-wide group-hover:text-emerald-500 transition-colors notranslate" translate="no">{post.code}</span>
-                            </div>
-                            <span className="text-xs text-slate-400 font-medium flex items-center gap-1"><Calendar size={12}/> {post.date}</span>
-                        </div>
-                        <p className="text-sm text-slate-600 font-bold mb-3 break-keep pr-16">{post.spec}</p>
-                        
-                        {post.images && post.images.length > 0 && (
-                            <div className="mb-3 flex flex-wrap gap-1.5">
-                                {post.images.map((imgUrl: string, imgIdx: number) => (
-                                    <button key={imgIdx} onClick={(e) => { e.stopPropagation(); setPreviewModalImage(imgUrl); }} className="bg-amber-50 border border-amber-300 text-amber-800 hover:bg-amber-100 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition-colors">
-                                        <ImageIcon size={14} className="text-amber-600" /> 📷 시편 사진 {imgIdx + 1} 보기
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-
-                        <div className="flex justify-between items-center border-t border-slate-100 pt-3">
-                            <span className="text-xs text-slate-500">By. <b>{post.author}</b></span>
-                            <div className="flex gap-3 text-xs font-bold text-slate-400">
-                                <span className="flex items-center gap-1 group-hover:text-emerald-600 transition-colors"><Eye size={14}/> {post.views}</span>
-                                <span className="flex items-center gap-1 hover:text-blue-600 transition-colors"><ThumbsUp size={14}/> {post.likes}</span>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-                {boardPosts.length === 0 && <div className="text-center py-10 text-slate-500">검색 조건에 맞는 시편 데이터가 없습니다.</div>}
-            </div>
-          </div>
-        </div>
-      )}
-
       {viewingPost && (
         <div className="fixed inset-0 bg-slate-900/90 z-[2000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-300 my-8">
@@ -1622,12 +1618,19 @@ export default function App() {
                   </>
               )}
 
+              {/* 🚨 [NEW] 시편 게시판 상세 보기 사진 개별 삭제 기능 포함 */}
               {viewingPost.images && viewingPost.images.length > 0 && (
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-3 mt-2">
                       {viewingPost.images.map((imgUrl: string, imgIdx: number) => (
-                          <button key={imgIdx} onClick={() => setPreviewModalImage(imgUrl)} className="w-full bg-amber-50 border border-amber-300 text-amber-800 hover:bg-amber-100 text-xs font-bold py-2.5 rounded-lg flex items-center justify-center gap-1.5 shadow-sm transition-colors">
-                              <ImageIcon size={16} className="text-amber-600" /> 📷 첨부된 시편 사진 {imgIdx + 1} 크게 보기
-                          </button>
+                          <div key={imgIdx} className="w-full bg-slate-100 rounded-xl overflow-hidden border border-slate-300 shadow-inner flex flex-col">
+                              <div className="flex justify-between items-center bg-slate-800 p-2">
+                                  <span className="text-white text-xs font-bold pl-2">📷 첨부된 사진 {imgIdx + 1}</span>
+                                  <button onClick={() => handleDeletePostImage(viewingPost.id, imgIdx)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-bold transition-colors flex items-center gap-1">
+                                      <Trash2 size={12}/> 이 사진만 삭제
+                                  </button>
+                              </div>
+                              <img src={imgUrl} alt={`시편 확대 사진 ${imgIdx + 1}`} className="w-full h-auto object-contain max-h-64 bg-black/5 cursor-pointer" onClick={() => setPreviewModalImage(imgUrl)} />
+                          </div>
                       ))}
                   </div>
               )}
