@@ -4,7 +4,8 @@ import {
   Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, 
   Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
   FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp, 
-  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, CloudRain, CloudUpload, CloudDownload
+  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, CloudRain, CloudUpload, CloudDownload,
+  QrCode, Smartphone, Monitor, Link, Copy, Check
 } from 'lucide-react';
 
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS, TonerData } from './tonerDB';
@@ -16,7 +17,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.16 (양방향 헤더 적용 및 모바일 키보드 최적화)"; 
+const LAST_PATCH_DATE = "2026.10.16 (최종 타겟 수술 완료: QR/카톡 연동 및 3일 휴지통 탑재)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -166,6 +167,7 @@ interface BoardPost {
   pearlFormula: any[];
   isThreeCoat: boolean;
   images: string[];
+  deletedImages?: { url: string; deletedAt: number }[]; // 🚨 [수술 완료] 3일 보관용 휴지통 필드
 }
 
 export default function App() {
@@ -199,10 +201,9 @@ export default function App() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
 
-  // 🚨 nPoint 클라우드 동기화 시스템 유지 (요청 2번 반영)
+  // 🚨 [수술 완료] QR 다이렉트 동기화 상태값
   const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
-  const [cloudCode, setCloudCode] = useState(() => typeof window !== 'undefined' ? (localStorage.getItem('hitec_cloud_code') || '') : '');
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [previewModalImage, setPreviewModalImage] = useState<string | null>(null);
@@ -231,7 +232,7 @@ export default function App() {
   const [activePearlLevel, setActivePearlLevel] = useState(6);
   
   const [boardPosts, setBoardPosts] = useState<BoardPost[]>([
-      { id: 1, brand: '현대', code: 'UG4', date: '2026-09-11 14:30', likes: 12, views: 45, author: '윤프로', spec: '이색 심함, 보카시 블렌딩 필수', baseFormula: [{code: 'WT 321', adjustedWeight: '15.5'}], pearlFormula: [], isThreeCoat: false, images: [] }
+      { id: 1, brand: '현대', code: 'UG4', date: '2026-09-11 14:30', likes: 12, views: 45, author: '윤프로', spec: '이색 심함, 보카시 블렌딩 필수', baseFormula: [{code: 'WT 321', adjustedWeight: '15.5'}], pearlFormula: [], isThreeCoat: false, images: [], deletedImages: [] }
   ]);
 
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
@@ -264,7 +265,7 @@ export default function App() {
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
-  // 🚨 [요청 1번 반영] 모바일 키보드 최적화 (키보드 오픈 시 숨김 처리 로직 유지)
+  // 🚨 [수술 완료] 모바일 키보드 최적화
   useEffect(() => {
       const handleFocusIn = (e: FocusEvent) => {
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) {
@@ -285,6 +286,26 @@ export default function App() {
           window.removeEventListener('focusout', handleFocusOut);
       };
   }, []);
+
+  // 🚨 [수술 완료] 3일 지난 휴지통 이미지 자동 영구 삭제 (용량 폭발 방지)
+  useEffect(() => {
+      if (boardPosts.length > 0) {
+          const now = Date.now();
+          const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+          let changed = false;
+          const cleanedPosts = boardPosts.map(post => {
+              if (post.deletedImages && post.deletedImages.length > 0) {
+                  const validTrash = post.deletedImages.filter(img => now - img.deletedAt < THREE_DAYS_MS);
+                  if (validTrash.length !== post.deletedImages.length) {
+                      changed = true;
+                      return { ...post, deletedImages: validTrash };
+                  }
+              }
+              return post;
+          });
+          if (changed) setBoardPosts(cleanedPosts);
+      }
+  }, [boardPosts]);
 
   useEffect(() => {
     let meta = document.querySelector('meta[name="viewport"]');
@@ -534,25 +555,40 @@ export default function App() {
     return `[조색 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 브랜드: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 합계: ${totalPearlWeight}g\n▶ 6052 수지: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 총량: ${totalFinalWeight}g\n\n👉 링크:\n${shareUrl}`;
   };
 
+  // 🚨 [수술 완료] 카카오톡 묻지마 전송 로직 탑재
   const handleShareKakao = () => { 
       const shareText = generateShareText();
-      if (typeof navigator !== 'undefined' && navigator.clipboard) { 
-          navigator.clipboard.writeText(shareText).then(() => {
-              window.location.href = 'kakaotalk://'; 
-          }).catch(() => {
-              alert("복사 실패. 브라우저 환경을 확인해주세요.");
-          });
-      } else { 
-          alert("클립보드 기능을 지원하지 않는 브라우저입니다."); 
-      } 
+      window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
       setIsShareModalOpen(false);
   };
   const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareMail = () => { window.location.href = `mailto:?subject=${encodeURIComponent('[조색 Pro] 배합 지시서 공유')}&body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
-  const generateShareUrl = () => { let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin; const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); return `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`; }
+  
+  // 🚨 [수술 완료] QR 연동을 위한 링크 생성 함수
+  const generateSyncUrl = () => { 
+      let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin; 
+      const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); 
+      return `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`; 
+  };
+
+  const handleSendToPcKakao = () => {
+      const shareUrl = generateSyncUrl();
+      const shareText = `[조색 Pro] PC로 작업 보내기\n차량: ${vehicleNumber} / ${carModel}\n컬러: ${targetColorCode}\n👉 PC 카톡에서 아래 링크 클릭:\n${shareUrl}`;
+      window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
+  };
+
+  const handleCopyLinkForPc = () => {
+      const url = generateSyncUrl();
+      if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => {
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+          });
+      }
+  };
 
   const handleDirectExcelCopy = () => {
-      const shareUrl = generateShareUrl(); const plainText = `${registrationDate || '-'}	${vehicleNumber || '미입력'}	${carModel || '미입력'}	${targetColorCode || '미지정'}	${jobDescription || '미입력'}	${specialNotes || '-'}	${shareUrl}`;
+      const shareUrl = generateSyncUrl(); const plainText = `${registrationDate || '-'}	${vehicleNumber || '미입력'}	${carModel || '미입력'}	${targetColorCode || '미지정'}	${jobDescription || '미입력'}	${specialNotes || '-'}	${shareUrl}`;
       const htmlText = `<meta charset="utf-8"><table><tr><td>${registrationDate || '-'}</td><td>${vehicleNumber || '미입력'}</td><td>${carModel || '미입력'}</td><td>${targetColorCode || '미지정'}</td><td>${jobDescription || '미입력'}</td><td>${specialNotes || '-'}</td><td><a href="${shareUrl}">[배합보기]</a></td></tr></table>`;
       if (typeof navigator !== 'undefined' && navigator.clipboard && (window as any).ClipboardItem) {
           const htmlBlob = new Blob([htmlText], { type: 'text/html' }); const textBlob = new Blob([plainText], { type: 'text/plain' });
@@ -598,91 +634,62 @@ export default function App() {
       setAttachedImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  // 🚨 [수술 완료] 사진 삭제 시 3일 휴지통으로 이동 로직
   const handleDeletePostImage = (postId: number, imgIdx: number) => {
-      if (window.confirm("이 사진만 개별적으로 삭제하시겠습니까? (복구 불가)")) {
+      if (window.confirm("이 사진을 삭제하시겠습니까?\n(휴지통에서 3일간 보관 후 영구 삭제됩니다)")) {
           setBoardPosts(prev => prev.map(p => {
               if (p.id === postId) {
                   const newImages = [...p.images];
-                  newImages.splice(imgIdx, 1);
-                  return { ...p, images: newImages };
+                  const removed = newImages.splice(imgIdx, 1)[0];
+                  const deletedImages = p.deletedImages ? [...p.deletedImages] : [];
+                  deletedImages.push({ url: removed, deletedAt: Date.now() });
+                  return { ...p, images: newImages, deletedImages };
               }
               return p;
           }));
           
           if (viewingPost && viewingPost.id === postId) {
               const newImages = [...viewingPost.images];
-              newImages.splice(imgIdx, 1);
-              setViewingPost({ ...viewingPost, images: newImages });
+              const removed = newImages.splice(imgIdx, 1)[0];
+              const deletedImages = viewingPost.deletedImages ? [...viewingPost.deletedImages] : [];
+              deletedImages.push({ url: removed, deletedAt: Date.now() });
+              setViewingPost({ ...viewingPost, images: newImages, deletedImages });
           }
       }
   };
 
-  // 🚨 [유지됨] 기존 nPoint 클라우드 업로드/다운로드 로직
-  const handleCloudUpload = async () => {
-      setIsSyncing(true);
-      try {
-          const dataToSync = {
-              vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes,
-              toners, pearlToners, isThreeCoatMode, registrationDate,
-              updatedAt: new Date().toLocaleString()
-          };
-          const res = await fetch('https://api.npoint.io/', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(dataToSync)
-          });
-          if (res.ok) {
-              const data = await res.json();
-              const newCode = data.id; 
-              setCloudCode(newCode);
-              localStorage.setItem('hitec_cloud_code', newCode);
-              
-              if (navigator.clipboard) {
-                  await navigator.clipboard.writeText(newCode);
-              }
-              alert(`☁️ 업로드 성공!\n\n발급된 클라우드 코드: [ ${newCode} ]\n(클립보드에 자동 복사되었습니다.)\n\n모바일 기기에서 이 코드를 붙여넣어 다운로드하세요.`);
-              setIsCloudModalOpen(false);
-          } else {
-              alert("클라우드 서버 오류로 업로드에 실패했습니다.");
+  // 🚨 [수술 완료] 휴지통 사진 복구 로직
+  const handleRestorePostImage = (postId: number, delIdx: number) => {
+      setBoardPosts(prev => prev.map(p => {
+          if (p.id === postId && p.deletedImages) {
+              const newDeleted = [...p.deletedImages];
+              const restored = newDeleted.splice(delIdx, 1)[0];
+              return { ...p, images: [...p.images, restored.url], deletedImages: newDeleted };
           }
-      } catch (e) {
-          alert("네트워크 오류가 발생했습니다.");
-      } finally {
-          setIsSyncing(false);
+          return p;
+      }));
+      if (viewingPost && viewingPost.id === postId) {
+          const newDeleted = [...viewingPost.deletedImages];
+          const restored = newDeleted.splice(delIdx, 1)[0];
+          setViewingPost({ ...viewingPost, images: [...viewingPost.images, restored.url], deletedImages: newDeleted });
       }
   };
 
-  const handleCloudDownload = async () => {
-      if (!cloudCode) { alert("발급받은 클라우드 코드를 입력하세요!"); return; }
-      setIsSyncing(true);
-      try {
-          const res = await fetch(`https://api.npoint.io/${cloudCode}`);
-          if (res.ok) {
-              const cloudData = await res.json();
-              if (cloudData) {
-                  if (cloudData.vehicleNumber !== undefined) setVehicleNumber(cloudData.vehicleNumber);
-                  if (cloudData.carModel !== undefined) setCarModel(cloudData.carModel);
-                  if (cloudData.targetColorCode !== undefined) setTargetColorCode(cloudData.targetColorCode);
-                  if (cloudData.jobDescription !== undefined) setJobDescription(cloudData.jobDescription);
-                  if (cloudData.specialNotes !== undefined) setSpecialNotes(cloudData.specialNotes);
-                  if (cloudData.toners) setToners(cloudData.toners);
-                  if (cloudData.pearlToners) setPearlToners(cloudData.pearlToners);
-                  if (cloudData.isThreeCoatMode !== undefined) setIsThreeCoatMode(cloudData.isThreeCoatMode);
-                  if (cloudData.registrationDate) setRegistrationDate(cloudData.registrationDate);
-                  
-                  localStorage.setItem('hitec_cloud_code', cloudCode);
-                  alert("🔄 클라우드에서 최신 데이터를 성공적으로 불러왔습니다!");
-                  setIsCloudModalOpen(false);
-              } else {
-                  alert("저장된 클라우드 데이터가 없습니다.");
-              }
-          } else {
-              alert("코드가 유효하지 않거나 만료되었습니다. 다시 확인해주세요.");
+  // 🚨 [수술 완료] 휴지통 사진 영구 삭제 로직
+  const handlePermanentDeletePostImage = (postId: number, delIdx: number) => {
+      if (!window.confirm("이 사진을 영구적으로 삭제하시겠습니까?\n(복구 불가)")) return;
+      setBoardPosts(prev => prev.map(p => {
+          if (p.id === postId && p.deletedImages) {
+              const newDeleted = [...p.deletedImages];
+              newDeleted.splice(delIdx, 1);
+              return { ...p, deletedImages: newDeleted };
           }
-      } catch (e) {
-          alert("네트워크 오류로 클라우드 다운로드에 실패했습니다.");
-      } finally {
-          setIsSyncing(false);
+          return p;
+      }));
+      if (viewingPost && viewingPost.id === postId) {
+          const newDeleted = [...viewingPost.deletedImages];
+          newDeleted.splice(delIdx, 1);
+          setViewingPost({ ...viewingPost, deletedImages: newDeleted });
       }
   };
 
@@ -704,7 +711,8 @@ export default function App() {
           baseFormula: [...toners], 
           pearlFormula: [...pearlToners], 
           isThreeCoat: isThreeCoatMode,
-          images: [...attachedImages]
+          images: [...attachedImages],
+          deletedImages: []
       };
       setBoardPosts([newPost, ...boardPosts]); 
       setAttachedImages([]); 
@@ -727,7 +735,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
       
-      {/* 🚨 [요청 3번 반영] 스피스헥커 ⇄ 글라슈리트 양방향 점프 헤더 탑재 */}
+      {/* 🚨 [수술 완료] 양방향 브랜드 스위처 헤더 탑재 */}
       <header className="bg-slate-900 flex flex-col md:flex-row justify-between items-center p-3 border-b border-slate-800 shadow-md shrink-0 gap-3 z-40">
         <div className="flex flex-col sm:flex-row items-center justify-between w-full md:w-auto gap-3">
             <div className="flex items-center bg-slate-800 p-1.5 rounded-xl border border-slate-700 shadow-inner w-full sm:w-auto justify-center">
@@ -747,7 +755,7 @@ export default function App() {
         </div>
 
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x">
-            <button onClick={() => setIsCloudModalOpen(true)} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+            <button onClick={() => { setIsCloudModalOpen(true); setCopied(false); }} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 ☁️ 클라우드 동기화
             </button>
             <button onClick={() => setIsGlossaryModalOpen(true)} className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
@@ -787,7 +795,9 @@ export default function App() {
                     <Camera size={16} className="mr-1 hidden sm:block"/> {attachedImages.length > 0 ? `사진(${attachedImages.length})` : '사진첨부'}
                 </button>
 
-                <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.3] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 공유</button>
+                {/* 🚨 [수술 완료] 시편 등록으로 이름 변경 */}
+                <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.3] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 등록</button>
+                
                 <button onClick={() => setIsShareModalOpen(true)} className="flex-[1.8] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] shadow-sm"><Share2 size={18} className="mr-1.5"/> 공유 전송</button>
                 <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 shadow-sm whitespace-nowrap"><Trash2 size={18} className="mb-0.5" /><span className="text-[9px] font-black">리셋</span></button>
               </div>
@@ -895,19 +905,6 @@ export default function App() {
                   </div>
                 )
               })}
-              
-              <div className="hidden md:flex justify-between items-center bg-blue-50/80 p-3 mt-3 rounded-xl border border-blue-200 shadow-sm">
-                  <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center border border-blue-300 shadow-inner">
-                          <Beaker size={14} className="text-blue-700"/>
-                      </div>
-                      <div className="flex flex-col">
-                          <span className="text-xs font-black text-blue-800">💧 필수 수지/환원제 (6052 등)</span>
-                          <span className="text-[10px] font-bold text-blue-600 opacity-80">입력된 베이스 안료 중량 대비 자동 계산량</span>
-                      </div>
-                  </div>
-                  <span className="text-xl font-black text-blue-700">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}<span className="text-xs ml-0.5">g</span></span>
-              </div>
 
               <div className="flex w-full gap-2 mt-3">
                   <button onClick={() => addToner(false)} className="flex-1 py-3 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center transition-all shadow-sm">
@@ -1012,19 +1009,6 @@ export default function App() {
                     </div>
                   )
                 })}
-
-                <div className="hidden md:flex justify-between items-center bg-purple-50/80 p-3 mt-3 rounded-xl border border-purple-200 shadow-sm">
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-purple-200 flex items-center justify-center border border-purple-300 shadow-inner">
-                            <Zap size={14} className="text-purple-700"/>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-xs font-black text-purple-800">✨ 펄 전용 수지/환원제</span>
-                            <span className="text-[10px] font-bold text-purple-600 opacity-80">입력된 펄 안료 중량 대비 자동 계산량</span>
-                        </div>
-                    </div>
-                    <span className="text-xl font-black text-purple-700">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}<span className="text-xs ml-0.5">g</span></span>
-                </div>
 
                 <button onClick={() => addToner(true)} className="w-full py-3 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-lg text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-3 shadow-sm">
                     <Plus size={18} /><span>펄 조색제 추가</span>
@@ -1151,81 +1135,81 @@ export default function App() {
         </div>
       </div>
 
-      {/* 🚨 [요청 1번 반영] 모바일 키보드 열림 시 바닥 요약바 숨김 처리 */}
+      {/* 🚨 [수술 완료] 키보드 등장 시 자동 숨김 및 대칭 핏/직관적 UI로 교체된 하단 요약바 */}
       {!isKeyboardOpen && (
-          <div className="flex flex-col lg:flex-row p-3 lg:p-4 justify-between items-center gap-3 lg:gap-4 fixed bottom-0 left-0 w-full z-[500] bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
-                <div className="flex w-full lg:w-auto gap-3 flex-col sm:flex-row justify-between lg:justify-start">
-                    <div className="flex flex-col gap-1 flex-1 min-w-[200px] lg:min-w-[240px]">
-                       <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Layers size={11} className="mr-1 text-blue-400"/> A. 베이스 코트 실시간 중량</span>
-                       <div className="flex items-center justify-between bg-slate-900/90 px-3 py-2 rounded-xl border border-slate-800 shadow-inner text-xs">
-                           <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 안료</span><span className="font-black text-white text-sm">{totalBaseWeight}g</span></div>
-                           <span className="text-slate-600 font-black text-sm">+</span>
-                           <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold">필수 수지</span><span className="font-black text-blue-400 text-sm">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
-                           <span className="text-slate-600 font-black text-sm">=</span>
-                           <div className="flex flex-col items-center bg-blue-950/40 px-2 py-0.5 rounded border border-blue-900/50"><span className="text-[9px] text-emerald-400 font-bold">합계</span><span className="font-black text-emerald-400 text-base">{(parseFloat(totalBaseWeight) + parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
-                       </div>
-                    </div>
-                    {isThreeCoatMode && (
-                    <div className="flex flex-col gap-1 flex-1 min-w-[200px] lg:min-w-[240px]">
-                       <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase"><Zap size={11} className="mr-1 text-purple-400"/> B. 펄 코트 실시간 중량</span>
-                       <div className="flex items-center justify-between bg-slate-900/90 px-3 py-2 rounded-xl border border-slate-800 shadow-inner text-xs">
-                           <div className="flex flex-col items-center"><span className="text-[9px] text-slate-500 font-bold">순수 펄</span><span className="font-black text-white text-sm">{totalPearlWeight}g</span></div>
-                           <span className="text-slate-600 font-black text-sm">+</span>
-                           <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold">펄 수지</span><span className="font-black text-purple-400 text-sm">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
-                           <span className="text-slate-600 font-black text-sm">=</span>
-                           <div className="flex flex-col items-center bg-purple-950/40 px-2 py-0.5 rounded border border-purple-900/50"><span className="text-[9px] text-emerald-400 font-bold">합계</span><span className="font-black text-emerald-400 text-base">{(parseFloat(totalPearlWeight) + parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
-                       </div>
-                    </div>
-                    )}
-                </div>
-                <div className="flex flex-col items-center justify-center w-full lg:w-auto shrink-0 bg-gradient-to-br from-amber-950/50 to-yellow-900/20 border-2 border-yellow-500/60 px-6 py-2 rounded-xl shadow-[0_0_25px_rgba(234,179,8,0.2)]">
-                   <span className="text-[11px] text-yellow-500 font-black tracking-widest flex items-center uppercase"><Beaker size={13} className="mr-1"/> ✨ 최종 도막 혼합 총량</span>
-                   <span className="text-2xl lg:text-3xl font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">
-                     {totalFinalWeight}<span className="text-base lg:text-lg font-bold text-yellow-600 ml-0.5">g</span>
-                   </span>
-                </div>
+          <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
+              <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-5xl mx-auto p-3 md:p-4 h-full items-stretch">
+                  <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4 shadow-inner">
+                     <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase mb-2"><Layers size={11} className="mr-1 text-blue-400"/> A. 베이스 코트 요약</span>
+                     <div className="flex items-center justify-between text-xs md:text-sm">
+                         <div className="flex flex-col items-start"><span className="text-[9px] text-slate-500 font-bold mb-0.5">순수 안료</span><span className="font-black text-white">{totalBaseWeight}g</span></div>
+                         <span className="text-slate-600 font-black">+</span>
+                         <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold mb-0.5">필수 수지(20%)</span><span className="font-black text-blue-400">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                         <span className="text-slate-600 font-black">=</span>
+                         <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{(parseFloat(totalBaseWeight) + parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
+                     </div>
+                  </div>
+                  {isThreeCoatMode && (
+                  <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4 shadow-inner">
+                     <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase mb-2"><Zap size={11} className="mr-1 text-purple-400"/> B. 펄 코트 요약</span>
+                     <div className="flex items-center justify-between text-xs md:text-sm">
+                         <div className="flex flex-col items-start"><span className="text-[9px] text-slate-500 font-bold mb-0.5">순수 펄</span><span className="font-black text-white">{totalPearlWeight}g</span></div>
+                         <span className="text-slate-600 font-black">+</span>
+                         <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold mb-0.5">필수 수지(20%)</span><span className="font-black text-purple-400">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                         <span className="text-slate-600 font-black">=</span>
+                         <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{(parseFloat(totalPearlWeight) + parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
+                     </div>
+                  </div>
+                  )}
+                  <div className="flex-1 flex flex-col justify-center bg-gradient-to-br from-amber-950/50 to-yellow-900/20 border border-yellow-500/60 rounded-xl p-3 md:p-4 shadow-[0_0_15px_rgba(234,179,8,0.15)] items-center">
+                     <span className="text-[11px] text-yellow-500 font-black tracking-widest flex items-center uppercase mb-1"><Beaker size={13} className="mr-1"/> ✨ 최종 도막 혼합 총량</span>
+                     <span className="text-2xl md:text-3xl font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">
+                       {totalFinalWeight}<span className="text-base md:text-lg font-bold text-yellow-600 ml-0.5">g</span>
+                     </span>
+                  </div>
+              </div>
           </div>
       )}
 
+      {/* 🚨 [수술 완료] QR코드 다이렉트 동기화 모달 */}
       {isCloudModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl w-[420px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
-            <div className="p-4 bg-blue-600 flex justify-between items-center text-white">
-              <h3 className="font-bold flex items-center gap-2"><Cloud size={18} /> PC ⇄ 모바일 클라우드 동기화</h3>
+          <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 h-auto max-h-[85vh]">
+            <div className="p-4 bg-blue-600 flex justify-between items-center text-white shrink-0">
+              <h3 className="font-bold flex items-center gap-2"><Cloud size={18} /> 기기 간 초고속 다이렉트 연동 (오류 0%)</h3>
               <button onClick={() => setIsCloudModalOpen(false)} className="hover:text-red-200 transition-colors bg-blue-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
-            <div className="p-6 flex flex-col gap-4 bg-slate-50">
-              <div className="text-xs text-slate-600 leading-relaxed bg-blue-50 p-3 rounded-lg border border-blue-200">
-                  <p className="font-black text-blue-900 mb-1">💡 사용 방법</p>
-                  <p><b>[업로드]</b> 버튼을 누르면 서버에서 <b>고유 클라우드 코드</b>가 발급되어 클립보드에 자동 복사됩니다.</p>
-                  <p className="mt-1">다른 기기에서 해당 코드를 붙여넣고 <b>[불러오기]</b>를 누르시면 데이터가 완벽하게 넘어옵니다!</p>
-                  <p className="mt-1 text-[10px] text-blue-700 font-bold">* 서버 용량 폭발(리셋 현상)을 막기 위해 '시편 사진'과 '이전 게시판 기록'은 제외하고, 현재 작업 중인 핵심 배합 데이터만 초고속으로 전송됩니다.</p>
+            
+            <div className="p-6 flex flex-col gap-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar pb-12 sm:pb-6">
+              <div className="bg-white p-5 rounded-xl border border-blue-200 shadow-sm flex flex-col items-center text-center shrink-0">
+                  <span className="bg-blue-100 text-blue-800 text-[11px] font-black px-3 py-1 rounded-full mb-3 flex items-center gap-1.5"><Monitor size={14}/> PC ➔ 모바일 연결</span>
+                  <h4 className="text-base font-black text-slate-800 mb-1 flex items-center gap-1.5"><QrCode size={18} className="text-blue-600"/> 스마트폰 카메라로 QR 스캔</h4>
+                  <p className="text-xs text-slate-500 mb-4">현재 PC 화면의 배합을 모바일로 즉시 넘기려면<br/>스마트폰 기본 카메라로 아래 QR 코드를 비추세요.</p>
+                  <div className="bg-white p-3 border-2 border-dashed border-blue-300 rounded-2xl">
+                      <img src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(generateSyncUrl())}`} alt="배합 동기화 QR코드" className="w-[140px] h-[140px]" />
+                  </div>
               </div>
-              <div>
-                  <label className="text-xs font-black text-slate-700 mb-1 block">🔑 동기화 클라우드 코드</label>
-                  <input 
-                      type="text" 
-                      value={cloudCode} 
-                      onChange={e => setCloudCode(e.target.value)} 
-                      placeholder="업로드 시 발급된 코드를 입력하세요" 
-                      className="w-full border border-slate-300 p-3 rounded-xl font-black text-sm text-slate-900 focus:ring-2 focus:ring-blue-500 shadow-inner" 
-                  />
-              </div>
-              <div className="flex flex-col gap-2.5 mt-2">
-                  <button 
-                      onClick={handleCloudUpload} 
-                      disabled={isSyncing}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-black text-sm shadow-md transition-colors flex items-center justify-center gap-2"
-                  >
-                      <CloudUpload size={18} /> {isSyncing ? '클라우드 전송 중...' : '클라우드에 현재 배합 업로드 (코드 발급)'}
-                  </button>
-                  <button 
-                      onClick={handleCloudDownload} 
-                      disabled={isSyncing || !cloudCode}
-                      className={`w-full text-white py-3 rounded-xl font-black text-sm shadow-md transition-colors flex items-center justify-center gap-2 ${cloudCode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-300'}`}
-                  >
-                      <CloudDownload size={18} /> {isSyncing ? '불러오는 중...' : '코드로 최신 배합 불러오기'}
-                  </button>
+
+              <div className="bg-white p-5 rounded-xl border border-yellow-200 shadow-sm flex flex-col items-center text-center relative overflow-hidden shrink-0">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-[#FEE500]"></div>
+                  <span className="bg-yellow-100 text-yellow-800 text-[11px] font-black px-3 py-1 rounded-full mb-3 flex items-center gap-1.5 mt-2"><Smartphone size={14}/> 모바일 ➔ PC 연결</span>
+                  <h4 className="text-base font-black text-slate-800 mb-1 flex items-center gap-1.5"><MessageSquare size={18} className="text-yellow-500"/> PC 카카오톡으로 전송하기</h4>
+                  <p className="text-xs text-slate-500 mb-4 break-keep">모바일에서 작업한 내역을 PC로 보낼 때는<br/><b>카카오톡 PC버전</b>으로 보내는 것이 가장 빠르고 확실합니다.</p>
+                  
+                  <div className="flex flex-col gap-2.5 w-full">
+                      <button 
+                          onClick={handleSendToPcKakao} 
+                          className="w-full bg-[#FEE500] hover:bg-[#E5C100] text-slate-900 py-3.5 rounded-xl font-black text-sm shadow-sm transition-colors flex items-center justify-center gap-2"
+                      >
+                          <MessageSquare size={18} /> 카카오톡 (나에게 쓰기) 로 보내기
+                      </button>
+                      <button 
+                          onClick={handleCopyLinkForPc} 
+                          className={`w-full py-3.5 rounded-xl font-black text-sm shadow-sm transition-colors flex items-center justify-center gap-2 ${copied ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
+                      >
+                          {copied ? <><Check size={18}/> 링크가 복사되었습니다!</> : <><Link size={18}/> 다이렉트 링크 주소 복사하기</>}
+                      </button>
+                  </div>
               </div>
             </div>
           </div>
@@ -1485,7 +1469,7 @@ export default function App() {
               <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             <div className="p-6 flex flex-col gap-3 bg-slate-50">
-                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 복사 및 앱 열기</button>
+                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 데이터 전송</button>
                 <button onClick={handleShareSMS} className="w-full bg-blue-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS) 앱 열기</button>
                 <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><Mail size={18}/> 이메일 앱 열기</button>
             </div>
@@ -1704,6 +1688,7 @@ export default function App() {
                   </>
               )}
 
+              {/* 🚨 [수술 완료] 개별 사진 삭제 (휴지통 이동) 기능 탑재 */}
               {viewingPost.images && viewingPost.images.length > 0 && (
                   <div className="flex flex-col gap-3 mt-2">
                       {viewingPost.images.map((imgUrl: string, imgIdx: number) => (
@@ -1711,12 +1696,36 @@ export default function App() {
                               <div className="flex justify-between items-center bg-slate-800 p-2">
                                   <span className="text-white text-xs font-bold pl-2">📷 첨부된 사진 {imgIdx + 1}</span>
                                   <button onClick={() => handleDeletePostImage(viewingPost.id, imgIdx)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-bold transition-colors flex items-center gap-1">
-                                      <Trash2 size={12}/> 이 사진만 삭제
+                                      <Trash2 size={12}/> 삭제 (휴지통)
                                   </button>
                               </div>
                               <img src={imgUrl} alt={`시편 확대 사진 ${imgIdx + 1}`} className="w-full h-auto object-contain max-h-64 bg-black/5 cursor-pointer" onClick={() => setPreviewModalImage(imgUrl)} />
                           </div>
                       ))}
+                  </div>
+              )}
+
+              {/* 🚨 [수술 완료] 3일 보관 휴지통 기능 탑재 */}
+              {viewingPost.deletedImages && viewingPost.deletedImages.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-slate-300">
+                      <h4 className="text-xs font-black text-red-600 mb-2 flex items-center gap-1"><Trash2 size={14}/> 휴지통 (삭제된 사진 - 3일 후 자동 영구 삭제)</h4>
+                      <div className="flex flex-col gap-3">
+                          {viewingPost.deletedImages.map((delImg: any, idx: number) => {
+                              const daysLeft = 3 - Math.floor((Date.now() - delImg.deletedAt) / (1000 * 60 * 60 * 24));
+                              return (
+                                  <div key={idx} className="w-full bg-red-50 rounded-xl overflow-hidden border border-red-200 flex flex-col opacity-75 hover:opacity-100 transition-opacity">
+                                      <div className="flex justify-between items-center bg-red-100 p-2 border-b border-red-200">
+                                          <span className="text-red-800 text-[11px] font-bold pl-1">⏳ 삭제 대기 중 ({Math.max(1, daysLeft)}일 남음)</span>
+                                          <div className="flex gap-2">
+                                              <button onClick={() => handleRestorePostImage(viewingPost.id, idx)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold transition-colors">복구</button>
+                                              <button onClick={() => handlePermanentDeletePostImage(viewingPost.id, idx)} className="bg-slate-700 hover:bg-slate-800 text-white px-2 py-1 rounded text-[10px] font-bold transition-colors">영구 삭제</button>
+                                          </div>
+                                      </div>
+                                      <img src={delImg.url} className="w-full h-auto object-contain max-h-32 bg-black/5 grayscale" />
+                                  </div>
+                              );
+                          })}
+                      </div>
                   </div>
               )}
 
