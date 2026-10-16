@@ -17,7 +17,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.16 (FeedbackModal 빌드 에러 완벽 픽스 및 와이드 레이아웃 적용)"; 
+const LAST_PATCH_DATE = "2026.10.16 (기술자료실 탭 및 이미지 Zoom 기능 복구 완료)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -218,6 +218,16 @@ export default function App() {
   const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
   const glossarySearchRef = useRef<HTMLInputElement | null>(null);
 
+  // 🚨 [복구] 이미지 줌 상태값
+  const [activeGuideTab, setActiveGuideTab] = useState<'theory'|'spectrum'|'effect'|'special'>('spectrum');
+  const [zoomedImage, setZoomedImage] = useState<any>(null);
+  const [imgScale, setImgScale] = useState(1);
+  const [pinchDist, setPinchDist] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [scrollStart, setScrollStart] = useState({ x: 0, y: 0 });
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   
   const sortedCatalog = [...catalogData].filter(item => {
@@ -249,6 +259,34 @@ export default function App() {
     }, 100);
     return () => clearInterval(timer);
   }, []);
+
+  // 🚨 [복구] 이미지 모달 스크롤 제어
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="viewport"]');
+    if (zoomedImage) {
+        document.body.style.overflow = 'hidden'; 
+        if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); 
+    } else {
+        document.body.style.overflow = '';
+        if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'); 
+    }
+    return () => {
+        document.body.style.overflow = '';
+        if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1');
+    };
+  }, [zoomedImage]);
+
+  useEffect(() => {
+      const el = scrollContainerRef.current;
+      if (!el || !zoomedImage || zoomedImage.id === 12) return; 
+      const handleNativeWheel = (e: WheelEvent) => {
+          e.preventDefault(); 
+          const delta = e.deltaY < 0 ? 0.15 : -0.15; 
+          setImgScale(s => { const newScale = Math.max(1, Math.min(s + delta, 5)); return Number(newScale.toFixed(2)); });
+      };
+      el.addEventListener('wheel', handleNativeWheel, { passive: false });
+      return () => el.removeEventListener('wheel', handleNativeWheel);
+  }, [zoomedImage]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -314,6 +352,16 @@ export default function App() {
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [previewModalImage, setPreviewModalImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // 🚨 [복구] 이미지 모달 터치/마우스 이벤트
+  const handleMouseDown = (e: React.MouseEvent) => { if (imgScale > 1 && scrollContainerRef.current) { setIsDragging(true); setDragStart({ x: e.clientX, y: e.clientY }); setScrollStart({ x: scrollContainerRef.current.scrollLeft, y: scrollContainerRef.current.scrollTop }); } };
+  const handleMouseMove = (e: React.MouseEvent) => { if (isDragging && scrollContainerRef.current) { const dx = e.clientX - dragStart.x; const dy = e.clientY - dragStart.y; scrollContainerRef.current.scrollLeft = scrollStart.x - dx; scrollContainerRef.current.scrollTop = scrollStart.y - dy; } };
+  const handleMouseUp = () => setIsDragging(false);
+  const handleTouchStart = (e: React.TouchEvent) => { if (e.touches.length === 2) { const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); setPinchDist(dist); } };
+  const handleTouchMove = (e: React.TouchEvent) => { if (e.touches.length === 2) { const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); if (pinchDist > 0) { const delta = (dist - pinchDist) / 150; setImgScale(s => Math.min(Math.max(1, s + delta), 5)); } setPinchDist(dist); } };
+  const handleTouchEnd = () => { setPinchDist(0); };
+  const openImageModal = (img: any) => { setZoomedImage(img); setImgScale(1); };
+
 
   const handleClearAllInfo = () => { 
       if(!window.confirm("모든 입력 데이터를 초기화하시겠습니까?")) return;
@@ -669,6 +717,7 @@ export default function App() {
                 const isEffect = info.type !== 'solid' && info.type !== 'binder' && info.type !== 'candy';
                 return (
                   <div key={toner.id} className="flex flex-col bg-slate-50 hover:bg-blue-50/50 p-2.5 mb-1.5 rounded-xl border border-slate-200 shadow-sm transition-colors">
+                    {/* 🚨 [NEW] 모바일에서는 세로, PC(md 이상)에서는 가로로 넓게 채우는 와이드 반응형 레이아웃 */}
                     <div className="flex flex-col md:flex-row items-start md:items-center w-full gap-3">
                       <div className="flex items-center gap-2.5 w-full md:w-auto shrink-0">
                           <div className="flex w-14 h-10 rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative" 
@@ -694,11 +743,13 @@ export default function App() {
                           />
                       </div>
 
+                      {/* PC 화면에서 허전함을 없애고 가로로 시원하게 배치되는 안료명 영역 */}
                       <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-2 rounded transition-colors flex-1 w-full md:w-auto" onClick={() => toggleExpand(toner.id, false)}>
                           <span className="font-bold text-blue-700 text-sm truncate">{info.role || '미등록 안료 번호'}</span>
                           {toner.isExpanded ? <ChevronUp size={16} className="text-blue-400 shrink-0" /> : <ChevronDown size={16} className="text-blue-400 shrink-0" />}
                       </div>
 
+                      {/* 중량 입력 및 조작 버튼 그룹 */}
                       <div className="flex items-center self-end md:self-auto bg-white border rounded-md px-1.5 py-0.5 shrink-0 shadow-sm w-full md:w-auto justify-end">
                          <button onClick={() => quickEditWeight(toner.id, -0.1, false)} className="px-2.5 py-1 text-red-500 font-bold hover:bg-red-50 rounded text-base">-</button>
                          <input 
@@ -866,6 +917,7 @@ export default function App() {
               </h3>
               
               <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-md border border-blue-200">
+                  {/* 🚨 [복구] 탭 메뉴 작동 정상화 */}
                   <div className="flex border-b border-blue-200 bg-slate-50">
                       {['theory', 'spectrum', 'effect', 'special'].map(tab => (
                           <button key={tab} onClick={() => setActiveGuideTab(tab as any)} className={`flex-1 py-3 text-[12px] font-black transition-all ${activeGuideTab === tab ? 'bg-blue-600 text-white shadow-md transform scale-[1.02] rounded-t-xl z-10' : 'text-slate-500 hover:text-blue-700 hover:bg-blue-50'}`}>
@@ -974,6 +1026,7 @@ export default function App() {
         </div>
       </div>
 
+      {/* ━━━━━━━━ 화면 하단을 꽉 채우는 기존 와이드 스타일의 요약 바 ━━━━━━━━ */}
       <div className="flex flex-col lg:flex-row p-3 lg:p-4 justify-between items-center gap-3 lg:gap-4 fixed bottom-0 left-0 w-full z-[500] bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
             <div className="flex w-full lg:w-auto gap-3 flex-col sm:flex-row justify-between lg:justify-start">
                 <div className="flex flex-col gap-1 flex-1 min-w-[200px] lg:min-w-[240px]">
@@ -1051,15 +1104,7 @@ export default function App() {
         </div>
       )}
 
-      {previewModalImage && (
-        <div className="fixed inset-0 bg-black/95 z-[5000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setPreviewModalImage(null)}>
-            <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[5010] shadow-lg"><X size={24}/></button>
-            <div className="max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl border border-slate-700 shadow-2xl bg-slate-900 p-2" onClick={e => e.stopPropagation()}>
-                <img src={previewModalImage} alt="시편 확대 사진" className="w-full h-full object-contain max-h-[80vh]" />
-            </div>
-        </div>
-      )}
-
+      {/* 🚨 [복구] 이미지 Zoom 모달창 */}
       {zoomedImage && (
         <div className="fixed inset-0 bg-black/95 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setZoomedImage(null)}>
             <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[4010] shadow-lg"><X size={24}/></button>
@@ -1232,6 +1277,15 @@ export default function App() {
         </div>
       )}
 
+      {previewModalImage && (
+        <div className="fixed inset-0 bg-black/95 z-[5000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setPreviewModalImage(null)}>
+            <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[5010] shadow-lg"><X size={24}/></button>
+            <div className="max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl border border-slate-700 shadow-2xl bg-slate-900 p-2" onClick={e => e.stopPropagation()}>
+                <img src={previewModalImage} alt="시편 확대 사진" className="w-full h-full object-contain max-h-[80vh]" />
+            </div>
+        </div>
+      )}
+
       {memoModal.isOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[2000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -1307,24 +1361,6 @@ export default function App() {
                 <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 복사 전송</button>
                 <button onClick={handleShareSMS} className="w-full bg-blue-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS)로 앱 열기</button>
                 <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><Mail size={18}/> 이메일 앱 열기</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 🚨 피드백 모달 컴포넌트를 기존의 단일 파일 내장 형태로 완벽 복원 */}
-      {isEmailModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
-            <div className="p-4 bg-yellow-500 flex justify-between items-center text-slate-900">
-              <h3 className="font-black flex items-center gap-2"><Mail size={18} /> 개발자에게 피드백 보내기</h3>
-              <button onClick={() => setIsEmailModalOpen(false)} className="hover:text-red-600 transition-colors bg-yellow-400 p-1.5 rounded-full"><X size={16} /></button>
-            </div>
-            <div className="p-6 flex flex-col gap-4 bg-slate-50">
-              <div className="flex gap-3 mt-2">
-                  <a href="https://mail.naver.com/v2/new?to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-[#03C75A] text-white py-3 rounded-xl font-black text-center shadow-md">네이버 메일</a>
-                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-white border text-slate-700 py-3 rounded-xl font-black text-center shadow-sm">구글 메일</a>
-              </div>
             </div>
           </div>
         </div>
