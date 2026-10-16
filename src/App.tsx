@@ -4,11 +4,11 @@ import {
   Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, 
   Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
   FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp, 
-  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, CloudRain, CloudUpload, CloudDownload,
-  QrCode, Smartphone, Monitor, Link, Copy, Check
+  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, CloudUpload, CloudDownload,
+  QrCode, Smartphone, Monitor, Link, Check, Users, Lock, ShieldCheck
 } from 'lucide-react';
 
-import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS, TonerData } from './tonerDB';
+import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS } from './tonerDB';
 
 if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')) {
   const script = document.createElement('script');
@@ -17,7 +17,10 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.16 (완벽 고정 수지 비율 및 스마트 소수점 포맷팅 적용)"; 
+const LAST_PATCH_DATE = "2026.10.16 (자체 승인 시스템 및 사용자 통계 탑재)"; 
+
+// 🚨 [NEW] 마스터 키 설정 (대표님이 알려줄 비밀번호)
+const MASTER_KEY = "조색프로2026";
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -168,10 +171,24 @@ interface BoardPost {
   pearlFormula: any[];
   isThreeCoat: boolean;
   images: string[];
-  deletedImages?: { url: string; deletedAt: number }[]; // 3일 보관용 휴지통 필드
+  deletedImages?: { url: string; deletedAt: number }[]; 
 }
 
 export default function App() {
+  // 🚨 [NEW] 승인 로그인 시스템 상태값
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [loginForm, setLoginForm] = useState({ name: '', key: '' });
+  const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
+
+  // 로컬 스토리지에 가짜로 저장해둘 승인 유저 목록 (테스트용)
+  const [authorizedUsers, setAuthorizedUsers] = useState<any[]>(() => {
+      if (typeof window !== 'undefined') {
+          const saved = localStorage.getItem('hitec_auth_users');
+          if (saved) return JSON.parse(saved);
+      }
+      return [];
+  });
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
@@ -202,7 +219,6 @@ export default function App() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
 
-  // QR 다이렉트 동기화 상태값
   const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -211,7 +227,7 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false); // 반응형 감지용
+  const [isMobile, setIsMobile] = useState(false); 
 
   const [boardSearch, setBoardSearch] = useState(''); 
   const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
@@ -265,9 +281,43 @@ export default function App() {
       return item.code.includes(searchTxt) || item.role.toUpperCase().includes(searchTxt);
   });
 
-  useEffect(() => { document.title = "조색 Pro"; }, []);
+  // 🚨 [NEW] 앱 시작 시 인증 여부 체크
+  useEffect(() => {
+      if (typeof window !== 'undefined') {
+          const authKey = localStorage.getItem('hitec_auth_key');
+          const authName = localStorage.getItem('hitec_auth_name');
+          if (authKey === MASTER_KEY && authName) {
+              setIsAuthorized(true);
+          }
+      }
+      document.title = "조색 Pro";
+  }, []);
 
-  // 🚨 화면 너비 감지 (PC/모바일 구분)
+  // 🚨 [NEW] 로그인 승인 처리 로직
+  const handleLogin = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (loginForm.key.trim() === MASTER_KEY && loginForm.name.trim() !== '') {
+          // 승인 처리
+          localStorage.setItem('hitec_auth_key', MASTER_KEY);
+          localStorage.setItem('hitec_auth_name', loginForm.name.trim());
+          
+          // 유저 목록에 등록 (가짜 DB 저장)
+          const newUser = {
+              name: loginForm.name.trim(),
+              date: new Date().toLocaleString('ko-KR'),
+              device: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC'
+          };
+          const updatedUsers = [...authorizedUsers, newUser];
+          setAuthorizedUsers(updatedUsers);
+          localStorage.setItem('hitec_auth_users', JSON.stringify(updatedUsers));
+
+          setIsAuthorized(true);
+      } else {
+          alert("❌ 올바른 이름과 초대 코드를 입력해주세요.");
+      }
+  };
+
+
   useEffect(() => {
       const checkMobile = () => setIsMobile(window.innerWidth < 768);
       checkMobile();
@@ -275,7 +325,6 @@ export default function App() {
       return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // 모바일 키보드 감지 최적화
   useEffect(() => {
       const handleFocusIn = (e: FocusEvent) => {
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) {
@@ -297,7 +346,6 @@ export default function App() {
       };
   }, []);
 
-  // 3일 지난 휴지통 이미지 자동 영구 삭제 (용량 폭발 방지)
   useEffect(() => {
       if (boardPosts.length > 0) {
           const now = Date.now();
@@ -447,7 +495,6 @@ export default function App() {
       }
   }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, boardPosts, snapshots, isLoaded]);
 
-  // 🚨 [수술 완료] 필수 수지 배율 20% & 30% 완벽 고정 및 소수점 포맷팅
   useEffect(() => {
     const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); 
     const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
@@ -747,8 +794,48 @@ export default function App() {
       window.open(`https://www.google.com/search?q=스피스헥커+${val}+뜻`, '_blank');
   };
 
-  // 모바일 전용 하단 바 숨김 체크 로직
   const showBottomBar = !(isMobile && isKeyboardOpen);
+
+  // 🚨 [NEW] 승인 로그인 화면 (비인가자 차단)
+  if (!isAuthorized) {
+      return (
+          <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-slate-200 flex flex-col items-center">
+                  <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-6"><Lock size={32} className="text-white"/></div>
+                  <h1 className="text-2xl font-black text-slate-800 mb-2">조색 Pro 접근 승인</h1>
+                  <p className="text-sm text-slate-500 mb-8 text-center break-keep">이 앱은 승인된 작업자만 사용할 수 있습니다. 관리자에게 부여받은 이름과 코드를 입력해주세요.</p>
+                  
+                  <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
+                      <div>
+                          <label className="text-xs font-bold text-slate-600 mb-1.5 block">작업자 이름 (또는 상호명)</label>
+                          <input 
+                              type="text" 
+                              value={loginForm.name} 
+                              onChange={e => setLoginForm({...loginForm, name: e.target.value})}
+                              placeholder="홍길동" 
+                              className="w-full border border-slate-300 p-3 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              required
+                          />
+                      </div>
+                      <div>
+                          <label className="text-xs font-bold text-slate-600 mb-1.5 block">초대 코드 (마스터 키)</label>
+                          <input 
+                              type="password" 
+                              value={loginForm.key} 
+                              onChange={e => setLoginForm({...loginForm, key: e.target.value})}
+                              placeholder="******" 
+                              className="w-full border border-slate-300 p-3 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              required
+                          />
+                      </div>
+                      <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 rounded-lg mt-4 transition-colors shadow-md flex justify-center items-center gap-2">
+                          <ShieldCheck size={18}/> 시스템 접속 승인
+                      </button>
+                  </form>
+              </div>
+          </div>
+      );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
@@ -771,15 +858,18 @@ export default function App() {
             <span className="bg-slate-800 text-slate-400 text-[10px] px-2.5 py-1 rounded-full border border-slate-700 hidden md:inline-block shrink-0">Last Patch: {LAST_PATCH_DATE}</span>
         </div>
 
-        <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x">
+        <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x items-center">
+            {/* 🚨 [NEW] 승인 사용자 관리 버튼 */}
+            <button onClick={() => setIsUsersModalOpen(true)} className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white border border-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                <Users size={14} /> 승인된 작업자 <span className="bg-indigo-900 px-1.5 py-0.5 rounded text-[10px]">{authorizedUsers.length}명</span>
+            </button>
+            <div className="w-px h-6 bg-slate-700 mx-1 hidden sm:block"></div>
+
             <button onClick={() => { setIsCloudModalOpen(true); setCopied(false); }} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 ☁️ 기기 간 초고속 연동
             </button>
             <button onClick={() => setIsGlossaryModalOpen(true)} className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 📖 도장/조색 용어 사전
-            </button>
-            <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                <RefreshCw size={14} /> 업데이트
             </button>
             <button onClick={() => setIsBoardOpen(true)} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 <Layers size={14} /> 시편 게시판
@@ -1151,7 +1241,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* 🚨 [수술 완료] 키보드 등장 시 자동 숨김 및 대칭 핏/직관적 UI로 교체된 하단 요약바 */}
       {showBottomBar && (
           <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
               <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-4xl mx-auto p-3 md:p-4 h-full items-stretch justify-center">
@@ -1181,7 +1270,45 @@ export default function App() {
           </div>
       )}
 
-      {/* 🚨 QR코드 다이렉트 동기화 모달 */}
+      {/* 🚨 [NEW] 승인된 작업자 목록 모달 */}
+      {isUsersModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[80vh]">
+            <div className="p-4 bg-indigo-600 flex justify-between items-center text-white shrink-0">
+              <h3 className="font-bold flex items-center gap-2"><Users size={18} /> 접속 승인된 작업자 현황</h3>
+              <button onClick={() => setIsUsersModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar">
+                <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl mb-6">
+                    <p className="text-xs text-indigo-800 font-bold mb-1">🔐 실시간 접속 보안 패널 (Admin Only)</p>
+                    <p className="text-[11px] text-indigo-600 leading-relaxed break-keep">초대 코드(마스터 키)를 입력하여 접속 권한을 얻은 사용자의 기기 목록입니다. 현재는 테스트 모드로 동작하며, 실제 배포 시 Firebase DB와 연동되어 실시간 통계가 제공됩니다.</p>
+                </div>
+
+                <div className="space-y-3">
+                    {authorizedUsers.length === 0 ? (
+                        <div className="text-center py-8 text-slate-400 text-sm font-bold">승인된 사용자가 없습니다.</div>
+                    ) : (
+                        authorizedUsers.map((user, idx) => (
+                            <div key={idx} className="bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex justify-between items-center hover:border-indigo-300 transition-colors">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center border border-slate-200">
+                                        {user.device === 'Mobile' ? <Smartphone size={16} className="text-slate-500"/> : <Monitor size={16} className="text-slate-500"/>}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="font-black text-slate-800 text-sm">{user.name}</span>
+                                        <span className="text-[10px] text-slate-400 flex items-center gap-1"><Calendar size={10}/> 첫 로그인: {user.date}</span>
+                                    </div>
+                                </div>
+                                <span className="bg-emerald-100 text-emerald-700 text-[10px] font-black px-2 py-1 rounded">접속 허용됨</span>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isCloudModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 h-auto max-h-[85vh]">
@@ -1479,8 +1606,7 @@ export default function App() {
               <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             <div className="p-6 flex flex-col gap-3 bg-slate-50">
-                {/* 🚨 [수술 완료] 알림 없이 바로 카톡 이동되도록 교체 */}
-                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 데이터 전송</button>
+                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 바로 전송하기</button>
                 <button onClick={handleShareSMS} className="w-full bg-blue-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS) 앱 열기</button>
                 <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><Mail size={18}/> 이메일 앱 열기</button>
             </div>
@@ -1620,21 +1746,20 @@ export default function App() {
                     return passBrandFilter && passSearch;
                 }).map(post => (
                     <div key={post.id} onClick={() => handleOpenPost(post)} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer group flex flex-col gap-2">
-                        {/* 🚨 [수술 완료] 날짜와 전체 삭제 버튼 겹침 해결 (레이아웃 분리) */}
                         <div className="flex justify-between items-start">
                             <div className="flex items-center gap-2">
                                 <span className="bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded font-bold">{post.brand}</span>
                                 <span className="text-lg font-black text-emerald-700 uppercase tracking-wide group-hover:text-emerald-500 transition-colors notranslate" translate="no">{post.code}</span>
                             </div>
-                            <div className="flex flex-col items-end gap-1.5">
+                            <div className="flex flex-col items-end gap-1.5 mt-0.5">
                                 <span className="text-xs text-slate-400 font-medium flex items-center gap-1"><Calendar size={12}/> {post.date}</span>
                                 <button onClick={(e) => deleteBoardPost(post.id, e)} className="text-slate-400 hover:text-white hover:bg-red-500 px-2 py-1 rounded transition-colors flex items-center gap-1 font-bold text-[10px]" title="이 시편 삭제하기"><Trash2 size={12} /> 전체 삭제</button>
                             </div>
                         </div>
-                        <p className="text-sm text-slate-600 font-bold mb-1 break-keep">{post.spec}</p>
+                        <p className="text-sm text-slate-600 font-bold mb-1 break-keep mt-1">{post.spec}</p>
                         
                         {post.images && post.images.length > 0 && (
-                            <div className="mb-2 flex flex-wrap gap-1.5">
+                            <div className="mb-2 flex flex-wrap gap-1.5 mt-2">
                                 {post.images.map((imgUrl: string, imgIdx: number) => (
                                     <button key={imgIdx} onClick={(e) => { e.stopPropagation(); setPreviewModalImage(imgUrl); }} className="bg-amber-50 border border-amber-300 text-amber-800 hover:bg-amber-100 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition-colors">
                                         <ImageIcon size={14} className="text-amber-600" /> 📷 시편 사진 {imgIdx + 1} 보기
@@ -1643,7 +1768,7 @@ export default function App() {
                             </div>
                         )}
 
-                        <div className="flex justify-between items-center border-t border-slate-100 pt-3">
+                        <div className="flex justify-between items-center border-t border-slate-100 pt-3 mt-1">
                             <span className="text-xs text-slate-500">By. <b>{post.author}</b></span>
                             <div className="flex gap-3 text-xs font-bold text-slate-400">
                                 <span className="flex items-center gap-1 group-hover:text-emerald-600 transition-colors"><Eye size={14}/> {post.views}</span>
@@ -1702,7 +1827,6 @@ export default function App() {
                   </>
               )}
 
-              {/* 🚨 개별 사진 삭제 (휴지통 이동) 기능 탑재 */}
               {viewingPost.images && viewingPost.images.length > 0 && (
                   <div className="flex flex-col gap-3 mt-2">
                       {viewingPost.images.map((imgUrl: string, imgIdx: number) => (
@@ -1719,7 +1843,6 @@ export default function App() {
                   </div>
               )}
 
-              {/* 🚨 3일 보관 휴지통 경고 및 복구/삭제 기능 탑재 */}
               {viewingPost.deletedImages && viewingPost.deletedImages.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-slate-300">
                       <h4 className="text-xs font-black text-red-600 mb-2 flex items-center gap-1"><Trash2 size={14}/> 휴지통 (삭제된 사진 - 3일 후 자동 영구 삭제)</h4>
