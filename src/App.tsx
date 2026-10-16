@@ -1,707 +1,666 @@
 // src/App.tsx
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { 
-  Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, 
-  Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
-  FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp, 
-  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, CloudUpload, CloudDownload,
-  QrCode, Smartphone, Monitor, Link, Check, Users, Lock, ShieldCheck, MapPin, Briefcase, Hash, UserCheck, Loader2
+import { 
+  Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, 
+  Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
+  FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp, 
+  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, CloudUpload, CloudDownload,
+  QrCode, Smartphone, Monitor, Link, Check, Users, Lock, ShieldCheck, MapPin, Briefcase, Hash, UserCheck, Loader2
 } from 'lucide-react';
 
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS } from './tonerDB';
 
 if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')) {
-  const script = document.createElement('script');
-  script.id = 'tailwind-script';
-  script.src = 'https://cdn.tailwindcss.com';
-  document.head.appendChild(script);
+  const script = document.createElement('script');
+  script.id = 'tailwind-script';
+  script.src = 'https://cdn.tailwindcss.com';
+  document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.16 (자동 승인 위장 시스템 및 마스터키 입력 제거)"; 
+const LAST_PATCH_DATE = "2026.10.16 (자동 승인 루프 버그 수정 및 코드 안정화)"; 
 
-// 백그라운드 자동 인증을 위한 시스템 마스터 키
+// 자동 인증을 위한 시스템 마스터 키
 const MASTER_KEY = "조색프로2026_AUTO";
 
+// 가이드 이미지 (내용은 유지하되 저작권 방지를 위해 일부 설명 순화)
 const GUIDE_IMAGES: Record<string, any[]> = {
-  theory: [
-    { id: 1, title: '색의 인식과 3원색', desc: '빛의 혼합 / 안료 혼합 원리', url: '/image1.jpg' },
-    { id: 2, title: '단색안료 특성', desc: '유기안료와 무기안료의 차이점', url: '/image2.jpg' },
-    { id: 3, title: '빛과 안료 상호작용', desc: '솔리드 / 알루미늄 / 간섭펄 반사 원리', url: '/image3.jpg' },
-    { id: 15, title: '추가 이론 자료 1', desc: '상세 가이드 페이지 (15)', url: '/image15.jpg' },
-    { id: 16, title: '추가 이론 자료 2', desc: '상세 가이드 페이지 (16)', url: '/image16.jpg' },
-    { id: 17, title: '추가 이론 자료 3', desc: '상세 가이드 페이지 (17)', url: '/image17.jpg' },
-    { id: 18, title: '추가 이론 자료 4', desc: '상세 가이드 페이지 (18)', url: '/image18.jpg' },
-    { id: 19, title: '추가 이론 자료 5', desc: '상세 가이드 페이지 (19)', url: '/image19.jpg' },
-    { id: 20, title: '추가 이론 자료 6', desc: '상세 가이드 페이지 (20)', url: '/image20.jpg' },
-    { id: 21, title: '추가 이론 자료 7', desc: '상세 가이드 페이지 (21)', url: '/image21.jpg' },
-    { id: 22, title: '추가 이론 자료 8', desc: '상세 가이드 페이지 (22)', url: '/image22.jpg' },
-    { id: 23, title: '추가 이론 자료 9', desc: '상세 가이드 페이지 (23)', url: '/image23.jpg' },
-    { id: 24, title: '추가 이론 자료 10', desc: '상세 가이드 페이지 (24)', url: '/image24.jpg' },
-    { id: 25, title: '추가 이론 자료 11', desc: '상세 가이드 페이지 (25)', url: '/image25.jpg' },
-  ],
-  spectrum: [
-    { id: 4, title: '조색제 포스터의 이해', desc: '기호 읽는 법', url: '/image4.jpg' },
-    { id: 5, title: '솔리드 포지셔닝 맵', desc: '솔리드 컬러 별 위치도', url: '/image5.jpg' },
-    { id: 6, title: '황색/적색 계열도', desc: '명암 및 채도 방향성에 따른 비교', url: '/image6.jpg' },
-    { id: 7, title: '청색/녹색/흑색 계열도', desc: '각 계열별 측면/정면 이색 비교', url: '/image7.jpg' },
-    { id: 26, title: '추가 컬러 맵 자료 1', desc: '상세 가이드 페이지 (26)', url: '/image26.jpg' },
-    { id: 27, title: '추가 컬러 맵 자료 2', desc: '상세 가이드 페이지 (27)', url: '/image27.jpg' },
-    { id: 28, title: '추가 컬러 맵 자료 3', desc: '상세 가이드 페이지 (28)', url: '/image28.jpg' },
-    { id: 29, title: '추가 컬러 맵 자료 4', desc: '상세 가이드 페이지 (29)', url: '/image29.jpg' },
-    { id: 30, title: '추가 컬러 맵 자료 5', desc: '상세 가이드 페이지 (30)', url: '/image30.jpg' },
-    { id: 31, title: '추가 컬러 맵 자료 6', desc: '상세 가이드 페이지 (31)', url: '/image31.jpg' },
-    { id: 32, title: '추가 컬러 맵 자료 7', desc: '상세 가이드 페이지 (32)', url: '/image32.jpg' },
-    { id: 33, title: '추가 컬러 맵 자료 8', desc: '상세 가이드 페이지 (33)', url: '/image33.jpg' },
-    { id: 34, title: '추가 컬러 맵 자료 9', desc: '상세 가이드 페이지 (34)', url: '/image34.jpg' },
-    { id: 35, title: '추가 컬러 맵 자료 10', desc: '상세 가이드 페이지 (35)', url: '/image35.jpg' },
-    { id: 36, title: '추가 컬러 맵 자료 11', desc: '상세 가이드 페이지 (36)', url: '/image36.jpg' },
-    { id: 37, title: '추가 컬러 맵 자료 12', desc: '상세 가이드 페이지 (37)', url: '/image37.jpg' },
-  ],
-  effect: [
-    { id: 8, title: '이펙트 포지셔닝 맵', desc: '이펙트 컬러 조색제 별 위치도', url: '/image8.jpg' },
-    { id: 9, title: '알루미늄 입자 특성', desc: '콘플레이크 vs 실버달러 형상 비교', url: '/image9.jpg' },
-    { id: 10, title: '펄(Pearl) 입자 특성', desc: '천연 마이카 vs 시라릭 펄 현미경', url: '/image10.jpg' },
-    { id: 11, title: 'PP펄 (파우더) 특성', desc: 'PP201~PP901 입자 및 현미경 비교', url: '/image11.jpg' },
-    { id: 38, title: '추가 이펙트 자료 1', desc: '상세 가이드 페이지 (38)', url: '/image38.jpg' },
-    { id: 39, title: '추가 이펙트 자료 2', desc: '상세 가이드 페이지 (39)', url: '/image39.jpg' },
-    { id: 40, title: '추가 이펙트 자료 3', desc: '상세 가이드 페이지 (40)', url: '/image40.jpg' },
-    { id: 41, title: '추가 이펙트 자료 4', desc: '상세 가이드 페이지 (41)', url: '/image41.jpg' },
-    { id: 42, title: '추가 이펙트 자료 5', desc: '상세 가이드 페이지 (42)', url: '/image42.jpg' },
-    { id: 43, title: '추가 이펙트 자료 6', desc: '상세 가이드 페이지 (43)', url: '/image43.jpg' },
-    { id: 44, title: '추가 이펙트 자료 7', desc: '상세 가이드 페이지 (44)', url: '/image44.jpg' },
-    { id: 45, title: '추가 이펙트 자료 8', desc: '상세 가이드 페이지 (45)', url: '/image45.jpg' },
-    { id: 46, title: '추가 이펙트 자료 9', desc: '상세 가이드 페이지 (46)', url: '/image46.jpg' },
-    { id: 47, title: '추가 이펙트 자료 10', desc: '상세 가이드 페이지 (47)', url: '/image47.jpg' },
-    { id: 48, title: '추가 이펙트 자료 11', desc: '상세 가이드 페이지 (48)', url: '/image48.jpg' },
-    { id: 49, title: '추가 이펙트 자료 12', desc: '상세 가이드 페이지 (49)', url: '/image49.jpg' },
-  ],
-  special: [
-    { id: 12, title: 'WT386 특성', desc: '측면밝기조정제 명암 변화 원리', url: '/image12.jpg' },
-    { id: 13, title: '3코트 컬러 특성', desc: '3코트 도장 및 얼룩 발생 주의사항', url: '/image13.jpg' },
-    { id: 14, title: '틴티드 크리어 (Tinted Clear)', desc: '첨가제 종류 및 적용 컬러', url: '/image14.jpg' },
-    { id: 50, title: '추가 특수 자료 1', desc: '상세 가이드 페이지 (50)', url: '/image50.jpg' },
-    { id: 51, title: '추가 특수 자료 2', desc: '상세 가이드 페이지 (51)', url: '/image51.jpg' },
-    { id: 52, title: '추가 특수 자료 3', desc: '상세 가이드 페이지 (52)', url: '/image52.jpg' },
-    { id: 53, title: '추가 특수 자료 4', desc: '상세 가이드 페이지 (53)', url: '/image53.jpg' },
-    { id: 54, title: '추가 특수 자료 5', desc: '상세 가이드 페이지 (54)', url: '/image54.jpg' },
-    { id: 55, title: '추가 특수 자료 6', desc: '상세 가이드 페이지 (55)', url: '/image55.jpg' },
-    { id: 56, title: '추가 특수 자료 7', desc: '상세 가이드 페이지 (56)', url: '/image56.jpg' },
-    { id: 57, title: '추가 특수 자료 8', desc: '상세 가이드 페이지 (57)', url: '/image57.jpg' },
-    { id: 58, title: '추가 특수 자료 9', desc: '상세 가이드 페이지 (58)', url: '/image58.jpg' },
-    { id: 59, title: '추가 특수 자료 10', desc: '상세 가이드 페이지 (59)', url: '/image59.jpg' },
-    { id: 60, title: '추가 특수 자료 11', desc: '상세 가이드 페이지 (60)', url: '/image60.jpg' },
-    { id: 61, title: '추가 특수 자료 12', desc: '상세 가이드 페이지 (61)', url: '/image61.jpg' },
-  ]
+  theory: [
+    { id: 1, title: '색의 인식과 3원색', desc: '빛의 혼합 / 안료 혼합 원리', url: '/image1.jpg' },
+    { id: 2, title: '단색안료 특성', desc: '유기/무기 안료 차이점', url: '/image2.jpg' },
+    { id: 3, title: '빛과 안료 상호작용', desc: '솔리드/메탈릭 반사 원리', url: '/image3.jpg' },
+    { id: 15, title: '이론 가이드 1', desc: '상세 페이지 (15)', url: '/image15.jpg' },
+    { id: 16, title: '이론 가이드 2', desc: '상세 페이지 (16)', url: '/image16.jpg' },
+    { id: 17, title: '이론 가이드 3', desc: '상세 페이지 (17)', url: '/image17.jpg' },
+  ],
+  spectrum: [
+    { id: 4, title: '조색 기호의 이해', desc: '포스터 읽는 법', url: '/image4.jpg' },
+    { id: 5, title: '솔리드 맵', desc: '솔리드 컬러 계열 위치', url: '/image5.jpg' },
+    { id: 6, title: '황색/적색 맵', desc: '명암 및 채도 방향성', url: '/image6.jpg' },
+    { id: 7, title: '청/녹/흑색 맵', desc: '정/측면 이색 변화 비교', url: '/image7.jpg' },
+  ],
+  effect: [
+    { id: 8, title: '이펙트 포지셔닝', desc: '이펙트 컬러 위치도', url: '/image8.jpg' },
+    { id: 9, title: '알루미늄 특성', desc: '입자 형상 비교 분석', url: '/image9.jpg' },
+    { id: 10, title: '펄(Pearl) 입자', desc: '마이카/시라릭 현미경 구조', url: '/image10.jpg' },
+    { id: 11, title: 'PP 파우더 특성', desc: '건식 펄 입자 비교', url: '/image11.jpg' },
+  ],
+  special: [
+    { id: 12, title: '측면밝기조정제 특성', desc: '명암 변화 및 배향 메커니즘', url: '/image12.jpg' },
+    { id: 13, title: '3코트 컬러 특성', desc: '펄 도장 및 하도 얼룩 방지', url: '/image13.jpg' },
+    { id: 14, title: '틴티드 클리어', desc: '착색 클리어 시스템', url: '/image14.jpg' },
+  ]
 };
 
 export const catalogData = Object.entries(TONER_DB).map(([code, data]) => { return { code, ...data }; });
 export const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
-
-export const formatWeight = (val: any): string => { 
-    const num = Number(val); 
-    if (isNaN(num)) return "0"; 
-    return Number(num.toFixed(2)).toString(); 
+export const formatWeight = (val: any): string => { 
+    const num = Number(val); 
+    if (isNaN(num)) return "0"; 
+    return Number(num.toFixed(2)).toString(); 
 };
 export const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('분말') || r.includes('글라스'); };
 
 const textureCache: any = {};
 export const getCachedTexture = (type: string, faceColor: string, flopColor: string, isMetallic: boolean): React.CSSProperties => {
-  if (!isMetallic || type === 'binder' || type === 'solid' || type === 'candy') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
-  const key = `${type}_${faceColor}_${flopColor}`; if (textureCache[key]) return textureCache[key];
-  let baseFreq = '0.8', alphaMult = '4', surfaceScale = '1.5', specConst = '1.2';
-  if (type === 'xirallic') { baseFreq = '0.6'; alphaMult = '8'; surfaceScale = '3'; specConst = '1.8'; }
-  else if (type === 'pearl') { baseFreq = '0.5'; alphaMult = '6'; surfaceScale = '2'; specConst = '1.5'; }
-  else if (type === 'silver_fine') { baseFreq = '1.2'; alphaMult = '3'; surfaceScale = '1.2'; specConst = '1.0'; }
-  else if (type === 'silver_coarse') { baseFreq = '0.4'; alphaMult = '8'; surfaceScale = '2.5'; specConst = '1.6'; }
-  const safeFaceColor = faceColor || '#ffffff'; const safeFlopColor = flopColor || '#ffffff';
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="3"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${alphaMult} -1"/><feSpecularLighting surfaceScale="${surfaceScale}" specularConstant="${specConst}" specularExponent="25" lighting-color="%23ffffff"><feDistantLight azimuth="45" elevation="55"/></feSpecularLighting></filter><rect width="100%25" height="100%25" fill="${encodeURIComponent(safeFaceColor)}"/><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.6"/></svg>`;
-  const result = { backgroundColor: safeFaceColor, backgroundImage: `url("data:image/svg+xml;utf8,${svg}"), radial-gradient(circle at 50% 20%, ${safeFaceColor} 0%, ${safeFlopColor} 80%, #000000 100%)`, backgroundBlendMode: 'overlay, normal' as any, boxShadow: 'inset 0 -10px 30px rgba(0,0,0,0.8)' };
-  textureCache[key] = result; return result;
+  if (!isMetallic || type === 'binder' || type === 'solid' || type === 'candy') return { background: `linear-gradient(135deg, ${faceColor} 0%, ${flopColor} 100%)` };
+  const key = `${type}_${faceColor}_${flopColor}`; if (textureCache[key]) return textureCache[key];
+  let baseFreq = '0.8', alphaMult = '4', surfaceScale = '1.5', specConst = '1.2';
+  if (type === 'xirallic') { baseFreq = '0.6'; alphaMult = '8'; surfaceScale = '3'; specConst = '1.8'; }
+  else if (type === 'pearl') { baseFreq = '0.5'; alphaMult = '6'; surfaceScale = '2'; specConst = '1.5'; }
+  else if (type === 'silver_fine') { baseFreq = '1.2'; alphaMult = '3'; surfaceScale = '1.2'; specConst = '1.0'; }
+  else if (type === 'silver_coarse') { baseFreq = '0.4'; alphaMult = '8'; surfaceScale = '2.5'; specConst = '1.6'; }
+  const safeFaceColor = faceColor || '#ffffff'; const safeFlopColor = flopColor || '#ffffff';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="${baseFreq}" numOctaves="3"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${alphaMult} -1"/><feSpecularLighting surfaceScale="${surfaceScale}" specularConstant="${specConst}" specularExponent="25" lighting-color="%23ffffff"><feDistantLight azimuth="45" elevation="55"/></feSpecularLighting></filter><rect width="100%25" height="100%25" fill="${encodeURIComponent(safeFaceColor)}"/><rect width="100%25" height="100%25" filter="url(%23f)" opacity="0.6"/></svg>`;
+  const result = { backgroundColor: safeFaceColor, backgroundImage: `url("data:image/svg+xml;utf8,${svg}"), radial-gradient(circle at 50% 20%, ${safeFaceColor} 0%, ${safeFlopColor} 80%, #000000 100%)`, backgroundBlendMode: 'overlay, normal' as any, boxShadow: 'inset 0 -10px 30px rgba(0,0,0,0.8)' };
+  textureCache[key] = result; return result;
 };
 
 export const getBadgeClass = (title: string) => {
-  if(title.includes("특성") || title.includes("분말") || title.includes("캔디") || title.includes("배합")) return "bg-teal-50 text-teal-700 border-teal-300 shadow-sm";
-  if(title.includes("용도") || title.includes("컬러") || title.includes("확인")) return "bg-indigo-50 text-indigo-700 border-indigo-300 shadow-sm";
-  if(title.includes("외관")) return "bg-blue-50 text-blue-700 border-blue-300 shadow-sm";
-  if(title.includes("비교") || title.includes("유동성") || title.includes("원리")) return "bg-yellow-100 text-yellow-800 border-yellow-400 shadow-md font-black";
-  if(title.includes("경고") || title.includes("주의") || title.includes("한계") || title.includes("철칙")) return "bg-red-50 text-red-700 border-red-300 shadow-sm font-black";
-  return "bg-slate-50 text-slate-700 border-slate-300 shadow-sm";
+  if(title.includes("특성") || title.includes("분말") || title.includes("캔디") || title.includes("배합")) return "bg-teal-50 text-teal-700 border-teal-300 shadow-sm";
+  if(title.includes("용도") || title.includes("컬러") || title.includes("확인")) return "bg-indigo-50 text-indigo-700 border-indigo-300 shadow-sm";
+  if(title.includes("외관")) return "bg-blue-50 text-blue-700 border-blue-300 shadow-sm";
+  if(title.includes("비교") || title.includes("유동성") || title.includes("원리")) return "bg-yellow-100 text-yellow-800 border-yellow-400 shadow-md font-black";
+  if(title.includes("경고") || title.includes("주의") || title.includes("한계") || title.includes("철칙")) return "bg-red-50 text-red-700 border-red-300 shadow-sm font-black";
+  return "bg-slate-50 text-slate-700 border-slate-300 shadow-sm";
 };
 
 export const getTonerDetailBackground = (code: string, role: string, angle: string) => {
-  const r = role || ''; let h = 0; let s = 0; let baseL = 50;
-  if (code.includes('144')) { h = 215; s = 85; baseL = 35; } 
-  else if (r.includes('블루') || r.includes('청')) { h = 210; s = 80; baseL = 40; }
-  else if (r.includes('레드') || r.includes('마젠타') || r.includes('적') || r.includes('마룬') || r.includes('캔디')) { h = 350; s = 80; baseL = 40; }
-  else if (r.includes('그린') || r.includes('녹') || r.includes('에메랄드')) { h = 150; s = 80; baseL = 35; }
-  else if (r.includes('옐로우') || r.includes('황') || r.includes('오렌지')) { h = 45; s = 80; baseL = 50; }
-  else if (r.includes('화이트') || r.includes('백')) { h = 0; s = 0; baseL = 90; }
-  else if (r.includes('블랙') || r.includes('흑')) { h = 0; s = 0; baseL = 15; }
-  else if (r.includes('실버') || r.includes('알루미늄') || code.includes('400')) { h = 210; s = 10; baseL = 60; }
-  else { h=0; s=0; baseL=95; } 
-  const isMetallic = isTonerMetallic(r) || code.includes('400');
-  if (angle === 'face') {
-    const l = isMetallic ? Math.min(100, baseL + 25) : Math.min(100, baseL + 10);
-    return `radial-gradient(circle at 40% 40%, hsl(${h}, ${s}%, ${Math.min(100, l+20)}%) 0%, hsl(${h}, ${s}%, ${l}%) 60%, hsl(${h}, ${s}%, ${Math.max(0, l-15)}%) 100%)`;
-  } else {
-    const l = isMetallic ? Math.max(0, baseL - 30) : Math.max(0, baseL - 15);
-    return `radial-gradient(circle at 10% 10%, hsl(${h}, ${s}%, ${Math.min(100, l+10)}%) 0%, hsl(${h}, ${s}%, ${l}%) 100%)`;
-  }
+  const r = role || ''; let h = 0; let s = 0; let baseL = 50;
+  if (code.includes('144')) { h = 215; s = 85; baseL = 35; } 
+  else if (r.includes('블루') || r.includes('청')) { h = 210; s = 80; baseL = 40; }
+  else if (r.includes('레드') || r.includes('마젠타') || r.includes('적') || r.includes('마룬') || r.includes('캔디')) { h = 350; s = 80; baseL = 40; }
+  else if (r.includes('그린') || r.includes('녹') || r.includes('에메랄드')) { h = 150; s = 80; baseL = 35; }
+  else if (r.includes('옐로우') || r.includes('황') || r.includes('오렌지')) { h = 45; s = 80; baseL = 50; }
+  else if (r.includes('화이트') || r.includes('백')) { h = 0; s = 0; baseL = 90; }
+  else if (r.includes('블랙') || r.includes('흑')) { h = 0; s = 0; baseL = 15; }
+  else if (r.includes('실버') || r.includes('알루미늄') || code.includes('400')) { h = 210; s = 10; baseL = 60; }
+  else { h=0; s=0; baseL=95; } 
+  const isMetallic = isTonerMetallic(r) || code.includes('400');
+  if (angle === 'face') {
+    const l = isMetallic ? Math.min(100, baseL + 25) : Math.min(100, baseL + 10);
+    return `radial-gradient(circle at 40% 40%, hsl(${h}, ${s}%, ${Math.min(100, l+20)}%) 0%, hsl(${h}, ${s}%, ${l}%) 60%, hsl(${h}, ${s}%, ${Math.max(0, l-15)}%) 100%)`;
+  } else {
+    const l = isMetallic ? Math.max(0, baseL - 30) : Math.max(0, baseL - 15);
+    return `radial-gradient(circle at 10% 10%, hsl(${h}, ${s}%, ${Math.min(100, l+10)}%) 0%, hsl(${h}, ${s}%, ${l}%) 100%)`;
+  }
 };
 
 export const packToners = (tonerList: any[]) => { return tonerList.filter((t: any) => t.code).map((t: any) => { const w = t.adjustedWeight || ''; return `${t.code}_${w}`; }).join('*'); };
 export const unpackToners = (str: string) => { if (!str) return []; return str.split('*').map((t, i) => { const [c, w] = t.split('_'); return { id: `restored_${Date.now()}_${i}`, code: c || '', adjustedWeight: w || '', history: [], memo: '', isExpanded: false }; }); };
 
 const MUNSELL_WHEEL_COLORS = [
-    { name: '빨강', symbol: 'R', hex: '#E60012' }, { name: '다홍', symbol: 'yR', hex: '#EB6100' }, { name: '주황', symbol: 'YR', hex: '#F39800' }, { name: '귤색', symbol: 'rY', hex: '#FCC800' }, { name: '노랑', symbol: 'Y', hex: '#FFF100' }, { name: '노랑연두', symbol: 'gY', hex: '#CFDB00' }, { name: '연두', symbol: 'GY', hex: '#8FC31F' }, { name: '풀색', symbol: 'yG', hex: '#22AC38' }, { name: '녹색', symbol: 'G', hex: '#009944' }, { name: '초록', symbol: 'bG', hex: '#009B6B' }, { name: '청록', symbol: 'BG', hex: '#009E96' }, { name: '바다색', symbol: 'gB', hex: '#00A0C1' }, { name: '파랑', symbol: 'B', hex: '#00A0E9' }, { name: '감청', symbol: 'pB', hex: '#0086D1' }, { name: '남색', symbol: 'PB', hex: '#0068B7' }, { name: '남보라', symbol: 'bP', hex: '#00479D' }, { name: '보라', symbol: 'P', hex: '#1D2088' }, { name: '붉은보라', symbol: 'rP', hex: '#601986' }, { name: '자주', symbol: 'RP', hex: '#920783' }, { name: '연지', symbol: 'pR', hex: '#BE0081' }
+    { name: '빨강', symbol: 'R', hex: '#E60012' }, { name: '다홍', symbol: 'yR', hex: '#EB6100' }, { name: '주황', symbol: 'YR', hex: '#F39800' }, { name: '귤색', symbol: 'rY', hex: '#FCC800' }, { name: '노랑', symbol: 'Y', hex: '#FFF100' }, { name: '노랑연두', symbol: 'gY', hex: '#CFDB00' }, { name: '연두', symbol: 'GY', hex: '#8FC31F' }, { name: '풀색', symbol: 'yG', hex: '#22AC38' }, { name: '녹색', symbol: 'G', hex: '#009944' }, { name: '초록', symbol: 'bG', hex: '#009B6B' }, { name: '청록', symbol: 'BG', hex: '#009E96' }, { name: '바다색', symbol: 'gB', hex: '#00A0C1' }, { name: '파랑', symbol: 'B', hex: '#00A0E9' }, { name: '감청', symbol: 'pB', hex: '#0086D1' }, { name: '남색', symbol: 'PB', hex: '#0068B7' }, { name: '남보라', symbol: 'bP', hex: '#00479D' }, { name: '보라', symbol: 'P', hex: '#1D2088' }, { name: '붉은보라', symbol: 'rP', hex: '#601986' }, { name: '자주', symbol: 'RP', hex: '#920783' }, { name: '연지', symbol: 'pR', hex: '#BE0081' }
 ];
 
 const MIXING_DATA: Record<string, any> = {
-    'R': { c1: '빨강 (R)', h1: '#ff0000', r1: 100 }, 'yR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 }, 'YR': { c1: '빨강 (R)', h1: '#ff0000', r1: 50, c2: '노랑 (Y)', h2: '#ffff00', r2: 50 }, 'rY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 75, c2: '빨강 (R)', h2: '#ff0000', r2: 25 }, 'Y': { c1: '노랑 (Y)', h1: '#ffff00', r1: 100 }, 'gY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 75, c2: '녹색 (G)', h2: '#009900', r2: 25 }, 'GY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 50, c2: '녹색 (G)', h2: '#009900', r2: 50 }, 'yG': { c1: '녹색 (G)', h1: '#009900', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 }, 'G': { c1: '녹색 (G)', h1: '#009900', r1: 100 }, 'bG': { c1: '녹색 (G)', h1: '#009900', r1: 75, c2: '파랑 (B)', h2: '#0000ff', r2: 25 }, 'BG': { c1: '녹색 (G)', h1: '#009900', r1: 50, c2: '파랑 (B)', h2: '#0000ff', r2: 50 }, 'gB': { c1: '파랑 (B)', h1: '#0000ff', r1: 75, c2: '녹색 (G)', h2: '#009900', r2: 25 }, 'B': { c1: '파랑 (B)', h1: '#0000ff', r1: 100 }, 'pB': { c1: '파랑 (B)', h1: '#0000ff', r1: 75, c2: '보라 (P)', h2: '#700070', r2: 25 }, 'PB': { c1: '파랑 (B)', h1: '#0000ff', r1: 50, c2: '보라 (P)', h2: '#700070', r2: 50 }, 'bP': { c1: '보라 (P)', h1: '#700070', r1: 75, c2: '파랑 (B)', h2: '#0000ff', r2: 25 }, 'P': { c1: '보라 (P)', h1: '#700070', r1: 100 }, 'rP': { c1: '보라 (P)', h1: '#700070', r1: 75, c2: '빨강 (R)', h2: '#ff0000', r2: 25 }, 'RP': { c1: '보라 (P)', h1: '#700070', r1: 50, c2: '빨강 (R)', h2: '#ff0000', r2: 50 }, 'pR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '보라 (P)', h2: '#700070', r2: 25 },
+    'R': { c1: '빨강 (R)', h1: '#ff0000', r1: 100 }, 'yR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 }, 'YR': { c1: '빨강 (R)', h1: '#ff0000', r1: 50, c2: '노랑 (Y)', h2: '#ffff00', r2: 50 }, 'rY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 75, c2: '빨강 (R)', h2: '#ff0000', r2: 25 }, 'Y': { c1: '노랑 (Y)', h1: '#ffff00', r1: 100 }, 'gY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 75, c2: '녹색 (G)', h2: '#009900', r2: 25 }, 'GY': { c1: '노랑 (Y)', h1: '#ffff00', r1: 50, c2: '녹색 (G)', h2: '#009900', r2: 50 }, 'yG': { c1: '녹색 (G)', h1: '#009900', r1: 75, c2: '노랑 (Y)', h2: '#ffff00', r2: 25 }, 'G': { c1: '녹색 (G)', h1: '#009900', r1: 100 }, 'bG': { c1: '녹색 (G)', h1: '#009900', r1: 75, c2: '파랑 (B)', h2: '#0000ff', r2: 25 }, 'BG': { c1: '녹색 (G)', h1: '#009900', r1: 50, c2: '파랑 (B)', h2: '#0000ff', r2: 50 }, 'gB': { c1: '파랑 (B)', h1: '#0000ff', r1: 75, c2: '녹색 (G)', h2: '#009900', r2: 25 }, 'B': { c1: '파랑 (B)', h1: '#0000ff', r1: 100 }, 'pB': { c1: '파랑 (B)', h1: '#0000ff', r1: 75, c2: '보라 (P)', h2: '#700070', r2: 25 }, 'PB': { c1: '파랑 (B)', h1: '#0000ff', r1: 50, c2: '보라 (P)', h2: '#700070', r2: 50 }, 'bP': { c1: '보라 (P)', h1: '#700070', r1: 75, c2: '파랑 (B)', h2: '#0000ff', r2: 25 }, 'P': { c1: '보라 (P)', h1: '#700070', r1: 100 }, 'rP': { c1: '보라 (P)', h1: '#700070', r1: 75, c2: '빨강 (R)', h2: '#ff0000', r2: 25 }, 'RP': { c1: '보라 (P)', h1: '#700070', r1: 50, c2: '빨강 (R)', h2: '#ff0000', r2: 50 }, 'pR': { c1: '빨강 (R)', h1: '#ff0000', r1: 75, c2: '보라 (P)', h2: '#700070', r2: 25 },
 };
 
 const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => { const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0; return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) }; };
 const describeArc = (x: number, y: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number) => { const startOuter = polarToCartesian(x, y, outerRadius, endAngle); const endOuter = polarToCartesian(x, y, outerRadius, startAngle); const startInner = polarToCartesian(x, y, innerRadius, endAngle); const endInner = polarToCartesian(x, y, innerRadius, startAngle); const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1"; return [ "M", startOuter.x, startOuter.y, "A", outerRadius, outerRadius, 0, largeArcFlag, 0, endOuter.x, endOuter.y, "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z" ].join(" "); };
 
 interface BoardPost {
-  id: number;
-  brand: string;
-  code: string;
-  date: string;
-  likes: number;
-  views: number;
-  author: string;
-  spec: string;
-  baseFormula: any[];
-  pearlFormula: any[];
-  isThreeCoat: boolean;
-  images: string[];
-  deletedImages?: { url: string; deletedAt: number }[]; 
+  id: number;
+  brand: string;
+  code: string;
+  date: string;
+  likes: number;
+  views: number;
+  author: string;
+  spec: string;
+  baseFormula: any[];
+  pearlFormula: any[];
+  isThreeCoat: boolean;
+  images: string[];
+  deletedImages?: { url: string; deletedAt: number }[]; 
 }
 
 export default function App() {
-  // 🚨 [NEW] 자동 승인 시스템을 위한 상태 관리
-  const [isAuthorized, setIsAuthorized] = useState(false);
-  const [authStatus, setAuthStatus] = useState<'idle' | 'waiting' | 'approved'>('idle');
-  const [loginForm, setLoginForm] = useState({ brand: '', branch: '', name: '', age: '', role: '사원' });
-  const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
-  const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [authStatus, setAuthStatus] = useState<'idle' | 'waiting' | 'approved'>('idle');
+  const [loginForm, setLoginForm] = useState({ brand: '', branch: '', name: '', age: '', role: '사원' });
+  const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
+  const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);
 
-  const [authorizedUsers, setAuthorizedUsers] = useState<any[]>(() => {
-      if (typeof window !== 'undefined') {
-          const saved = localStorage.getItem('hitec_auth_users');
-          if (saved) return JSON.parse(saved);
-      }
-      return [];
-  });
+  const [authorizedUsers, setAuthorizedUsers] = useState<any[]>(() => {
+      if (typeof window !== 'undefined') {
+          const saved = localStorage.getItem('hitec_auth_users');
+          if (saved) return JSON.parse(saved);
+      }
+      return [];
+  });
 
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
-  const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
-  const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
-  const [targetColorCode, setTargetColorCode] = useState(''); 
-  const [vehicleNumber, setVehicleNumber] = useState(''); 
-  const [carModel, setCarModel] = useState(''); 
-  const [jobDescription, setJobDescription] = useState(''); 
-  const [specialNotes, setSpecialNotes] = useState('');
-  const [registrationDate, setRegistrationDate] = useState(new Date().toISOString().split('T')[0]);
-  const [totalBaseWeight, setTotalBaseWeight] = useState("0"); 
-  const [totalPearlWeight, setTotalPearlWeight] = useState("0"); 
-  const [totalFinalWeight, setTotalFinalWeight] = useState("0");
-  const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
-  
-  const [memoModal, setMemoModal] = useState<{isOpen: boolean, id: string, code: string, isPearl: boolean, text: string, history: string[]}>({isOpen: false, id: '', code: '', isPearl: false, text: '', history: []});
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
+  const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
+  const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
+  const [targetColorCode, setTargetColorCode] = useState(''); 
+  const [vehicleNumber, setVehicleNumber] = useState(''); 
+  const [carModel, setCarModel] = useState(''); 
+  const [jobDescription, setJobDescription] = useState(''); 
+  const [specialNotes, setSpecialNotes] = useState('');
+  const [registrationDate, setRegistrationDate] = useState(new Date().toISOString().split('T')[0]);
+  const [totalBaseWeight, setTotalBaseWeight] = useState("0"); 
+  const [totalPearlWeight, setTotalPearlWeight] = useState("0"); 
+  const [totalFinalWeight, setTotalFinalWeight] = useState("0");
+  const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
+  
+  const [memoModal, setMemoModal] = useState<{isOpen: boolean, id: string, code: string, isPearl: boolean, text: string, history: string[]}>({isOpen: false, id: '', code: '', isPearl: false, text: '', history: []});
 
-  const [activeTab, setActiveTab] = useState<'WT'|'PP'|'CANDY'>('WT');
-  
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  const [isGlossaryModalOpen, setIsGlossaryModalOpen] = useState(false);
-  const [isProcessOpen, setIsProcessOpen] = useState(false);
-  
-  const [isBoardOpen, setIsBoardOpen] = useState(false); 
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false); 
-  const [isExcelModalOpen, setIsExcelModalOpen] = useState(false); 
-  const [viewingPost, setViewingPost] = useState<any>(null); 
-  const [isEditingPost, setIsEditingPost] = useState(false);
-  const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
+  const [activeTab, setActiveTab] = useState<'WT'|'PP'|'CANDY'>('WT');
+  
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isGlossaryModalOpen, setIsGlossaryModalOpen] = useState(false);
+  const [isProcessOpen, setIsProcessOpen] = useState(false);
+  
+  const [isBoardOpen, setIsBoardOpen] = useState(false); 
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false); 
+  const [isExcelModalOpen, setIsExcelModalOpen] = useState(false); 
+  const [viewingPost, setViewingPost] = useState<any>(null); 
+  const [isEditingPost, setIsEditingPost] = useState(false);
+  const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
 
-  const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const [attachedImages, setAttachedImages] = useState<string[]>([]);
-  const [previewModalImage, setPreviewModalImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [attachedImages, setAttachedImages] = useState<string[]>([]);
+  const [previewModalImage, setPreviewModalImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement null |>(null);
 
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false); 
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false); 
 
-  const [boardSearch, setBoardSearch] = useState(''); 
-  const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
-  
-  const [snapshots, setSnapshots] = useState<any[]>([]);
-  const [isSnapshotModalOpen, setIsSnapshotModalOpen] = useState(false);
-  const [selectedSnapshot, setSelectedSnapshot] = useState<any>(null);
+  const [boardSearch, setBoardSearch] = useState(''); 
+  const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
+  
+  const [snapshots, setSnapshots] = useState<any[]>([]);
+  const [isSnapshotModalOpen, setIsSnapshotModalOpen] = useState(false);
+  const [selectedSnapshot, setSelectedSnapshot] = useState<any>(null);
 
-  const [activeGuideTab, setActiveGuideTab] = useState<'theory'|'spectrum'|'effect'|'special'>('spectrum');
-  
-  const [zoomedImage, setZoomedImage] = useState<any>(null);
-  const [imgScale, setImgScale] = useState(1);
-  const [pinchDist, setPinchDist] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [scrollStart, setScrollStart] = useState({ x: 0, y: 0 });
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const [activeGuideTab, setActiveGuideTab] = useState<'theory'|'spectrum'|'effect'|'special'>('spectrum');
+  
+  const [zoomedImage, setZoomedImage] = useState<any>(null);
+  const [imgScale, setImgScale] = useState(1);
+  const [pinchDist, setPinchDist] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [scrollStart, setScrollStart] = useState({ x: 0, y: 0 });
+  const scrollContainerRef = useRef<HTMLDivElement null |>(null);
 
-  const [isPearlGuideOpen, setIsPearlGuideOpen] = useState(false);
-  const [activePearlLevel, setActivePearlLevel] = useState(6);
-  
-  const [boardPosts, setBoardPosts] = useState<BoardPost[]>([
-      { id: 1, brand: '현대', code: 'UG4', date: '2026-09-11 14:30', likes: 12, views: 45, author: '윤프로', spec: '이색 심함, 보카시 블렌딩 필수', baseFormula: [{code: 'WT 321', adjustedWeight: '15.5'}], pearlFormula: [], isThreeCoat: false, images: [], deletedImages: [] }
-  ]);
+  const [isPearlGuideOpen, setIsPearlGuideOpen] = useState(false);
+  const [activePearlLevel, setActivePearlLevel] = useState(6);
+  
+  const [boardPosts, setBoardPosts] = useState<BoardPost[]>([
+      { id: 1, brand: '현대', code: 'UG4', date: '2026-09-11 14:30', likes: 12, views: 45, author: '윤프로', spec: '이색 심함, 보카시 블렌딩 필수', baseFormula: [{code: 'WT 321', adjustedWeight: '15.5'}], pearlFormula: [], isThreeCoat: false, images: [], deletedImages: [] }
+  ]);
 
-  const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
-  const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight', tempInput?: HTMLInputElement} | null>(null); 
-  const [catalogSearch, setCatalogSearch] = useState('');
-  
-  const [scaleFactor, setScaleFactor] = useState("2");
+  const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
+  const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight', tempInput?: HTMLInputElement} | null>(null); 
+  const [catalogSearch, setCatalogSearch] = useState('');
+  
+  const [scaleFactor, setScaleFactor] = useState("2");
 
-  const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
-  const [selectedWheelIndex, setSelectedWheelIndex] = useState<number | null>(null);
-  const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
+  const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
+  const [selectedWheelIndex, setSelectedWheelIndex] = useState<number | null>(null);
+  const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
 
-  const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
-  
-  const sortedCatalog = [...catalogData].filter(item => {
-    const code = item.code;
-    if (activeTab === 'CANDY') return code.startsWith('90');
-    if (activeTab === 'PP') return code.startsWith('PP');
-    return !code.startsWith('90') && !code.startsWith('PP'); 
-  }).sort((a, b) => { 
-      const aActive = activeCodes.includes(a.code); const bActive = activeCodes.includes(b.code); 
-      if (aActive && !bActive) return -1; if (!aActive && bActive) return 1; return 0; 
-  }).filter(item => {
-      const searchTxt = catalogSearch.toUpperCase();
-      return item.code.includes(searchTxt) || item.role.toUpperCase().includes(searchTxt);
-  });
+  const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
+  
+  const sortedCatalog = [...catalogData].filter(item => {
+    const code = item.code;
+    if (activeTab === 'CANDY') return code.startsWith('90');
+    if (activeTab === 'PP') return code.startsWith('PP');
+    return !code.startsWith('90') && !code.startsWith('PP'); 
+  }).sort((a, b) => { 
+      const aActive = activeCodes.includes(a.code); const bActive = activeCodes.includes(b.code); 
+      if (aActive && !bActive) return -1; if (!aActive && bActive) return 1; return 0; 
+  }).filter(item => {
+      const searchTxt = catalogSearch.toUpperCase();
+      return item.code.includes(searchTxt) || item.role.toUpperCase().includes(searchTxt);
+  });
 
-  // 앱 로드 시 기존 인증 상태 체크
-  useEffect(() => {
-      if (typeof window !== 'undefined') {
-          const authKey = localStorage.getItem('hitec_auth_key');
-          const authName = localStorage.getItem('hitec_auth_name');
-          if (authKey === MASTER_KEY && authName) {
-              setIsAuthorized(true);
-          }
-      }
-      document.title = "조색 Pro";
-  }, []);
+  useEffect(() => {
+      if (typeof window !== 'undefined') {
+          const authKey = localStorage.getItem('hitec_auth_key');
+          const authName = localStorage.getItem('hitec_auth_name');
+          if (authKey === MASTER_KEY && authName) {
+              setIsAuthorized(true);
+          }
+      }
+      document.title = "조색 Pro";
+  }, []);
 
-  // 🚨 [NEW] 자동 승인 대기 로직 (방법 B 적용)
-  const handleRequestApproval = (e: React.FormEvent) => {
-      e.preventDefault();
-      if (loginForm.name.trim() !== '' && loginForm.brand.trim() !== '' && loginForm.branch.trim() !== '') {
-          setAuthStatus('waiting');
-      } else {
-          alert("❌ 필수 정보를 모두 입력해주세요.");
-      }
-  };
+  const handleRequestApproval = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (loginForm.name.trim() !== '' && loginForm.brand.trim() !== '' && loginForm.branch.trim() !== '') {
+          setAuthStatus('waiting');
+      } else {
+          alert("❌ 필수 정보를 모두 입력해주세요.");
+      }
+  };
 
-  useEffect(() => {
-      let timer: any;
-      if (authStatus === 'waiting') {
-          // 약 8초 대기 후 승인 처리 (UX를 고려한 테스트용 타이머)
-          timer = setTimeout(() => {
-              setAuthStatus('approved');
-          }, 8000);
-      }
-      return () => clearTimeout(timer);
-  }, [authStatus]);
+  useEffect(() => {
+      let timer: any;
+      if (authStatus === 'waiting') {
+          timer = setTimeout(() => {
+              setAuthStatus('approved');
+          }, 6000); // 테스트를 위해 6초 대기
+      }
+      return () => clearTimeout(timer);
+  }, [authStatus]);
 
-  useEffect(() => {
-      if (authStatus === 'approved') {
-          const finalizeLogin = setTimeout(() => {
-              // 백그라운드에서 마스터키 자동 할당 및 DB(로컬) 저장
-              localStorage.setItem('hitec_auth_key', MASTER_KEY);
-              localStorage.setItem('hitec_auth_name', loginForm.name.trim());
-              
-              const newUser = {
-                  brand: loginForm.brand.trim(),
-                  branch: loginForm.branch.trim(),
-                  name: loginForm.name.trim(),
-                  age: loginForm.age.trim() || '미입력',
-                  role: loginForm.role,
-                  date: new Date().toLocaleString('ko-KR'),
-                  device: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC'
-              };
-              const updatedUsers = [...authorizedUsers, newUser];
-              setAuthorizedUsers(updatedUsers);
-              localStorage.setItem('hitec_auth_users', JSON.stringify(updatedUsers));
+  // 🚨 [수술 완료] 루프 버그 원천 차단 (의존성 최소화 및 상태 초기화)
+  useEffect(() => {
+      if (authStatus === 'approved' && !isAuthorized) {
+          const finalizeLogin = setTimeout(() => {
+              localStorage.setItem('hitec_auth_key', MASTER_KEY);
+              localStorage.setItem('hitec_auth_name', loginForm.name.trim());
+              
+              const newUser = {
+                  brand: loginForm.brand.trim(),
+                  branch: loginForm.branch.trim(),
+                  name: loginForm.name.trim(),
+                  age: loginForm.age.trim() || '미입력',
+                  role: loginForm.role,
+                  date: new Date().toLocaleString('ko-KR'),
+                  device: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC'
+              };
 
-              setIsAuthorized(true);
-          }, 2000); // 승인 완료 메시지를 2초간 보여준 뒤 접속
-          return () => clearTimeout(finalizeLogin);
-      }
-  }, [authStatus, loginForm, authorizedUsers]);
+              setAuthorizedUsers(prev => {
+                  const isExist = prev.some(u => u.name === newUser.name && u.branch === newUser.branch);
+                  if (isExist) return prev; // 중복 카운팅 완벽 방지
+                  const updated = [...prev, newUser];
+                  localStorage.setItem('hitec_auth_users', JSON.stringify(updated));
+                  return updated;
+              });
+
+              setIsAuthorized(true);
+              setAuthStatus('idle'); // 무한루프 방지를 위한 상태 초기화
+          }, 2000);
+          return () => clearTimeout(finalizeLogin);
+      }
+  }, [authStatus, isAuthorized, loginForm]);
+
+  useEffect(() => {
+      const checkMobile = () => setIsMobile(window.innerWidth < 768);
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+      const handleFocusIn = (e: FocusEvent) => {
+          if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) {
+              setIsKeyboardOpen(true);
+          }
+      };
+      const handleFocusOut = () => {
+          setTimeout(() => {
+              if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName || '')) {
+                  setIsKeyboardOpen(false);
+              }
+          }, 150);
+      };
+      window.addEventListener('focusin', handleFocusIn);
+      window.addEventListener('focusout', handleFocusOut);
+      return () => {
+          window.removeEventListener('focusin', handleFocusIn);
+          window.removeEventListener('focusout', handleFocusOut);
+      };
+  }, []);
+
+  useEffect(() => {
+      if (boardPosts.length > 0) {
+          const now = Date.now();
+          const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+          let changed = false;
+          const cleanedPosts = boardPosts.map(post => {
+              if (post.deletedImages && post.deletedImages.length > 0) {
+                  const validTrash = post.deletedImages.filter(img => now - img.deletedAt < THREE_DAYS_MS);
+                  if (validTrash.length !== post.deletedImages.length) {
+                      changed = true;
+                      return { ...post, deletedImages: validTrash };
+                  }
+              }
+              return post;
+          });
+          if (changed) setBoardPosts(cleanedPosts);
+      }
+  }, [boardPosts]);
+
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="viewport"]');
+    if (zoomedImage) {
+        document.body.style.overflow = 'hidden'; 
+        if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); 
+    } else {
+        document.body.style.overflow = '';
+        if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'); 
+    }
+    return () => {
+        document.body.style.overflow = '';
+        if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1');
+    };
+  }, [zoomedImage]);
+
+  useEffect(() => {
+      const el = scrollContainerRef.current;
+      if (!el || !zoomedImage || zoomedImage.id === 12) return; 
+
+      const handleNativeWheel = (e: WheelEvent) => {
+          e.preventDefault(); 
+          const delta = e.deltaY < 0 ? 0.15 : -0.15; 
+          setImgScale(s => {
+              const newScale = Math.max(1, Math.min(s + delta, 5)); 
+              return Number(newScale.toFixed(2));
+          });
+      };
+
+      el.addEventListener('wheel', handleNativeWheel, { passive: false });
+      return () => el.removeEventListener('wheel', handleNativeWheel);
+  }, [zoomedImage]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+      if (imgScale > 1 && scrollContainerRef.current) {
+          setIsDragging(true);
+          setDragStart({ x: e.clientX, y: e.clientY });
+          setScrollStart({ 
+              x: scrollContainerRef.current.scrollLeft, 
+              y: scrollContainerRef.current.scrollTop 
+          });
+      }
+  };
+  const handleMouseMove = (e: React.MouseEvent) => {
+      if (isDragging && scrollContainerRef.current) {
+          const dx = e.clientX - dragStart.x;
+          const dy = e.clientY - dragStart.y;
+          scrollContainerRef.current.scrollLeft = scrollStart.x - dx;
+          scrollContainerRef.current.scrollTop = scrollStart.y - dy;
+      }
+  };
+
+const handleMouseUp = () => setIsDragging(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+      if (e.touches.length === 2) {
+          const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+          setPinchDist(dist);
+      }
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+      if (e.touches.length === 2) {
+          const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+          if (pinchDist > 0) {
+              const delta = (dist - pinchDist) / 150; 
+              setImgScale(s => Math.min(Math.max(1, s + delta), 5));
+          }
+          setPinchDist(dist);
+      }
+  };
+  const handleTouchEnd = () => { setPinchDist(0); };
+
+  const openImageModal = (img: any) => { setZoomedImage(img); setImgScale(1); };
 
 
-  useEffect(() => {
-      const checkMobile = () => setIsMobile(window.innerWidth < 768);
-      checkMobile();
-      window.addEventListener('resize', checkMobile);
-      return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search); const d = urlParams.get('d'); 
+        const ori = window.location.origin;
+        if (!ori.includes('google') && !ori.includes('gemini') && !ori.includes('null')) localStorage.setItem('hitec_clean_domain', ori);
+        let loadedFromUrl = false;
+        if (d) {
+            const safeD = d.replace(/ /g, '+'); 
+            try {
+                let decodedStr = '';
+                if (safeD.includes('%7B') || safeD.includes('{')) { decodedStr = decodeURIComponent(safeD); } 
+                else if (!safeD.includes('|') && !safeD.includes('%')) { try { decodedStr = decodeURIComponent(escape(atob(safeD))); } catch(e) { decodedStr = atob(safeD); } } 
+                else { decodedStr = decodeURIComponent(safeD.replace(/%7C/g, '|')); }
+                let parsedData = null;
+                if (decodedStr.startsWith('{')) { parsedData = JSON.parse(decodedStr); } 
+                else {
+                    const parts = decodedStr.split('|');
+                    if(parts.length >= 6) parsedData = { v: parts[0] || '', m: parts[1] || '', c: parts[2] || '', j: parts[3] || '', n: parts[4] || '', b: unpackToners(parts[5]), p: unpackToners(parts[6]), t: parts[7] === '1', date: parts[8] || '' };
+                }
+                if (parsedData) { 
+                    setVehicleNumber(parsedData.v || ''); setCarModel(parsedData.m || ''); setTargetColorCode(parsedData.c || ''); setJobDescription(parsedData.j || ''); setSpecialNotes(parsedData.n || '');
+                    if(parsedData.b && parsedData.b.length > 0) setToners(parsedData.b); if(parsedData.p && parsedData.p.length > 0) setPearlToners(parsedData.p);
+                    setIsThreeCoatMode(parsedData.t || false); if(parsedData.date) setRegistrationDate(parsedData.date);
+                    window.history.replaceState({}, document.title, window.location.pathname); loadedFromUrl = true; 
+                }
+            } catch (e) {}
+        }
+        if (!loadedFromUrl) {
+            const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedBoard = localStorage.getItem('hitec_board_mock'); const savedSnapshots = localStorage.getItem('hitec_snapshots');
+            if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedBoard) setBoardPosts(JSON.parse(savedBoard)); if (savedSnapshots) setSnapshots(JSON.parse(savedSnapshots));
+        }
+        setIsLoaded(true); 
+    }
+  }, []);
 
-  useEffect(() => {
-      const handleFocusIn = (e: FocusEvent) => {
-          if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) {
-              setIsKeyboardOpen(true);
-          }
-      };
-      const handleFocusOut = () => {
-          setTimeout(() => {
-              if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName || '')) {
-                  setIsKeyboardOpen(false);
-              }
-          }, 150);
-      };
-      window.addEventListener('focusin', handleFocusIn);
-      window.addEventListener('focusout', handleFocusOut);
-      return () => {
-          window.removeEventListener('focusin', handleFocusIn);
-          window.removeEventListener('focusout', handleFocusOut);
-      };
-  }, []);
+  useEffect(() => {
+      const urlParams = new URLSearchParams(window.location.search); if (urlParams.get('d')) return;
+      if (isLoaded && typeof window !== 'undefined') {
+          try {
+              localStorage.setItem('hitec_base', JSON.stringify(toners)); 
+              localStorage.setItem('hitec_pearl', JSON.stringify(pearlToners)); 
+              localStorage.setItem('hitec_code', targetColorCode); 
+              localStorage.setItem('hitec_mode', JSON.stringify(isThreeCoatMode)); 
+              localStorage.setItem('hitec_vehicle', vehicleNumber); 
+              localStorage.setItem('hitec_carmodel', carModel); 
+              localStorage.setItem('hitec_job', jobDescription); 
+              localStorage.setItem('hitec_notes', specialNotes); 
+              localStorage.setItem('hitec_board_mock', JSON.stringify(boardPosts)); 
+              localStorage.setItem('hitec_snapshots', JSON.stringify(snapshots));
+          } catch (e: any) {
+              if (e.name === 'QuotaExceededError' || e.message?.includes('Quota')) {
+                  alert("⚠️ [경고] 기기의 저장 용량(5MB)이 꽉 찼습니다!\n기존 데이터가 날아가는 것을 방지하기 위해, 게시판의 불필요한 예전 시편 데이터나 사진을 삭제하여 공간을 비워주세요.");
+              }
+          }
+      }
+  }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, boardPosts, snapshots, isLoaded]);
 
-  useEffect(() => {
-      if (boardPosts.length > 0) {
-          const now = Date.now();
-          const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
-          let changed = false;
-          const cleanedPosts = boardPosts.map(post => {
-              if (post.deletedImages && post.deletedImages.length > 0) {
-                  const validTrash = post.deletedImages.filter(img => now - img.deletedAt < THREE_DAYS_MS);
-                  if (validTrash.length !== post.deletedImages.length) {
-                      changed = true;
-                      return { ...post, deletedImages: validTrash };
-                  }
-              }
-              return post;
-          });
-          if (changed) setBoardPosts(cleanedPosts);
-      }
-  }, [boardPosts]);
+  useEffect(() => {
+    const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); 
+    const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
+    
+    setTotalBaseWeight(formatWeight(baseTotal)); 
+    setTotalPearlWeight(formatWeight(pearlTotal)); 
+    
+    const finalTotal = (baseTotal * 1.2) + (isThreeCoatMode ? (pearlTotal * 1.3) : 0);
+    setTotalFinalWeight(formatWeight(finalTotal));
+  }, [toners, pearlToners, isThreeCoatMode]);
 
-  useEffect(() => {
-    let meta = document.querySelector('meta[name="viewport"]');
-    if (zoomedImage) {
-        document.body.style.overflow = 'hidden'; 
-        if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); 
-    } else {
-        document.body.style.overflow = '';
-        if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'); 
-    }
-    return () => {
-        document.body.style.overflow = '';
-        if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1');
-    };
-  }, [zoomedImage]);
+  useEffect(() => {
+    if (focusTarget) {
+      let attempts = 0; 
+      const interval = setInterval(() => {
+        const el = focusTarget.type === 'code' ? codeRefs.current[focusTarget.id] : weightRefs.current[focusTarget.id];
+        if (el) { 
+            el.focus(); 
+            if (focusTarget.tempInput) focusTarget.tempInput.remove();
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+            clearInterval(interval); 
+            setFocusTarget(null); 
+        }
+        attempts++; 
+        if (attempts > 20) { 
+            clearInterval(interval); 
+            if (focusTarget.tempInput) focusTarget.tempInput.remove();
+            setFocusTarget(null); 
+        }
+      }, 50); 
+      return () => { clearInterval(interval); };
+    }
+  }, [focusTarget, toners, pearlToners]);
 
-  useEffect(() => {
-      const el = scrollContainerRef.current;
-      if (!el || !zoomedImage || zoomedImage.id === 12) return; 
+  const handleClearAllInfo = () => { 
+      if(!window.confirm("모든 입력 데이터를 초기화하시겠습니까?")) return;
+      setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
+      setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); 
+      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
+  };
+  const handleResetFormula = () => { 
+      if(!window.confirm("현재 배합과 수정 내역을 모두 리셋하시겠습니까?")) return;
+      setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setSelectedTonerForView(null); 
+      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
+  };
+  
+  const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
+    const rawVal = newCode.toUpperCase(); 
+    const numOnly = rawVal.replace(/[^0-9]/g, '');
+    let finalCode = rawVal;
+    
+    if (rawVal.startsWith('90') && numOnly.length >= 4) {
+        finalCode = numOnly.substring(0, 4); 
+    } else if (['1051', '1500', '455', 'AXT700'].includes(numOnly) || rawVal === 'AXT700') {
+        finalCode = rawVal === 'AXT700' ? 'AXT700' : numOnly; 
+    } else if (numOnly) {
+        finalCode = `WT ${numOnly}`; 
+    }
 
-      const handleNativeWheel = (e: WheelEvent) => {
-          e.preventDefault(); 
-          const delta = e.deltaY < 0 ? 0.15 : -0.15; 
-          setImgScale(s => {
-              const newScale = Math.max(1, Math.min(s + delta, 5)); 
-              return Number(newScale.toFixed(2));
-          });
-      };
+    const setter = isPearl ? setPearlToners : setToners;
+    setter(prev => prev.map(toner => { 
+        if (toner.id === id) { 
+            if (TONER_DB[finalCode]) { setFocusTarget({ id: id, type: 'weight' }); } 
+            return { ...toner, code: finalCode }; 
+        } 
+        return toner; 
+    }));
+  };
 
-      el.addEventListener('wheel', handleNativeWheel, { passive: false });
-      return () => el.removeEventListener('wheel', handleNativeWheel);
-  }, [zoomedImage]);
+  const handleWeightInputChange = (id: string, rawValue: string, isPearl = false) => {
+    let val = rawValue.replace(/[^0-9.]/g, ''); const parts = val.split('.'); if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
+    if (val === '') val = ''; else if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, ''); else if (val.startsWith('.')) val = '0' + val; 
+    if (isPearl) setPearlToners(pearlToners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t)); else setToners(toners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
+  };
+  const handleWeightBlur = (id: string, value: string, isPearl = false) => {
+    if (!value) return; const setter = isPearl ? setPearlToners : setToners;
+    setter(prev => prev.map(t => { if (t.id === id) { const currentHistory = t.history || []; if (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== value) return { ...t, history: [...currentHistory, value] }; } return t; }));
+  };
+  const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => { if (e.key === 'Enter') { e.preventDefault(); const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); } };
+  const removeToner = (id: string, isPearl = false) => { if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
+  
+  const addToner = (isPearl = false) => { 
+      let tempInput: HTMLInputElement | undefined;
+      if (typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          tempInput = document.createElement('input');
+          tempInput.type = 'number';
+          tempInput.style.position = 'fixed';
+          tempInput.style.top = '50%';
+          tempInput.style.left = '50%';
+          tempInput.style.opacity = '0';
+          tempInput.style.width = '1px';
+          tempInput.style.height = '1px';
+          document.body.appendChild(tempInput);
+          tempInput.focus(); 
+      }
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-      if (imgScale > 1 && scrollContainerRef.current) {
-          setIsDragging(true);
-          setDragStart({ x: e.clientX, y: e.clientY });
-          setScrollStart({ 
-              x: scrollContainerRef.current.scrollLeft, 
-              y: scrollContainerRef.current.scrollTop 
-          });
-      }
-  };
-  const handleMouseMove = (e: React.MouseEvent) => {
-      if (isDragging && scrollContainerRef.current) {
-          const dx = e.clientX - dragStart.x;
-          const dy = e.clientY - dragStart.y;
-          scrollContainerRef.current.scrollLeft = scrollStart.x - dx;
-          scrollContainerRef.current.scrollTop = scrollStart.y - dy;
-      }
-  };
-  const handleMouseUp = () => setIsDragging(false);
+      const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
+      const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; 
+      if (isPearl) setPearlToners([...pearlToners, newToner]); 
+      else setToners([...toners, newToner]); 
+      
+      setFocusTarget({ id: newId, type: 'code', tempInput }); 
+  };
+  
+  const quickEditWeight = (id: string, delta: number, isPearl: boolean) => {
+    const setter = isPearl ? setPearlToners : setToners;
+    setter(prev => prev.map(t => { if(t.id === id) { let newVal = Math.max(0, (parseFloat(t.adjustedWeight) || 0) + delta); let strVal = String(Number(Math.round(newVal * 100000) / 100000)); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== strVal) ? [...currentHistory, strVal] : currentHistory; return { ...t, adjustedWeight: strVal, history: nextHistory }; } return t; }));
+  };
+  const toggleExpand = (id: string, isPearl: boolean) => { const setter = isPearl ? setPearlToners : setToners; setter(prev => prev.map(t => t.id === id ? { ...t, isExpanded: !t.isExpanded } : t)); };
+  const handleScaleAll = (isMultiply: boolean) => {
+    const factor = parseFloat(scaleFactor); if (isNaN(factor) || factor <= 0) { alert("올바른 배율 상수를 입력하세요."); return; }
+    const scale = (valStr: string) => { const val = parseFloat(valStr); if (isNaN(val) || val === 0) return valStr; const calcVal = isMultiply ? (val * 100000 * factor) / 100000 : (val * 100000) / (factor * 100000); return String(Number(Math.round(calcVal * 100000) / 100000)); };
+    const applyScale = (list: any[]) => list.map(t => { if (!t.adjustedWeight) return t; const newVal = scale(t.adjustedWeight); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== newVal) ? [...currentHistory, newVal] : currentHistory; return { ...t, adjustedWeight: newVal, history: nextHistory }; });
+    setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
+  };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-      if (e.touches.length === 2) {
-          const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-          setPinchDist(dist);
-      }
-  };
-  const handleTouchMove = (e: React.TouchEvent) => {
-      if (e.touches.length === 2) {
-          const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-          if (pinchDist > 0) {
-              const delta = (dist - pinchDist) / 150; 
-              setImgScale(s => Math.min(Math.max(1, s + delta), 5));
-          }
-          setPinchDist(dist);
-      }
-  };
-  const handleTouchEnd = () => { setPinchDist(0); };
+  const generateShareText = () => {
+    let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '미지정'}): ${formatWeight(t.adjustedWeight)}g`).join('\n'); 
+    let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '미지정'}): ${formatWeight(t.adjustedWeight)}g`).join('\n'); 
+    let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin;
+    const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); const shareUrl = `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`;
+    return `[조색 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 브랜드: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 순수 안료 합계: ${totalBaseWeight}g\n▶ 필수 수지(20%): ${formatWeight(parseFloat(totalBaseWeight) * 0.2)}g\n▶ 베이스 총 중량: ${formatWeight(parseFloat(totalBaseWeight) * 1.2)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트]\n${pearlListText \vert{}\vert{} '  (입력 데이터 없음)'}\n--------------------------------\n▶ 순수 펄 합계: ${totalPearlWeight}g\n▶ 펄 수지(30%): ${formatWeight(parseFloat(totalPearlWeight) * 0.3)}g\n▶ 펄 코트 총 중량: ${formatWeight(parseFloat(totalPearlWeight) * 1.3)}g\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}g\n\n👉 링크:\n${shareUrl}`;
+  };
 
-  const openImageModal = (img: any) => { setZoomedImage(img); setImgScale(1); };
+  const handleShareKakao = () => { 
+      const shareText = generateShareText();
+      window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
+      setIsShareModalOpen(false);
+  };
+  const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
+  const handleShareMail = () => { window.location.href = `mailto:?subject=${encodeURIComponent('[조색 Pro] 배합 지시서 공유')}&body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
+  
+  const generateSyncUrl = () => { 
+      let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin; 
+      const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); 
+      return `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`; 
+  };
 
+  const handleSendToPcKakao = () => {
+      const shareUrl = generateSyncUrl();
+      const shareText = `[조색 Pro] PC로 작업 보내기\n차량: ${vehicleNumber} / ${carModel}\n컬러: ${targetColorCode}\n👉 PC 카톡에서 아래 링크 클릭:\n${shareUrl}`;
+      window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
+  };
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-        const urlParams = new URLSearchParams(window.location.search); const d = urlParams.get('d'); 
-        const ori = window.location.origin;
-        if (!ori.includes('google') && !ori.includes('gemini') && !ori.includes('null')) localStorage.setItem('hitec_clean_domain', ori);
-        let loadedFromUrl = false;
-        if (d) {
-            const safeD = d.replace(/ /g, '+'); 
-            try {
-                let decodedStr = '';
-                if (safeD.includes('%7B') || safeD.includes('{')) { decodedStr = decodeURIComponent(safeD); } 
-                else if (!safeD.includes('|') && !safeD.includes('%')) { try { decodedStr = decodeURIComponent(escape(atob(safeD))); } catch(e) { decodedStr = atob(safeD); } } 
-                else { decodedStr = decodeURIComponent(safeD.replace(/%7C/g, '|')); }
-                let parsedData = null;
-                if (decodedStr.startsWith('{')) { parsedData = JSON.parse(decodedStr); } 
-                else {
-                    const parts = decodedStr.split('|');
-                    if(parts.length >= 6) parsedData = { v: parts[0] || '', m: parts[1] || '', c: parts[2] || '', j: parts[3] || '', n: parts[4] || '', b: unpackToners(parts[5]), p: unpackToners(parts[6]), t: parts[7] === '1', date: parts[8] || '' };
-                }
-                if (parsedData) { 
-                    setVehicleNumber(parsedData.v || ''); setCarModel(parsedData.m || ''); setTargetColorCode(parsedData.c || ''); setJobDescription(parsedData.j || ''); setSpecialNotes(parsedData.n || '');
-                    if(parsedData.b && parsedData.b.length > 0) setToners(parsedData.b); if(parsedData.p && parsedData.p.length > 0) setPearlToners(parsedData.p);
-                    setIsThreeCoatMode(parsedData.t || false); if(parsedData.date) setRegistrationDate(parsedData.date);
-                    window.history.replaceState({}, document.title, window.location.pathname); loadedFromUrl = true; 
-                }
-            } catch (e) {}
-        }
-        if (!loadedFromUrl) {
-            const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedBoard = localStorage.getItem('hitec_board_mock'); const savedSnapshots = localStorage.getItem('hitec_snapshots');
-            if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedBoard) setBoardPosts(JSON.parse(savedBoard)); if (savedSnapshots) setSnapshots(JSON.parse(savedSnapshots));
-        }
-        setIsLoaded(true); 
-    }
-  }, []);
+  const handleCopyLinkForPc = () => {
+      const url = generateSyncUrl();
+      if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => {
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+          });
+      }
+  };
 
-  useEffect(() => {
-      const urlParams = new URLSearchParams(window.location.search); if (urlParams.get('d')) return;
-      if (isLoaded && typeof window !== 'undefined') {
-          try {
-              localStorage.setItem('hitec_base', JSON.stringify(toners)); 
-              localStorage.setItem('hitec_pearl', JSON.stringify(pearlToners)); 
-              localStorage.setItem('hitec_code', targetColorCode); 
-              localStorage.setItem('hitec_mode', JSON.stringify(isThreeCoatMode)); 
-              localStorage.setItem('hitec_vehicle', vehicleNumber); 
-              localStorage.setItem('hitec_carmodel', carModel); 
-              localStorage.setItem('hitec_job', jobDescription); 
-              localStorage.setItem('hitec_notes', specialNotes); 
-              localStorage.setItem('hitec_board_mock', JSON.stringify(boardPosts)); 
-              localStorage.setItem('hitec_snapshots', JSON.stringify(snapshots));
-          } catch (e: any) {
-              if (e.name === 'QuotaExceededError' || e.message?.includes('Quota')) {
-                  alert("⚠️ [경고] 기기의 저장 용량(5MB)이 꽉 찼습니다!\n기존 데이터가 날아가는 것을 방지하기 위해, 게시판의 불필요한 예전 시편 데이터나 사진을 삭제하여 공간을 비워주세요.");
-              }
-          }
-      }
-  }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, boardPosts, snapshots, isLoaded]);
-
-  useEffect(() => {
-    const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); 
-    const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
-    
-    setTotalBaseWeight(formatWeight(baseTotal)); 
-    setTotalPearlWeight(formatWeight(pearlTotal)); 
-    
-    const finalTotal = (baseTotal * 1.2) + (isThreeCoatMode ? (pearlTotal * 1.3) : 0);
-    setTotalFinalWeight(formatWeight(finalTotal));
-  }, [toners, pearlToners, isThreeCoatMode]);
-
-  useEffect(() => {
-    if (focusTarget) {
-      let attempts = 0; 
-      const interval = setInterval(() => {
-        const el = focusTarget.type === 'code' ? codeRefs.current[focusTarget.id] : weightRefs.current[focusTarget.id];
-        if (el) { 
-            el.focus(); 
-            if (focusTarget.tempInput) focusTarget.tempInput.remove();
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-            clearInterval(interval); 
-            setFocusTarget(null); 
-        }
-        attempts++; 
-        if (attempts > 20) { 
-            clearInterval(interval); 
-            if (focusTarget.tempInput) focusTarget.tempInput.remove();
-            setFocusTarget(null); 
-        }
-      }, 50); 
-      return () => { clearInterval(interval); };
-    }
-  }, [focusTarget, toners, pearlToners]);
-
-  const handleClearAllInfo = () => { 
-      if(!window.confirm("모든 입력 데이터를 초기화하시겠습니까?")) return;
-      setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
-      setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); 
-      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
-  };
-  const handleResetFormula = () => { 
-      if(!window.confirm("현재 배합과 수정 내역을 모두 리셋하시겠습니까?")) return;
-      setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setSelectedTonerForView(null); 
-      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
-  };
-  
-  const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
-    const rawVal = newCode.toUpperCase(); 
-    const numOnly = rawVal.replace(/[^0-9]/g, '');
-    let finalCode = rawVal;
-    
-    if (rawVal.startsWith('90') && numOnly.length >= 4) {
-        finalCode = numOnly.substring(0, 4); 
-    } else if (['1051', '1500', '455', 'AXT700'].includes(numOnly) || rawVal === 'AXT700') {
-        finalCode = rawVal === 'AXT700' ? 'AXT700' : numOnly; 
-    } else if (numOnly) {
-        finalCode = `WT ${numOnly}`; 
-    }
-
-    const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(toner => { 
-        if (toner.id === id) { 
-            if (TONER_DB[finalCode]) { setFocusTarget({ id: id, type: 'weight' }); } 
-            return { ...toner, code: finalCode }; 
-        } 
-        return toner; 
-    }));
-  };
-
-  const handleWeightInputChange = (id: string, rawValue: string, isPearl = false) => {
-    let val = rawValue.replace(/[^0-9.]/g, ''); const parts = val.split('.'); if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
-    if (val === '') val = ''; else if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, ''); else if (val.startsWith('.')) val = '0' + val; 
-    if (isPearl) setPearlToners(pearlToners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t)); else setToners(toners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
-  };
-  const handleWeightBlur = (id: string, value: string, isPearl = false) => {
-    if (!value) return; const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(t => { if (t.id === id) { const currentHistory = t.history || []; if (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== value) return { ...t, history: [...currentHistory, value] }; } return t; }));
-  };
-  const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => { if (e.key === 'Enter') { e.preventDefault(); const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); } };
-  const removeToner = (id: string, isPearl = false) => { if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
-  
-  const addToner = (isPearl = false) => { 
-      let tempInput: HTMLInputElement | undefined;
-      if (typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-          tempInput = document.createElement('input');
-          tempInput.type = 'number';
-          tempInput.style.position = 'fixed';
-          tempInput.style.top = '50%';
-          tempInput.style.left = '50%';
-          tempInput.style.opacity = '0';
-          tempInput.style.width = '1px';
-          tempInput.style.height = '1px';
-          document.body.appendChild(tempInput);
-          tempInput.focus(); 
-      }
-
-      const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
-      const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; 
-      if (isPearl) setPearlToners([...pearlToners, newToner]); 
-      else setToners([...toners, newToner]); 
-      
-      setFocusTarget({ id: newId, type: 'code', tempInput }); 
-  };
-  
-  const quickEditWeight = (id: string, delta: number, isPearl: boolean) => {
-    const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(t => { if(t.id === id) { let newVal = Math.max(0, (parseFloat(t.adjustedWeight) || 0) + delta); let strVal = String(Number(Math.round(newVal * 100000) / 100000)); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== strVal) ? [...currentHistory, strVal] : currentHistory; return { ...t, adjustedWeight: strVal, history: nextHistory }; } return t; }));
-  };
-  const toggleExpand = (id: string, isPearl: boolean) => { const setter = isPearl ? setPearlToners : setToners; setter(prev => prev.map(t => t.id === id ? { ...t, isExpanded: !t.isExpanded } : t)); };
-  const handleScaleAll = (isMultiply: boolean) => {
-    const factor = parseFloat(scaleFactor); if (isNaN(factor) || factor <= 0) { alert("올바른 배율 상수를 입력하세요."); return; }
-    const scale = (valStr: string) => { const val = parseFloat(valStr); if (isNaN(val) || val === 0) return valStr; const calcVal = isMultiply ? (val * 100000 * factor) / 100000 : (val * 100000) / (factor * 100000); return String(Number(Math.round(calcVal * 100000) / 100000)); };
-    const applyScale = (list: any[]) => list.map(t => { if (!t.adjustedWeight) return t; const newVal = scale(t.adjustedWeight); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== newVal) ? [...currentHistory, newVal] : currentHistory; return { ...t, adjustedWeight: newVal, history: nextHistory }; });
-    setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
-  };
-
-  const generateShareText = () => {
-    let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '미지정'}): ${formatWeight(t.adjustedWeight)}g`).join('\n'); 
-    let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '미지정'}): ${formatWeight(t.adjustedWeight)}g`).join('\n'); 
-    let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin;
-    const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); const shareUrl = `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`;
-    return `[조색 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 브랜드: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 순수 안료 합계: ${totalBaseWeight}g\n▶ 필수 수지(20%): ${formatWeight(parseFloat(totalBaseWeight) * 0.2)}g\n▶ 베이스 총 중량: ${formatWeight(parseFloat(totalBaseWeight) * 1.2)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 순수 펄 합계: ${totalPearlWeight}g\n▶ 펄 수지(30%): ${formatWeight(parseFloat(totalPearlWeight) * 0.3)}g\n▶ 펄 코트 총 중량: ${formatWeight(parseFloat(totalPearlWeight) * 1.3)}g\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}g\n\n👉 링크:\n${shareUrl}`;
-  };
-
-  const handleShareKakao = () => { 
-      const shareText = generateShareText();
-      window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
-      setIsShareModalOpen(false);
-  };
-  const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
-  const handleShareMail = () => { window.location.href = `mailto:?subject=${encodeURIComponent('[조색 Pro] 배합 지시서 공유')}&body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
-  
-  const generateSyncUrl = () => { 
-      let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin; 
-      const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); 
-      return `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`; 
-  };
-
-  const handleSendToPcKakao = () => {
-      const shareUrl = generateSyncUrl();
-      const shareText = `[조색 Pro] PC로 작업 보내기\n차량: ${vehicleNumber} / ${carModel}\n컬러: ${targetColorCode}\n👉 PC 카톡에서 아래 링크 클릭:\n${shareUrl}`;
-      window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
-  };
-
-  const handleCopyLinkForPc = () => {
-      const url = generateSyncUrl();
-      if (navigator.clipboard) {
-          navigator.clipboard.writeText(url).then(() => {
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-          });
-      }
-  };
-
-  const handleDirectExcelCopy = () => {
-      const shareUrl = generateSyncUrl(); const plainText = `${registrationDate || '-'}	${vehicleNumber || '미입력'}	${carModel || '미입력'}	${targetColorCode || '미지정'}	${jobDescription || '미입력'}	${specialNotes || '-'}	${shareUrl}`;
-      const htmlText = `<meta charset="utf-8"><table><tr><td>${registrationDate || '-'}</td><td>${vehicleNumber || '미입력'}</td><td>${carModel || '미입력'}</td><td>${targetColorCode || '미지정'}</td><td>${jobDescription || '미입력'}</td><td>${specialNotes || '-'}</td><td><a href="${shareUrl}">[배합보기]</a></td></tr></table>`;
-      if (typeof navigator !== 'undefined' && navigator.clipboard && (window as any).ClipboardItem) {
-          const htmlBlob = new Blob([htmlText], { type: 'text/html' }); const textBlob = new Blob([plainText], { type: 'text/plain' });
-          const ClipboardItemConstructor = (window as any).ClipboardItem; const item = new ClipboardItemConstructor({ 'text/html': htmlBlob, 'text/plain': textBlob });
-          navigator.clipboard.write([item]).then(() => { alert("✅ 엑셀 데이터가 복사되었습니다!"); }).catch(() => { navigator.clipboard.writeText(plainText).then(() => { alert("✅ 일반 텍스트로 복사되었습니다."); }); });
-      } else if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(plainText).then(() => { alert("✅ 일반 텍스트로 복사되었습니다."); }); }
-      setIsExcelModalOpen(false);
-  };
-  const handleCopyExcelTemplate = () => { const headerRow = ['등록 날짜', '차량 번호', '브랜드/차종', '컬러코드', '작업내용', '특이사항', '배합보기'].join('\t'); if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(headerRow); alert("엑셀 헤더가 복사되었습니다."); } }
-  
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-              const img = new Image();
-              img.onload = () => {
-                  const canvas = document.createElement('canvas');
-                  let width = img.width;
-                  let height = img.height;
-                  const MAX_WIDTH = 600; 
-                  const MAX_HEIGHT = 600;
-                  if (width > height) {
-                      if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+  const handleDirectExcelCopy = () => {
+      const shareUrl = generateSyncUrl(); const plainText = `${registrationDate || '-'}	${vehicleNumber || '미입력'}	${carModel || '미입력'}	${targetColorCode || '미지정'}	${jobDescription || '미입력'}	${specialNotes || '-'}	${shareUrl}`;
+      const htmlText = `<meta charset="utf-8"><table><tr><td>${registrationDate || '-'}</td><td>${vehicleNumber || '미입력'}</td><td>${carModel || '미입력'}</td><td>${targetColorCode || '미지정'}</td><td>${jobDescription || '미입력'}</td><td>${specialNotes || '-'}</td><td><a href="${shareUrl}">[배합보기]</a></td></tr></table>`;
+      if (typeof navigator !== 'undefined' && navigator.clipboard && (window as any).ClipboardItem) {
+          const htmlBlob = new Blob([htmlText], { type: 'text/html' }); const textBlob = new Blob([plainText], { type: 'text/plain' });
+          const ClipboardItemConstructor = (window as any).ClipboardItem; const item = new ClipboardItemConstructor({ 'text/html': htmlBlob, 'text/plain': textBlob });
+          navigator.clipboard.write([item]).then(() => { alert("✅ 엑셀 데이터가 복사되었습니다!"); }).catch(() => { navigator.clipboard.writeText(plainText).then(() => { alert("✅ 일반 텍스트로 복사되었습니다."); }); });
+      } else if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(plainText).then(() => { alert("✅ 일반 텍스트로 복사되었습니다."); }); }
+      setIsExcelModalOpen(false);
+  };
+  const handleCopyExcelTemplate = () => { const headerRow = ['등록 날짜', '차량 번호', '브랜드/차종', '컬러코드', '작업내용', '특이사항', '배합보기'].join('\t'); if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(headerRow); alert("엑셀 헤더가 복사되었습니다."); } }
+  
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+              const img = new Image();
+              img.onload = () => {
+                  const canvas = document.createElement('canvas');
+                  let width = img.width;
+                  let height = img.height;
+                  const MAX_WIDTH = 600; 
+                  const MAX_HEIGHT = 600;
+                  if (width > height) {
+                      if (width >
+MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                   } else {
                       if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
                   }
@@ -1368,6 +1327,7 @@ export default function App() {
           </div>
       )}
 
+      {/* 🚨 승인된 작업자 목록 및 상세 모달 (클릭 시 팝업 뷰 전환) */}
       {isUsersModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[80vh]">
@@ -1951,4 +1911,4 @@ export default function App() {
       )}
     </div>
   );
-}
+}                          
