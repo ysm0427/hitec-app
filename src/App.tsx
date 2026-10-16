@@ -205,7 +205,7 @@ const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [scrollStart, setScrollStart] = useState({ x: 0, y: 0 });
- const scrollContainerRef = useRef<HTMLDivElement null |>(null);
+const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [isPearlGuideOpen, setIsPearlGuideOpen] = useState(false);
   const [activePearlLevel, setActivePearlLevel] = useState(6);
