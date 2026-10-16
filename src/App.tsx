@@ -17,7 +17,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.16 (최종 타겟 수술 완료: QR/카톡 연동 및 3일 휴지통 탑재)"; 
+const LAST_PATCH_DATE = "2026.10.16 (하단 요약바 심플화 및 3일 보관 휴지통 유지)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -167,7 +167,7 @@ interface BoardPost {
   pearlFormula: any[];
   isThreeCoat: boolean;
   images: string[];
-  deletedImages?: { url: string; deletedAt: number }[]; // 🚨 [수술 완료] 3일 보관용 휴지통 필드
+  deletedImages?: { url: string; deletedAt: number }[]; // 3일 보관용 휴지통 필드
 }
 
 export default function App() {
@@ -201,7 +201,7 @@ export default function App() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostForm, setEditPostForm] = useState({ brand: '', code: '', spec: '' });
 
-  // 🚨 [수술 완료] QR 다이렉트 동기화 상태값
+  // QR 다이렉트 동기화 상태값
   const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -265,7 +265,7 @@ export default function App() {
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
 
-  // 🚨 [수술 완료] 모바일 키보드 최적화
+  // 모바일 키보드 감지 최적화
   useEffect(() => {
       const handleFocusIn = (e: FocusEvent) => {
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) {
@@ -287,7 +287,7 @@ export default function App() {
       };
   }, []);
 
-  // 🚨 [수술 완료] 3일 지난 휴지통 이미지 자동 영구 삭제 (용량 폭발 방지)
+  // 3일 지난 휴지통 이미지 자동 영구 삭제 (용량 폭발 방지)
   useEffect(() => {
       if (boardPosts.length > 0) {
           const now = Date.now();
@@ -564,7 +564,7 @@ export default function App() {
   const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareMail = () => { window.location.href = `mailto:?subject=${encodeURIComponent('[조색 Pro] 배합 지시서 공유')}&body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   
-  // 🚨 [수술 완료] QR 연동을 위한 링크 생성 함수
+  // QR 연동을 위한 링크 생성 함수
   const generateSyncUrl = () => { 
       let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin; 
       const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); 
@@ -630,13 +630,14 @@ export default function App() {
       }
   };
 
+  // 첨부 중인 (게시판 등록 전) 이미지 지우기
   const removeAttachedImage = (index: number) => {
       setAttachedImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  // 🚨 [수술 완료] 사진 삭제 시 3일 휴지통으로 이동 로직
+  // 🚨 [수술 완료] 게시판 상세 보기 내 사진 삭제 (3일 휴지통으로 이동)
   const handleDeletePostImage = (postId: number, imgIdx: number) => {
-      if (window.confirm("이 사진을 삭제하시겠습니까?\n(휴지통에서 3일간 보관 후 영구 삭제됩니다)")) {
+      if (window.confirm("이 사진을 삭제하시겠습니까?\n\n(삭제된 사진은 휴지통에서 3일간 보관된 후 영구 삭제됩니다.)")) {
           setBoardPosts(prev => prev.map(p => {
               if (p.id === postId) {
                   const newImages = [...p.images];
@@ -677,7 +678,7 @@ export default function App() {
 
   // 🚨 [수술 완료] 휴지통 사진 영구 삭제 로직
   const handlePermanentDeletePostImage = (postId: number, delIdx: number) => {
-      if (!window.confirm("이 사진을 영구적으로 삭제하시겠습니까?\n(복구 불가)")) return;
+      if (!window.confirm("이 사진을 영구적으로 삭제하시겠습니까?\n(이 작업은 취소할 수 없습니다.)")) return;
       setBoardPosts(prev => prev.map(p => {
           if (p.id === postId && p.deletedImages) {
               const newDeleted = [...p.deletedImages];
@@ -735,7 +736,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
       
-      {/* 🚨 [수술 완료] 양방향 브랜드 스위처 헤더 탑재 */}
+      {/* 🚨 양방향 브랜드 스위처 헤더 탑재 */}
       <header className="bg-slate-900 flex flex-col md:flex-row justify-between items-center p-3 border-b border-slate-800 shadow-md shrink-0 gap-3 z-40">
         <div className="flex flex-col sm:flex-row items-center justify-between w-full md:w-auto gap-3">
             <div className="flex items-center bg-slate-800 p-1.5 rounded-xl border border-slate-700 shadow-inner w-full sm:w-auto justify-center">
@@ -756,7 +757,7 @@ export default function App() {
 
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x">
             <button onClick={() => { setIsCloudModalOpen(true); setCopied(false); }} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                ☁️ 클라우드 동기화
+                ☁️ 기기 간 초고속 연동
             </button>
             <button onClick={() => setIsGlossaryModalOpen(true)} className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 📖 도장/조색 용어 사전
@@ -795,7 +796,7 @@ export default function App() {
                     <Camera size={16} className="mr-1 hidden sm:block"/> {attachedImages.length > 0 ? `사진(${attachedImages.length})` : '사진첨부'}
                 </button>
 
-                {/* 🚨 [수술 완료] 시편 등록으로 이름 변경 */}
+                {/* 🚨 시편 등록으로 이름 변경 */}
                 <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.3] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 등록</button>
                 
                 <button onClick={() => setIsShareModalOpen(true)} className="flex-[1.8] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] shadow-sm"><Share2 size={18} className="mr-1.5"/> 공유 전송</button>
@@ -905,6 +906,8 @@ export default function App() {
                   </div>
                 )
               })}
+
+              {/* 🚨 PC 중앙에 있던 중복 필수 수지 박스 삭제 완료 (요청 1번 반영) */}
 
               <div className="flex w-full gap-2 mt-3">
                   <button onClick={() => addToner(false)} className="flex-1 py-3 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center transition-all shadow-sm">
@@ -1138,7 +1141,7 @@ export default function App() {
       {/* 🚨 [수술 완료] 키보드 등장 시 자동 숨김 및 대칭 핏/직관적 UI로 교체된 하단 요약바 */}
       {!isKeyboardOpen && (
           <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
-              <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-5xl mx-auto p-3 md:p-4 h-full items-stretch">
+              <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-4xl mx-auto p-3 md:p-4 h-full items-stretch justify-center">
                   <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4 shadow-inner">
                      <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase mb-2"><Layers size={11} className="mr-1 text-blue-400"/> A. 베이스 코트 요약</span>
                      <div className="flex items-center justify-between text-xs md:text-sm">
@@ -1161,12 +1164,6 @@ export default function App() {
                      </div>
                   </div>
                   )}
-                  <div className="flex-1 flex flex-col justify-center bg-gradient-to-br from-amber-950/50 to-yellow-900/20 border border-yellow-500/60 rounded-xl p-3 md:p-4 shadow-[0_0_15px_rgba(234,179,8,0.15)] items-center">
-                     <span className="text-[11px] text-yellow-500 font-black tracking-widest flex items-center uppercase mb-1"><Beaker size={13} className="mr-1"/> ✨ 최종 도막 혼합 총량</span>
-                     <span className="text-2xl md:text-3xl font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">
-                       {totalFinalWeight}<span className="text-base md:text-lg font-bold text-yellow-600 ml-0.5">g</span>
-                     </span>
-                  </div>
               </div>
           </div>
       )}
@@ -1469,7 +1466,7 @@ export default function App() {
               <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             <div className="p-6 flex flex-col gap-3 bg-slate-50">
-                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 데이터 전송</button>
+                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 바로 전송하기</button>
                 <button onClick={handleShareSMS} className="w-full bg-blue-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS) 앱 열기</button>
                 <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><Mail size={18}/> 이메일 앱 열기</button>
             </div>
@@ -1609,7 +1606,7 @@ export default function App() {
                     return passBrandFilter && passSearch;
                 }).map(post => (
                     <div key={post.id} onClick={() => handleOpenPost(post)} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer group relative">
-                        <button onClick={(e) => deleteBoardPost(post.id, e)} className="absolute top-4 right-4 text-slate-400 hover:text-white hover:bg-red-500 px-2 py-1 rounded-md transition-all flex items-center gap-1 font-bold text-[10px]" title="이 시편 삭제하기"><Trash2 size={14} /> 삭제</button>
+                        <button onClick={(e) => deleteBoardPost(post.id, e)} className="absolute top-4 right-4 text-slate-400 hover:text-white hover:bg-red-500 px-2 py-1 rounded-md transition-all flex items-center gap-1 font-bold text-[10px]" title="이 시편 삭제하기"><Trash2 size={14} /> 전체 삭제</button>
                         <div className="flex justify-between items-start mb-2 pr-16">
                             <div className="flex items-center gap-2">
                                 <span className="bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded font-bold">{post.brand}</span>
@@ -1705,7 +1702,7 @@ export default function App() {
                   </div>
               )}
 
-              {/* 🚨 [수술 완료] 3일 보관 휴지통 기능 탑재 */}
+              {/* 🚨 [수술 완료] 3일 보관 휴지통 경고 및 복구/삭제 기능 탑재 */}
               {viewingPost.deletedImages && viewingPost.deletedImages.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-slate-300">
                       <h4 className="text-xs font-black text-red-600 mb-2 flex items-center gap-1"><Trash2 size={14}/> 휴지통 (삭제된 사진 - 3일 후 자동 영구 삭제)</h4>
@@ -1717,7 +1714,7 @@ export default function App() {
                                       <div className="flex justify-between items-center bg-red-100 p-2 border-b border-red-200">
                                           <span className="text-red-800 text-[11px] font-bold pl-1">⏳ 삭제 대기 중 ({Math.max(1, daysLeft)}일 남음)</span>
                                           <div className="flex gap-2">
-                                              <button onClick={() => handleRestorePostImage(viewingPost.id, idx)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold transition-colors">복구</button>
+                                              <button onClick={() => handleRestorePostImage(viewingPost.id, idx)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold transition-colors">복원</button>
                                               <button onClick={() => handlePermanentDeletePostImage(viewingPost.id, idx)} className="bg-slate-700 hover:bg-slate-800 text-white px-2 py-1 rounded text-[10px] font-bold transition-colors">영구 삭제</button>
                                           </div>
                                       </div>
