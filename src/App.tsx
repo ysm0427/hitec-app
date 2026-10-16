@@ -16,7 +16,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.15 (모바일 스크롤 버그 해결 및 브랜드 스위처 탑재)"; 
+const LAST_PATCH_DATE = "2026.10.15 (TS2304 Cloud 아이콘 import 누락 에러 완벽 픽스)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -679,40 +679,26 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
-      <header className="bg-slate-900 flex flex-col md:flex-row justify-between items-center p-3 border-b border-slate-800 shadow-md shrink-0 gap-3 z-40">
-        
-        {/* 🚨 [NEW] 브랜드 스위처 (스피스헥커 ⇄ 글라슈리트 즉시 이동) */}
-        <div className="flex flex-col sm:flex-row items-center justify-between w-full md:w-auto gap-3">
-            <div className="flex items-center bg-slate-800 p-1.5 rounded-xl border border-slate-700 shadow-inner w-full sm:w-auto justify-center">
-                {/* 현재 앱 (스피스헥커 활성화 상태) */}
-                <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200 cursor-default">
-                    <span className="text-red-600 font-black italic text-sm tracking-tighter">SPIES HECKER</span>
-                </div>
-                {/* 이동할 앱 (바스프 글라슈리트 버튼) */}
-                <button 
-                    onClick={() => window.location.href="https://glasurit-pro-v2-2va8x70wv-ysm0427-1929s-projects.vercel.app"} 
-                    className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white transition-all group"
-                    title="글라슈리트 90라인으로 이동"
-                >
-                    <span className="text-xl group-hover:scale-110 transition-transform origin-center">🦜</span>
-                    <span className="font-bold text-xs tracking-wide">Glasurit</span>
-                </button>
-            </div>
-            <span className="bg-slate-800 text-slate-400 text-[10px] px-2.5 py-1 rounded-full border border-slate-700 hidden md:inline-block shrink-0">Last Patch: {LAST_PATCH_DATE}</span>
+      <header className="bg-slate-900 flex flex-col sm:flex-row justify-between items-center p-4 border-b border-slate-800 shadow-md shrink-0 gap-3">
+        <div className="flex items-center space-x-3 w-full sm:w-auto">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded flex items-center justify-center shadow-lg"><span className="text-white font-bold text-lg">H</span></div>
+          <h1 className="text-lg md:text-xl font-semibold flex items-center gap-2 w-full">
+              <span className="text-white tracking-wide truncate">조색 Pro</span>
+              <span className="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-full border border-slate-700 ml-1 hidden sm:inline-block shrink-0">Last Patch: {LAST_PATCH_DATE}</span>
+          </h1>
         </div>
-
-        <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 scrollbar-hide snap-x">
-            <button onClick={() => { setIsCloudModalOpen(true); setCopied(false); }} className="snap-start flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-2 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+        <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            <button onClick={() => { setIsCloudModalOpen(true); setSyncLink(''); setCopied(false); }} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 ☁️ 기기 간 즉시 연동
             </button>
-            <button onClick={() => setIsGlossaryModalOpen(true)} className="snap-start flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 px-3 py-2 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+            <button onClick={() => setIsGlossaryModalOpen(true)} className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 📖 도장/조색 용어 사전
             </button>
-            <button onClick={() => setIsBoardOpen(true)} className="snap-start flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-900/50 px-3 py-2 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                <Layers size={14} /> 시편 게시판
-            </button>
-            <button onClick={() => window.location.reload()} className="snap-start flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-900/50 px-3 py-2 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+            <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 <RefreshCw size={14} /> 업데이트
+            </button>
+            <button onClick={() => setIsBoardOpen(true)} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                <Layers size={14} /> 시편 게시판
             </button>
         </div>
       </header>
@@ -1140,17 +1126,16 @@ export default function App() {
       {/* 🚨 [NEW] 무적의 양방향 연동 모달 (QR 스캔 & PC 카카오톡 다이렉트) */}
       {isCloudModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 h-auto max-h-[85vh]">
-            <div className="p-4 bg-blue-600 flex justify-between items-center text-white shrink-0">
+          <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-blue-600 flex justify-between items-center text-white">
               <h3 className="font-bold flex items-center gap-2"><Cloud size={18} /> 기기 간 초고속 다이렉트 연동 (오류 0%)</h3>
               <button onClick={() => setIsCloudModalOpen(false)} className="hover:text-red-200 transition-colors bg-blue-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             
-            {/* 🚨 하단 여백 대폭 추가 (pb-12) 및 스크롤 영역 확립 */}
-            <div className="p-6 flex flex-col gap-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar pb-12 sm:pb-6">
+            <div className="p-6 flex flex-col gap-6 bg-slate-50 overflow-y-auto max-h-[80vh] custom-scrollbar">
               
               {/* 1. PC -> 모바일 (QR 스캔) */}
-              <div className="bg-white p-5 rounded-xl border border-blue-200 shadow-sm flex flex-col items-center text-center shrink-0">
+              <div className="bg-white p-5 rounded-xl border border-blue-200 shadow-sm flex flex-col items-center text-center">
                   <span className="bg-blue-100 text-blue-800 text-[11px] font-black px-3 py-1 rounded-full mb-3 flex items-center gap-1.5"><Monitor size={14}/> PC ➔ 모바일 연결</span>
                   <h4 className="text-base font-black text-slate-800 mb-1 flex items-center gap-1.5"><QrCode size={18} className="text-blue-600"/> 스마트폰 카메라로 QR 스캔</h4>
                   <p className="text-xs text-slate-500 mb-4">현재 PC 화면의 배합을 모바일로 즉시 넘기려면<br/>스마트폰 기본 카메라로 아래 QR 코드를 비추세요.</p>
@@ -1160,7 +1145,7 @@ export default function App() {
               </div>
 
               {/* 2. 모바일 -> PC (카카오톡 전송) */}
-              <div className="bg-white p-5 rounded-xl border border-yellow-200 shadow-sm flex flex-col items-center text-center relative overflow-hidden shrink-0">
+              <div className="bg-white p-5 rounded-xl border border-yellow-200 shadow-sm flex flex-col items-center text-center relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1 bg-[#FEE500]"></div>
                   <span className="bg-yellow-100 text-yellow-800 text-[11px] font-black px-3 py-1 rounded-full mb-3 flex items-center gap-1.5 mt-2"><Smartphone size={14}/> 모바일 ➔ PC 연결</span>
                   <h4 className="text-base font-black text-slate-800 mb-1 flex items-center gap-1.5"><MessageSquare size={18} className="text-yellow-500"/> PC 카카오톡으로 전송하기</h4>
@@ -1624,7 +1609,7 @@ export default function App() {
                                 <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
                                     <line x1="75" y1="75" x2="30" y2="40" /><line x1="125" y1="75" x2="170" y2="40" /><line x1="100" y1="120" x2="100" y2="175" /><line x1="100" y1="55" x2="100" y2="25" /> <line x1="75" y1="105" x2="30" y2="130" /> <line x1="125" y1="105" x2="170" y2="130" /> <line x1="100" y1="90" x2="150" y2="90" /> 
                                 </g>
-                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Yellow</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
+                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Green</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
                             </svg>
                         </div>
                     </div>
