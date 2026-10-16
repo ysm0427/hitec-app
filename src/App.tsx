@@ -17,7 +17,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.16 (하단 요약바 심플화 및 3일 보관 휴지통 유지)"; 
+const LAST_PATCH_DATE = "2026.10.16 (완벽 고정 수지 비율 및 스마트 소수점 포맷팅 적용)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -93,6 +93,7 @@ const GUIDE_IMAGES: Record<string, any[]> = {
 
 export const catalogData = Object.entries(TONER_DB).map(([code, data]) => { return { code, ...data }; });
 export const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
+export const formatWeight = (val: any): string => { const num = Number(val); if (isNaN(num)) return "0"; return Number(num.toFixed(2)).toString(); };
 export const isTonerMetallic = (role: string) => { const r = role || ''; return r.includes('실버') || r.includes('알루미늄') || r.includes('펄') || r.includes('이펙트') || r.includes('분말') || r.includes('글라스'); };
 
 const textureCache: any = {};
@@ -181,9 +182,9 @@ export default function App() {
   const [jobDescription, setJobDescription] = useState(''); 
   const [specialNotes, setSpecialNotes] = useState('');
   const [registrationDate, setRegistrationDate] = useState(new Date().toISOString().split('T')[0]);
-  const [totalBaseWeight, setTotalBaseWeight] = useState("0.00"); 
-  const [totalPearlWeight, setTotalPearlWeight] = useState("0.00"); 
-  const [totalFinalWeight, setTotalFinalWeight] = useState("0.00");
+  const [totalBaseWeight, setTotalBaseWeight] = useState("0"); 
+  const [totalPearlWeight, setTotalPearlWeight] = useState("0"); 
+  const [totalFinalWeight, setTotalFinalWeight] = useState("0");
   const [selectedTonerForView, setSelectedTonerForView] = useState<string | null>(null);
   
   const [memoModal, setMemoModal] = useState<{isOpen: boolean, id: string, code: string, isPearl: boolean, text: string, history: string[]}>({isOpen: false, id: '', code: '', isPearl: false, text: '', history: []});
@@ -210,6 +211,7 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false); // 반응형 감지용
 
   const [boardSearch, setBoardSearch] = useState(''); 
   const [boardBrandFilter, setBoardBrandFilter] = useState('전체');
@@ -264,6 +266,14 @@ export default function App() {
   });
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
+
+  // 🚨 화면 너비 감지 (PC/모바일 구분)
+  useEffect(() => {
+      const checkMobile = () => setIsMobile(window.innerWidth < 768);
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // 모바일 키보드 감지 최적화
   useEffect(() => {
@@ -437,9 +447,17 @@ export default function App() {
       }
   }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, boardPosts, snapshots, isLoaded]);
 
+  // 🚨 [수술 완료] 필수 수지 배율 20% & 30% 완벽 고정 및 소수점 포맷팅
   useEffect(() => {
-    const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
-    setTotalBaseWeight(baseTotal.toFixed(2)); setTotalPearlWeight(pearlTotal.toFixed(2)); setTotalFinalWeight((baseTotal + pearlTotal).toFixed(2));
+    const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); 
+    const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
+    
+    setTotalBaseWeight(formatWeight(baseTotal)); 
+    setTotalPearlWeight(formatWeight(pearlTotal)); 
+    
+    const finalTotal = (baseTotal * 1.2) + (isThreeCoatMode ? (pearlTotal * 1.3) : 0);
+    setTotalFinalWeight(formatWeight(finalTotal));
+    
     const checkMetallic = (list: any[]) => list.some(t => { const type = TONER_DB[t.code]?.type || ''; return type !== 'solid' && type !== 'binder' && type !== '' && type !== 'candy'; });
     setIsBaseMetallic(checkMetallic(toners)); setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
@@ -550,12 +568,13 @@ export default function App() {
   };
 
   const generateShareText = () => {
-    let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '미지정'}): ${t.adjustedWeight || '0'}g`).join('\n'); let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '미지정'}): ${t.adjustedWeight || '0'}g`).join('\n'); let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin;
+    let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '미지정'}): ${formatWeight(t.adjustedWeight)}g`).join('\n'); 
+    let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '미지정'}): ${formatWeight(t.adjustedWeight)}g`).join('\n'); 
+    let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin;
     const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); const shareUrl = `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`;
-    return `[조색 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 브랜드: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 베이스 합계: ${totalBaseWeight}g\n▶ 6052 수지: ${(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 펄 합계: ${totalPearlWeight}g\n▶ 6052 수지: ${(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g\n\n` : ''}================================\n✨ 최종 도막 총량: ${totalFinalWeight}g\n\n👉 링크:\n${shareUrl}`;
+    return `[조색 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 브랜드: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 순수 안료 합계: ${totalBaseWeight}g\n▶ 필수 수지(20%): ${formatWeight(parseFloat(totalBaseWeight) * 0.2)}g\n▶ 베이스 총 중량: ${formatWeight(parseFloat(totalBaseWeight) * 1.2)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트]\n${pearlListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 순수 펄 합계: ${totalPearlWeight}g\n▶ 펄 수지(30%): ${formatWeight(parseFloat(totalPearlWeight) * 0.3)}g\n▶ 펄 코트 총 중량: ${formatWeight(parseFloat(totalPearlWeight) * 1.3)}g\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}g\n\n👉 링크:\n${shareUrl}`;
   };
 
-  // 🚨 [수술 완료] 카카오톡 묻지마 전송 로직 탑재
   const handleShareKakao = () => { 
       const shareText = generateShareText();
       window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
@@ -564,7 +583,6 @@ export default function App() {
   const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareMail = () => { window.location.href = `mailto:?subject=${encodeURIComponent('[조색 Pro] 배합 지시서 공유')}&body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   
-  // QR 연동을 위한 링크 생성 함수
   const generateSyncUrl = () => { 
       let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin; 
       const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); 
@@ -630,12 +648,10 @@ export default function App() {
       }
   };
 
-  // 첨부 중인 (게시판 등록 전) 이미지 지우기
   const removeAttachedImage = (index: number) => {
       setAttachedImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  // 🚨 [수술 완료] 게시판 상세 보기 내 사진 삭제 (3일 휴지통으로 이동)
   const handleDeletePostImage = (postId: number, imgIdx: number) => {
       if (window.confirm("이 사진을 삭제하시겠습니까?\n\n(삭제된 사진은 휴지통에서 3일간 보관된 후 영구 삭제됩니다.)")) {
           setBoardPosts(prev => prev.map(p => {
@@ -659,7 +675,6 @@ export default function App() {
       }
   };
 
-  // 🚨 [수술 완료] 휴지통 사진 복구 로직
   const handleRestorePostImage = (postId: number, delIdx: number) => {
       setBoardPosts(prev => prev.map(p => {
           if (p.id === postId && p.deletedImages) {
@@ -676,7 +691,6 @@ export default function App() {
       }
   };
 
-  // 🚨 [수술 완료] 휴지통 사진 영구 삭제 로직
   const handlePermanentDeletePostImage = (postId: number, delIdx: number) => {
       if (!window.confirm("이 사진을 영구적으로 삭제하시겠습니까?\n(이 작업은 취소할 수 없습니다.)")) return;
       setBoardPosts(prev => prev.map(p => {
@@ -733,10 +747,12 @@ export default function App() {
       window.open(`https://www.google.com/search?q=스피스헥커+${val}+뜻`, '_blank');
   };
 
+  // 모바일 전용 하단 바 숨김 체크 로직
+  const showBottomBar = !(isMobile && isKeyboardOpen);
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
       
-      {/* 🚨 양방향 브랜드 스위처 헤더 탑재 */}
       <header className="bg-slate-900 flex flex-col md:flex-row justify-between items-center p-3 border-b border-slate-800 shadow-md shrink-0 gap-3 z-40">
         <div className="flex flex-col sm:flex-row items-center justify-between w-full md:w-auto gap-3">
             <div className="flex items-center bg-slate-800 p-1.5 rounded-xl border border-slate-700 shadow-inner w-full sm:w-auto justify-center">
@@ -796,7 +812,6 @@ export default function App() {
                     <Camera size={16} className="mr-1 hidden sm:block"/> {attachedImages.length > 0 ? `사진(${attachedImages.length})` : '사진첨부'}
                 </button>
 
-                {/* 🚨 시편 등록으로 이름 변경 */}
                 <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.3] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 등록</button>
                 
                 <button onClick={() => setIsShareModalOpen(true)} className="flex-[1.8] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] shadow-sm"><Share2 size={18} className="mr-1.5"/> 공유 전송</button>
@@ -906,8 +921,6 @@ export default function App() {
                   </div>
                 )
               })}
-
-              {/* 🚨 PC 중앙에 있던 중복 필수 수지 박스 삭제 완료 (요청 1번 반영) */}
 
               <div className="flex w-full gap-2 mt-3">
                   <button onClick={() => addToner(false)} className="flex-1 py-3 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center transition-all shadow-sm">
@@ -1139,7 +1152,7 @@ export default function App() {
       </div>
 
       {/* 🚨 [수술 완료] 키보드 등장 시 자동 숨김 및 대칭 핏/직관적 UI로 교체된 하단 요약바 */}
-      {!isKeyboardOpen && (
+      {showBottomBar && (
           <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
               <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-4xl mx-auto p-3 md:p-4 h-full items-stretch justify-center">
                   <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4 shadow-inner">
@@ -1147,9 +1160,9 @@ export default function App() {
                      <div className="flex items-center justify-between text-xs md:text-sm">
                          <div className="flex flex-col items-start"><span className="text-[9px] text-slate-500 font-bold mb-0.5">순수 안료</span><span className="font-black text-white">{totalBaseWeight}g</span></div>
                          <span className="text-slate-600 font-black">+</span>
-                         <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold mb-0.5">필수 수지(20%)</span><span className="font-black text-blue-400">{(parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                         <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold mb-0.5">필수 수지(20%)</span><span className="font-black text-blue-400">{formatWeight(parseFloat(totalBaseWeight) * 0.2)}g</span></div>
                          <span className="text-slate-600 font-black">=</span>
-                         <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{(parseFloat(totalBaseWeight) + parseFloat((parseFloat(totalBaseWeight) * (isBaseMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
+                         <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{formatWeight(parseFloat(totalBaseWeight) * 1.2)}g</span></div>
                      </div>
                   </div>
                   {isThreeCoatMode && (
@@ -1158,9 +1171,9 @@ export default function App() {
                      <div className="flex items-center justify-between text-xs md:text-sm">
                          <div className="flex flex-col items-start"><span className="text-[9px] text-slate-500 font-bold mb-0.5">순수 펄</span><span className="font-black text-white">{totalPearlWeight}g</span></div>
                          <span className="text-slate-600 font-black">+</span>
-                         <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold mb-0.5">필수 수지(20%)</span><span className="font-black text-purple-400">{(parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1)}g</span></div>
+                         <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold mb-0.5">펄 수지(30%)</span><span className="font-black text-purple-400">{formatWeight(parseFloat(totalPearlWeight) * 0.3)}g</span></div>
                          <span className="text-slate-600 font-black">=</span>
-                         <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{(parseFloat(totalPearlWeight) + parseFloat((parseFloat(totalPearlWeight) * (isPearlMetallic ? 0.2 : 0.1)).toFixed(1))).toFixed(2)}g</span></div>
+                         <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{formatWeight(parseFloat(totalPearlWeight) * 1.3)}g</span></div>
                      </div>
                   </div>
                   )}
@@ -1168,7 +1181,7 @@ export default function App() {
           </div>
       )}
 
-      {/* 🚨 [수술 완료] QR코드 다이렉트 동기화 모달 */}
+      {/* 🚨 QR코드 다이렉트 동기화 모달 */}
       {isCloudModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 h-auto max-h-[85vh]">
@@ -1466,7 +1479,8 @@ export default function App() {
               <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             <div className="p-6 flex flex-col gap-3 bg-slate-50">
-                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 바로 전송하기</button>
+                {/* 🚨 [수술 완료] 알림 없이 바로 카톡 이동되도록 교체 */}
+                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 데이터 전송</button>
                 <button onClick={handleShareSMS} className="w-full bg-blue-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS) 앱 열기</button>
                 <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><Mail size={18}/> 이메일 앱 열기</button>
             </div>
@@ -1548,7 +1562,7 @@ export default function App() {
                                     {selectedSnapshot.base?.filter((t: any) => t.code).map((t: any, i: number) => (
                                         <div key={i} className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-slate-700/50">
                                             <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
-                                            <span className="text-blue-400 font-bold">{t.adjustedWeight}g</span>
+                                            <span className="text-blue-400 font-bold">{formatWeight(t.adjustedWeight)}g</span>
                                         </div>
                                     ))}
                                 </div>
@@ -1560,7 +1574,7 @@ export default function App() {
                                         {selectedSnapshot.pearl?.filter((t: any) => t.code).map((t: any, i: number) => (
                                             <div key={i} className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-purple-900/30">
                                                 <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
-                                                <span className="text-purple-400 font-bold">{t.adjustedWeight}g</span>
+                                                <span className="text-purple-400 font-bold">{formatWeight(t.adjustedWeight)}g</span>
                                             </div>
                                         ))}
                                     </div>
@@ -1605,19 +1619,22 @@ export default function App() {
                     const passSearch = p.brand.toLowerCase().includes(searchLower) || p.code.toLowerCase().includes(searchLower) || p.spec.toLowerCase().includes(searchLower);
                     return passBrandFilter && passSearch;
                 }).map(post => (
-                    <div key={post.id} onClick={() => handleOpenPost(post)} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer group relative">
-                        <button onClick={(e) => deleteBoardPost(post.id, e)} className="absolute top-4 right-4 text-slate-400 hover:text-white hover:bg-red-500 px-2 py-1 rounded-md transition-all flex items-center gap-1 font-bold text-[10px]" title="이 시편 삭제하기"><Trash2 size={14} /> 전체 삭제</button>
-                        <div className="flex justify-between items-start mb-2 pr-16">
+                    <div key={post.id} onClick={() => handleOpenPost(post)} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer group flex flex-col gap-2">
+                        {/* 🚨 [수술 완료] 날짜와 전체 삭제 버튼 겹침 해결 (레이아웃 분리) */}
+                        <div className="flex justify-between items-start">
                             <div className="flex items-center gap-2">
                                 <span className="bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded font-bold">{post.brand}</span>
                                 <span className="text-lg font-black text-emerald-700 uppercase tracking-wide group-hover:text-emerald-500 transition-colors notranslate" translate="no">{post.code}</span>
                             </div>
-                            <span className="text-xs text-slate-400 font-medium flex items-center gap-1"><Calendar size={12}/> {post.date}</span>
+                            <div className="flex flex-col items-end gap-1.5">
+                                <span className="text-xs text-slate-400 font-medium flex items-center gap-1"><Calendar size={12}/> {post.date}</span>
+                                <button onClick={(e) => deleteBoardPost(post.id, e)} className="text-slate-400 hover:text-white hover:bg-red-500 px-2 py-1 rounded transition-colors flex items-center gap-1 font-bold text-[10px]" title="이 시편 삭제하기"><Trash2 size={12} /> 전체 삭제</button>
+                            </div>
                         </div>
-                        <p className="text-sm text-slate-600 font-bold mb-3 break-keep pr-16">{post.spec}</p>
+                        <p className="text-sm text-slate-600 font-bold mb-1 break-keep">{post.spec}</p>
                         
                         {post.images && post.images.length > 0 && (
-                            <div className="mb-3 flex flex-wrap gap-1.5">
+                            <div className="mb-2 flex flex-wrap gap-1.5">
                                 {post.images.map((imgUrl: string, imgIdx: number) => (
                                     <button key={imgIdx} onClick={(e) => { e.stopPropagation(); setPreviewModalImage(imgUrl); }} className="bg-amber-50 border border-amber-300 text-amber-800 hover:bg-amber-100 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition-colors">
                                         <ImageIcon size={14} className="text-amber-600" /> 📷 시편 사진 {imgIdx + 1} 보기
@@ -1685,7 +1702,7 @@ export default function App() {
                   </>
               )}
 
-              {/* 🚨 [수술 완료] 개별 사진 삭제 (휴지통 이동) 기능 탑재 */}
+              {/* 🚨 개별 사진 삭제 (휴지통 이동) 기능 탑재 */}
               {viewingPost.images && viewingPost.images.length > 0 && (
                   <div className="flex flex-col gap-3 mt-2">
                       {viewingPost.images.map((imgUrl: string, imgIdx: number) => (
@@ -1702,7 +1719,7 @@ export default function App() {
                   </div>
               )}
 
-              {/* 🚨 [수술 완료] 3일 보관 휴지통 경고 및 복구/삭제 기능 탑재 */}
+              {/* 🚨 3일 보관 휴지통 경고 및 복구/삭제 기능 탑재 */}
               {viewingPost.deletedImages && viewingPost.deletedImages.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-slate-300">
                       <h4 className="text-xs font-black text-red-600 mb-2 flex items-center gap-1"><Trash2 size={14}/> 휴지통 (삭제된 사진 - 3일 후 자동 영구 삭제)</h4>
@@ -1732,7 +1749,7 @@ export default function App() {
                   {viewingPost.baseFormula?.filter((t: any) => t.code).map((t: any, idx: number) => (
                     <div key={idx} className="flex justify-between items-center bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm">
                       <div className="flex items-center gap-2"><span className="text-slate-800 font-black text-sm w-16">{t.code.replace('WT ', '')}</span><span className="text-xs text-slate-500">{TONER_DB[t.code]?.role || '미등록 안료'}</span></div>
-                      <span className="text-blue-600 font-bold">{t.adjustedWeight}g</span>
+                      <span className="text-blue-600 font-bold">{formatWeight(t.adjustedWeight)}g</span>
                     </div>
                   ))}
                 </div>
@@ -1745,7 +1762,7 @@ export default function App() {
                     {viewingPost.pearlFormula?.filter((t: any) => t.code).map((t: any, idx: number) => (
                       <div key={idx} className="flex justify-between items-center bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm">
                         <div className="flex items-center gap-2"><span className="text-slate-800 font-black text-sm w-16">{t.code.replace('WT ', '')}</span><span className="text-xs text-slate-500">{TONER_DB[t.code]?.role || '미등록 안료'}</span></div>
-                        <span className="text-purple-600 font-bold">{t.adjustedWeight}g</span>
+                        <span className="text-purple-600 font-bold">{formatWeight(t.adjustedWeight)}g</span>
                       </div>
                     ))}
                   </div>
