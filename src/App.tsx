@@ -5,7 +5,7 @@ import {
   Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
   FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp, 
   CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, CloudUpload, CloudDownload,
-  QrCode, Smartphone, Monitor, Link, Check, Users, Lock, ShieldCheck, MapPin, Briefcase, Hash, UserCheck
+  QrCode, Smartphone, Monitor, Link, Check, Users, Lock, ShieldCheck, MapPin, Briefcase, Hash, UserCheck, Loader2
 } from 'lucide-react';
 
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS } from './tonerDB';
@@ -17,10 +17,10 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.16 (엔터프라이즈 관리자 패널 및 4분할 믹싱랩 탑재)"; 
+const LAST_PATCH_DATE = "2026.10.16 (자동 승인 위장 시스템 및 마스터키 입력 제거)"; 
 
-// 🚨 마스터 키 설정 (대표님이 알려줄 비밀번호)
-const MASTER_KEY = "조색프로2026";
+// 백그라운드 자동 인증을 위한 시스템 마스터 키
+const MASTER_KEY = "조색프로2026_AUTO";
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -97,7 +97,6 @@ const GUIDE_IMAGES: Record<string, any[]> = {
 export const catalogData = Object.entries(TONER_DB).map(([code, data]) => { return { code, ...data }; });
 export const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
 
-// 🚨 [수술 완료] 스마트 소수점 렌더링 (불필요한 .00 제거)
 export const formatWeight = (val: any): string => { 
     const num = Number(val); 
     if (isNaN(num)) return "0"; 
@@ -181,11 +180,12 @@ interface BoardPost {
 }
 
 export default function App() {
-  // 🚨 [NEW] 승인 로그인 시스템 폼 확장
+  // 🚨 [NEW] 자동 승인 시스템을 위한 상태 관리
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [loginForm, setLoginForm] = useState({ brand: '', branch: '', name: '', age: '', role: '사원', key: '' });
+  const [authStatus, setAuthStatus] = useState<'idle' | 'waiting' | 'approved'>('idle');
+  const [loginForm, setLoginForm] = useState({ brand: '', branch: '', name: '', age: '', role: '사원' });
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
-  const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null); // 모달 내 상세 보기용
+  const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);
 
   const [authorizedUsers, setAuthorizedUsers] = useState<any[]>(() => {
       if (typeof window !== 'undefined') {
@@ -285,6 +285,7 @@ export default function App() {
       return item.code.includes(searchTxt) || item.role.toUpperCase().includes(searchTxt);
   });
 
+  // 앱 로드 시 기존 인증 상태 체크
   useEffect(() => {
       if (typeof window !== 'undefined') {
           const authKey = localStorage.getItem('hitec_auth_key');
@@ -296,30 +297,52 @@ export default function App() {
       document.title = "조색 Pro";
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  // 🚨 [NEW] 자동 승인 대기 로직 (방법 B 적용)
+  const handleRequestApproval = (e: React.FormEvent) => {
       e.preventDefault();
-      if (loginForm.key.trim() === MASTER_KEY && loginForm.name.trim() !== '' && loginForm.brand.trim() !== '' && loginForm.branch.trim() !== '') {
-          localStorage.setItem('hitec_auth_key', MASTER_KEY);
-          localStorage.setItem('hitec_auth_name', loginForm.name.trim());
-          
-          const newUser = {
-              brand: loginForm.brand.trim(),
-              branch: loginForm.branch.trim(),
-              name: loginForm.name.trim(),
-              age: loginForm.age.trim() || '미입력',
-              role: loginForm.role,
-              date: new Date().toLocaleString('ko-KR'),
-              device: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC'
-          };
-          const updatedUsers = [...authorizedUsers, newUser];
-          setAuthorizedUsers(updatedUsers);
-          localStorage.setItem('hitec_auth_users', JSON.stringify(updatedUsers));
-
-          setIsAuthorized(true);
+      if (loginForm.name.trim() !== '' && loginForm.brand.trim() !== '' && loginForm.branch.trim() !== '') {
+          setAuthStatus('waiting');
       } else {
-          alert("❌ 필수 입력 정보 및 올바른 초대 코드를 확인해주세요.");
+          alert("❌ 필수 정보를 모두 입력해주세요.");
       }
   };
+
+  useEffect(() => {
+      let timer: any;
+      if (authStatus === 'waiting') {
+          // 약 8초 대기 후 승인 처리 (UX를 고려한 테스트용 타이머)
+          timer = setTimeout(() => {
+              setAuthStatus('approved');
+          }, 8000);
+      }
+      return () => clearTimeout(timer);
+  }, [authStatus]);
+
+  useEffect(() => {
+      if (authStatus === 'approved') {
+          const finalizeLogin = setTimeout(() => {
+              // 백그라운드에서 마스터키 자동 할당 및 DB(로컬) 저장
+              localStorage.setItem('hitec_auth_key', MASTER_KEY);
+              localStorage.setItem('hitec_auth_name', loginForm.name.trim());
+              
+              const newUser = {
+                  brand: loginForm.brand.trim(),
+                  branch: loginForm.branch.trim(),
+                  name: loginForm.name.trim(),
+                  age: loginForm.age.trim() || '미입력',
+                  role: loginForm.role,
+                  date: new Date().toLocaleString('ko-KR'),
+                  device: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC'
+              };
+              const updatedUsers = [...authorizedUsers, newUser];
+              setAuthorizedUsers(updatedUsers);
+              localStorage.setItem('hitec_auth_users', JSON.stringify(updatedUsers));
+
+              setIsAuthorized(true);
+          }, 2000); // 승인 완료 메시지를 2초간 보여준 뒤 접속
+          return () => clearTimeout(finalizeLogin);
+      }
+  }, [authStatus, loginForm, authorizedUsers]);
 
 
   useEffect(() => {
@@ -499,7 +522,6 @@ export default function App() {
       }
   }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, boardPosts, snapshots, isLoaded]);
 
-  // 🚨 [수술 완료] 필수 수지 배율 20% & 30% 완벽 고정 (조건부 10% 삭제)
   useEffect(() => {
     const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); 
     const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
@@ -798,99 +820,116 @@ export default function App() {
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
 
-  // 🚨 [NEW] 승인 로그인 화면 (폼 대폭 확장)
+  // 🚨 [NEW] 자동 승인 시스템 화면 전환 로직 (방법 B 탑재)
   if (!isAuthorized) {
       return (
-          <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-              <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-lg border border-slate-200 flex flex-col items-center">
-                  <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-6"><Lock size={32} className="text-white"/></div>
-                  <h1 className="text-2xl font-black text-slate-800 mb-2">조색 Pro 접근 승인</h1>
-                  <p className="text-sm text-slate-500 mb-6 text-center break-keep">이 앱은 승인된 작업자만 사용할 수 있습니다. 관리자에게 부여받은 필수 정보와 접속 코드를 입력해주세요.</p>
+          <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+              {/* 장식용 배경 요소 */}
+              <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[100px]"></div>
+              <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[100px]"></div>
+
+              <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-lg border border-slate-200 flex flex-col items-center relative z-10 overflow-hidden">
                   
-                  <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                              <label className="text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1"><Briefcase size={12}/> 브랜드 (상호명)</label>
-                              <input 
-                                  type="text" 
-                                  value={loginForm.brand} 
-                                  onChange={e => setLoginForm({...loginForm, brand: e.target.value})}
-                                  placeholder="도이치 모터스 BMW" 
-                                  className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner"
-                                  required
-                              />
-                          </div>
-                          <div>
-                              <label className="text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
-                              <input 
-                                  type="text" 
-                                  value={loginForm.branch} 
-                                  onChange={e => setLoginForm({...loginForm, branch: e.target.value})}
-                                  placeholder="성수동" 
-                                  className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner"
-                                  required
-                              />
+                  {authStatus === 'idle' && (
+                      <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+                          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg mb-6"><Lock size={32} className="text-white"/></div>
+                          <h1 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">조색 Pro 접근 승인</h1>
+                          <p className="text-sm text-slate-500 mb-8 text-center break-keep">이 시스템은 승인된 작업자만 사용할 수 있습니다. 관리자 확인을 위해 정확한 정보를 입력해주세요.</p>
+                          
+                          <form onSubmit={handleRequestApproval} className="w-full flex flex-col gap-4">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                  <div>
+                                      <label className="text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
+                                      <input 
+                                          type="text" 
+                                          value={loginForm.brand} 
+                                          onChange={e => setLoginForm({...loginForm, brand: e.target.value})}
+                                          placeholder="예: 도이치 모터스 BMW" 
+                                          className="w-full border border-slate-300 p-3 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner bg-slate-50"
+                                      />
+                                  </div>
+                                  <div>
+                                      <label className="text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
+                                      <input 
+                                          type="text" 
+                                          value={loginForm.branch} 
+                                          onChange={e => setLoginForm({...loginForm, branch: e.target.value})}
+                                          placeholder="예: 성수동" 
+                                          className="w-full border border-slate-300 p-3 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner bg-slate-50"
+                                      />
+                                  </div>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                  <div className="sm:col-span-2">
+                                      <label className="text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1"><UserCheck size={12}/> 작업자 이름</label>
+                                      <input 
+                                          type="text" 
+                                          value={loginForm.name} 
+                                          onChange={e => setLoginForm({...loginForm, name: e.target.value})}
+                                          placeholder="홍길동" 
+                                          className="w-full border border-slate-300 p-3 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner bg-slate-50"
+                                      />
+                                  </div>
+                                  <div>
+                                      <label className="text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1"><Hash size={12}/> 연령(나이)</label>
+                                      <input 
+                                          type="number" 
+                                          value={loginForm.age} 
+                                          onChange={e => setLoginForm({...loginForm, age: e.target.value})}
+                                          placeholder="50" 
+                                          className="w-full border border-slate-300 p-3 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner bg-slate-50"
+                                      />
+                                  </div>
+                              </div>
+                              <div>
+                                  <label className="text-xs font-bold text-slate-600 mb-1.5 block">현 직책</label>
+                                  <select 
+                                      value={loginForm.role} 
+                                      onChange={e => setLoginForm({...loginForm, role: e.target.value})}
+                                      className="w-full border border-slate-300 p-3 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner bg-white cursor-pointer"
+                                  >
+                                      <option value="사원">사원</option>
+                                      <option value="주임">주임</option>
+                                      <option value="대리">대리</option>
+                                      <option value="과장">과장</option>
+                                      <option value="차장">차장</option>
+                                      <option value="부장">부장</option>
+                                      <option value="지점장">지점장</option>
+                                      <option value="대표">대표</option>
+                                  </select>
+                              </div>
+                              
+                              <button type="submit" className="w-full bg-slate-800 hover:bg-slate-900 text-white font-black py-4 rounded-xl mt-4 transition-all shadow-[0_4px_20px_rgba(0,0,0,0.15)] flex justify-center items-center gap-2 group">
+                                  <ShieldCheck size={20} className="group-hover:scale-110 transition-transform"/> 관리자에게 승인 요청하기
+                              </button>
+                          </form>
+                      </div>
+                  )}
+
+                  {authStatus === 'waiting' && (
+                      <div className="w-full flex flex-col items-center py-12 animate-in fade-in zoom-in duration-300">
+                          <Loader2 size={64} className="text-blue-500 animate-spin mb-6" />
+                          <h2 className="text-xl font-black text-slate-800 mb-3 tracking-tight">승인 요청 전송 완료</h2>
+                          <p className="text-sm font-bold text-slate-600 text-center leading-relaxed">
+                              현재 관리자가 접속 정보를 검토 중입니다.<br/>잠시만 기다려주세요.
+                          </p>
+                          <div className="mt-8 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-xs font-black animate-pulse border border-blue-200">
+                              통상 1~2분 정도 소요됩니다...
                           </div>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <div className="sm:col-span-2">
-                              <label className="text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1"><UserCheck size={12}/> 사용자 이름</label>
-                              <input 
-                                  type="text" 
-                                  value={loginForm.name} 
-                                  onChange={e => setLoginForm({...loginForm, name: e.target.value})}
-                                  placeholder="홍길동" 
-                                  className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner"
-                                  required
-                              />
+                  )}
+
+                  {authStatus === 'approved' && (
+                      <div className="w-full flex flex-col items-center py-12 animate-in fade-in zoom-in duration-300">
+                          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6 border-4 border-emerald-50 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                              <CheckCircle size={40} className="text-emerald-500" />
                           </div>
-                          <div>
-                              <label className="text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1"><Hash size={12}/> 연령(나이)</label>
-                              <input 
-                                  type="number" 
-                                  value={loginForm.age} 
-                                  onChange={e => setLoginForm({...loginForm, age: e.target.value})}
-                                  placeholder="50" 
-                                  className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner"
-                                  required
-                              />
-                          </div>
+                          <h2 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">관리자 승인 완료!</h2>
+                          <p className="text-sm font-bold text-slate-500 text-center">
+                              인증이 정상적으로 처리되었습니다.<br/>잠시 후 조색 Pro 시스템으로 이동합니다.
+                          </p>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                              <label className="text-xs font-bold text-slate-600 mb-1.5 block">현 직책</label>
-                              <select 
-                                  value={loginForm.role} 
-                                  onChange={e => setLoginForm({...loginForm, role: e.target.value})}
-                                  className="w-full border border-slate-300 p-2.5 rounded-lg text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner bg-white"
-                              >
-                                  <option value="사원">사원</option>
-                                  <option value="주임">주임</option>
-                                  <option value="대리">대리</option>
-                                  <option value="과장">과장</option>
-                                  <option value="차장">차장</option>
-                                  <option value="부장">부장</option>
-                                  <option value="지점장">지점장</option>
-                                  <option value="대표">대표</option>
-                              </select>
-                          </div>
-                          <div>
-                              <label className="text-xs font-bold text-slate-600 mb-1.5 block">초대 코드 (마스터 키)</label>
-                              <input 
-                                  type="password" 
-                                  value={loginForm.key} 
-                                  onChange={e => setLoginForm({...loginForm, key: e.target.value})}
-                                  placeholder="******" 
-                                  className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner"
-                                  required
-                              />
-                          </div>
-                      </div>
-                      
-                      <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl mt-4 transition-colors shadow-lg flex justify-center items-center gap-2">
-                          <ShieldCheck size={20}/> 시스템 접속 승인
-                      </button>
-                  </form>
+                  )}
               </div>
           </div>
       );
@@ -1329,7 +1368,6 @@ export default function App() {
           </div>
       )}
 
-      {/* 🚨 [NEW] 승인된 작업자 목록 및 상세 모달 (클릭 시 팝업 뷰 전환) */}
       {isUsersModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[80vh]">
@@ -1342,8 +1380,9 @@ export default function App() {
                     <>
                         <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl mb-6">
                             <p className="text-xs text-indigo-800 font-bold mb-1">🔐 실시간 접속 보안 패널 (Admin Only)</p>
-                            <p className="text-[11px] text-indigo-600 leading-relaxed break-keep">초대 코드(마스터 키)를 입력하여 접속 권한을 얻은 사용자의 기기 목록입니다. 현재는 테스트 모드로 동작하며, 실제 배포 시 Firebase DB와 연동되어 실시간 통계가 제공됩니다.</p>
+                            <p className="text-[11px] text-indigo-600 leading-relaxed break-keep">이 시스템은 승인된 사용자의 기기 목록을 보여줍니다. 실제 배포 시 Firebase DB와 연동되어 원격 차단 등 실시간 통계가 제공될 예정입니다.</p>
                         </div>
+
                         <div className="space-y-3">
                             {authorizedUsers.length === 0 ? (
                                 <div className="text-center py-8 text-slate-400 text-sm font-bold">승인된 사용자가 없습니다.</div>
@@ -1811,7 +1850,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 🚨 [NEW] 4분할(2x2) 완벽 핏 적용 먼셀 믹싱 스튜디오 */}
+      {/* 🚨 [NEW] 4분할 완벽 핏 적용 먼셀 믹싱 스튜디오 */}
       {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-auto custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-slate-900/80 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md shadow-md">
