@@ -9,7 +9,6 @@
   ],
   "main": "src/index.tsx",
   "dependencies": {
-"dependencies": {
     "loader-utils": "3.2.1",
     "firebase": "^10.10.0",
     "react": "18.2.0",
