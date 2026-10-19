@@ -531,12 +531,6 @@ export default function App() {
       }
   }, [focusTarget, toners, pearlToners]);
 
-  const handleScaleAll = (isMultiply: boolean) => {
-    const factor = parseFloat(scaleFactor); if (isNaN(factor) || factor <= 0) { alert("올바른 배율 상수를 입력하세요."); return; }
-    const scale = (valStr: string) => { const val = parseFloat(valStr); if (isNaN(val) || val === 0) return valStr; const calcVal = isMultiply ? (val * 100000 * factor) / 100000 : (val * 100000) / (factor * 100000); return String(Number(Math.round(calcVal * 100000) / 100000)); };
-    const applyScale = (list: any[]) => list.map(t => { if (!t.adjustedWeight) return t; const newVal = scale(t.adjustedWeight); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== newVal) ? [...currentHistory, newVal] : currentHistory; return { ...t, adjustedWeight: newVal, history: nextHistory }; });
-    setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
-  };
  // 🎨 [NEW] 가상 조색 시뮬레이터 로직
   const getSimulatedColor = (drops: any) => {
       const total = drops.red + drops.blue + drops.yellow + drops.green + drops.white + drops.black;
