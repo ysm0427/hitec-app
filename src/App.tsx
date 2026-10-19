@@ -17,7 +17,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.19 (가상 보안 시스템 / 분할 정밀검색 / AI 조색 시뮬레이터 적용)"; 
+const LAST_PATCH_DATE = "2026.10.19 (가상 보안 인증 완벽화 / 구글식 스마트 검색 / 풀네임 렌더링)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -115,7 +115,7 @@ interface BoardPost {
 }
 
 export default function App() {
-  // 🛡️ [NEW 1] 가상 오토 승인(보안 위장) 시스템 상태
+  // 🛡️ [NEW 1] 완벽한 가상 오토 승인 시스템 (리얼 로딩 & 깔끔한 단독 승인 화면)
   const [isAuthorized, setIsAuthorized] = useState(() => {
     if (typeof window !== 'undefined') return sessionStorage.getItem('hitec_auth_passed') === 'true';
     return false;
@@ -126,7 +126,7 @@ export default function App() {
   const handleFakeApproval = (e: React.FormEvent) => {
     e.preventDefault();
     setIsApproving(true);
-    // 3~5초(여기선 3.5초) 리얼리티 로딩 
+    // 사람이 보는 것 같은 리얼리티 3.5초 로딩
     setTimeout(() => {
         setIsApproving(false);
         setShowApprovalSuccess(true);
@@ -206,9 +206,9 @@ export default function App() {
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight', tempInput?: HTMLInputElement} | null>(null); 
   
-  // 🔍 [NEW 2] 검색창 2분할을 위한 상태 변수 추가
-  const [catalogSearch, setCatalogSearch] = useState(''); // 안료 검색용
-  const [oemSearch, setOemSearch] = useState('');         // OEM 차량 컬러 검색용
+  // 🔍 [NEW 2] 양방향 구글식 스마트 검색창 (50:50 분할)
+  const [catalogSearch, setCatalogSearch] = useState(''); // 왼쪽 (안료 전용)
+  const [oemSearch, setOemSearch] = useState('');         // 오른쪽 (OEM 컬러 전용)
   
   const [isBaseMetallic, setIsBaseMetallic] = useState(false); 
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
@@ -223,7 +223,7 @@ export default function App() {
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   
-  // 왼쪽 검색창 (안료 전용) 필터링
+  // 🔍 [NEW 2] 왼쪽: 조색제(안료) 스마트 검색 알고리즘 (단어 조합 완벽 인식)
   const sortedCatalog = [...catalogData].filter(item => {
     const code = item.code;
     if (activeTab === 'CANDY') return code.startsWith('90');
@@ -233,21 +233,29 @@ export default function App() {
       const aActive = activeCodes.includes(a.code); const bActive = activeCodes.includes(b.code); 
       if (aActive && !bActive) return -1; if (!aActive && bActive) return 1; return 0; 
   }).filter(item => {
-      const searchTxt = catalogSearch.replace(/\s/g, '').toUpperCase();
-      if (!searchTxt) return true;
-      const c = String(item.code || '').replace(/\s/g, '').toUpperCase();
-      const r = String(item.role || '').replace(/\s/g, '').toUpperCase();
-      const d = String(item.desc || '').replace(/\s/g, '').toUpperCase();
-      return c.includes(searchTxt) || r.includes(searchTxt) || d.includes(searchTxt);
+      const searchTxt = catalogSearch.toUpperCase();
+      if (!searchTxt.trim()) return true;
+      const searchTerms = searchTxt.split(/\s+/).filter(Boolean); // 띄어쓰기 기준으로 단어 분리
+      const fullStringWithSpaces = `${String(item.code || '')} ${String(item.role || '')} ${String(item.desc || '')}`.toUpperCase();
+      const exactMatch = fullStringWithSpaces.replace(/\s/g, '').includes(searchTxt.replace(/\s/g, ''));
+      if (exactMatch) return true;
+      const validTerms = searchTerms.filter(t => t.length > 1); // 1글자짜리 무분별한 매칭 방지
+      if (validTerms.length === 0) return exactMatch;
+      // 입력된 여러 단어 중 하나라도 포함되어 있으면 보여줌 (구글식 or 검색)
+      return validTerms.some(term => fullStringWithSpaces.includes(term));
   });
 
-  // 🔍 [NEW 2] 오른쪽 검색창 (OEM 차량 컬러 전용) 필터링 완벽 분리
+  // 🔍 [NEW 2] 오른쪽: 엑셀 OEM 차량 컬러 스마트 검색 알고리즘 (LUCID RED TC 검색 완벽 해결)
   const filteredOemColors = OEM_COLORS.filter(c => {
-      const searchTxt = oemSearch.replace(/\s/g, '').toUpperCase();
-      if (!searchTxt) return false;
-      const code = String(c.code || '').replace(/\s/g, '').toUpperCase();
-      const name = String(c.name || '').replace(/\s/g, '').toUpperCase();
-      return code.includes(searchTxt) || name.includes(searchTxt);
+      const searchTxt = oemSearch.toUpperCase();
+      if (!searchTxt.trim()) return false;
+      const searchTerms = searchTxt.split(/\s+/).filter(Boolean);
+      const fullStringWithSpaces = `${String(c.code || '')} ${String(c.name || '')}`.toUpperCase();
+      const exactMatch = fullStringWithSpaces.replace(/\s/g, '').includes(searchTxt.replace(/\s/g, ''));
+      if (exactMatch) return true;
+      const validTerms = searchTerms.filter(t => t.length > 1);
+      if (validTerms.length === 0) return exactMatch;
+      return validTerms.some(term => fullStringWithSpaces.includes(term));
   });
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
@@ -602,58 +610,60 @@ export default function App() {
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
 
-  // 🛡️ [NEW 1] 가짜 오토 승인(보안) 화면 - 1차 방어선 블록
+  // 🛡️ [NEW 1] 가짜 오토 승인(보안) 화면 - 완벽한 시각적 전환 (자물쇠 제거됨)
   if (!isAuthorized) {
     return (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 notranslate" translate="no">
             <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95">
-                <div className="p-4 flex flex-col items-center justify-center mt-6 relative">
-                    <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-4">
-                        {isApproving ? <RefreshCw size={32} className="text-white animate-spin"/> : <Lock size={32} className="text-white"/>}
-                    </div>
-                    <h2 className="text-2xl font-black text-slate-800 mb-2">조색 Pro 접근 승인</h2>
-                    <p className="text-sm text-slate-500 text-center break-keep px-4">이 시스템은 승인된 작업자만 사용할 수 있습니다. 관리자 확인을 위해 정확한 정보를 입력해주세요.</p>
-                </div>
                 {!showApprovalSuccess ? (
-                    <form onSubmit={handleFakeApproval} className="p-6 bg-white flex flex-col gap-4">
-                        <div className="grid grid-cols-2 gap-3">
-                            <div>
-                                <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
-                                <input type="text" placeholder="예: 도이치 모터스 BMW" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                    <>
+                        <div className="p-4 flex flex-col items-center justify-center mt-6 relative">
+                            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+                                {isApproving ? <RefreshCw size={32} className="text-white animate-spin"/> : <Lock size={32} className="text-white"/>}
                             </div>
-                            <div>
-                                <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
-                                <input type="text" placeholder="예: 성수동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
-                            </div>
+                            <h2 className="text-2xl font-black text-slate-800 mb-2">조색 Pro 접근 승인</h2>
+                            <p className="text-sm text-slate-500 text-center break-keep px-4">이 시스템은 승인된 작업자만 사용할 수 있습니다. 관리자 확인을 위해 정확한 정보를 입력해주세요.</p>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div>
-                                <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><UserCheck size={12}/> 작업자 이름</label>
-                                <input type="text" placeholder="홍길동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                        <form onSubmit={handleFakeApproval} className="p-6 bg-white flex flex-col gap-4">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
+                                    <input type="text" placeholder="예: 도이치 모터스 BMW" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
+                                    <input type="text" placeholder="예: 성수동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><UserCheck size={12}/> 작업자 이름</label>
+                                    <input type="text" placeholder="홍길동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Hash size={12}/> 연령(나이)</label>
+                                    <input type="number" placeholder="50" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                                </div>
                             </div>
                             <div>
-                                <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Hash size={12}/> 연령(나이)</label>
-                                <input type="number" placeholder="50" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                                <label className="text-xs font-bold text-slate-600 mb-1 block">현 직책</label>
+                                <select className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                                    <option>사원</option><option>주임 / 대리</option><option>과장 / 차장</option><option>팀장 / 실장</option><option>대표 / 관리자</option>
+                                </select>
                             </div>
-                        </div>
-                        <div>
-                            <label className="text-xs font-bold text-slate-600 mb-1 block">현 직책</label>
-                            <select className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-                                <option>사원</option><option>주임 / 대리</option><option>과장 / 차장</option><option>팀장 / 실장</option><option>대표 / 관리자</option>
-                            </select>
-                        </div>
-                        <button type="submit" disabled={isApproving} className="w-full bg-[#1e293b] hover:bg-slate-800 text-white font-black py-4 rounded-xl mt-4 transition-colors shadow-md flex justify-center items-center gap-2 text-sm disabled:bg-slate-400">
-                            {isApproving ? "관리자 승인 대기 중..." : <><ShieldCheck size={18}/> 관리자에게 승인 요청하기</>}
-                        </button>
-                    </form>
+                            <button type="submit" disabled={isApproving} className="w-full bg-[#1e293b] hover:bg-slate-800 text-white font-black py-4 rounded-xl mt-4 transition-colors shadow-md flex justify-center items-center gap-2 text-sm disabled:bg-slate-400">
+                                {isApproving ? "관리자 승인 대기 중..." : <><ShieldCheck size={18}/> 관리자에게 승인 요청하기</>}
+                            </button>
+                        </form>
+                    </>
                 ) : (
-                    <div className="p-8 bg-white flex flex-col items-center gap-4 text-center animate-in zoom-in duration-300">
-                        <CheckCircle size={48} className="text-emerald-500 mb-2" />
-                        <h3 className="text-lg font-black text-slate-800 break-keep leading-relaxed">
+                    <div className="p-10 bg-white flex flex-col items-center justify-center gap-4 text-center animate-in zoom-in duration-300 min-h-[450px]">
+                        <CheckCircle size={64} className="text-emerald-500 mb-4 drop-shadow-md" />
+                        <h3 className="text-xl font-black text-slate-800 break-keep leading-relaxed">
                             마스터키 윤성만 님에 의해<br/>정상적으로 승인되었습니다.
                         </h3>
-                        <p className="text-sm font-bold text-slate-500 mb-4">즐거운 하루 되세요.</p>
-                        <button onClick={handleApprovalConfirm} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl transition-colors shadow-md text-sm">
+                        <p className="text-base font-bold text-slate-500 mb-8">즐거운 하루 되세요.</p>
+                        <button onClick={handleApprovalConfirm} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl transition-colors shadow-md text-base">
                             확인 (메인 화면으로 이동)
                         </button>
                     </div>
@@ -1002,7 +1012,7 @@ export default function App() {
                         <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
                     </div>
                     <div className="relative flex-1">
-                        <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value)} placeholder="OEM 차량 컬러 (LUCID 등) 영문 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-emerald-500 transition-colors" />
+                        <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value)} placeholder="OEM 차량 컬러 (LUCID 등) 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-emerald-500 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-2.5 text-emerald-400/70" />
                     </div>
                 </div>
@@ -1020,7 +1030,7 @@ export default function App() {
                         </div>
                     )}
                     
-                    {/* 🔍 [NEW 2] OEM 컬러 정밀 검색 렌더링 (글자 잘림 없이 전체 표시) */}
+                    {/* 🔍 [NEW 2] OEM 컬러 렌더링 (글자 잘림 없이 전체 표시) */}
                     {oemSearch.replace(/\s/g, '') !== '' && filteredOemColors.length > 0 && (
                         <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm animate-in fade-in">
                             <h4 className="text-xs font-black text-blue-800 mb-2">🔍 자동차 제조사(OEM) 색상 검색 결과</h4>
@@ -1028,7 +1038,7 @@ export default function App() {
                                 {filteredOemColors.slice(0, 20).map((oem, idx) => (
                                     <div key={idx} className="flex justify-between items-center bg-white px-3 py-2.5 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(String(oem.code))}>
                                         <span className="font-black text-blue-600 text-sm whitespace-nowrap mr-3">{oem.code}</span>
-                                        <span className="text-[11.5px] text-slate-700 font-bold break-all text-right leading-tight">{oem.name}</span>
+                                        <span className="text-[11.5px] text-slate-700 font-bold break-words text-right leading-tight flex-1 ml-2">{oem.name}</span>
                                     </div>
                                 ))}
                             </div>
@@ -1570,7 +1580,7 @@ export default function App() {
         <div className="fixed inset-0 bg-slate-900/90 z-[2000] p-4 flex items-center justify-center animate-in fade-in backdrop-blur-sm">
            <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-slate-300">
                <div className="p-4 bg-emerald-600 flex justify-between items-center text-white shrink-0">
-                   <h3 className="font-bold flex items-center gap-2"><Layers size={18}/> {viewingPost.brand} - {viewingPost.code}</h3>
+                   <h3 className="font-black flex items-center gap-2"><Layers size={18}/> {viewingPost.brand} - {viewingPost.code}</h3>
                    <button onClick={() => setViewingPost(null)} className="hover:text-red-200 bg-emerald-700 p-1.5 rounded-full transition-colors"><X size={16}/></button>
                </div>
                <div className="flex-1 p-6 overflow-y-auto bg-slate-50 custom-scrollbar">
