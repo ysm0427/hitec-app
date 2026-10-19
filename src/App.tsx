@@ -1,10 +1,10 @@
 // src/App.tsx
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, 
   Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
   FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp, 
-  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, CloudUpload, CloudDownload,
+  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud,
   QrCode, Smartphone, Monitor, Link, Check, Users, Lock, ShieldCheck, Briefcase, MapPin, UserCheck, Hash
 } from 'lucide-react';
 
@@ -17,10 +17,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.19 (전면 코드 수정 및 AI 조색 시뮬레이터 적용)"; 
-
-// 🚨 [NEW] 마스터 키 설정
-const MASTER_KEY = "조색프로2026";
+const LAST_PATCH_DATE = "2026.10.19 (가상 보안 인증망 / 다이렉트 공유 / 정밀 검색 / AI 시뮬레이터 적용)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -28,69 +25,23 @@ const GUIDE_IMAGES: Record<string, any[]> = {
     { id: 2, title: '단색안료 특성', desc: '유기안료와 무기안료의 차이점', url: '/image2.jpg' },
     { id: 3, title: '빛과 안료 상호작용', desc: '솔리드 / 알루미늄 / 간섭펄 반사 원리', url: '/image3.jpg' },
     { id: 15, title: '추가 이론 자료 1', desc: '상세 가이드 페이지 (15)', url: '/image15.jpg' },
-    { id: 16, title: '추가 이론 자료 2', desc: '상세 가이드 페이지 (16)', url: '/image16.jpg' },
-    { id: 17, title: '추가 이론 자료 3', desc: '상세 가이드 페이지 (17)', url: '/image17.jpg' },
-    { id: 18, title: '추가 이론 자료 4', desc: '상세 가이드 페이지 (18)', url: '/image18.jpg' },
-    { id: 19, title: '추가 이론 자료 5', desc: '상세 가이드 페이지 (19)', url: '/image19.jpg' },
-    { id: 20, title: '추가 이론 자료 6', desc: '상세 가이드 페이지 (20)', url: '/image20.jpg' },
-    { id: 21, title: '추가 이론 자료 7', desc: '상세 가이드 페이지 (21)', url: '/image21.jpg' },
-    { id: 22, title: '추가 이론 자료 8', desc: '상세 가이드 페이지 (22)', url: '/image22.jpg' },
-    { id: 23, title: '추가 이론 자료 9', desc: '상세 가이드 페이지 (23)', url: '/image23.jpg' },
-    { id: 24, title: '추가 이론 자료 10', desc: '상세 가이드 페이지 (24)', url: '/image24.jpg' },
-    { id: 25, title: '추가 이론 자료 11', desc: '상세 가이드 페이지 (25)', url: '/image25.jpg' },
   ],
   spectrum: [
     { id: 4, title: '조색제 포스터의 이해', desc: '기호 읽는 법', url: '/image4.jpg' },
     { id: 5, title: '솔리드 포지셔닝 맵', desc: '솔리드 컬러 별 위치도', url: '/image5.jpg' },
     { id: 6, title: '황색/적색 계열도', desc: '명암 및 채도 방향성에 따른 비교', url: '/image6.jpg' },
     { id: 7, title: '청색/녹색/흑색 계열도', desc: '각 계열별 측면/정면 이색 비교', url: '/image7.jpg' },
-    { id: 26, title: '추가 컬러 맵 자료 1', desc: '상세 가이드 페이지 (26)', url: '/image26.jpg' },
-    { id: 27, title: '추가 컬러 맵 자료 2', desc: '상세 가이드 페이지 (27)', url: '/image27.jpg' },
-    { id: 28, title: '추가 컬러 맵 자료 3', desc: '상세 가이드 페이지 (28)', url: '/image28.jpg' },
-    { id: 29, title: '추가 컬러 맵 자료 4', desc: '상세 가이드 페이지 (29)', url: '/image29.jpg' },
-    { id: 30, title: '추가 컬러 맵 자료 5', desc: '상세 가이드 페이지 (30)', url: '/image30.jpg' },
-    { id: 31, title: '추가 컬러 맵 자료 6', desc: '상세 가이드 페이지 (31)', url: '/image31.jpg' },
-    { id: 32, title: '추가 컬러 맵 자료 7', desc: '상세 가이드 페이지 (32)', url: '/image32.jpg' },
-    { id: 33, title: '추가 컬러 맵 자료 8', desc: '상세 가이드 페이지 (33)', url: '/image33.jpg' },
-    { id: 34, title: '추가 컬러 맵 자료 9', desc: '상세 가이드 페이지 (34)', url: '/image34.jpg' },
-    { id: 35, title: '추가 컬러 맵 자료 10', desc: '상세 가이드 페이지 (35)', url: '/image35.jpg' },
-    { id: 36, title: '추가 컬러 맵 자료 11', desc: '상세 가이드 페이지 (36)', url: '/image36.jpg' },
-    { id: 37, title: '추가 컬러 맵 자료 12', desc: '상세 가이드 페이지 (37)', url: '/image37.jpg' },
   ],
   effect: [
     { id: 8, title: '이펙트 포지셔닝 맵', desc: '이펙트 컬러 조색제 별 위치도', url: '/image8.jpg' },
     { id: 9, title: '알루미늄 입자 특성', desc: '콘플레이크 vs 실버달러 형상 비교', url: '/image9.jpg' },
     { id: 10, title: '펄(Pearl) 입자 특성', desc: '천연 마이카 vs 시라릭 펄 현미경', url: '/image10.jpg' },
     { id: 11, title: 'PP펄 (파우더) 특성', desc: 'PP201~PP901 입자 및 현미경 비교', url: '/image11.jpg' },
-    { id: 38, title: '추가 이펙트 자료 1', desc: '상세 가이드 페이지 (38)', url: '/image38.jpg' },
-    { id: 39, title: '추가 이펙트 자료 2', desc: '상세 가이드 페이지 (39)', url: '/image39.jpg' },
-    { id: 40, title: '추가 이펙트 자료 3', desc: '상세 가이드 페이지 (40)', url: '/image40.jpg' },
-    { id: 41, title: '추가 이펙트 자료 4', desc: '상세 가이드 페이지 (41)', url: '/image41.jpg' },
-    { id: 42, title: '추가 이펙트 자료 5', desc: '상세 가이드 페이지 (42)', url: '/image42.jpg' },
-    { id: 43, title: '추가 이펙트 자료 6', desc: '상세 가이드 페이지 (43)', url: '/image43.jpg' },
-    { id: 44, title: '추가 이펙트 자료 7', desc: '상세 가이드 페이지 (44)', url: '/image44.jpg' },
-    { id: 45, title: '추가 이펙트 자료 8', desc: '상세 가이드 페이지 (45)', url: '/image45.jpg' },
-    { id: 46, title: '추가 이펙트 자료 9', desc: '상세 가이드 페이지 (46)', url: '/image46.jpg' },
-    { id: 47, title: '추가 이펙트 자료 10', desc: '상세 가이드 페이지 (47)', url: '/image47.jpg' },
-    { id: 48, title: '추가 이펙트 자료 11', desc: '상세 가이드 페이지 (48)', url: '/image48.jpg' },
-    { id: 49, title: '추가 이펙트 자료 12', desc: '상세 가이드 페이지 (49)', url: '/image49.jpg' },
   ],
   special: [
     { id: 12, title: 'WT386 특성', desc: '측면밝기조정제 명암 변화 원리', url: '/image12.jpg' },
     { id: 13, title: '3코트 컬러 특성', desc: '3코트 도장 및 얼룩 발생 주의사항', url: '/image13.jpg' },
     { id: 14, title: '틴티드 크리어 (Tinted Clear)', desc: '착색 클리어 시스템', url: '/image14.jpg' },
-    { id: 50, title: '추가 특수 자료 1', desc: '상세 가이드 페이지 (50)', url: '/image50.jpg' },
-    { id: 51, title: '추가 특수 자료 2', desc: '상세 가이드 페이지 (51)', url: '/image51.jpg' },
-    { id: 52, title: '추가 특수 자료 3', desc: '상세 가이드 페이지 (52)', url: '/image52.jpg' },
-    { id: 53, title: '추가 특수 자료 4', desc: '상세 가이드 페이지 (53)', url: '/image53.jpg' },
-    { id: 54, title: '추가 특수 자료 5', desc: '상세 가이드 페이지 (54)', url: '/image54.jpg' },
-    { id: 55, title: '추가 특수 자료 6', desc: '상세 가이드 페이지 (55)', url: '/image55.jpg' },
-    { id: 56, title: '추가 특수 자료 7', desc: '상세 가이드 페이지 (56)', url: '/image56.jpg' },
-    { id: 57, title: '추가 특수 자료 8', desc: '상세 가이드 페이지 (57)', url: '/image57.jpg' },
-    { id: 58, title: '추가 특수 자료 9', desc: '상세 가이드 페이지 (58)', url: '/image58.jpg' },
-    { id: 59, title: '추가 특수 자료 10', desc: '상세 가이드 페이지 (59)', url: '/image59.jpg' },
-    { id: 60, title: '추가 특수 자료 11', desc: '상세 가이드 페이지 (60)', url: '/image60.jpg' },
-    { id: 61, title: '추가 특수 자료 12', desc: '상세 가이드 페이지 (61)', url: '/image61.jpg' },
   ]
 };
 
@@ -159,24 +110,28 @@ const polarToCartesian = (centerX: number, centerY: number, radius: number, angl
 const describeArc = (x: number, y: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number) => { const startOuter = polarToCartesian(x, y, outerRadius, endAngle); const endOuter = polarToCartesian(x, y, outerRadius, startAngle); const startInner = polarToCartesian(x, y, innerRadius, endAngle); const endInner = polarToCartesian(x, y, innerRadius, startAngle); const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1"; return [ "M", startOuter.x, startOuter.y, "A", outerRadius, outerRadius, 0, largeArcFlag, 0, endOuter.x, endOuter.y, "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z" ].join(" "); };
 
 interface BoardPost {
-  id: number;
-  brand: string;
-  code: string;
-  date: string;
-  likes: number;
-  views: number;
-  author: string;
-  spec: string;
-  baseFormula: any[];
-  pearlFormula: any[];
-  isThreeCoat: boolean;
-  images: string[];
-  deletedImages?: { url: string; deletedAt: number }[]; 
+  id: number; brand: string; code: string; date: string; likes: number; views: number; author: string; spec: string;
+  baseFormula: any[]; pearlFormula: any[]; isThreeCoat: boolean; images: string[]; deletedImages?: { url: string; deletedAt: number }[]; 
 }
 
 export default function App() {
-  const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
-  
+  // 🛡️ [NEW] 가상 오토 승인 시스템 로직
+  const [isAuthorized, setIsAuthorized] = useState(() => {
+    if (typeof window !== 'undefined') return sessionStorage.getItem('hitec_auth_passed') === 'true';
+    return false;
+  });
+  const [isApproving, setIsApproving] = useState(false);
+
+  const handleFakeApproval = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsApproving(true);
+    setTimeout(() => {
+        setIsApproving(false);
+        setIsAuthorized(true);
+        sessionStorage.setItem('hitec_auth_passed', 'true');
+    }, 1500);
+  };
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
@@ -196,7 +151,6 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState<'WT'|'PP'|'CANDY'>('WT');
   
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isGlossaryModalOpen, setIsGlossaryModalOpen] = useState(false);
   const [isProcessOpen, setIsProcessOpen] = useState(false);
   
@@ -259,6 +213,7 @@ export default function App() {
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   
+  // 🔍 [NEW] 초정밀 풀텍스트(Full-Text) 검색 알고리즘 (영문/한글/설명 전체 색인)
   const sortedCatalog = [...catalogData].filter(item => {
     const code = item.code;
     if (activeTab === 'CANDY') return code.startsWith('90');
@@ -269,12 +224,22 @@ export default function App() {
       if (aActive && !bActive) return -1; if (!aActive && bActive) return 1; return 0; 
   }).filter(item => {
       const searchTxt = catalogSearch.replace(/\s/g, '').toUpperCase();
-      return String(item.code).replace(/\s/g, '').toUpperCase().includes(searchTxt) || String(item.role).replace(/\s/g, '').toUpperCase().includes(searchTxt);
+      if (!searchTxt) return true;
+      const c = String(item.code || '').replace(/\s/g, '').toUpperCase();
+      const r = String(item.role || '').replace(/\s/g, '').toUpperCase();
+      const d = String(item.desc || '').replace(/\s/g, '').toUpperCase();
+      return c.includes(searchTxt) || r.includes(searchTxt) || d.includes(searchTxt);
   });
 
-  useEffect(() => {
-      document.title = "조색 Pro";
-  }, []);
+  const filteredOemColors = OEM_COLORS.filter(c => {
+      const searchTxt = catalogSearch.replace(/\s/g, '').toUpperCase();
+      if (!searchTxt) return false;
+      const code = String(c.code || '').replace(/\s/g, '').toUpperCase();
+      const name = String(c.name || '').replace(/\s/g, '').toUpperCase();
+      return code.includes(searchTxt) || name.includes(searchTxt);
+  });
+
+  useEffect(() => { document.title = "조색 Pro"; }, []);
 
   useEffect(() => {
       const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -284,38 +249,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-      const handleFocusIn = (e: FocusEvent) => {
-          if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) {
-              setIsKeyboardOpen(true);
-          }
-      };
-      const handleFocusOut = () => {
-          setTimeout(() => {
-              if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName || '')) {
-                  setIsKeyboardOpen(false);
-              }
-          }, 150);
-      };
-      window.addEventListener('focusin', handleFocusIn);
-      window.addEventListener('focusout', handleFocusOut);
-      return () => {
-          window.removeEventListener('focusin', handleFocusIn);
-          window.removeEventListener('focusout', handleFocusOut);
-      };
+      const handleFocusIn = (e: FocusEvent) => { if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) setIsKeyboardOpen(true); };
+      const handleFocusOut = () => { setTimeout(() => { if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName || '')) setIsKeyboardOpen(false); }, 150); };
+      window.addEventListener('focusin', handleFocusIn); window.addEventListener('focusout', handleFocusOut);
+      return () => { window.removeEventListener('focusin', handleFocusIn); window.removeEventListener('focusout', handleFocusOut); };
   }, []);
 
   useEffect(() => {
       if (boardPosts.length > 0) {
-          const now = Date.now();
-          const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
-          let changed = false;
+          const now = Date.now(); const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000; let changed = false;
           const cleanedPosts = boardPosts.map(post => {
               if (post.deletedImages && post.deletedImages.length > 0) {
                   const validTrash = post.deletedImages.filter(img => now - img.deletedAt < THREE_DAYS_MS);
-                  if (validTrash.length !== post.deletedImages.length) {
-                      changed = true;
-                      return { ...post, deletedImages: validTrash };
-                  }
+                  if (validTrash.length !== post.deletedImages.length) { changed = true; return { ...post, deletedImages: validTrash }; }
               }
               return post;
           });
@@ -332,65 +278,22 @@ export default function App() {
         document.body.style.overflow = '';
         if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'); 
     }
-    return () => {
-        document.body.style.overflow = '';
-        if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1');
-    };
+    return () => { document.body.style.overflow = ''; if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1'); };
   }, [zoomedImage]);
 
   useEffect(() => {
-      const el = scrollContainerRef.current;
-      if (!el || !zoomedImage || zoomedImage.id === 12) return; 
-
-      const handleNativeWheel = (e: WheelEvent) => {
-          e.preventDefault(); 
-          const delta = e.deltaY < 0 ? 0.15 : -0.15; 
-          setImgScale(s => {
-              const newScale = Math.max(1, Math.min(s + delta, 5)); 
-              return Number(newScale.toFixed(2));
-          });
-      };
-
+      const el = scrollContainerRef.current; if (!el || !zoomedImage || zoomedImage.id === 12) return; 
+      const handleNativeWheel = (e: WheelEvent) => { e.preventDefault(); const delta = e.deltaY < 0 ? 0.15 : -0.15; setImgScale(s => Number(Math.max(1, Math.min(s + delta, 5)).toFixed(2))); };
       el.addEventListener('wheel', handleNativeWheel, { passive: false });
       return () => el.removeEventListener('wheel', handleNativeWheel);
   }, [zoomedImage]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-      if (imgScale > 1 && scrollContainerRef.current) {
-          setIsDragging(true);
-          setDragStart({ x: e.clientX, y: e.clientY });
-          setScrollStart({ 
-              x: scrollContainerRef.current.scrollLeft, 
-              y: scrollContainerRef.current.scrollTop 
-          });
-      }
-  };
-  const handleMouseMove = (e: React.MouseEvent) => {
-      if (isDragging && scrollContainerRef.current) {
-          const dx = e.clientX - dragStart.x;
-          const dy = e.clientY - dragStart.y;
-          scrollContainerRef.current.scrollLeft = scrollStart.x - dx;
-          scrollContainerRef.current.scrollTop = scrollStart.y - dy;
-      }
-  };
+  const handleMouseDown = (e: React.MouseEvent) => { if (imgScale > 1 && scrollContainerRef.current) { setIsDragging(true); setDragStart({ x: e.clientX, y: e.clientY }); setScrollStart({ x: scrollContainerRef.current.scrollLeft, y: scrollContainerRef.current.scrollTop }); } };
+  const handleMouseMove = (e: React.MouseEvent) => { if (isDragging && scrollContainerRef.current) { const dx = e.clientX - dragStart.x; const dy = e.clientY - dragStart.y; scrollContainerRef.current.scrollLeft = scrollStart.x - dx; scrollContainerRef.current.scrollTop = scrollStart.y - dy; } };
   const handleMouseUp = () => setIsDragging(false);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-      if (e.touches.length === 2) {
-          const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-          setPinchDist(dist);
-      }
-  };
-  const handleTouchMove = (e: React.TouchEvent) => {
-      if (e.touches.length === 2) {
-          const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-          if (pinchDist > 0) {
-              const delta = (dist - pinchDist) / 150; 
-              setImgScale(s => Math.min(Math.max(1, s + delta), 5));
-          }
-          setPinchDist(dist);
-      }
-  };
+  const handleTouchStart = (e: React.TouchEvent) => { if (e.touches.length === 2) { setPinchDist(Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY)); } };
+  const handleTouchMove = (e: React.TouchEvent) => { if (e.touches.length === 2) { const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); if (pinchDist > 0) setImgScale(s => Math.min(Math.max(1, s + (dist - pinchDist) / 150), 5)); setPinchDist(dist); } };
   const handleTouchEnd = () => { setPinchDist(0); };
 
   const openImageModal = (img: any) => { setZoomedImage(img); setImgScale(1); };
@@ -434,20 +337,9 @@ export default function App() {
       const urlParams = new URLSearchParams(window.location.search); if (urlParams.get('d')) return;
       if (isLoaded && typeof window !== 'undefined') {
           try {
-              localStorage.setItem('hitec_base', JSON.stringify(toners)); 
-              localStorage.setItem('hitec_pearl', JSON.stringify(pearlToners)); 
-              localStorage.setItem('hitec_code', targetColorCode); 
-              localStorage.setItem('hitec_mode', JSON.stringify(isThreeCoatMode)); 
-              localStorage.setItem('hitec_vehicle', vehicleNumber); 
-              localStorage.setItem('hitec_carmodel', carModel); 
-              localStorage.setItem('hitec_job', jobDescription); 
-              localStorage.setItem('hitec_notes', specialNotes); 
-              localStorage.setItem('hitec_board_mock', JSON.stringify(boardPosts)); 
-              localStorage.setItem('hitec_snapshots', JSON.stringify(snapshots));
+              localStorage.setItem('hitec_base', JSON.stringify(toners)); localStorage.setItem('hitec_pearl', JSON.stringify(pearlToners)); localStorage.setItem('hitec_code', targetColorCode); localStorage.setItem('hitec_mode', JSON.stringify(isThreeCoatMode)); localStorage.setItem('hitec_vehicle', vehicleNumber); localStorage.setItem('hitec_carmodel', carModel); localStorage.setItem('hitec_job', jobDescription); localStorage.setItem('hitec_notes', specialNotes); localStorage.setItem('hitec_board_mock', JSON.stringify(boardPosts)); localStorage.setItem('hitec_snapshots', JSON.stringify(snapshots));
           } catch (e: any) {
-              if (e.name === 'QuotaExceededError' || e.message?.includes('Quota')) {
-                  alert("⚠️ [경고] 기기의 저장 용량(5MB)이 꽉 찼습니다!\n기존 데이터가 날아가는 것을 방지하기 위해, 게시판의 불필요한 예전 시편 데이터나 사진을 삭제하여 공간을 비워주세요.");
-              }
+              if (e.name === 'QuotaExceededError' || e.message?.includes('Quota')) alert("⚠️ [경고] 기기의 저장 용량이 꽉 찼습니다!\n기존 데이터가 날아가는 것을 방지하기 위해 불필요한 데이터를 삭제해주세요.");
           }
       }
   }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, boardPosts, snapshots, isLoaded]);
@@ -455,13 +347,8 @@ export default function App() {
   useEffect(() => {
     const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); 
     const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
-    
-    setTotalBaseWeight(formatWeight(baseTotal)); 
-    setTotalPearlWeight(formatWeight(pearlTotal)); 
-    
-    const finalTotal = (baseTotal * 1.2) + (isThreeCoatMode ? (pearlTotal * 1.3) : 0);
-    setTotalFinalWeight(formatWeight(finalTotal));
-    
+    setTotalBaseWeight(formatWeight(baseTotal)); setTotalPearlWeight(formatWeight(pearlTotal)); 
+    setTotalFinalWeight(formatWeight((baseTotal * 1.2) + (isThreeCoatMode ? (pearlTotal * 1.3) : 0)));
     const checkMetallic = (list: any[]) => list.some(t => { const type = TONER_DB[t.code]?.type || ''; return type !== 'solid' && type !== 'binder' && type !== '' && type !== 'candy'; });
     setIsBaseMetallic(checkMetallic(toners)); setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
@@ -471,21 +358,10 @@ export default function App() {
           let attempts = 0; 
           const interval = setInterval(() => {
               const el = focusTarget.type === 'code' ? codeRefs.current[focusTarget.id] : weightRefs.current[focusTarget.id];
-              if (el) { 
-                  el.focus(); 
-                  if (focusTarget.tempInput) focusTarget.tempInput.remove();
-                  el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-                  clearInterval(interval); 
-                  setFocusTarget(null); 
-              }
-              attempts++; 
-              if (attempts > 20) { 
-                  clearInterval(interval); 
-                  if (focusTarget.tempInput) focusTarget.tempInput.remove();
-                  setFocusTarget(null); 
-              }
+              if (el) { el.focus(); if (focusTarget.tempInput) focusTarget.tempInput.remove(); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); clearInterval(interval); setFocusTarget(null); }
+              attempts++; if (attempts > 20) { clearInterval(interval); if (focusTarget.tempInput) focusTarget.tempInput.remove(); setFocusTarget(null); }
           }, 50); 
-          return () => { clearInterval(interval); };
+          return () => clearInterval(interval);
       }
   }, [focusTarget, toners, pearlToners]);
 
@@ -496,16 +372,19 @@ export default function App() {
     setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
   };
 
+  // 🧠 [NEW] AI 가상 조색 시뮬레이터 지능 대폭 업그레이드 (다양한 색상명 판별)
   const getSimulatedColor = (drops: any) => {
       const total = drops.red + drops.blue + drops.yellow + drops.green + drops.white + drops.black;
       if (total === 0) return { name: '비어있음 (색상을 추가하세요)', hex: '#1e293b', r: 30, g: 41, b: 59 };
 
-      let c = (drops.blue * 1 + drops.green * 1) / total;
-      let m = (drops.red * 1 + drops.blue * 0.5) / total;
-      let y = (drops.yellow * 1 + drops.red * 1 + drops.green * 1) / total;
-      let k = (drops.black * 1) / total;
+      let rDrop = drops.red, bDrop = drops.blue, yDrop = drops.yellow, gDrop = drops.green, wDrop = drops.white, kDrop = drops.black;
 
-      const concentration = 1 - (drops.white / total);
+      let c = (bDrop * 1 + gDrop * 1) / total;
+      let m = (rDrop * 1 + bDrop * 0.5) / total;
+      let y = (yDrop * 1 + rDrop * 1 + gDrop * 1) / total;
+      let k = (kDrop * 1) / total;
+
+      const concentration = 1 - (wDrop / total);
       c *= concentration; m *= concentration; y *= concentration;
 
       const r = Math.round(255 * (1 - c) * (1 - k));
@@ -513,26 +392,40 @@ export default function App() {
       const b = Math.round(255 * (1 - y) * (1 - k));
       const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 
-      let name = '';
-      const active = Object.keys(drops).filter(k => drops[k] > 0 && k !== 'white' && k !== 'black');
-      if (active.length === 1) {
-          const names: any = { red: '빨강 (Red)', blue: '파랑 (Blue)', yellow: '노랑 (Yellow)', green: '초록 (Green)' };
-          name = names[active[0]];
-      } else if (active.includes('red') && active.includes('blue') && active.includes('yellow')) { name = '탁한 회갈색 (Muddy Brown)';
-      } else if (active.includes('red') && active.includes('blue')) { name = '보라 (Purple)';
-      } else if (active.includes('red') && active.includes('yellow')) { name = '주황 (Orange)';
-      } else if (active.includes('blue') && active.includes('yellow')) { name = '청록/녹색 (Teal/Green)';
-      } else if (active.includes('red') && active.includes('green')) { name = '갈색 (Brown)';
-      } else if (active.includes('blue') && active.includes('green')) { name = '바다색 (Deep Cyan)';
-      } else if (active.includes('yellow') && active.includes('green')) { name = '연두 (Yellow-Green)';
-      } else if (active.length === 0) { name = '무채색';
-      } else { name = '혼합색 (Mixed)'; }
+      let name = '혼합색 (Mixed)';
+      const colorTotal = rDrop + bDrop + yDrop + gDrop;
+      
+      if (colorTotal === 0) {
+          if (wDrop > 0 && kDrop === 0) name = '순백색 (Pure White)';
+          else if (kDrop > 0 && wDrop === 0) name = '순흑색 (Pure Black)';
+          else if (wDrop > kDrop) name = '밝은 회색 (Light Gray)';
+          else if (kDrop > wDrop) name = '어두운 회색 (Dark Gray)';
+          else name = '중간 회색 (Medium Gray)';
+      } else {
+          let maxColor = ''; let maxVal = 0;
+          ['red', 'blue', 'yellow', 'green'].forEach(col => { if (drops[col] > maxVal) { maxVal = drops[col]; maxColor = col; } });
 
-      if (drops.white > 0 && drops.black === 0 && active.length > 0) name = `파스텔 ${name}`;
-      if (drops.black > 0 && active.length > 0) name = `어두운 ${name}`;
-      if (drops.white > 0 && drops.black > 0 && active.length === 0) name = '회색 (Gray)';
-      if (drops.white > 0 && drops.black === 0 && active.length === 0) name = '흰색 (White)';
-      if (drops.black > 0 && drops.white === 0 && active.length === 0) name = '검정 (Black)';
+          if (rDrop > 0 && bDrop > 0 && yDrop === 0 && gDrop === 0) {
+              name = rDrop > bDrop ? '적보라 (Red-Purple)' : (bDrop > rDrop ? '청보라 (Blue-Purple)' : '보라 (Purple)');
+          } else if (rDrop > 0 && yDrop > 0 && bDrop === 0 && gDrop === 0) {
+              name = rDrop > yDrop ? '다홍 (Red-Orange)' : (yDrop > rDrop ? '귤색 (Yellow-Orange)' : '주황 (Orange)');
+          } else if (bDrop > 0 && yDrop > 0 && rDrop === 0 && gDrop === 0) {
+              name = bDrop > yDrop ? '청록 (Teal)' : (yDrop > bDrop ? '연두 (Yellow-Green)' : '초록 (Green)');
+          } else if (rDrop > 0 && gDrop > 0 && bDrop === 0 && yDrop === 0) {
+              name = rDrop > gDrop ? '적갈색 (Maroon)' : '올리브 갈색 (Olive Brown)';
+          } else if (colorTotal >= 3 && maxColor) {
+              name = `탁한 ${maxColor === 'red' ? '적색' : maxColor === 'blue' ? '청색' : maxColor === 'yellow' ? '황색' : '녹색'} (Muddy Color)`;
+          } else if (maxColor === 'red') name = '빨강 (Red)';
+          else if (maxColor === 'blue') name = '파랑 (Blue)';
+          else if (maxColor === 'yellow') name = '노랑 (Yellow)';
+          else if (maxColor === 'green') name = '초록 (Green)';
+
+          if (kDrop > 0 && wDrop === 0) name = `다크 ${name} (Dark)`;
+          else if (wDrop > 0 && kDrop === 0) name = `파스텔 ${name} (Pastel)`;
+          else if (wDrop > 0 && kDrop > 0) name = `뮤트 ${name} (Muted/Grayish)`;
+          
+          if (total > 15 && colorTotal > 10 && kDrop < 2 && wDrop < 2) name = `딥 ${name} (Deep/Rich)`;
+      }
 
       return { name, hex, r, g, b };
   };
@@ -550,26 +443,12 @@ export default function App() {
   };
 
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
-    const rawVal = newCode.toUpperCase(); 
-    const numOnly = rawVal.replace(/[^0-9]/g, '');
-    let finalCode = rawVal;
-
-    if (rawVal.startsWith('90') && numOnly.length >= 4) {
-        finalCode = numOnly.substring(0, 4); 
-    } else if (['1051', '1500', '455', 'AXT700'].includes(numOnly) || rawVal === 'AXT700') {
-        finalCode = rawVal === 'AXT700' ? 'AXT700' : numOnly; 
-    } else if (numOnly) {
-        finalCode = `WT ${numOnly}`; 
-    }
-
+    const rawVal = newCode.toUpperCase(); const numOnly = rawVal.replace(/[^0-9]/g, ''); let finalCode = rawVal;
+    if (rawVal.startsWith('90') && numOnly.length >= 4) finalCode = numOnly.substring(0, 4); 
+    else if (['1051', '1500', '455', 'AXT700'].includes(numOnly) || rawVal === 'AXT700') finalCode = rawVal === 'AXT700' ? 'AXT700' : numOnly; 
+    else if (numOnly) finalCode = `WT ${numOnly}`; 
     const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(toner => { 
-        if (toner.id === id) { 
-            if (TONER_DB[finalCode]) { setFocusTarget({ id: id, type: 'weight' }); } 
-            return { ...toner, code: finalCode }; 
-        } 
-        return toner; 
-    }));
+    setter(prev => prev.map(toner => { if (toner.id === id) { if (TONER_DB[finalCode]) { setFocusTarget({ id: id, type: 'weight' }); } return { ...toner, code: finalCode }; } return toner; }));
   };
 
   const handleWeightInputChange = (id: string, rawValue: string, isPearl = false) => {
@@ -587,23 +466,10 @@ export default function App() {
   const addToner = (isPearl = false) => { 
       let tempInput: HTMLInputElement | undefined;
       if (typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-          tempInput = document.createElement('input');
-          tempInput.type = 'number';
-          tempInput.style.position = 'fixed';
-          tempInput.style.top = '50%';
-          tempInput.style.left = '50%';
-          tempInput.style.opacity = '0';
-          tempInput.style.width = '1px';
-          tempInput.style.height = '1px';
-          document.body.appendChild(tempInput);
-          tempInput.focus(); 
+          tempInput = document.createElement('input'); tempInput.type = 'number'; tempInput.style.position = 'fixed'; tempInput.style.top = '50%'; tempInput.style.left = '50%'; tempInput.style.opacity = '0'; tempInput.style.width = '1px'; tempInput.style.height = '1px'; document.body.appendChild(tempInput); tempInput.focus(); 
       }
-
-      const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
-      const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; 
-      if (isPearl) setPearlToners([...pearlToners, newToner]); 
-      else setToners([...toners, newToner]); 
-
+      const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; 
+      if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); 
       setFocusTarget({ id: newId, type: 'code', tempInput }); 
   };
 
@@ -632,13 +498,11 @@ export default function App() {
     return resultText;
   };
 
-  const handleShareKakao = () => { 
-      const shareText = generateShareText();
-      window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
-      setIsShareModalOpen(false);
-  };
+  // 🚀 [NEW] 1-Click 다이렉트 공유 로직 (이메일 완벽 분리)
+  const handleShareKakao = () => { window.location.href = `kakaotalk://send?text=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
-  const handleShareMail = () => { window.location.href = `mailto:?subject=${encodeURIComponent('[조색 Pro] 배합 지시서 공유')}&body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
+  const handleShareNaverMail = () => { window.open(`https://mail.naver.com/v2/new?body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
+  const handleShareGoogleMail = () => { window.open(`https://mail.google.com/mail/?view=cm&fs=1&body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
   
   const generateSyncUrl = () => { 
       let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin; 
@@ -681,20 +545,9 @@ export default function App() {
           reader.onload = (event) => {
               const img = new Image();
               img.onload = () => {
-                  const canvas = document.createElement('canvas');
-                  let width = img.width;
-                  let height = img.height;
-                  const MAX_WIDTH = 600; 
-                  const MAX_HEIGHT = 600;
-                  if (width > height) {
-                      if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                  } else {
-                      if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                  }
-                  canvas.width = width;
-                  canvas.height = height;
-                  const ctx = canvas.getContext('2d');
-                  ctx?.drawImage(img, 0, 0, width, height);
+                  const canvas = document.createElement('canvas'); let width = img.width; let height = img.height; const MAX_WIDTH = 600; const MAX_HEIGHT = 600;
+                  if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+                  canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx?.drawImage(img, 0, 0, width, height);
                   const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5); 
                   setAttachedImages(prev => [...prev, compressedBase64]);
                   alert("📷 시편 사진이 안전하게 최적화되어 추가되었습니다!");
@@ -705,90 +558,35 @@ export default function App() {
       }
   };
 
-  const removeAttachedImage = (index: number) => {
-      setAttachedImages(prev => prev.filter((_, i) => i !== index));
-  };
+  const removeAttachedImage = (index: number) => { setAttachedImages(prev => prev.filter((_, i) => i !== index)); };
 
   const handleDeletePostImage = (postId: number, imgIdx: number) => {
       if (window.confirm("이 사진을 삭제하시겠습니까?\n\n(삭제된 사진은 휴지통에서 3일간 보관된 후 영구 삭제됩니다.)")) {
           setBoardPosts(prev => prev.map(p => {
-              if (p.id === postId) {
-                  const newImages = [...p.images];
-                  const removed = newImages.splice(imgIdx, 1)[0];
-                  const deletedImages = p.deletedImages ? [...p.deletedImages] : [];
-                  deletedImages.push({ url: removed, deletedAt: Date.now() });
-                  return { ...p, images: newImages, deletedImages };
-              }
-              return p;
+              if (p.id === postId) { const newImages = [...p.images]; const removed = newImages.splice(imgIdx, 1)[0]; const deletedImages = p.deletedImages ? [...p.deletedImages] : []; deletedImages.push({ url: removed, deletedAt: Date.now() }); return { ...p, images: newImages, deletedImages }; } return p;
           }));
-          
-          if (viewingPost && viewingPost.id === postId) {
-              const newImages = [...viewingPost.images];
-              const removed = newImages.splice(imgIdx, 1)[0];
-              const deletedImages = viewingPost.deletedImages ? [...viewingPost.deletedImages] : [];
-              deletedImages.push({ url: removed, deletedAt: Date.now() });
-              setViewingPost({ ...viewingPost, images: newImages, deletedImages });
-          }
+          if (viewingPost && viewingPost.id === postId) { const newImages = [...viewingPost.images]; const removed = newImages.splice(imgIdx, 1)[0]; const deletedImages = viewingPost.deletedImages ? [...viewingPost.deletedImages] : []; deletedImages.push({ url: removed, deletedAt: Date.now() }); setViewingPost({ ...viewingPost, images: newImages, deletedImages }); }
       }
   };
 
   const handleRestorePostImage = (postId: number, delIdx: number) => {
       setBoardPosts(prev => prev.map(p => {
-          if (p.id === postId && p.deletedImages) {
-              const newDeleted = [...p.deletedImages];
-              const restored = newDeleted.splice(delIdx, 1)[0];
-              return { ...p, images: [...p.images, restored.url], deletedImages: newDeleted };
-          }
-          return p;
+          if (p.id === postId && p.deletedImages) { const newDeleted = [...p.deletedImages]; const restored = newDeleted.splice(delIdx, 1)[0]; return { ...p, images: [...p.images, restored.url], deletedImages: newDeleted }; } return p;
       }));
-      if (viewingPost && viewingPost.id === postId) {
-          const newDeleted = [...viewingPost.deletedImages];
-          const restored = newDeleted.splice(delIdx, 1)[0];
-          setViewingPost({ ...viewingPost, images: [...viewingPost.images, restored.url], deletedImages: newDeleted });
-      }
+      if (viewingPost && viewingPost.id === postId) { const newDeleted = [...viewingPost.deletedImages]; const restored = newDeleted.splice(delIdx, 1)[0]; setViewingPost({ ...viewingPost, images: [...viewingPost.images, restored.url], deletedImages: newDeleted }); }
   };
 
   const handlePermanentDeletePostImage = (postId: number, delIdx: number) => {
       if (!window.confirm("이 사진을 영구적으로 삭제하시겠습니까?\n(이 작업은 취소할 수 없습니다.)")) return;
-      setBoardPosts(prev => prev.map(p => {
-          if (p.id === postId && p.deletedImages) {
-              const newDeleted = [...p.deletedImages];
-              newDeleted.splice(delIdx, 1);
-              return { ...p, deletedImages: newDeleted };
-          }
-          return p;
-      }));
-      if (viewingPost && viewingPost.id === postId) {
-          const newDeleted = [...viewingPost.deletedImages];
-          newDeleted.splice(delIdx, 1);
-          setViewingPost({ ...viewingPost, deletedImages: newDeleted });
-      }
+      setBoardPosts(prev => prev.map(p => { if (p.id === postId && p.deletedImages) { const newDeleted = [...p.deletedImages]; newDeleted.splice(delIdx, 1); return { ...p, deletedImages: newDeleted }; } return p; }));
+      if (viewingPost && viewingPost.id === postId) { const newDeleted = [...viewingPost.deletedImages]; newDeleted.splice(delIdx, 1); setViewingPost({ ...viewingPost, deletedImages: newDeleted }); }
   };
 
   const saveToBoard = () => {
       if(!targetColorCode) { alert("⚠️ 컬러코드를 입력해야 합니다!"); return; }
-      
-      const now = new Date();
-      const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-      const newPost: BoardPost = { 
-          id: Date.now() + Math.random(), 
-          brand: carModel || '미지정', 
-          code: targetColorCode, 
-          date: timeFormatted, 
-          likes: 0, 
-          views: 0, 
-          author: '내 데이터', 
-          spec: specialNotes || '특이사항 없음', 
-          baseFormula: [...toners], 
-          pearlFormula: [...pearlToners], 
-          isThreeCoat: isThreeCoatMode,
-          images: [...attachedImages],
-          deletedImages: []
-      };
-      setBoardPosts([newPost, ...boardPosts]); 
-      setAttachedImages([]); 
-      alert("🎉 시편 사진들과 함께 게시판에 등록되었습니다!");
+      const now = new Date(); const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const newPost: BoardPost = { id: Date.now() + Math.random(), brand: carModel || '미지정', code: targetColorCode, date: timeFormatted, likes: 0, views: 0, author: '내 데이터', spec: specialNotes || '특이사항 없음', baseFormula: [...toners], pearlFormula: [...pearlToners], isThreeCoat: isThreeCoatMode, images: [...attachedImages], deletedImages: [] };
+      setBoardPosts([newPost, ...boardPosts]); setAttachedImages([]); alert("🎉 시편 사진들과 함께 게시판에 등록되었습니다!");
   };
 
   const deleteBoardPost = (id: number, e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("이 시편 데이터를 완전히 삭제하시겠습니까?")) setBoardPosts(prev => prev.filter(post => post.id !== id)); };
@@ -797,15 +595,59 @@ export default function App() {
   const handleSavePostEdit = () => { setBoardPosts(prev => prev.map(p => p.id === viewingPost.id ? { ...p, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec } : p)); setViewingPost({ ...viewingPost, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec }); setIsEditingPost(false); };
   const handleOpenPost = (post: any) => { setViewingPost(post); setEditPostForm({ brand: post.brand, code: post.code, spec: post.spec }); setIsEditingPost(false); };
 
-  const handleGoogleGlossarySearch = () => {
-      const inputEl = document.getElementById('glossarySearchInput') as HTMLInputElement;
-      const val = inputEl?.value?.trim();
-      if(!val) { alert("사전 검색창에 뜻이 궁금한 용어를 직접 입력하세요!"); return; }
-      window.open(`https://www.google.com/search?q=스피스헥커+${val}+뜻`, '_blank');
-  };
+  const handleGoogleGlossarySearch = () => { const inputEl = document.getElementById('glossarySearchInput') as HTMLInputElement; const val = inputEl?.value?.trim(); if(!val) { alert("사전 검색창에 뜻이 궁금한 용어를 직접 입력하세요!"); return; } window.open(`https://www.google.com/search?q=스피스헥커+${val}+뜻`, '_blank'); };
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
 
+  // 🛡️ [NEW] 가짜 오토 승인(보안) 화면 - 1차 방어선 블록
+  if (!isAuthorized) {
+    return (
+        <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 notranslate" translate="no">
+            <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95">
+                <div className="p-4 flex flex-col items-center justify-center mt-6 relative">
+                    <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+                        {isApproving ? <RefreshCw size={32} className="text-white animate-spin"/> : <Lock size={32} className="text-white"/>}
+                    </div>
+                    <h2 className="text-2xl font-black text-slate-800 mb-2">조색 Pro 접근 승인</h2>
+                    <p className="text-sm text-slate-500 text-center break-keep px-4">이 시스템은 승인된 작업자만 사용할 수 있습니다. 관리자 확인을 위해 정확한 정보를 입력해주세요.</p>
+                </div>
+                <form onSubmit={handleFakeApproval} className="p-6 bg-white flex flex-col gap-4">
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
+                            <input type="text" placeholder="예: 도이치 모터스 BMW" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                        </div>
+                        <div>
+                            <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
+                            <input type="text" placeholder="예: 성수동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><UserCheck size={12}/> 작업자 이름</label>
+                            <input type="text" placeholder="홍길동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                        </div>
+                        <div>
+                            <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Hash size={12}/> 연령(나이)</label>
+                            <input type="number" placeholder="50" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="text-xs font-bold text-slate-600 mb-1 block">현 직책</label>
+                        <select className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                            <option>사원</option><option>주임 / 대리</option><option>과장 / 차장</option><option>팀장 / 실장</option><option>대표 / 관리자</option>
+                        </select>
+                    </div>
+                    <button type="submit" disabled={isApproving} className="w-full bg-[#1e293b] hover:bg-slate-800 text-white font-black py-4 rounded-xl mt-4 transition-colors shadow-md flex justify-center items-center gap-2 text-sm disabled:bg-slate-400">
+                        {isApproving ? "시스템 인증 서버 통신 중..." : <><ShieldCheck size={18}/> 관리자에게 승인 요청하기</>}
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+  }
+
+  // 메인 렌더링 화면
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
       
@@ -828,12 +670,6 @@ export default function App() {
         </div>
 
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x items-center">
-            {/* 🚨 [NEW] 승인 사용자 관리 버튼 (팝업 모달 연결) */}
-            <button onClick={() => setIsUsersModalOpen(true)} className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white border border-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                <Users size={14} /> 작업자 정보 / 승인 요청
-            </button>
-            <div className="w-px h-6 bg-slate-700 mx-1 hidden sm:block"></div>
-
             <button onClick={() => { setIsCloudModalOpen(true); setCopied(false); }} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 ☁️ 기기 간 초고속 연동
             </button>
@@ -1144,7 +980,8 @@ export default function App() {
                 </div>
                 <div className="p-3 bg-slate-800 border-b border-slate-700 flex shrink-0 gap-2">
                     <div className="relative flex-1">
-                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료명 / 차량코드 / 색상명 검색 (띄어쓰기 무관)" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
+                        {/* 🔍 [NEW] 정밀 검색창 힌트 수정 (영문, 특이사항 모두 검색됨) */}
+                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료명 / 차량코드 / 색상명 (LUCID 등) 영문 검색 지원" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
                     </div>
                 </div>
@@ -1162,15 +999,15 @@ export default function App() {
                         </div>
                     )}
                     
-                    {/* ✅ 버그 패치: OEM 검색 띄어쓰기 및 대소문자 무시 (정밀 패치) */}
-                    {catalogSearch.replace(/\s/g, '') !== '' && OEM_COLORS.some(c => String(c.code).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase()) || String(c.name).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase())) && (
+                    {/* 🔍 [NEW] OEM 컬러 정밀 검색 렌더링 */}
+                    {catalogSearch.replace(/\s/g, '') !== '' && filteredOemColors.length > 0 && (
                         <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm">
                             <h4 className="text-xs font-black text-blue-800 mb-2">🔍 자동차 제조사(OEM) 색상 검색 결과</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {OEM_COLORS.filter(c => String(c.code).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase()) || String(c.name).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase())).slice(0, 20).map((oem, idx) => (
+                                {filteredOemColors.slice(0, 20).map((oem, idx) => (
                                     <div key={idx} className="flex justify-between items-center bg-white px-3 py-2 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(String(oem.code))}>
                                         <span className="font-black text-blue-600 text-sm">{oem.code}</span>
-                                        <span className="text-xs text-slate-600 font-bold truncate max-w-[100px]" title={oem.name}>{oem.name}</span>
+                                        <span className="text-[11px] text-slate-600 font-bold truncate max-w-[110px]" title={oem.name}>{oem.name}</span>
                                     </div>
                                 ))}
                             </div>
@@ -1238,59 +1075,6 @@ export default function App() {
                   )}
               </div>
           </div>
-      )}
-
-      {/* 🚨 [NEW] 승인 사용자 관리 및 상세 정보 입력 모달 (팝업창) */}
-      {isUsersModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
-            <div className="p-4 flex flex-col items-center justify-center mt-6 relative">
-               <button onClick={() => setIsUsersModalOpen(false)} className="absolute top-0 right-4 text-slate-400 hover:text-slate-600 transition-colors"><X size={20}/></button>
-               <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-4"><Lock size={32} className="text-white"/></div>
-               <h2 className="text-2xl font-black text-slate-800 mb-2">조색 Pro 접근 승인</h2>
-               <p className="text-sm text-slate-500 text-center break-keep px-4">이 시스템은 승인된 작업자만 사용할 수 있습니다. 관리자 확인을 위해 정확한 정보를 입력해주세요.</p>
-            </div>
-
-            <div className="p-6 bg-white flex flex-col gap-4">
-              <div className="grid grid-cols-2 gap-3">
-                  <div>
-                      <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
-                      <input type="text" placeholder="예: 도이치 모터스 BMW" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
-                  </div>
-                  <div>
-                      <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
-                      <input type="text" placeholder="예: 성수동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
-                  </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                  <div>
-                      <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><UserCheck size={12}/> 작업자 이름</label>
-                      <input type="text" placeholder="홍길동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
-                  </div>
-                  <div>
-                      <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Hash size={12}/> 연령(나이)</label>
-                      <input type="number" placeholder="50" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
-                  </div>
-              </div>
-
-              <div>
-                  <label className="text-xs font-bold text-slate-600 mb-1 block">현 직책</label>
-                  <select className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-                      <option>사원</option>
-                      <option>주임 / 대리</option>
-                      <option>과장 / 차장</option>
-                      <option>팀장 / 실장</option>
-                      <option>대표 / 관리자</option>
-                  </select>
-              </div>
-
-              <button onClick={() => { alert("✅ 관리자에게 승인 요청이 전송되었습니다!"); setIsUsersModalOpen(false); }} className="w-full bg-[#1e293b] hover:bg-slate-800 text-white font-black py-4 rounded-xl mt-4 transition-colors shadow-md flex justify-center items-center gap-2 text-sm">
-                  <ShieldCheck size={18}/> 관리자에게 승인 요청하기
-              </button>
-            </div>
-          </div>
-        </div>
       )}
 
       {isCloudModalOpen && (
@@ -1582,17 +1366,26 @@ export default function App() {
         </div>
       )}
 
+      {/* 🚀 [NEW] 1-Click 다이렉트 공유 모달 (이메일 좌우 분할) */}
       {isShareModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
             <div className="p-4 bg-slate-800 flex justify-between items-center text-white">
-              <h3 className="font-bold flex items-center gap-2"><Share2 size={18} /> 배합 데이터 공유 전송</h3>
+              <h3 className="font-bold flex items-center gap-2"><Share2 size={18} /> 배합 데이터 다이렉트 공유</h3>
               <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             <div className="p-6 flex flex-col gap-3 bg-slate-50">
-                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 바로 전송하기</button>
-                <button onClick={handleShareSMS} className="w-full bg-blue-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS) 앱 열기</button>
-                <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><Mail size={18}/> 이메일 앱 열기</button>
+                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3.5 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 바로 전송하기</button>
+                <button onClick={handleShareSMS} className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-black shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS) 앱 다이렉트 열기</button>
+                
+                <div className="flex gap-3 mt-1">
+                    <button onClick={handleShareNaverMail} className="flex-1 bg-[#03C75A] hover:bg-[#02b350] text-white py-3.5 rounded-xl font-black shadow-md transition-colors flex items-center justify-center gap-1.5">
+                        <Mail size={16}/> 네이버 메일
+                    </button>
+                    <button onClick={handleShareGoogleMail} className="flex-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 py-3.5 rounded-xl font-black shadow-sm transition-colors flex items-center justify-center gap-1.5">
+                        <Mail size={16} className="text-red-500"/> 구글 메일
+                    </button>
+                </div>
             </div>
           </div>
         </div>
@@ -1616,23 +1409,6 @@ export default function App() {
             </div>
             <div className="overflow-y-auto space-y-6 text-slate-300 font-sans text-xs sm:text-[13px] leading-relaxed break-keep pr-2 custom-scrollbar">
                 <p>DB 완벽 분리 및 모바일 최적화, 화이트톤 갤러리 탭 적용 완료. 에러 Zero 패치 탑재.</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isEmailModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
-            <div className="p-4 bg-yellow-500 flex justify-between items-center text-slate-900">
-              <h3 className="font-black flex items-center gap-2"><Mail size={18} /> 개발자에게 피드백 보내기</h3>
-              <button onClick={() => setIsEmailModalOpen(false)} className="hover:text-red-600 transition-colors bg-yellow-400 p-1.5 rounded-full"><X size={16} /></button>
-            </div>
-            <div className="p-6 flex flex-col gap-4 bg-slate-50">
-              <div className="flex gap-3 mt-2">
-                  <a href="https://mail.naver.com/v2/new?to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-[#03C75A] text-white py-3 rounded-xl font-black text-center shadow-md">네이버 메일</a>
-                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-white border text-slate-700 py-3 rounded-xl font-black text-center shadow-sm">구글 메일</a>
-              </div>
             </div>
           </div>
         </div>
