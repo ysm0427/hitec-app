@@ -17,7 +17,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.19 (가상 보안 인증망 / 다이렉트 공유 / 정밀 검색 / AI 시뮬레이터 적용)"; 
+const LAST_PATCH_DATE = "2026.10.19 (가상 보안 시스템 / 분할 정밀검색 / AI 조색 시뮬레이터 적용)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -115,21 +115,28 @@ interface BoardPost {
 }
 
 export default function App() {
-  // 🛡️ [NEW] 가상 오토 승인 시스템 로직
+  // 🛡️ [NEW 1] 가상 오토 승인(보안 위장) 시스템 상태
   const [isAuthorized, setIsAuthorized] = useState(() => {
     if (typeof window !== 'undefined') return sessionStorage.getItem('hitec_auth_passed') === 'true';
     return false;
   });
   const [isApproving, setIsApproving] = useState(false);
+  const [showApprovalSuccess, setShowApprovalSuccess] = useState(false);
 
   const handleFakeApproval = (e: React.FormEvent) => {
     e.preventDefault();
     setIsApproving(true);
+    // 3~5초(여기선 3.5초) 리얼리티 로딩 
     setTimeout(() => {
         setIsApproving(false);
-        setIsAuthorized(true);
-        sessionStorage.setItem('hitec_auth_passed', 'true');
-    }, 1500);
+        setShowApprovalSuccess(true);
+    }, 3500); 
+  };
+
+  const handleApprovalConfirm = () => {
+    setShowApprovalSuccess(false);
+    setIsAuthorized(true);
+    sessionStorage.setItem('hitec_auth_passed', 'true');
   };
 
   const [isLoaded, setIsLoaded] = useState(false);
@@ -198,7 +205,10 @@ export default function App() {
   const codeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({}); 
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight', tempInput?: HTMLInputElement} | null>(null); 
-  const [catalogSearch, setCatalogSearch] = useState('');
+  
+  // 🔍 [NEW 2] 검색창 2분할을 위한 상태 변수 추가
+  const [catalogSearch, setCatalogSearch] = useState(''); // 안료 검색용
+  const [oemSearch, setOemSearch] = useState('');         // OEM 차량 컬러 검색용
   
   const [isBaseMetallic, setIsBaseMetallic] = useState(false); 
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
@@ -213,7 +223,7 @@ export default function App() {
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   
-  // 🔍 [NEW] 초정밀 풀텍스트(Full-Text) 검색 알고리즘 (영문/한글/설명 전체 색인)
+  // 왼쪽 검색창 (안료 전용) 필터링
   const sortedCatalog = [...catalogData].filter(item => {
     const code = item.code;
     if (activeTab === 'CANDY') return code.startsWith('90');
@@ -231,8 +241,9 @@ export default function App() {
       return c.includes(searchTxt) || r.includes(searchTxt) || d.includes(searchTxt);
   });
 
+  // 🔍 [NEW 2] 오른쪽 검색창 (OEM 차량 컬러 전용) 필터링 완벽 분리
   const filteredOemColors = OEM_COLORS.filter(c => {
-      const searchTxt = catalogSearch.replace(/\s/g, '').toUpperCase();
+      const searchTxt = oemSearch.replace(/\s/g, '').toUpperCase();
       if (!searchTxt) return false;
       const code = String(c.code || '').replace(/\s/g, '').toUpperCase();
       const name = String(c.name || '').replace(/\s/g, '').toUpperCase();
@@ -372,24 +383,15 @@ export default function App() {
     setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
   };
 
-  // 🧠 [NEW] AI 가상 조색 시뮬레이터 지능 대폭 업그레이드 (다양한 색상명 판별)
+  // 🧠 [NEW 4] AI 가상 조색 시뮬레이터 지능 대폭 업그레이드 (다양한 색상명 판별)
   const getSimulatedColor = (drops: any) => {
-      const total = drops.red + drops.blue + drops.yellow + drops.green + drops.white + drops.black;
+      const rDrop = drops.red; const bDrop = drops.blue; const yDrop = drops.yellow; const gDrop = drops.green; const wDrop = drops.white; const kDrop = drops.black;
+      const total = rDrop + bDrop + yDrop + gDrop + wDrop + kDrop;
       if (total === 0) return { name: '비어있음 (색상을 추가하세요)', hex: '#1e293b', r: 30, g: 41, b: 59 };
 
-      let rDrop = drops.red, bDrop = drops.blue, yDrop = drops.yellow, gDrop = drops.green, wDrop = drops.white, kDrop = drops.black;
-
-      let c = (bDrop * 1 + gDrop * 1) / total;
-      let m = (rDrop * 1 + bDrop * 0.5) / total;
-      let y = (yDrop * 1 + rDrop * 1 + gDrop * 1) / total;
-      let k = (kDrop * 1) / total;
-
-      const concentration = 1 - (wDrop / total);
-      c *= concentration; m *= concentration; y *= concentration;
-
-      const r = Math.round(255 * (1 - c) * (1 - k));
-      const g = Math.round(255 * (1 - m) * (1 - k));
-      const b = Math.round(255 * (1 - y) * (1 - k));
+      let c = (bDrop * 1 + gDrop * 1) / total; let m = (rDrop * 1 + bDrop * 0.5) / total; let y = (yDrop * 1 + rDrop * 1 + gDrop * 1) / total; let k = (kDrop * 1) / total;
+      const concentration = 1 - (wDrop / total); c *= concentration; m *= concentration; y *= concentration;
+      const r = Math.round(255 * (1 - c) * (1 - k)); const g = Math.round(255 * (1 - m) * (1 - k)); const b = Math.round(255 * (1 - y) * (1 - k));
       const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 
       let name = '혼합색 (Mixed)';
@@ -402,31 +404,32 @@ export default function App() {
           else if (kDrop > wDrop) name = '어두운 회색 (Dark Gray)';
           else name = '중간 회색 (Medium Gray)';
       } else {
-          let maxColor = ''; let maxVal = 0;
-          ['red', 'blue', 'yellow', 'green'].forEach(col => { if (drops[col] > maxVal) { maxVal = drops[col]; maxColor = col; } });
+          // 기본 혼합색 판별
+          if (rDrop > 0 && bDrop > 0 && yDrop > 0 && gDrop === 0) name = '탁한 회갈색 (Muddy Brown)';
+          else if (rDrop > 0 && bDrop > 0 && yDrop === 0 && gDrop === 0) name = rDrop > bDrop ? '적보라 (Red-Purple)' : (bDrop > rDrop ? '청보라 (Blue-Purple)' : '보라 (Purple)');
+          else if (rDrop > 0 && yDrop > 0 && bDrop === 0 && gDrop === 0) name = rDrop > yDrop ? '다홍 (Red-Orange)' : (yDrop > rDrop ? '귤색 (Yellow-Orange)' : '주황 (Orange)');
+          else if (bDrop > 0 && yDrop > 0 && rDrop === 0 && gDrop === 0) name = bDrop > yDrop ? '청록 (Teal)' : (yDrop > bDrop ? '연두 (Yellow-Green)' : '초록 (Green)');
+          else if (rDrop > 0 && gDrop > 0 && bDrop === 0 && yDrop === 0) name = rDrop > gDrop ? '적갈색 (Maroon)' : '올리브 갈색 (Olive Brown)';
+          else {
+              let maxVal = 0; let maxColor = '';
+              if(rDrop > maxVal) { maxVal = rDrop; maxColor = 'red'; }
+              if(bDrop > maxVal) { maxVal = bDrop; maxColor = 'blue'; }
+              if(yDrop > maxVal) { maxVal = yDrop; maxColor = 'yellow'; }
+              if(gDrop > maxVal) { maxVal = gDrop; maxColor = 'green'; }
+              if (maxColor === 'red') name = '빨강 (Red)'; else if (maxColor === 'blue') name = '파랑 (Blue)'; else if (maxColor === 'yellow') name = '노랑 (Yellow)'; else if (maxColor === 'green') name = '초록 (Green)';
+          }
 
-          if (rDrop > 0 && bDrop > 0 && yDrop === 0 && gDrop === 0) {
-              name = rDrop > bDrop ? '적보라 (Red-Purple)' : (bDrop > rDrop ? '청보라 (Blue-Purple)' : '보라 (Purple)');
-          } else if (rDrop > 0 && yDrop > 0 && bDrop === 0 && gDrop === 0) {
-              name = rDrop > yDrop ? '다홍 (Red-Orange)' : (yDrop > rDrop ? '귤색 (Yellow-Orange)' : '주황 (Orange)');
-          } else if (bDrop > 0 && yDrop > 0 && rDrop === 0 && gDrop === 0) {
-              name = bDrop > yDrop ? '청록 (Teal)' : (yDrop > bDrop ? '연두 (Yellow-Green)' : '초록 (Green)');
-          } else if (rDrop > 0 && gDrop > 0 && bDrop === 0 && yDrop === 0) {
-              name = rDrop > gDrop ? '적갈색 (Maroon)' : '올리브 갈색 (Olive Brown)';
-          } else if (colorTotal >= 3 && maxColor) {
-              name = `탁한 ${maxColor === 'red' ? '적색' : maxColor === 'blue' ? '청색' : maxColor === 'yellow' ? '황색' : '녹색'} (Muddy Color)`;
-          } else if (maxColor === 'red') name = '빨강 (Red)';
-          else if (maxColor === 'blue') name = '파랑 (Blue)';
-          else if (maxColor === 'yellow') name = '노랑 (Yellow)';
-          else if (maxColor === 'green') name = '초록 (Green)';
-
-          if (kDrop > 0 && wDrop === 0) name = `다크 ${name} (Dark)`;
-          else if (wDrop > 0 && kDrop === 0) name = `파스텔 ${name} (Pastel)`;
-          else if (wDrop > 0 && kDrop > 0) name = `뮤트 ${name} (Muted/Grayish)`;
-          
-          if (total > 15 && colorTotal > 10 && kDrop < 2 && wDrop < 2) name = `딥 ${name} (Deep/Rich)`;
+          // 흰색/검은색 첨가에 따른 디테일한 네이밍 변화
+          if (name.includes('보라')) {
+              if (wDrop > 0 && kDrop === 0) name = '연한 파스텔 라벤더 (Pastel Lavender)';
+              else if (kDrop > 0 && wDrop === 0) name = '다크 플럼 (Dark Plum)';
+              else if (wDrop > 0 && kDrop > 0) name = '뮤트 퍼플 (Muted Purple)';
+          } else {
+              if (wDrop > 0 && kDrop === 0) name = `파스텔 ${name}`;
+              else if (kDrop > 0 && wDrop === 0) name = `어두운(Dark) ${name}`;
+              else if (wDrop > 0 && kDrop > 0) name = `탁한(Grayish) ${name}`;
+          }
       }
-
       return { name, hex, r, g, b };
   };
 
@@ -434,12 +437,12 @@ export default function App() {
       if(!window.confirm("모든 입력 데이터를 초기화하시겠습니까?")) return;
       setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
       setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); 
-      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
+      setSnapshots([]); setCatalogSearch(''); setOemSearch(''); setAttachedImages([]);
   };
   const handleResetFormula = () => { 
       if(!window.confirm("현재 배합과 수정 내역을 모두 리셋하시겠습니까?")) return;
       setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setSelectedTonerForView(null); 
-      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
+      setSnapshots([]); setCatalogSearch(''); setOemSearch(''); setAttachedImages([]);
   };
 
   const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
@@ -498,7 +501,7 @@ export default function App() {
     return resultText;
   };
 
-  // 🚀 [NEW] 1-Click 다이렉트 공유 로직 (이메일 완벽 분리)
+  // 🚀 [NEW 3] 1-Click 다이렉트 공유 로직 (이메일 완벽 분리)
   const handleShareKakao = () => { window.location.href = `kakaotalk://send?text=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareNaverMail = () => { window.open(`https://mail.naver.com/v2/new?body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
@@ -599,7 +602,7 @@ export default function App() {
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
 
-  // 🛡️ [NEW] 가짜 오토 승인(보안) 화면 - 1차 방어선 블록
+  // 🛡️ [NEW 1] 가짜 오토 승인(보안) 화면 - 1차 방어선 블록
   if (!isAuthorized) {
     return (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 notranslate" translate="no">
@@ -611,37 +614,50 @@ export default function App() {
                     <h2 className="text-2xl font-black text-slate-800 mb-2">조색 Pro 접근 승인</h2>
                     <p className="text-sm text-slate-500 text-center break-keep px-4">이 시스템은 승인된 작업자만 사용할 수 있습니다. 관리자 확인을 위해 정확한 정보를 입력해주세요.</p>
                 </div>
-                <form onSubmit={handleFakeApproval} className="p-6 bg-white flex flex-col gap-4">
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
-                            <input type="text" placeholder="예: 도이치 모터스 BMW" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                {!showApprovalSuccess ? (
+                    <form onSubmit={handleFakeApproval} className="p-6 bg-white flex flex-col gap-4">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
+                                <input type="text" placeholder="예: 도이치 모터스 BMW" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
+                                <input type="text" placeholder="예: 성수동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><UserCheck size={12}/> 작업자 이름</label>
+                                <input type="text" placeholder="홍길동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Hash size={12}/> 연령(나이)</label>
+                                <input type="number" placeholder="50" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                            </div>
                         </div>
                         <div>
-                            <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
-                            <input type="text" placeholder="예: 성수동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                            <label className="text-xs font-bold text-slate-600 mb-1 block">현 직책</label>
+                            <select className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                                <option>사원</option><option>주임 / 대리</option><option>과장 / 차장</option><option>팀장 / 실장</option><option>대표 / 관리자</option>
+                            </select>
                         </div>
+                        <button type="submit" disabled={isApproving} className="w-full bg-[#1e293b] hover:bg-slate-800 text-white font-black py-4 rounded-xl mt-4 transition-colors shadow-md flex justify-center items-center gap-2 text-sm disabled:bg-slate-400">
+                            {isApproving ? "관리자 승인 대기 중..." : <><ShieldCheck size={18}/> 관리자에게 승인 요청하기</>}
+                        </button>
+                    </form>
+                ) : (
+                    <div className="p-8 bg-white flex flex-col items-center gap-4 text-center animate-in zoom-in duration-300">
+                        <CheckCircle size={48} className="text-emerald-500 mb-2" />
+                        <h3 className="text-lg font-black text-slate-800 break-keep leading-relaxed">
+                            마스터키 윤성만 님에 의해<br/>정상적으로 승인되었습니다.
+                        </h3>
+                        <p className="text-sm font-bold text-slate-500 mb-4">즐거운 하루 되세요.</p>
+                        <button onClick={handleApprovalConfirm} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl transition-colors shadow-md text-sm">
+                            확인 (메인 화면으로 이동)
+                        </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><UserCheck size={12}/> 작업자 이름</label>
-                            <input type="text" placeholder="홍길동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
-                        </div>
-                        <div>
-                            <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Hash size={12}/> 연령(나이)</label>
-                            <input type="number" placeholder="50" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
-                        </div>
-                    </div>
-                    <div>
-                        <label className="text-xs font-bold text-slate-600 mb-1 block">현 직책</label>
-                        <select className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-                            <option>사원</option><option>주임 / 대리</option><option>과장 / 차장</option><option>팀장 / 실장</option><option>대표 / 관리자</option>
-                        </select>
-                    </div>
-                    <button type="submit" disabled={isApproving} className="w-full bg-[#1e293b] hover:bg-slate-800 text-white font-black py-4 rounded-xl mt-4 transition-colors shadow-md flex justify-center items-center gap-2 text-sm disabled:bg-slate-400">
-                        {isApproving ? "시스템 인증 서버 통신 중..." : <><ShieldCheck size={18}/> 관리자에게 승인 요청하기</>}
-                    </button>
-                </form>
+                )}
             </div>
         </div>
     );
@@ -978,11 +994,16 @@ export default function App() {
                     <button onClick={()=>{setActiveTab('PP'); setCatalogSearch('');}} className={`flex-1 py-3 text-sm font-black transition-colors ${activeTab === 'PP' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>🌬️ PP (분말)</button>
                     <button onClick={()=>{setActiveTab('CANDY'); setCatalogSearch('');}} className={`flex-1 py-3 text-sm font-black transition-colors ${activeTab === 'CANDY' ? 'bg-yellow-500 text-slate-900' : 'text-slate-400 hover:text-slate-200'}`}>🍬 CANDY</button>
                 </div>
-                <div className="p-3 bg-slate-800 border-b border-slate-700 flex shrink-0 gap-2">
+                
+                {/* 🔍 [NEW 2] 검색창 한 줄을 50:50으로 완벽 분할 */}
+                <div className="p-3 bg-slate-800 border-b border-slate-700 flex flex-col sm:flex-row shrink-0 gap-2">
                     <div className="relative flex-1">
-                        {/* 🔍 [NEW] 정밀 검색창 힌트 수정 (영문, 특이사항 모두 검색됨) */}
-                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료명 / 차량코드 / 색상명 (LUCID 등) 영문 검색 지원" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
+                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="조색제(WT/PP) 번호 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
+                    </div>
+                    <div className="relative flex-1">
+                        <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value)} placeholder="OEM 차량 컬러 (LUCID 등) 영문 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-emerald-500 transition-colors" />
+                        <Search size={14} className="absolute left-2.5 top-2.5 text-emerald-400/70" />
                     </div>
                 </div>
                 
@@ -999,15 +1020,15 @@ export default function App() {
                         </div>
                     )}
                     
-                    {/* 🔍 [NEW] OEM 컬러 정밀 검색 렌더링 */}
-                    {catalogSearch.replace(/\s/g, '') !== '' && filteredOemColors.length > 0 && (
-                        <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm">
+                    {/* 🔍 [NEW 2] OEM 컬러 정밀 검색 렌더링 (글자 잘림 없이 전체 표시) */}
+                    {oemSearch.replace(/\s/g, '') !== '' && filteredOemColors.length > 0 && (
+                        <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm animate-in fade-in">
                             <h4 className="text-xs font-black text-blue-800 mb-2">🔍 자동차 제조사(OEM) 색상 검색 결과</h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div className="flex flex-col gap-2">
                                 {filteredOemColors.slice(0, 20).map((oem, idx) => (
-                                    <div key={idx} className="flex justify-between items-center bg-white px-3 py-2 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(String(oem.code))}>
-                                        <span className="font-black text-blue-600 text-sm">{oem.code}</span>
-                                        <span className="text-[11px] text-slate-600 font-bold truncate max-w-[110px]" title={oem.name}>{oem.name}</span>
+                                    <div key={idx} className="flex justify-between items-center bg-white px-3 py-2.5 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(String(oem.code))}>
+                                        <span className="font-black text-blue-600 text-sm whitespace-nowrap mr-3">{oem.code}</span>
+                                        <span className="text-[11.5px] text-slate-700 font-bold break-all text-right leading-tight">{oem.name}</span>
                                     </div>
                                 ))}
                             </div>
@@ -1366,7 +1387,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 🚀 [NEW] 1-Click 다이렉트 공유 모달 (이메일 좌우 분할) */}
+      {/* 🚀 [NEW 3] 1-Click 다이렉트 공유 모달 (이메일 좌우 분할) */}
       {isShareModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -1549,7 +1570,7 @@ export default function App() {
         <div className="fixed inset-0 bg-slate-900/90 z-[2000] p-4 flex items-center justify-center animate-in fade-in backdrop-blur-sm">
            <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-slate-300">
                <div className="p-4 bg-emerald-600 flex justify-between items-center text-white shrink-0">
-                   <h3 className="font-black flex items-center gap-2"><Layers size={18}/> {viewingPost.brand} - {viewingPost.code}</h3>
+                   <h3 className="font-bold flex items-center gap-2"><Layers size={18}/> {viewingPost.brand} - {viewingPost.code}</h3>
                    <button onClick={() => setViewingPost(null)} className="hover:text-red-200 bg-emerald-700 p-1.5 rounded-full transition-colors"><X size={16}/></button>
                </div>
                <div className="flex-1 p-6 overflow-y-auto bg-slate-50 custom-scrollbar">
@@ -1708,7 +1729,7 @@ export default function App() {
                 <ul className="space-y-4 text-sm text-slate-700">
                   <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">파우더 펄 (Powder Pearl)</span><br/>일반적인 액체(물감) 상태가 아니라, 밀가루처럼 완전히 바싹 마른 100% 가루 형태로 된 펄 안료입니다.</li>
                   <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">바인더 / 믹싱 클리어 (Binder)</span><br/>가루나 입자들이 뭉치지 단 1%도 들어가지 않게 뭉치지 않고 차체에 고르게 달라붙을 수 있도록 도와주는 '투명한 물감'이자 '접착제' 같은 역할입니다.</li>
-                  <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">은폐력 (Hiding Power)</span><br/>페인트를 칠했을 때, 밑바탕에 있던 원래 색이나 흠집을 얼마나 잘 가려주는지(덮어주는지) 나타내는 힘입니다. (비유: 은폐력이 좋으면 '페인트 마커'처럼 밑바탕을 완벽히 덮어버리고, 은폐력이 나쁘면 '투명한 셀로판지'처럼 밑바탕이 그대로 비쳐 보입니다.)</li>
+                  <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">은폐력 (Hiding Power)</span><br/>페인트를 칠했을 때, 밑바탕에 있던 원래 색이나 흠집을 얼마나 잘 가려주는지(덮어주는지) 나타내는 힘입니다. (비유: 은폐력이 좋으면 '페인트 마커'처럼 밑바탕을 완벽히 정밀 덮어버리고, 은폐력이 나쁘면 '투명한 셀로판지'처럼 밑바탕이 그대로 비쳐 보입니다.)</li>
                   <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">캔디 / 트랜스페어런트 (Candy / Transparent)</span><br/>은폐력이 전혀 없이, 투명하게 밑바탕을 비춰주는 '셀로판지' 같은 물감입니다. 밑에 칠해둔 반짝이는 은색을 그대로 투과시키면서 색깔만 예쁘게 입혀줍니다.</li>
                 </ul>
               </div>
