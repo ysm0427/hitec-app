@@ -772,7 +772,317 @@ export default function App() {
   };
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
+// 🎨 [NEW] 가상 조색 시뮬레이터 로직
+  const getSimulatedColor = (drops: any) => {
+      const total = drops.red + drops.blue + drops.yellow + drops.green + drops.white + drops.black;
+      if (total === 0) return { name: '비어있음 (색상을 추가하세요)', hex: '#1e293b', r: 30, g: 41, b: 59 };
 
+      let c = (drops.blue * 1 + drops.green * 1) / total;
+      let m = (drops.red * 1 + drops.blue * 0.5) / total;
+      let y = (drops.yellow * 1 + drops.red * 1 + drops.green * 1) / total;
+      let k = (drops.black * 1) / total;
+
+      const concentration = 1 - (drops.white / total);
+      c *= concentration; m *= concentration; y *= concentration;
+
+      const r = Math.round(255 * (1 - c) * (1 - k));
+      const g = Math.round(255 * (1 - m) * (1 - k));
+      const b = Math.round(255 * (1 - y) * (1 - k));
+      const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+
+      let name = '';
+      const active = Object.keys(drops).filter(k => drops[k] > 0 && k !== 'white' && k !== 'black');
+      if (active.length === 1) {
+          const names: any = { red: '빨강 (Red)', blue: '파랑 (Blue)', yellow: '노랑 (Yellow)', green: '초록 (Green)' };
+          name = names[active[0]];
+      } else if (active.includes('red') && active.includes('blue') && active.includes('yellow')) { name = '탁한 회갈색 (Muddy Brown)';
+      } else if (active.includes('red') && active.includes('blue')) { name = '보라 (Purple)';
+      } else if (active.includes('red') && active.includes('yellow')) { name = '주황 (Orange)';
+      } else if (active.includes('blue') && active.includes('yellow')) { name = '청록/녹색 (Teal/Green)';
+      } else if (active.includes('red') && active.includes('green')) { name = '갈색 (Brown)';
+      } else if (active.includes('blue') && active.includes('green')) { name = '바다색 (Deep Cyan)';
+      } else if (active.includes('yellow') && active.includes('green')) { name = '연두 (Yellow-Green)';
+      } else if (active.length === 0) { name = '무채색';
+      } else { name = '혼합색 (Mixed)'; }
+
+      if (drops.white > 0 && drops.black === 0 && active.length > 0) name = `파스텔 ${name}`;
+      if (drops.black > 0 && active.length > 0) name = `어두운 ${name}`;
+      if (drops.white > 0 && drops.black > 0 && active.length === 0) name = '회색 (Gray)';
+      if (drops.white > 0 && drops.black === 0 && active.length === 0) name = '흰색 (White)';
+      if (drops.black > 0 && drops.white === 0 && active.length === 0) name = '검정 (Black)';
+
+      return { name, hex, r, g, b };
+  };
+
+  const handleClearAllInfo = () => { 
+      if(!window.confirm("모든 입력 데이터를 초기화하시겠습니까?")) return;
+      setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
+      setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); 
+      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
+  };
+  const handleResetFormula = () => { 
+      if(!window.confirm("현재 배합과 수정 내역을 모두 리셋하시겠습니까?")) return;
+      setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setSelectedTonerForView(null); 
+      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
+  };
+
+  const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
+    const rawVal = newCode.toUpperCase(); 
+    const numOnly = rawVal.replace(/[^0-9]/g, '');
+    let finalCode = rawVal;
+
+    if (rawVal.startsWith('90') && numOnly.length >= 4) {
+        finalCode = numOnly.substring(0, 4); 
+    } else if (['1051', '1500', '455', 'AXT700'].includes(numOnly) || rawVal === 'AXT700') {
+        finalCode = rawVal === 'AXT700' ? 'AXT700' : numOnly; 
+    } else if (numOnly) {
+        finalCode = `WT ${numOnly}`; 
+    }
+
+    const setter = isPearl ? setPearlToners : setToners;
+    setter(prev => prev.map(toner => { 
+        if (toner.id === id) { 
+            if (TONER_DB[finalCode]) { setFocusTarget({ id: id, type: 'weight' }); } 
+            return { ...toner, code: finalCode }; 
+        } 
+        return toner; 
+    }));
+  };
+
+  const handleWeightInputChange = (id: string, rawValue: string, isPearl = false) => {
+    let val = rawValue.replace(/[^0-9.]/g, ''); const parts = val.split('.'); if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
+    if (val === '') val = ''; else if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, ''); else if (val.startsWith('.')) val = '0' + val; 
+    if (isPearl) setPearlToners(pearlToners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t)); else setToners(toners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
+  };
+  const handleWeightBlur = (id: string, value: string, isPearl = false) => {
+    if (!value) return; const setter = isPearl ? setPearlToners : setToners;
+    setter(prev => prev.map(t => { if (t.id === id) { const currentHistory = t.history || []; if (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== value) return { ...t, history: [...currentHistory, value] }; } return t; }));
+  };
+  const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => { if (e.key === 'Enter') { e.preventDefault(); const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); } };
+  const removeToner = (id: string, isPearl = false) => { if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
+
+  const addToner = (isPearl = false) => { 
+      let tempInput: HTMLInputElement | undefined;
+      if (typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          tempInput = document.createElement('input');
+          tempInput.type = 'number';
+          tempInput.style.position = 'fixed';
+          tempInput.style.top = '50%';
+          tempInput.style.left = '50%';
+          tempInput.style.opacity = '0';
+          tempInput.style.width = '1px';
+          tempInput.style.height = '1px';
+          document.body.appendChild(tempInput);
+          tempInput.focus(); 
+      }
+
+      const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
+      const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; 
+      if (isPearl) setPearlToners([...pearlToners, newToner]); 
+      else setToners([...toners, newToner]); 
+
+      setFocusTarget({ id: newId, type: 'code', tempInput }); 
+  };
+
+  const quickEditWeight = (id: string, delta: number, isPearl: boolean) => {
+    const setter = isPearl ? setPearlToners : setToners;
+    setter(prev => prev.map(t => { if(t.id === id) { let newVal = Math.max(0, (parseFloat(t.adjustedWeight) || 0) + delta); let strVal = String(Number(Math.round(newVal * 100000) / 100000)); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== strVal) ? [...currentHistory, strVal] : currentHistory; return { ...t, adjustedWeight: strVal, history: nextHistory }; } return t; }));
+  };
+  const toggleExpand = (id: string, isPearl: boolean) => { const setter = isPearl ? setPearlToners : setToners; setter(prev => prev.map(t => t.id === id ? { ...t, isExpanded: !t.isExpanded } : t)); };
+
+  // ✅ Vercel 에러 완벽 해결 (유니코드 텍스트 깨짐 오류 원천 차단 - 템플릿 리터럴 제거)
+  const generateShareText = () => {
+    let baseListText = toners.filter(t => t.code).map(t => "  - " + t.code + " (" + (TONER_DB[t.code]?.role || '미지정') + "): " + formatWeight(t.adjustedWeight) + "g").join('\n'); 
+    let pearlListText = pearlToners.filter(t => t.code).map(t => "  - " + t.code + " (" + (TONER_DB[t.code]?.role || '미지정') + "): " + formatWeight(t.adjustedWeight) + "g").join('\n'); 
+    let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin;
+    const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); 
+    const shareUrl = currentOrigin + window.location.pathname + "?d=" + btoa(unescape(encodeURIComponent(payloadStr)));
+    
+    let resultText = "[조색 배합 지시서]\n================================\n📅 등록날짜: " + registrationDate + "\n🚗 차량번호: " + (vehicleNumber || '미지정') + "\n🚙 브랜드: " + (carModel || '미지정') + "\n🎨 컬러코드: " + (targetColorCode || '미지정') + "\n🛠️ 작업내용: " + (jobDescription || '미지정') + "\n📌 특이사항: " + (specialNotes || '없음') + "\n================================\n\n[▼ 베이스 코트]\n";
+    resultText += (baseListText || '  (입력 데이터 없음)') + "\n--------------------------------\n▶ 순수 안료 합계: " + totalBaseWeight + "g\n▶ 필수 수지(20%): " + formatWeight(parseFloat(totalBaseWeight) * 0.2) + "g\n▶ 베이스 총 중량: " + formatWeight(parseFloat(totalBaseWeight) * 1.2) + "g\n\n";
+    
+    if (isThreeCoatMode) {
+        resultText += "[▼ 펄 코트]\n" + (pearlListText || '  (입력 데이터 없음)') + "\n--------------------------------\n▶ 순수 펄 합계: " + totalPearlWeight + "g\n▶ 펄 수지(30%): " + formatWeight(parseFloat(totalPearlWeight) * 0.3) + "g\n▶ 펄 코트 총 중량: " + formatWeight(parseFloat(totalPearlWeight) * 1.3) + "g\n\n";
+    }
+    
+    resultText += "================================\n✨ 최종 도막 혼합 총량: " + totalFinalWeight + "g\n\n👉 링크:\n" + shareUrl;
+    
+    return resultText;
+  };
+
+  const handleShareKakao = () => { 
+      const shareText = generateShareText();
+      window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
+      setIsShareModalOpen(false);
+  };
+  const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
+  const handleShareMail = () => { window.location.href = `mailto:?subject=${encodeURIComponent('[조색 Pro] 배합 지시서 공유')}&body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
+  
+  const generateSyncUrl = () => { 
+      let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin; 
+      const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); 
+      return `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`; 
+  };
+
+  const handleSendToPcKakao = () => {
+      const shareUrl = generateSyncUrl();
+      const shareText = `[조색 Pro] PC로 작업 보내기\n차량: ${vehicleNumber} / ${carModel}\n컬러: ${targetColorCode}\n👉 PC 카톡에서 아래 링크 클릭:\n${shareUrl}`;
+      window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
+  };
+
+  const handleCopyLinkForPc = () => {
+      const url = generateSyncUrl();
+      if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => {
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+          });
+      }
+  };
+
+  const handleDirectExcelCopy = () => {
+      const shareUrl = generateSyncUrl(); const plainText = `${registrationDate || '-'}	${vehicleNumber || '미입력'}	${carModel || '미입력'}	${targetColorCode || '미지정'}	${jobDescription || '미입력'}	${specialNotes || '-'}	${shareUrl}`;
+      const htmlText = `<meta charset="utf-8"><table><tr><td>${registrationDate || '-'}</td><td>${vehicleNumber || '미입력'}</td><td>${carModel || '미입력'}</td><td>${targetColorCode || '미지정'}</td><td>${jobDescription || '미입력'}</td><td>${specialNotes || '-'}</td><td><a href="${shareUrl}">[배합보기]</a></td></tr></table>`;
+      if (typeof navigator !== 'undefined' && navigator.clipboard && (window as any).ClipboardItem) {
+          const htmlBlob = new Blob([htmlText], { type: 'text/html' }); const textBlob = new Blob([plainText], { type: 'text/plain' });
+          const ClipboardItemConstructor = (window as any).ClipboardItem; const item = new ClipboardItemConstructor({ 'text/html': htmlBlob, 'text/plain': textBlob });
+          navigator.clipboard.write([item]).then(() => { alert("✅ 엑셀 데이터가 복사되었습니다!"); }).catch(() => { navigator.clipboard.writeText(plainText).then(() => { alert("✅ 일반 텍스트로 복사되었습니다."); }); });
+      } else if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(plainText).then(() => { alert("✅ 일반 텍스트로 복사되었습니다."); }); }
+      setIsExcelModalOpen(false);
+  };
+  const handleCopyExcelTemplate = () => { const headerRow = ['등록 날짜', '차량 번호', '브랜드/차종', '컬러코드', '작업내용', '특이사항', '배합보기'].join('\t'); if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(headerRow); alert("엑셀 헤더가 복사되었습니다."); } }
+  
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+              const img = new Image();
+              img.onload = () => {
+                  const canvas = document.createElement('canvas');
+                  let width = img.width;
+                  let height = img.height;
+                  const MAX_WIDTH = 600; 
+                  const MAX_HEIGHT = 600;
+                  if (width > height) {
+                      if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                  } else {
+                      if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                  }
+                  canvas.width = width;
+                  canvas.height = height;
+                  const ctx = canvas.getContext('2d');
+                  ctx?.drawImage(img, 0, 0, width, height);
+                  const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5); 
+                  setAttachedImages(prev => [...prev, compressedBase64]);
+                  alert("📷 시편 사진이 안전하게 최적화되어 추가되었습니다!");
+              };
+              img.src = event.target?.result as string;
+          };
+          reader.readAsDataURL(file);
+      }
+  };
+
+  const removeAttachedImage = (index: number) => {
+      setAttachedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDeletePostImage = (postId: number, imgIdx: number) => {
+      if (window.confirm("이 사진을 삭제하시겠습니까?\n\n(삭제된 사진은 휴지통에서 3일간 보관된 후 영구 삭제됩니다.)")) {
+          setBoardPosts(prev => prev.map(p => {
+              if (p.id === postId) {
+                  const newImages = [...p.images];
+                  const removed = newImages.splice(imgIdx, 1)[0];
+                  const deletedImages = p.deletedImages ? [...p.deletedImages] : [];
+                  deletedImages.push({ url: removed, deletedAt: Date.now() });
+                  return { ...p, images: newImages, deletedImages };
+              }
+              return p;
+          }));
+          
+          if (viewingPost && viewingPost.id === postId) {
+              const newImages = [...viewingPost.images];
+              const removed = newImages.splice(imgIdx, 1)[0];
+              const deletedImages = viewingPost.deletedImages ? [...viewingPost.deletedImages] : [];
+              deletedImages.push({ url: removed, deletedAt: Date.now() });
+              setViewingPost({ ...viewingPost, images: newImages, deletedImages });
+          }
+      }
+  };
+
+  const handleRestorePostImage = (postId: number, delIdx: number) => {
+      setBoardPosts(prev => prev.map(p => {
+          if (p.id === postId && p.deletedImages) {
+              const newDeleted = [...p.deletedImages];
+              const restored = newDeleted.splice(delIdx, 1)[0];
+              return { ...p, images: [...p.images, restored.url], deletedImages: newDeleted };
+          }
+          return p;
+      }));
+      if (viewingPost && viewingPost.id === postId) {
+          const newDeleted = [...viewingPost.deletedImages];
+          const restored = newDeleted.splice(delIdx, 1)[0];
+          setViewingPost({ ...viewingPost, images: [...viewingPost.images, restored.url], deletedImages: newDeleted });
+      }
+  };
+
+  const handlePermanentDeletePostImage = (postId: number, delIdx: number) => {
+      if (!window.confirm("이 사진을 영구적으로 삭제하시겠습니까?\n(이 작업은 취소할 수 없습니다.)")) return;
+      setBoardPosts(prev => prev.map(p => {
+          if (p.id === postId && p.deletedImages) {
+              const newDeleted = [...p.deletedImages];
+              newDeleted.splice(delIdx, 1);
+              return { ...p, deletedImages: newDeleted };
+          }
+          return p;
+      }));
+      if (viewingPost && viewingPost.id === postId) {
+          const newDeleted = [...viewingPost.deletedImages];
+          newDeleted.splice(delIdx, 1);
+          setViewingPost({ ...viewingPost, deletedImages: newDeleted });
+      }
+  };
+
+  const saveToBoard = () => {
+      if(!targetColorCode) { alert("⚠️ 컬러코드를 입력해야 합니다!"); return; }
+      
+      const now = new Date();
+      const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      const newPost: BoardPost = { 
+          id: Date.now() + Math.random(), 
+          brand: carModel || '미지정', 
+          code: targetColorCode, 
+          date: timeFormatted, 
+          likes: 0, 
+          views: 0, 
+          author: '내 데이터', 
+          spec: specialNotes || '특이사항 없음', 
+          baseFormula: [...toners], 
+          pearlFormula: [...pearlToners], 
+          isThreeCoat: isThreeCoatMode,
+          images: [...attachedImages],
+          deletedImages: []
+      };
+      setBoardPosts([newPost, ...boardPosts]); 
+      setAttachedImages([]); 
+      alert("🎉 시편 사진들과 함께 게시판에 등록되었습니다!");
+  };
+
+  const deleteBoardPost = (id: number, e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("이 시편 데이터를 완전히 삭제하시겠습니까?")) setBoardPosts(prev => prev.filter(post => post.id !== id)); };
+  const handleSaveSnapshot = () => { const newSnapshot = { id: Date.now(), timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }), dateStr: new Date().toLocaleDateString('ko-KR'), base: JSON.parse(JSON.stringify(toners)), pearl: JSON.parse(JSON.stringify(pearlToners)), isThreeCoat: isThreeCoatMode, totalFinal: totalFinalWeight }; setSnapshots(prev => [newSnapshot, ...prev]); alert(`[${newSnapshot.timestamp}] 데이터가 확정 저장되었습니다.`); };
+  const restoreSnapshot = (snapshot: any) => { if (window.confirm("복원하시겠습니까?")) { setToners(JSON.parse(JSON.stringify(snapshot.base))); setPearlToners(JSON.parse(JSON.stringify(snapshot.pearl))); setIsThreeCoatMode(snapshot.isThreeCoat); setSelectedSnapshot(null); setIsSnapshotModalOpen(false); } };
+  const handleSavePostEdit = () => { setBoardPosts(prev => prev.map(p => p.id === viewingPost.id ? { ...p, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec } : p)); setViewingPost({ ...viewingPost, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec }); setIsEditingPost(false); };
+  const handleOpenPost = (post: any) => { setViewingPost(post); setEditPostForm({ brand: post.brand, code: post.code, spec: post.spec }); setIsEditingPost(false); };
+
+  const handleGoogleGlossarySearch = () => {
+      const inputEl = document.getElementById('glossarySearchInput') as HTMLInputElement;
+      const val = inputEl?.value?.trim();
+      if(!val) { alert("사전 검색창에 뜻이 궁금한 용어를 직접 입력하세요!"); return; }
+      window.open(`https://www.google.com/search?q=스피스헥커+${val}+뜻`, '_blank');
+  };
+
+  const showBottomBar = !(isMobile && isKeyboardOpen);
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
       
