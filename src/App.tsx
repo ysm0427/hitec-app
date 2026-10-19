@@ -537,47 +537,6 @@ export default function App() {
     const applyScale = (list: any[]) => list.map(t => { if (!t.adjustedWeight) return t; const newVal = scale(t.adjustedWeight); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== newVal) ? [...currentHistory, newVal] : currentHistory; return { ...t, adjustedWeight: newVal, history: nextHistory }; });
     setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
   };
-// 🎨 [NEW] 가상 조색 시뮬레이터 로직
-  const getSimulatedColor = (drops: any) => {
-      const total = drops.red + drops.blue + drops.yellow + drops.green + drops.white + drops.black;
-      if (total === 0) return { name: '비어있음 (색상을 추가하세요)', hex: '#1e293b', r: 30, g: 41, b: 59 };
-
-      let c = (drops.blue * 1 + drops.green * 1) / total;
-      let m = (drops.red * 1 + drops.blue * 0.5) / total;
-      let y = (drops.yellow * 1 + drops.red * 1 + drops.green * 1) / total;
-      let k = (drops.black * 1) / total;
-
-      const concentration = 1 - (drops.white / total);
-      c *= concentration; m *= concentration; y *= concentration;
-
-      const r = Math.round(255 * (1 - c) * (1 - k));
-      const g = Math.round(255 * (1 - m) * (1 - k));
-      const b = Math.round(255 * (1 - y) * (1 - k));
-      const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-
-      let name = '';
-      const active = Object.keys(drops).filter(k => drops[k] > 0 && k !== 'white' && k !== 'black');
-      if (active.length === 1) {
-          const names: any = { red: '빨강 (Red)', blue: '파랑 (Blue)', yellow: '노랑 (Yellow)', green: '초록 (Green)' };
-          name = names[active[0]];
-      } else if (active.includes('red') && active.includes('blue') && active.includes('yellow')) { name = '탁한 회갈색 (Muddy Brown)';
-      } else if (active.includes('red') && active.includes('blue')) { name = '보라 (Purple)';
-      } else if (active.includes('red') && active.includes('yellow')) { name = '주황 (Orange)';
-      } else if (active.includes('blue') && active.includes('yellow')) { name = '청록/녹색 (Teal/Green)';
-      } else if (active.includes('red') && active.includes('green')) { name = '갈색 (Brown)';
-      } else if (active.includes('blue') && active.includes('green')) { name = '바다색 (Deep Cyan)';
-      } else if (active.includes('yellow') && active.includes('green')) { name = '연두 (Yellow-Green)';
-      } else if (active.length === 0) { name = '무채색';
-      } else { name = '혼합색 (Mixed)'; }
-
-      if (drops.white > 0 && drops.black === 0 && active.length > 0) name = `파스텔 ${name}`;
-      if (drops.black > 0 && active.length > 0) name = `어두운 ${name}`;
-      if (drops.white > 0 && drops.black > 0 && active.length === 0) name = '회색 (Gray)';
-      if (drops.white > 0 && drops.black === 0 && active.length === 0) name = '흰색 (White)';
-      if (drops.black > 0 && drops.white === 0 && active.length === 0) name = '검정 (Black)';
-
-      return { name, hex, r, g, b };
-  };
 
   // ✅ Vercel 에러 완벽 해결 (유니코드 텍스트 깨짐 오류 원천 차단 - 템플릿 리터럴 제거)
   const generateShareText = () => {
