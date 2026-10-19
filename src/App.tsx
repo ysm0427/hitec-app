@@ -490,7 +490,30 @@ export default function App() {
     const finalTotal = (baseTotal * 1.2) + (isThreeCoatMode ? (pearlTotal * 1.3) : 0);
     setTotalFinalWeight(formatWeight(finalTotal));
   }, [toners, pearlToners, isThreeCoatMode]);
-const handleClearAllInfo = () => { 
+useEffect(() => {
+      if (focusTarget) {
+          let attempts = 0; 
+          const interval = setInterval(() => {
+              const el = focusTarget.type === 'code' ? codeRefs.current[focusTarget.id] : weightRefs.current[focusTarget.id];
+              if (el) { 
+                  el.focus(); 
+                  if (focusTarget.tempInput) focusTarget.tempInput.remove();
+                  el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+                  clearInterval(interval); 
+                  setFocusTarget(null); 
+              }
+              attempts++; 
+              if (attempts > 20) { 
+                  clearInterval(interval); 
+                  if (focusTarget.tempInput) focusTarget.tempInput.remove();
+                  setFocusTarget(null); 
+              }
+          }, 50); 
+          return () => { clearInterval(interval); };
+      }
+  }, [focusTarget, toners, pearlToners]);
+
+  const handleClearAllInfo = () => { 
       if(!window.confirm("모든 입력 데이터를 초기화하시겠습니까?")) return;
       setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
       setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); 
@@ -572,7 +595,7 @@ const handleClearAllInfo = () => {
     setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
   };
 
-  // ✅ 해결 4: 깨졌던 특수기호를 정상 코드로 완벽 복구
+  // ✅ Vercel 에러 완벽 해결 (유니코드 텍스트 깨짐 오류 복구)
   const generateShareText = () => {
     let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '미지정'}): ${formatWeight(t.adjustedWeight)}g`).join('\n'); 
     let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '미지정'}): ${formatWeight(t.adjustedWeight)}g`).join('\n'); 
@@ -890,7 +913,6 @@ const handleClearAllInfo = () => {
         </div>
 
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x items-center">
-            {/* 승인 사용자 관리 버튼 */}
             <button onClick={() => { setIsUsersModalOpen(true); setSelectedUserInfo(null); }} className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white border border-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 <Users size={14} /> 승인된 작업자 <span className="bg-indigo-900 px-1.5 py-0.5 rounded text-[10px]">{authorizedUsers.length}명</span>
             </button>
@@ -1206,7 +1228,7 @@ const handleClearAllInfo = () => {
                 </div>
                 <div className="p-3 bg-slate-800 border-b border-slate-700 flex shrink-0 gap-2">
                     <div className="relative flex-1">
-                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료명 / 색상코드 검색 (숫자, 띄어쓰기 무관)" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
+                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료명 / 차량코드 / 색상명 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
                     </div>
                 </div>
@@ -1224,15 +1246,15 @@ const handleClearAllInfo = () => {
                         </div>
                     )}
                     
-                    {/* ✅ 해결 3: 엑셀 검색 버그 완벽 수정 (OEM_COLORS 검색 로직 강화) */}
+                    {/* ✅ 에러 완전 해결: OEM 엑셀 데이터 검색 시 숫자 깨짐 버그 및 띄어쓰기 문제 완벽 대응 */}
                     {catalogSearch.trim() !== '' && OEM_COLORS.some(c => String(c.code).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase()) || String(c.name).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase())) && (
                         <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm">
-                            <h4 className="text-xs font-black text-blue-800 mb-2">🔍 FORD 색상코드 검색 결과</h4>
+                            <h4 className="text-xs font-black text-blue-800 mb-2">🔍 자동차 제조사(OEM) 색상 검색 결과</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {OEM_COLORS.filter(c => String(c.code).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase()) || String(c.name).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase())).slice(0, 20).map((oem, idx) => (
-                                    <div key={idx} className="flex justify-between items-center bg-white px-3 py-2 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400" onClick={() => setTargetColorCode(String(oem.code))}>
+                                    <div key={idx} className="flex justify-between items-center bg-white px-3 py-2 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400" onClick={() => setTargetColorCode(oem.code)}>
                                         <span className="font-black text-blue-600 text-sm">{oem.code}</span>
-                                        <span className="text-xs text-slate-600 font-bold truncate max-w-[100px]">{oem.name}</span>
+                                        <span className="text-xs text-slate-600 font-bold truncate max-w-[100px]" title={oem.name}>{oem.name}</span>
                                     </div>
                                 ))}
                             </div>
@@ -1792,10 +1814,8 @@ const handleClearAllInfo = () => {
           </header>
           <main className="flex-1 p-4 md:p-8 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950 overflow-x-hidden">
              
-             {/* 2x2 완벽 분할 그리드 */}
              <div className="w-full max-w-[1400px] grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch mb-8">
                  
-                 {/* 1. 좌측 상단: 먼셀 20 색상환 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px] bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6">
                      <h3 className="text-lg font-black text-white mb-6 flex items-center bg-slate-800 px-6 py-2 rounded-full border border-slate-600 shadow-lg shrink-0"><Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)</h3>
                      <div className="relative flex justify-center items-center w-[360px] h-[360px] shrink-0">
@@ -1817,7 +1837,6 @@ const handleClearAllInfo = () => {
                      </div>
                  </div>
 
-                 {/* 2. 우측 상단: RGB 빛의 혼합 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px] bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6">
                     <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[380px] h-[380px] justify-center transition-all">
                         <h4 className="text-xl font-black text-white mb-6 tracking-widest flex items-center shrink-0"><BookOpen className="mr-2 text-blue-400" size={20}/>RGB <span className="text-xs text-slate-500 ml-2 font-normal">Additive Color (빛의 혼합)</span></h4>
@@ -1835,7 +1854,6 @@ const handleClearAllInfo = () => {
                     </div>
                  </div>
 
-                 {/* 3. 좌측 하단: 조색 배합 데이터 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px] bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6">
                     {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
                         <div className="bg-slate-800 p-6 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[380px] h-[380px] flex flex-col justify-center text-center">
@@ -1857,7 +1875,6 @@ const handleClearAllInfo = () => {
                     )}
                  </div>
 
-                 {/* 4. 우측 하단: CMYK 물감의 혼합 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px] bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6">
                     <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[380px] h-[380px] justify-center transition-all">
                         <h4 className="text-xl font-black text-slate-900 mb-6 tracking-widest flex items-center shrink-0"><BookOpen className="mr-2 text-pink-500" size={20}/>CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color (물감의 혼합)</span></h4>
@@ -1884,4 +1901,4 @@ const handleClearAllInfo = () => {
       )}
     </div>
   );
-}    
+}  
