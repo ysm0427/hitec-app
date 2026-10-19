@@ -552,11 +552,21 @@ export default function App() {
   };
 
 const generateShareText = () => {
-    let baseListText = toners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '미지정'}): ${formatWeight(t.adjustedWeight)}g`).join('\n'); 
-    let pearlListText = pearlToners.filter(t => t.code).map(t => `  - ${t.code} (${TONER_DB[t.code]?.role || '미지정'}): ${formatWeight(t.adjustedWeight)}g`).join('\n'); 
+    let baseListText = toners.filter(t => t.code).map(t => "  - " + t.code + " (" + (TONER_DB[t.code]?.role || '미지정') + "): " + formatWeight(t.adjustedWeight) + "g").join('\n'); 
+    let pearlListText = pearlToners.filter(t => t.code).map(t => "  - " + t.code + " (" + (TONER_DB[t.code]?.role || '미지정') + "): " + formatWeight(t.adjustedWeight) + "g").join('\n'); 
     let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin;
-    const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); const shareUrl = `${currentOrigin}${window.location.pathname}?d=${btoa(unescape(encodeURIComponent(payloadStr)))}`;
-    return `[조색 배합 지시서]\n================================\n📅 등록날짜: ${registrationDate}\n🚗 차량번호: ${vehicleNumber || '미지정'}\n🚙 브랜드: ${carModel || '미지정'}\n🎨 컬러코드: ${targetColorCode || '미지정'}\n🛠️ 작업내용: ${jobDescription || '미지정'}\n📌 특이사항: ${specialNotes || '없음'}\n================================\n\n[▼ 베이스 코트]\n${baseListText || '  (입력 데이터 없음)'}\n--------------------------------\n▶ 순수 안료 합계: ${totalBaseWeight}g\n▶ 필수 수지(20%): ${formatWeight(parseFloat(totalBaseWeight) * 0.2)}g\n▶ 베이스 총 중량: ${formatWeight(parseFloat(totalBaseWeight) * 1.2)}g\n\n${isThreeCoatMode ? `[▼ 펄 코트]\n${pearlListText \vert{}\vert{} '  (입력 데이터 없음)'}\n--------------------------------\n▶ 순수 펄 합계: ${totalPearlWeight}g\n▶ 펄 수지(30%): ${formatWeight(parseFloat(totalPearlWeight) * 0.3)}g\n▶ 펄 코트 총 중량: ${formatWeight(parseFloat(totalPearlWeight) * 1.3)}g\n\n` : ''}================================\n✨ 최종 도막 혼합 총량: ${totalFinalWeight}g\n\n👉 링크:\n${shareUrl}`;
+    const payloadStr = [vehicleNumber, carModel, targetColorCode, jobDescription, specialNotes, packToners(toners), isThreeCoatMode ? packToners(pearlToners) : '', isThreeCoatMode ? '1' : '0', registrationDate].join('|'); const shareUrl = currentOrigin + window.location.pathname + "?d=" + btoa(unescape(encodeURIComponent(payloadStr)));
+    
+    let resultText = "[조색 배합 지시서]\n================================\n📅 등록날짜: " + registrationDate + "\n🚗 차량번호: " + (vehicleNumber || '미지정') + "\n🚙 브랜드: " + (carModel || '미지정') + "\n🎨 컬러코드: " + (targetColorCode || '미지정') + "\n🛠️ 작업내용: " + (jobDescription || '미지정') + "\n📌 특이사항: " + (specialNotes || '없음') + "\n================================\n\n[▼ 베이스 코트]\n";
+    resultText += (baseListText || '  (입력 데이터 없음)') + "\n--------------------------------\n▶ 순수 안료 합계: " + totalBaseWeight + "g\n▶ 필수 수지(20%): " + formatWeight(parseFloat(totalBaseWeight) * 0.2) + "g\n▶ 베이스 총 중량: " + formatWeight(parseFloat(totalBaseWeight) * 1.2) + "g\n\n";
+    
+    if (isThreeCoatMode) {
+        resultText += "[▼ 펄 코트]\n" + (pearlListText || '  (입력 데이터 없음)') + "\n--------------------------------\n▶ 순수 펄 합계: " + totalPearlWeight + "g\n▶ 펄 수지(30%): " + formatWeight(parseFloat(totalPearlWeight) * 0.3) + "g\n▶ 펄 코트 총 중량: " + formatWeight(parseFloat(totalPearlWeight) * 1.3) + "g\n\n";
+    }
+    
+    resultText += "================================\n✨ 최종 도막 혼합 총량: " + totalFinalWeight + "g\n\n👉 링크:\n" + shareUrl;
+    
+    return resultText;
   };
 
   const handleShareKakao = () => { window.location.href = `kakaotalk://send?text=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
