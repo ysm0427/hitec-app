@@ -17,7 +17,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.19 (가상 보안 인증 완벽화 / 구글식 스마트 검색 / 풀네임 렌더링)"; 
+const LAST_PATCH_DATE = "2026.10.19 (스마트 프로그레스바 / 교집합(AND) 정밀검색 / 풀네임 렌더링)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -115,22 +115,37 @@ interface BoardPost {
 }
 
 export default function App() {
-  // 🛡️ [NEW 1] 완벽한 가상 오토 승인 시스템 (리얼 로딩 & 깔끔한 단독 승인 화면)
+  // 🛡️ [NEW 1] 가상 오토 승인(보안 위장) 시스템 (빈칸방지 + 프로그레스바 + 단독팝업)
   const [isAuthorized, setIsAuthorized] = useState(() => {
     if (typeof window !== 'undefined') return sessionStorage.getItem('hitec_auth_passed') === 'true';
     return false;
   });
+  
+  const [authForm, setAuthForm] = useState({ company: '', location: '', name: '', age: '', role: '사원' });
+  const isAuthFormValid = authForm.company.trim() !== '' && authForm.location.trim() !== '' && authForm.name.trim() !== '' && String(authForm.age).trim() !== '';
+  
   const [isApproving, setIsApproving] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [showApprovalSuccess, setShowApprovalSuccess] = useState(false);
 
   const handleFakeApproval = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAuthFormValid) return; // 빈칸이 있으면 절대 실행 불가
     setIsApproving(true);
-    // 사람이 보는 것 같은 리얼리티 3.5초 로딩
-    setTimeout(() => {
-        setIsApproving(false);
-        setShowApprovalSuccess(true);
-    }, 3500); 
+    setProgress(0);
+    
+    // 리얼리티를 위한 프로그레스 바 3.5초 구동 (0~100%)
+    let currentProgress = 0;
+    const interval = setInterval(() => {
+        currentProgress += 2; 
+        if (currentProgress >= 100) {
+            clearInterval(interval);
+            setIsApproving(false);
+            setShowApprovalSuccess(true); // 완료되면 깔끔한 팝업만 노출
+        } else {
+            setProgress(currentProgress);
+        }
+    }, 70); 
   };
 
   const handleApprovalConfirm = () => {
@@ -206,9 +221,9 @@ export default function App() {
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight', tempInput?: HTMLInputElement} | null>(null); 
   
-  // 🔍 [NEW 2] 양방향 구글식 스마트 검색창 (50:50 분할)
-  const [catalogSearch, setCatalogSearch] = useState(''); // 왼쪽 (안료 전용)
-  const [oemSearch, setOemSearch] = useState('');         // 오른쪽 (OEM 컬러 전용)
+  // 🔍 양방향 스마트 검색창 상태 (50:50 분할)
+  const [catalogSearch, setCatalogSearch] = useState(''); 
+  const [oemSearch, setOemSearch] = useState('');         
   
   const [isBaseMetallic, setIsBaseMetallic] = useState(false); 
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
@@ -223,7 +238,7 @@ export default function App() {
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   
-  // 🔍 [NEW 2] 왼쪽: 조색제(안료) 스마트 검색 알고리즘 (단어 조합 완벽 인식)
+  // 🔍 [NEW 2] 왼쪽: 조색제(안료) 스마트 검색 (AND 논리 교집합)
   const sortedCatalog = [...catalogData].filter(item => {
     const code = item.code;
     if (activeTab === 'CANDY') return code.startsWith('90');
@@ -235,27 +250,20 @@ export default function App() {
   }).filter(item => {
       const searchTxt = catalogSearch.toUpperCase();
       if (!searchTxt.trim()) return true;
-      const searchTerms = searchTxt.split(/\s+/).filter(Boolean); // 띄어쓰기 기준으로 단어 분리
-      const fullStringWithSpaces = `${String(item.code || '')} ${String(item.role || '')} ${String(item.desc || '')}`.toUpperCase();
-      const exactMatch = fullStringWithSpaces.replace(/\s/g, '').includes(searchTxt.replace(/\s/g, ''));
-      if (exactMatch) return true;
-      const validTerms = searchTerms.filter(t => t.length > 1); // 1글자짜리 무분별한 매칭 방지
-      if (validTerms.length === 0) return exactMatch;
-      // 입력된 여러 단어 중 하나라도 포함되어 있으면 보여줌 (구글식 or 검색)
-      return validTerms.some(term => fullStringWithSpaces.includes(term));
+      const searchTerms = searchTxt.split(/\s+/).filter(Boolean); // 띄어쓰기로 분리
+      const fullString = `${String(item.code || '')} ${String(item.role || '')} ${String(item.desc || '')}`.toUpperCase();
+      // 입력된 '모든 단어'가 fullString에 다 들어있어야만 검색 결과에 나옴 (AND 조건)
+      return searchTerms.every(term => fullString.includes(term));
   });
 
-  // 🔍 [NEW 2] 오른쪽: 엑셀 OEM 차량 컬러 스마트 검색 알고리즘 (LUCID RED TC 검색 완벽 해결)
+  // 🔍 [NEW 2] 오른쪽: 엑셀 OEM 스마트 검색 (AND 논리 교집합) - LUCID RED TC 완벽 해결
   const filteredOemColors = OEM_COLORS.filter(c => {
       const searchTxt = oemSearch.toUpperCase();
       if (!searchTxt.trim()) return false;
-      const searchTerms = searchTxt.split(/\s+/).filter(Boolean);
-      const fullStringWithSpaces = `${String(c.code || '')} ${String(c.name || '')}`.toUpperCase();
-      const exactMatch = fullStringWithSpaces.replace(/\s/g, '').includes(searchTxt.replace(/\s/g, ''));
-      if (exactMatch) return true;
-      const validTerms = searchTerms.filter(t => t.length > 1);
-      if (validTerms.length === 0) return exactMatch;
-      return validTerms.some(term => fullStringWithSpaces.includes(term));
+      const searchTerms = searchTxt.split(/\s+/).filter(Boolean); // 띄어쓰기로 분리
+      const fullString = `${String(c.code || '')} ${String(c.name || '')}`.toUpperCase();
+      // 입력된 '모든 단어'가 fullString에 다 들어있어야만 검색 결과에 나옴 (AND 조건)
+      return searchTerms.every(term => fullString.includes(term));
   });
 
   useEffect(() => { document.title = "조색 Pro"; }, []);
@@ -391,7 +399,7 @@ export default function App() {
     setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
   };
 
-  // 🧠 [NEW 4] AI 가상 조색 시뮬레이터 지능 대폭 업그레이드 (다양한 색상명 판별)
+  // 🧠 [NEW 4] AI 가상 조색 시뮬레이터 지능 대폭 업그레이드
   const getSimulatedColor = (drops: any) => {
       const rDrop = drops.red; const bDrop = drops.blue; const yDrop = drops.yellow; const gDrop = drops.green; const wDrop = drops.white; const kDrop = drops.black;
       const total = rDrop + bDrop + yDrop + gDrop + wDrop + kDrop;
@@ -509,7 +517,6 @@ export default function App() {
     return resultText;
   };
 
-  // 🚀 [NEW 3] 1-Click 다이렉트 공유 로직 (이메일 완벽 분리)
   const handleShareKakao = () => { window.location.href = `kakaotalk://send?text=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareNaverMail = () => { window.open(`https://mail.naver.com/v2/new?body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
@@ -610,7 +617,7 @@ export default function App() {
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
 
-  // 🛡️ [NEW 1] 가짜 오토 승인(보안) 화면 - 완벽한 시각적 전환 (자물쇠 제거됨)
+  // 🛡️ [NEW 1] 가상 오토 승인(보안) 1차 방어선 (빈칸 방지 + 프로그레스바 + 단독팝업)
   if (!isAuthorized) {
     return (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 notranslate" translate="no">
@@ -619,7 +626,7 @@ export default function App() {
                     <>
                         <div className="p-4 flex flex-col items-center justify-center mt-6 relative">
                             <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-4">
-                                {isApproving ? <RefreshCw size={32} className="text-white animate-spin"/> : <Lock size={32} className="text-white"/>}
+                                <Lock size={32} className="text-white"/>
                             </div>
                             <h2 className="text-2xl font-black text-slate-800 mb-2">조색 Pro 접근 승인</h2>
                             <p className="text-sm text-slate-500 text-center break-keep px-4">이 시스템은 승인된 작업자만 사용할 수 있습니다. 관리자 확인을 위해 정확한 정보를 입력해주세요.</p>
@@ -628,30 +635,40 @@ export default function App() {
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
                                     <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
-                                    <input type="text" placeholder="예: 도이치 모터스 BMW" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                                    <input type="text" value={authForm.company} onChange={e => setAuthForm({...authForm, company: e.target.value})} placeholder="예: 도이치 모터스 BMW" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
-                                    <input type="text" placeholder="예: 성수동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                                    <input type="text" value={authForm.location} onChange={e => setAuthForm({...authForm, location: e.target.value})} placeholder="예: 성수동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
                                     <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><UserCheck size={12}/> 작업자 이름</label>
-                                    <input type="text" placeholder="홍길동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                                    <input type="text" value={authForm.name} onChange={e => setAuthForm({...authForm, name: e.target.value})} placeholder="홍길동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Hash size={12}/> 연령(나이)</label>
-                                    <input type="number" placeholder="50" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                                    <input type="number" value={authForm.age} onChange={e => setAuthForm({...authForm, age: e.target.value})} placeholder="50" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
                                 </div>
                             </div>
                             <div>
                                 <label className="text-xs font-bold text-slate-600 mb-1 block">현 직책</label>
-                                <select className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                                <select value={authForm.role} onChange={e => setAuthForm({...authForm, role: e.target.value})} className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
                                     <option>사원</option><option>주임 / 대리</option><option>과장 / 차장</option><option>팀장 / 실장</option><option>대표 / 관리자</option>
                                 </select>
                             </div>
-                            <button type="submit" disabled={isApproving} className="w-full bg-[#1e293b] hover:bg-slate-800 text-white font-black py-4 rounded-xl mt-4 transition-colors shadow-md flex justify-center items-center gap-2 text-sm disabled:bg-slate-400">
+                            
+                            {isApproving && (
+                                <div className="flex flex-col items-center mt-2 animate-in fade-in">
+                                    <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden shadow-inner">
+                                        <div className="bg-blue-600 h-2.5 rounded-full transition-all ease-linear" style={{ width: `${progress}%`, transitionDuration: '70ms' }}></div>
+                                    </div>
+                                    <span className="text-xs font-black text-blue-600 mt-2">{progress}% 시스템 검증 중...</span>
+                                </div>
+                            )}
+
+                            <button type="submit" disabled={!isAuthFormValid || isApproving} className={`w-full font-black py-4 rounded-xl mt-2 transition-colors shadow-md flex justify-center items-center gap-2 text-sm ${!isAuthFormValid ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-[#1e293b] hover:bg-slate-800 text-white'}`}>
                                 {isApproving ? "관리자 승인 대기 중..." : <><ShieldCheck size={18}/> 관리자에게 승인 요청하기</>}
                             </button>
                         </form>
@@ -1005,7 +1022,6 @@ export default function App() {
                     <button onClick={()=>{setActiveTab('CANDY'); setCatalogSearch('');}} className={`flex-1 py-3 text-sm font-black transition-colors ${activeTab === 'CANDY' ? 'bg-yellow-500 text-slate-900' : 'text-slate-400 hover:text-slate-200'}`}>🍬 CANDY</button>
                 </div>
                 
-                {/* 🔍 [NEW 2] 검색창 한 줄을 50:50으로 완벽 분할 */}
                 <div className="p-3 bg-slate-800 border-b border-slate-700 flex flex-col sm:flex-row shrink-0 gap-2">
                     <div className="relative flex-1">
                         <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="조색제(WT/PP) 번호 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
@@ -1030,15 +1046,15 @@ export default function App() {
                         </div>
                     )}
                     
-                    {/* 🔍 [NEW 2] OEM 컬러 렌더링 (글자 잘림 없이 전체 표시) */}
+                    {/* 🔍 [NEW 2] OEM 컬러 렌더링 (풀네임 표시 적용) */}
                     {oemSearch.replace(/\s/g, '') !== '' && filteredOemColors.length > 0 && (
                         <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm animate-in fade-in">
                             <h4 className="text-xs font-black text-blue-800 mb-2">🔍 자동차 제조사(OEM) 색상 검색 결과</h4>
                             <div className="flex flex-col gap-2">
                                 {filteredOemColors.slice(0, 20).map((oem, idx) => (
-                                    <div key={idx} className="flex justify-between items-center bg-white px-3 py-2.5 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(String(oem.code))}>
-                                        <span className="font-black text-blue-600 text-sm whitespace-nowrap mr-3">{oem.code}</span>
-                                        <span className="text-[11.5px] text-slate-700 font-bold break-words text-right leading-tight flex-1 ml-2">{oem.name}</span>
+                                    <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white px-3 py-2.5 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(String(oem.code))}>
+                                        <span className="font-black text-blue-600 text-sm whitespace-nowrap mr-3 mb-1 sm:mb-0 shrink-0">{oem.code}</span>
+                                        <span className="text-[11.5px] text-slate-700 font-bold whitespace-normal break-words text-left sm:text-right leading-tight">{oem.name}</span>
                                     </div>
                                 ))}
                             </div>
