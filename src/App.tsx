@@ -531,7 +531,13 @@ export default function App() {
       }
   }, [focusTarget, toners, pearlToners]);
 
- // 🎨 [NEW] 가상 조색 시뮬레이터 로직
+  const handleScaleAll = (isMultiply: boolean) => {
+    const factor = parseFloat(scaleFactor); if (isNaN(factor) || factor <= 0) { alert("올바른 배율 상수를 입력하세요."); return; }
+    const scale = (valStr: string) => { const val = parseFloat(valStr); if (isNaN(val) || val === 0) return valStr; const calcVal = isMultiply ? (val * 100000 * factor) / 100000 : (val * 100000) / (factor * 100000); return String(Number(Math.round(calcVal * 100000) / 100000)); };
+    const applyScale = (list: any[]) => list.map(t => { if (!t.adjustedWeight) return t; const newVal = scale(t.adjustedWeight); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== newVal) ? [...currentHistory, newVal] : currentHistory; return { ...t, adjustedWeight: newVal, history: nextHistory }; });
+    setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
+  };
+// 🎨 [NEW] 가상 조색 시뮬레이터 로직
   const getSimulatedColor = (drops: any) => {
       const total = drops.red + drops.blue + drops.yellow + drops.green + drops.white + drops.black;
       if (total === 0) return { name: '비어있음 (색상을 추가하세요)', hex: '#1e293b', r: 30, g: 41, b: 59 };
@@ -571,89 +577,6 @@ export default function App() {
       if (drops.black > 0 && drops.white === 0 && active.length === 0) name = '검정 (Black)';
 
       return { name, hex, r, g, b };
-  };
-
-  const handleClearAllInfo = () => { 
-      if(!window.confirm("모든 입력 데이터를 초기화하시겠습니까?")) return;
-      setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
-      setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); 
-      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
-  };
-  const handleResetFormula = () => { 
-      if(!window.confirm("현재 배합과 수정 내역을 모두 리셋하시겠습니까?")) return;
-      setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setSelectedTonerForView(null); 
-      setSnapshots([]); setCatalogSearch(''); setAttachedImages([]);
-  };
-
-  const handleCodeChange = (id: string, newCode: string, isPearl = false) => {
-    const rawVal = newCode.toUpperCase(); 
-    const numOnly = rawVal.replace(/[^0-9]/g, '');
-    let finalCode = rawVal;
-
-    if (rawVal.startsWith('90') && numOnly.length >= 4) {
-        finalCode = numOnly.substring(0, 4); 
-    } else if (['1051', '1500', '455', 'AXT700'].includes(numOnly) || rawVal === 'AXT700') {
-        finalCode = rawVal === 'AXT700' ? 'AXT700' : numOnly; 
-    } else if (numOnly) {
-        finalCode = `WT ${numOnly}`; 
-    }
-
-    const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(toner => { 
-        if (toner.id === id) { 
-            if (TONER_DB[finalCode]) { setFocusTarget({ id: id, type: 'weight' }); } 
-            return { ...toner, code: finalCode }; 
-        } 
-        return toner; 
-    }));
-  };
-
-  const handleWeightInputChange = (id: string, rawValue: string, isPearl = false) => {
-    let val = rawValue.replace(/[^0-9.]/g, ''); const parts = val.split('.'); if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
-    if (val === '') val = ''; else if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, ''); else if (val.startsWith('.')) val = '0' + val; 
-    if (isPearl) setPearlToners(pearlToners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t)); else setToners(toners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
-  };
-  const handleWeightBlur = (id: string, value: string, isPearl = false) => {
-    if (!value) return; const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(t => { if (t.id === id) { const currentHistory = t.history || []; if (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== value) return { ...t, history: [...currentHistory, value] }; } return t; }));
-  };
-  const handleWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string, isPearl = false) => { if (e.key === 'Enter') { e.preventDefault(); const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); setFocusTarget({ id: newId, type: 'code' }); } };
-  const removeToner = (id: string, isPearl = false) => { if (isPearl) setPearlToners(pearlToners.filter(t => t.id !== id)); else setToners(toners.filter(t => t.id !== id)); };
-
-  const addToner = (isPearl = false) => { 
-      let tempInput: HTMLInputElement | undefined;
-      if (typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-          tempInput = document.createElement('input');
-          tempInput.type = 'number';
-          tempInput.style.position = 'fixed';
-          tempInput.style.top = '50%';
-          tempInput.style.left = '50%';
-          tempInput.style.opacity = '0';
-          tempInput.style.width = '1px';
-          tempInput.style.height = '1px';
-          document.body.appendChild(tempInput);
-          tempInput.focus(); 
-      }
-
-      const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
-      const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; 
-      if (isPearl) setPearlToners([...pearlToners, newToner]); 
-      else setToners([...toners, newToner]); 
-
-      setFocusTarget({ id: newId, type: 'code', tempInput }); 
-  };
-
-  const quickEditWeight = (id: string, delta: number, isPearl: boolean) => {
-    const setter = isPearl ? setPearlToners : setToners;
-    setter(prev => prev.map(t => { if(t.id === id) { let newVal = Math.max(0, (parseFloat(t.adjustedWeight) || 0) + delta); let strVal = String(Number(Math.round(newVal * 100000) / 100000)); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== strVal) ? [...currentHistory, strVal] : currentHistory; return { ...t, adjustedWeight: strVal, history: nextHistory }; } return t; }));
-  };
-  const toggleExpand = (id: string, isPearl: boolean) => { const setter = isPearl ? setPearlToners : setToners; setter(prev => prev.map(t => t.id === id ? { ...t, isExpanded: !t.isExpanded } : t)); };
-  
-  const handleScaleAll = (isMultiply: boolean) => {
-    const factor = parseFloat(scaleFactor); if (isNaN(factor) || factor <= 0) { alert("올바른 배율 상수를 입력하세요."); return; }
-    const scale = (valStr: string) => { const val = parseFloat(valStr); if (isNaN(val) || val === 0) return valStr; const calcVal = isMultiply ? (val * 100000 * factor) / 100000 : (val * 100000) / (factor * 100000); return String(Number(Math.round(calcVal * 100000) / 100000)); };
-    const applyScale = (list: any[]) => list.map(t => { if (!t.adjustedWeight) return t; const newVal = scale(t.adjustedWeight); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== newVal) ? [...currentHistory, newVal] : currentHistory; return { ...t, adjustedWeight: newVal, history: nextHistory }; });
-    setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
   };
 
   // ✅ Vercel 에러 완벽 해결 (유니코드 텍스트 깨짐 오류 원천 차단 - 템플릿 리터럴 제거)
@@ -850,47 +773,6 @@ export default function App() {
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
 
-  // 🚨 [NEW] 승인 로그인 화면 (비인가자 차단)
-  if (!isAuthorized) {
-      return (
-          <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-              <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-slate-200 flex flex-col items-center">
-                  <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-6"><Lock size={32} className="text-white"/></div>
-                  <h1 className="text-2xl font-black text-slate-800 mb-2">조색 Pro 접근 승인</h1>
-                  <p className="text-sm text-slate-500 mb-8 text-center break-keep">이 앱은 승인된 작업자만 사용할 수 있습니다. 관리자에게 부여받은 이름과 코드를 입력해주세요.</p>
-                  
-                  <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
-                      <div>
-                          <label className="text-xs font-bold text-slate-600 mb-1.5 block">작업자 이름 (또는 상호명)</label>
-                          <input 
-                              type="text" 
-                              value={loginForm.name} 
-                              onChange={e => setLoginForm({...loginForm, name: e.target.value})}
-                              placeholder="홍길동" 
-                              className="w-full border border-slate-300 p-3 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              required
-                          />
-                      </div>
-                      <div>
-                          <label className="text-xs font-bold text-slate-600 mb-1.5 block">초대 코드 (마스터 키)</label>
-                          <input 
-                              type="password" 
-                              value={loginForm.key} 
-                              onChange={e => setLoginForm({...loginForm, key: e.target.value})}
-                              placeholder="******" 
-                              className="w-full border border-slate-300 p-3 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              required
-                          />
-                      </div>
-                      <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 rounded-lg mt-4 transition-colors shadow-md flex justify-center items-center gap-2">
-                          <ShieldCheck size={18}/> 시스템 접속 승인
-                      </button>
-                  </form>
-              </div>
-          </div>
-      );
-  }
-
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
       
@@ -913,9 +795,9 @@ export default function App() {
         </div>
 
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x items-center">
-            {/* 🚨 [NEW] 승인 사용자 관리 버튼 */}
+            {/* 🚨 [NEW] 승인 사용자 관리 버튼 (팝업 모달 연결) */}
             <button onClick={() => setIsUsersModalOpen(true)} className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white border border-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                <Users size={14} /> 승인된 작업자 <span className="bg-indigo-900 px-1.5 py-0.5 rounded text-[10px]">{authorizedUsers.length}명</span>
+                <Users size={14} /> 작업자 정보 / 승인 요청
             </button>
             <div className="w-px h-6 bg-slate-700 mx-1 hidden sm:block"></div>
 
@@ -1325,69 +1207,54 @@ export default function App() {
           </div>
       )}
 
-      {/* 🚨 [NEW] 승인된 작업자 목록 모달 */}
+      {/* 🚨 [NEW] 승인 사용자 관리 및 상세 정보 입력 모달 (팝업창) */}
       {isUsersModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[80vh]">
-            <div className="p-4 bg-indigo-600 flex justify-between items-center text-white shrink-0">
-              <h3 className="font-bold flex items-center gap-2"><Users size={18} /> 접속 승인된 작업자 현황</h3>
-              <button onClick={() => setIsUsersModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
+          <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 flex flex-col items-center justify-center mt-6 relative">
+               <button onClick={() => setIsUsersModalOpen(false)} className="absolute top-0 right-4 text-slate-400 hover:text-slate-600 transition-colors"><X size={20}/></button>
+               <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-4"><Lock size={32} className="text-white"/></div>
+               <h2 className="text-2xl font-black text-slate-800 mb-2">조색 Pro 접근 승인</h2>
+               <p className="text-sm text-slate-500 text-center break-keep px-4">이 시스템은 승인된 작업자만 사용할 수 있습니다. 관리자 확인을 위해 정확한 정보를 입력해주세요.</p>
             </div>
-            <div className="p-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar">
-                {!selectedUserInfo ? (
-                    <>
-                        <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl mb-6">
-                            <p className="text-xs text-indigo-800 font-bold mb-1">🔐 실시간 접속 보안 패널 (Admin Only)</p>
-                            <p className="text-[11px] text-indigo-600 leading-relaxed break-keep">초대 코드(마스터 키)를 입력하여 접속 권한을 얻은 사용자의 기기 목록입니다. 현재는 테스트 모드로 동작하며, 실제 배포 시 Firebase DB와 연동되어 실시간 통계가 제공됩니다.</p>
-                        </div>
 
-                        <div className="space-y-3">
-                            {authorizedUsers.length === 0 ? (
-                                <div className="text-center py-8 text-slate-400 text-sm font-bold">승인된 사용자가 없습니다.</div>
-                            ) : (
-                                authorizedUsers.map((user, idx) => (
-                                    <div key={idx} className="bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex justify-between items-center hover:border-indigo-300 transition-colors cursor-pointer" onClick={() => setSelectedUserInfo(user)}>
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center border border-slate-200">
-                                                {user.device === 'Mobile' ? <Smartphone size={16} className="text-slate-500"/> : <Monitor size={16} className="text-slate-500"/>}
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="font-black text-slate-800 text-sm">{user.name}</span>
-                                                <span className="text-[10px] text-slate-400 flex items-center gap-1"><Calendar size={10}/> 첫 로그인: {user.date}</span>
-                                            </div>
-                                        </div>
-                                        <span className="bg-emerald-100 text-emerald-700 text-[10px] font-black px-2 py-1 rounded">접속 허용됨</span>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </>
-                ) : (
-                    <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4">
-                        <button onClick={() => setSelectedUserInfo(null)} className="flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-slate-800 mb-2 w-max">
-                            <ChevronDown className="rotate-90"/> 목록으로 돌아가기
-                        </button>
-                        <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm flex flex-col items-center text-center">
-                            <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4 border-2 border-indigo-200 shadow-sm">
-                               <Users size={32}/>
-                            </div>
-                            <h4 className="text-xl font-black text-slate-800 mb-1">{selectedUserInfo.name}</h4>
-                            
-                            <div className="w-full flex flex-col gap-3 text-left mt-6">
-                                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <span className="text-xs font-bold text-slate-500">접속 기기 환경</span>
-                                    <span className="text-sm font-black text-slate-800 flex items-center gap-1">
-                                       {selectedUserInfo.device === 'Mobile' ? <Smartphone size={14}/> : <Monitor size={14}/>} {selectedUserInfo.device}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <span className="text-xs font-bold text-slate-500">최초 접속일시</span>
-                                    <span className="text-xs font-black text-slate-800">{selectedUserInfo.date}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+            <div className="p-6 bg-white flex flex-col gap-4">
+              <div className="grid grid-cols-2 gap-3">
+                  <div>
+                      <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
+                      <input type="text" placeholder="예: 도이치 모터스 BMW" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                  </div>
+                  <div>
+                      <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
+                      <input type="text" placeholder="예: 성수동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                  </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                  <div>
+                      <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><UserCheck size={12}/> 작업자 이름</label>
+                      <input type="text" placeholder="홍길동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                  </div>
+                  <div>
+                      <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Hash size={12}/> 연령(나이)</label>
+                      <input type="number" placeholder="50" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+                  </div>
+              </div>
+
+              <div>
+                  <label className="text-xs font-bold text-slate-600 mb-1 block">현 직책</label>
+                  <select className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                      <option>사원</option>
+                      <option>주임 / 대리</option>
+                      <option>과장 / 차장</option>
+                      <option>팀장 / 실장</option>
+                      <option>대표 / 관리자</option>
+                  </select>
+              </div>
+
+              <button onClick={() => { alert("✅ 관리자에게 승인 요청이 전송되었습니다!"); setIsUsersModalOpen(false); }} className="w-full bg-[#1e293b] hover:bg-slate-800 text-white font-black py-4 rounded-xl mt-4 transition-colors shadow-md flex justify-center items-center gap-2 text-sm">
+                  <ShieldCheck size={18}/> 관리자에게 승인 요청하기
+              </button>
             </div>
           </div>
         </div>
@@ -1615,6 +1482,187 @@ export default function App() {
                     </div>
                 )}
             </div>
+        </div>
+      )}
+
+      {memoModal.isOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[2000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-indigo-600 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><Edit3 size={18} /> {memoModal.code || '선택된 안료'} 메모 및 히스토리</h3>
+              <button onClick={() => setMemoModal({...memoModal, isOpen: false})} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-5 flex flex-col gap-4 bg-slate-50">
+              <div>
+                <label className="text-xs font-black text-indigo-800 mb-1.5 flex items-center gap-1"><Edit3 size={14}/> 조색 커스텀 메모</label>
+                <textarea 
+                    value={memoModal.text} 
+                    onChange={e => setMemoModal({...memoModal, text: e.target.value})} 
+                    placeholder="이 안료에 대한 특별한 조색 팁이나 주의사항을 자유롭게 적어두세요." 
+                    className="w-full border border-slate-300 p-3 rounded-lg text-sm text-slate-800 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-inner font-medium" 
+                />
+              </div>
+              {memoModal.history.length > 0 && (
+                <div>
+                  <label className="text-xs font-black text-slate-500 mb-1.5 flex items-center gap-1"><History size={14}/> 용량(g) 변경 히스토리 기록</label>
+                  <div className="flex flex-wrap gap-1.5 bg-white p-3 rounded-lg border border-slate-200 shadow-sm max-h-32 overflow-y-auto">
+                    {memoModal.history.map((h, i) => (
+                      <span key={i} className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded border border-slate-200">{h}g</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <button 
+                  onClick={() => {
+                      if(memoModal.isPearl) setPearlToners(prev => prev.map(t => t.id === memoModal.id ? {...t, memo: memoModal.text} : t));
+                      else setToners(prev => prev.map(t => t.id === memoModal.id ? {...t, memo: memoModal.text} : t));
+                      setMemoModal({...memoModal, isOpen: false});
+                  }} 
+                  className="w-full bg-indigo-600 text-white py-3 rounded-xl font-black shadow-md hover:bg-indigo-700 transition-colors flex justify-center items-center gap-2"
+              >
+                <Save size={18}/> 메모 저장하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isExcelModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border-2 border-green-600">
+            <div className="p-4 bg-green-600 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><FileSpreadsheet size={18} /> 엑셀(Excel) 연동 가이드 및 복사</h3>
+              <button onClick={() => setIsExcelModalOpen(false)} className="hover:text-red-200 transition-colors bg-green-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-5 flex flex-col gap-4 bg-slate-50">
+              <div className="text-sm text-slate-700 leading-relaxed bg-green-50 p-4 rounded-xl border border-green-200">
+                  <p className="font-black text-green-800 mb-2">✅ 초간단 엑셀 복사 사용 방법 (매크로 불필요!)</p>
+                  <p><b>Step 1.</b> 처음 사용하실 때만 아래 <b>'엑셀 기본 양식 복사'</b>를 눌러 엑셀 A1 셀에 붙여넣어 <b>제목 틀</b>을 만드세요.</p>
+                  <p className="mt-1"><b>Step 2.</b> 데이터 입력 후 <b>초록색 [엑셀 복사] 버튼을 누른 다음, 엑셀의 빈 줄 첫 칸(A열)에 바로 붙여넣기(Ctrl+V)</b> 하시면 자동으로 팝업 복원 링크가 생성됩니다.</p>
+              </div>
+              <div className="flex flex-col gap-2 mt-2">
+                  <button onClick={handleCopyExcelTemplate} className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold shadow-sm hover:bg-slate-700 transition-colors">📋 Step 1. 엑셀 기본 양식 복사 (제목줄 만들기)</button>
+                  <button onClick={handleDirectExcelCopy} className="w-full bg-green-600 text-white py-3 rounded-xl font-black shadow-md hover:bg-green-700 transition-colors">🚀 Step 2. 현재 데이터 엑셀 복사 (배합 저장하기)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isShareModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-slate-800 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><Share2 size={18} /> 배합 데이터 공유 전송</h3>
+              <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-3 bg-slate-50">
+                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 바로 전송하기</button>
+                <button onClick={handleShareSMS} className="w-full bg-blue-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS) 앱 열기</button>
+                <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><Mail size={18}/> 이메일 앱 열기</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isProcessOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[3000] p-4 backdrop-blur-sm transition-opacity">
+          <div className="bg-slate-800 p-6 rounded-xl border border-slate-600 shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden relative">
+            <button onClick={() => setIsProcessOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 p-1.5 rounded-full transition-colors z-10"><X size={20} /></button>
+            <div className="border-b border-emerald-500/50 pb-4 mb-5 shrink-0">
+                <h4 className="text-2xl sm:text-3xl font-black text-white tracking-wide mb-1">
+                    Spies Hecker DB Architecture
+                </h4>
+                <p className="text-emerald-400 font-bold text-sm sm:text-base">
+                    Total 110 Items Perfectly Built & Engineered
+                </p>
+                <div className="mt-4 inline-flex bg-slate-900 px-3 py-1.5 rounded border border-slate-700 items-center">
+                    <span className="text-slate-400 text-[11px] sm:text-xs mr-2">Lead Color & Data Engineer:</span>
+                    <span className="text-white font-black text-sm sm:text-base">윤성만 팀장</span>
+                </div>
+            </div>
+            <div className="overflow-y-auto space-y-6 text-slate-300 font-sans text-xs sm:text-[13px] leading-relaxed break-keep pr-2 custom-scrollbar">
+                <p>DB 완벽 분리 및 모바일 최적화, 화이트톤 갤러리 탭 적용 완료. 에러 Zero 패치 탑재.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEmailModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-yellow-500 flex justify-between items-center text-slate-900">
+              <h3 className="font-black flex items-center gap-2"><Mail size={18} /> 개발자에게 피드백 보내기</h3>
+              <button onClick={() => setIsEmailModalOpen(false)} className="hover:text-red-600 transition-colors bg-yellow-400 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-4 bg-slate-50">
+              <div className="flex gap-3 mt-2">
+                  <a href="https://mail.naver.com/v2/new?to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-[#03C75A] text-white py-3 rounded-xl font-black text-center shadow-md">네이버 메일</a>
+                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-white border text-slate-700 py-3 rounded-xl font-black text-center shadow-sm">구글 메일</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isSnapshotModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#1e293b] rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-700">
+            <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-slate-900 shrink-0">
+              <h3 className="text-white font-bold flex items-center gap-2"><History size={18} className="text-blue-400" /> 현재 페이지 데이터 수정 내역 보기</h3>
+              <button onClick={() => setIsSnapshotModalOpen(false)} className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"><X size={16} /></button>
+            </div>
+            
+            <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-[#0f172a]">
+                <div className={`w-full md:w-1/3 border-b md:border-b-0 md:border-r border-slate-700/50 overflow-y-auto bg-slate-900/50 flex-col custom-scrollbar ${selectedSnapshot ? 'hidden md:flex' : 'flex'}`}>
+                    {snapshots.length === 0 ? ( <div className="p-6 text-center text-slate-500 text-sm">확정된 기록이 없습니다.</div> ) : (
+                        snapshots.map((snap, idx) => (
+                            <button key={snap.id} onClick={() => setSelectedSnapshot(snap)} className={`p-4 text-left border-b border-slate-800 transition-colors flex flex-col gap-1 ${selectedSnapshot?.id === snap.id ? 'bg-indigo-900/40 border-l-4 border-indigo-500' : 'hover:bg-slate-800'}`}>
+                                <span className="text-xs text-slate-400 font-bold">{snap.dateStr}</span>
+                                <span className="text-white font-black text-sm">{snapshots.length - idx}차 확정 데이터</span>
+                                <span className="text-xs text-emerald-400 font-bold flex items-center"><CheckCircle size={12} className="mr-1"/> {snap.timestamp}</span>
+                            </button>
+                        ))
+                    )}
+                </div>
+                
+                <div className={`flex-1 p-6 overflow-y-auto bg-[#0f172a] custom-scrollbar ${selectedSnapshot ? 'block' : 'hidden md:block'}`}>
+                    {selectedSnapshot ? (
+                        <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                            <button onClick={() => setSelectedSnapshot(null)} className="md:hidden mb-4 bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-sm w-full flex items-center justify-center gap-2"><ChevronDown className="rotate-90"/> 목록으로 돌아가기</button>
+                            
+                            <h4 className="text-lg font-black text-white mb-4 flex items-center gap-2 border-b border-slate-700 pb-3"><Search size={20} className="text-yellow-400"/> 데이터 상세 보기 및 복원</h4>
+                            <div className="bg-[#1e293b] p-4 rounded-xl border border-slate-700/50 mb-4 flex justify-between items-center"><span className="text-sm text-slate-300 font-bold">최종 혼합 총량</span><span className="text-xl font-black text-yellow-400">{selectedSnapshot.totalFinal}g</span></div>
+                            <div className="mb-4">
+                                <h5 className="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1 uppercase"><Layers size={14} className="text-blue-400"/> 베이스 코트 내역</h5>
+                                <div className="space-y-2">
+                                    {selectedSnapshot.base?.filter((t: any) => t.code).map((t: any, i: number) => (
+                                        <div key={i} className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-slate-700/50">
+                                            <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
+                                            <span className="text-blue-400 font-bold">{formatWeight(t.adjustedWeight)}g</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            {selectedSnapshot.isThreeCoat && selectedSnapshot.pearl?.filter((t: any) => t.code).length > 0 && (
+                                <div className="mb-6">
+                                    <h5 className="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1 uppercase"><Zap size={14} className="text-purple-400"/> 펄 코트 내역</h5>
+                                    <div className="space-y-2">
+                                        {selectedSnapshot.pearl?.filter((t: any) => t.code).map((t: any, i: number) => (
+                                            <div key={i} className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-purple-900/30">
+                                                <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
+                                                <span className="text-purple-400 font-bold">{formatWeight(t.adjustedWeight)}g</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            <button onClick={() => restoreSnapshot(selectedSnapshot)} className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl mt-4 hover:bg-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all flex justify-center items-center gap-2 text-base"><RefreshCw size={20}/> 이 상태로 완벽하게 덮어쓰기 (복원)</button>
+                        </div>
+                    ) : ( <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50"><History size={64} className="mb-4"/><p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p></div> )}
+                </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -2128,4 +2176,4 @@ export default function App() {
       )}
     </div>
   );
-} 
+}  
