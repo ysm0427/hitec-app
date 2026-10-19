@@ -17,7 +17,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.19 (게시판/사전 모달 복구 및 AI 혼합 시뮬레이터 탑재)"; 
+const LAST_PATCH_DATE = "2026.10.19 (완벽 원상복구 및 빌드 에러/검색 버그 패치)"; 
 
 const MASTER_KEY = "조색프로2026_AUTO";
 
@@ -216,14 +216,11 @@ export default function App() {
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight', tempInput?: HTMLInputElement | null} | null>(null); 
   const [catalogSearch, setCatalogSearch] = useState('');
+  
   const [scaleFactor, setScaleFactor] = useState("2");
 
   const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
   const [selectedWheelIndex, setSelectedWheelIndex] = useState<number | null>(null);
-  
-  // 🎨 [NEW] 가상 조색 시뮬레이터 (물감 혼합) 방울 수 상태 관리
-  const [paletteDrops, setPaletteDrops] = useState({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 });
-
   const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
@@ -481,13 +478,37 @@ export default function App() {
   useEffect(() => {
     const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); 
     const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
+
     setTotalBaseWeight(formatWeight(baseTotal)); 
     setTotalPearlWeight(formatWeight(pearlTotal)); 
+
     const finalTotal = (baseTotal * 1.2) + (isThreeCoatMode ? (pearlTotal * 1.3) : 0);
     setTotalFinalWeight(formatWeight(finalTotal));
   }, [toners, pearlToners, isThreeCoatMode]);
 
-  const handleClearAllInfo = () => { 
+  useEffect(() => {
+      if (focusTarget) {
+          let attempts = 0; 
+          const interval = setInterval(() => {
+              const el = focusTarget.type === 'code' ? codeRefs.current[focusTarget.id] : weightRefs.current[focusTarget.id];
+              if (el) { 
+                  el.focus(); 
+                  if (focusTarget.tempInput) focusTarget.tempInput.remove();
+                  el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+                  clearInterval(interval); 
+                  setFocusTarget(null); 
+              }
+              attempts++; 
+              if (attempts > 20) { 
+                  clearInterval(interval); 
+                  if (focusTarget.tempInput) focusTarget.tempInput.remove();
+                  setFocusTarget(null); 
+              }
+          }, 50); 
+          return () => { clearInterval(interval); };
+      }
+  }, [focusTarget, toners, pearlToners]);
+const handleClearAllInfo = () => { 
       if(!window.confirm("모든 입력 데이터를 초기화하시겠습니까?")) return;
       setToners([{ id: `b_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setPearlToners([{ id: `p_${Date.now()}`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); 
       setTargetColorCode(''); setVehicleNumber(''); setCarModel(''); setJobDescription(''); setSpecialNotes(''); setRegistrationDate(new Date().toISOString().split('T')[0]); setSelectedTonerForView(null); 
@@ -503,9 +524,15 @@ export default function App() {
     const rawVal = newCode.toUpperCase(); 
     const numOnly = rawVal.replace(/[^0-9]/g, '');
     let finalCode = rawVal;
-    if (rawVal.startsWith('90') && numOnly.length >= 4) { finalCode = numOnly.substring(0, 4); } 
-    else if (['1051', '1500', '455', 'AXT700'].includes(numOnly) || rawVal === 'AXT700') { finalCode = rawVal === 'AXT700' ? 'AXT700' : numOnly; } 
-    else if (numOnly) { finalCode = `WT ${numOnly}`; }
+
+    if (rawVal.startsWith('90') && numOnly.length >= 4) {
+        finalCode = numOnly.substring(0, 4); 
+    } else if (['1051', '1500', '455', 'AXT700'].includes(numOnly) || rawVal === 'AXT700') {
+        finalCode = rawVal === 'AXT700' ? 'AXT700' : numOnly; 
+    } else if (numOnly) {
+        finalCode = `WT ${numOnly}`; 
+    }
+
     const setter = isPearl ? setPearlToners : setToners;
     setter(prev => prev.map(toner => { 
         if (toner.id === id) { 
@@ -531,11 +558,23 @@ export default function App() {
   const addToner = (isPearl = false) => { 
       let tempInput: HTMLInputElement | undefined;
       if (typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-          tempInput = document.createElement('input'); tempInput.type = 'number'; tempInput.style.position = 'fixed'; tempInput.style.top = '50%'; tempInput.style.left = '50%'; tempInput.style.opacity = '0'; tempInput.style.width = '1px'; tempInput.style.height = '1px'; document.body.appendChild(tempInput); tempInput.focus(); 
+          tempInput = document.createElement('input');
+          tempInput.type = 'number';
+          tempInput.style.position = 'fixed';
+          tempInput.style.top = '50%';
+          tempInput.style.left = '50%';
+          tempInput.style.opacity = '0';
+          tempInput.style.width = '1px';
+          tempInput.style.height = '1px';
+          document.body.appendChild(tempInput);
+          tempInput.focus(); 
       }
+
       const newId = `new_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
       const newToner = { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }; 
-      if (isPearl) setPearlToners([...pearlToners, newToner]); else setToners([...toners, newToner]); 
+      if (isPearl) setPearlToners([...pearlToners, newToner]); 
+      else setToners([...toners, newToner]); 
+
       setFocusTarget({ id: newId, type: 'code', tempInput }); 
   };
 
@@ -551,7 +590,8 @@ export default function App() {
     setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
   };
 
-const generateShareText = () => {
+  // ✅ Vercel 에러 완벽 해결 (유니코드 텍스트 깨짐 오류 원천 차단 - 템플릿 리터럴 제거)
+  const generateShareText = () => {
     let baseListText = toners.filter(t => t.code).map(t => "  - " + t.code + " (" + (TONER_DB[t.code]?.role || '미지정') + "): " + formatWeight(t.adjustedWeight) + "g").join('\n'); 
     let pearlListText = pearlToners.filter(t => t.code).map(t => "  - " + t.code + " (" + (TONER_DB[t.code]?.role || '미지정') + "): " + formatWeight(t.adjustedWeight) + "g").join('\n'); 
     let currentOrigin = localStorage.getItem('hitec_clean_domain') || window.location.origin;
@@ -569,7 +609,11 @@ const generateShareText = () => {
     return resultText;
   };
 
-  const handleShareKakao = () => { window.location.href = `kakaotalk://send?text=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
+  const handleShareKakao = () => { 
+      const shareText = generateShareText();
+      window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
+      setIsShareModalOpen(false);
+  };
   const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareMail = () => { window.location.href = `mailto:?subject=${encodeURIComponent('[조색 Pro] 배합 지시서 공유')}&body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
 
@@ -587,7 +631,12 @@ const generateShareText = () => {
 
   const handleCopyLinkForPc = () => {
       const url = generateSyncUrl();
-      if (navigator.clipboard) { navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }); }
+      if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => {
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+          });
+      }
   };
 
   const handleDirectExcelCopy = () => {
@@ -609,11 +658,23 @@ const generateShareText = () => {
           reader.onload = (event) => {
               const img = new Image();
               img.onload = () => {
-                  const canvas = document.createElement('canvas'); let width = img.width; let height = img.height; const MAX_WIDTH = 600; const MAX_HEIGHT = 600;
-                  if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
-                  canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx?.drawImage(img, 0, 0, width, height);
+                  const canvas = document.createElement('canvas');
+                  let width = img.width;
+                  let height = img.height;
+                  const MAX_WIDTH = 600; 
+                  const MAX_HEIGHT = 600;
+                  if (width > height) {
+                      if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                  } else {
+                      if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                  }
+                  canvas.width = width;
+                  canvas.height = height;
+                  const ctx = canvas.getContext('2d');
+                  ctx?.drawImage(img, 0, 0, width, height);
                   const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5); 
-                  setAttachedImages(prev => [...prev, compressedBase64]); alert("📷 시편 사진이 안전하게 최적화되어 추가되었습니다!");
+                  setAttachedImages(prev => [...prev, compressedBase64]);
+                  alert("📷 시편 사진이 안전하게 최적화되어 추가되었습니다!");
               };
               img.src = event.target?.result as string;
           };
@@ -621,37 +682,90 @@ const generateShareText = () => {
       }
   };
 
-  const removeAttachedImage = (index: number) => { setAttachedImages(prev => prev.filter((_, i) => i !== index)); };
+  const removeAttachedImage = (index: number) => {
+      setAttachedImages(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleDeletePostImage = (postId: number, imgIdx: number) => {
       if (window.confirm("이 사진을 삭제하시겠습니까?\n\n(삭제된 사진은 휴지통에서 3일간 보관된 후 영구 삭제됩니다.)")) {
           setBoardPosts(prev => prev.map(p => {
-              if (p.id === postId) { const newImages = [...p.images]; const removed = newImages.splice(imgIdx, 1)[0]; const deletedImages = p.deletedImages ? [...p.deletedImages] : []; deletedImages.push({ url: removed, deletedAt: Date.now() }); return { ...p, images: newImages, deletedImages }; }
+              if (p.id === postId) {
+                  const newImages = [...p.images];
+                  const removed = newImages.splice(imgIdx, 1)[0];
+                  const deletedImages = p.deletedImages ? [...p.deletedImages] : [];
+                  deletedImages.push({ url: removed, deletedAt: Date.now() });
+                  return { ...p, images: newImages, deletedImages };
+              }
               return p;
           }));
+          
           if (viewingPost && viewingPost.id === postId) {
-              const newImages = [...viewingPost.images]; const removed = newImages.splice(imgIdx, 1)[0]; const deletedImages = viewingPost.deletedImages ? [...viewingPost.deletedImages] : []; deletedImages.push({ url: removed, deletedAt: Date.now() });
+              const newImages = [...viewingPost.images];
+              const removed = newImages.splice(imgIdx, 1)[0];
+              const deletedImages = viewingPost.deletedImages ? [...viewingPost.deletedImages] : [];
+              deletedImages.push({ url: removed, deletedAt: Date.now() });
               setViewingPost({ ...viewingPost, images: newImages, deletedImages });
           }
       }
   };
 
   const handleRestorePostImage = (postId: number, delIdx: number) => {
-      setBoardPosts(prev => prev.map(p => { if (p.id === postId && p.deletedImages) { const newDeleted = [...p.deletedImages]; const restored = newDeleted.splice(delIdx, 1)[0]; return { ...p, images: [...p.images, restored.url], deletedImages: newDeleted }; } return p; }));
-      if (viewingPost && viewingPost.id === postId) { const newDeleted = [...viewingPost.deletedImages]; const restored = newDeleted.splice(delIdx, 1)[0]; setViewingPost({ ...viewingPost, images: [...viewingPost.images, restored.url], deletedImages: newDeleted }); }
+      setBoardPosts(prev => prev.map(p => {
+          if (p.id === postId && p.deletedImages) {
+              const newDeleted = [...p.deletedImages];
+              const restored = newDeleted.splice(delIdx, 1)[0];
+              return { ...p, images: [...p.images, restored.url], deletedImages: newDeleted };
+          }
+          return p;
+      }));
+      if (viewingPost && viewingPost.id === postId) {
+          const newDeleted = [...viewingPost.deletedImages];
+          const restored = newDeleted.splice(delIdx, 1)[0];
+          setViewingPost({ ...viewingPost, images: [...viewingPost.images, restored.url], deletedImages: newDeleted });
+      }
   };
 
   const handlePermanentDeletePostImage = (postId: number, delIdx: number) => {
       if (!window.confirm("이 사진을 영구적으로 삭제하시겠습니까?\n(이 작업은 취소할 수 없습니다.)")) return;
-      setBoardPosts(prev => prev.map(p => { if (p.id === postId && p.deletedImages) { const newDeleted = [...p.deletedImages]; newDeleted.splice(delIdx, 1); return { ...p, deletedImages: newDeleted }; } return p; }));
-      if (viewingPost && viewingPost.id === postId) { const newDeleted = [...viewingPost.deletedImages]; newDeleted.splice(delIdx, 1); setViewingPost({ ...viewingPost, deletedImages: newDeleted }); }
+      setBoardPosts(prev => prev.map(p => {
+          if (p.id === postId && p.deletedImages) {
+              const newDeleted = [...p.deletedImages];
+              newDeleted.splice(delIdx, 1);
+              return { ...p, deletedImages: newDeleted };
+          }
+          return p;
+      }));
+      if (viewingPost && viewingPost.id === postId) {
+          const newDeleted = [...viewingPost.deletedImages];
+          newDeleted.splice(delIdx, 1);
+          setViewingPost({ ...viewingPost, deletedImages: newDeleted });
+      }
   };
 
   const saveToBoard = () => {
       if(!targetColorCode) { alert("⚠️ 컬러코드를 입력해야 합니다!"); return; }
-      const now = new Date(); const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-      const newPost: BoardPost = { id: Date.now() + Math.random(), brand: carModel || '미지정', code: targetColorCode, date: timeFormatted, likes: 0, views: 0, author: '내 데이터', spec: specialNotes || '특이사항 없음', baseFormula: [...toners], pearlFormula: [...pearlToners], isThreeCoat: isThreeCoatMode, images: [...attachedImages], deletedImages: [] };
-      setBoardPosts([newPost, ...boardPosts]); setAttachedImages([]); alert("🎉 시편 사진들과 함께 게시판에 등록되었습니다!");
+      
+      const now = new Date();
+      const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      const newPost: BoardPost = { 
+          id: Date.now() + Math.random(), 
+          brand: carModel || '미지정', 
+          code: targetColorCode, 
+          date: timeFormatted, 
+          likes: 0, 
+          views: 0, 
+          author: '내 데이터', 
+          spec: specialNotes || '특이사항 없음', 
+          baseFormula: [...toners], 
+          pearlFormula: [...pearlToners], 
+          isThreeCoat: isThreeCoatMode,
+          images: [...attachedImages],
+          deletedImages: []
+      };
+      setBoardPosts([newPost, ...boardPosts]); 
+      setAttachedImages([]); 
+      alert("🎉 시편 사진들과 함께 게시판에 등록되었습니다!");
   };
 
   const deleteBoardPost = (id: number, e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("이 시편 데이터를 완전히 삭제하시겠습니까?")) setBoardPosts(prev => prev.filter(post => post.id !== id)); };
@@ -667,105 +781,114 @@ const generateShareText = () => {
       window.open(`https://www.google.com/search?q=스피스헥커+${val}+뜻`, '_blank');
   };
 
-  // 🎨 [NEW] 가상 조색 시뮬레이터 로직
-  const getSimulatedColor = (drops: any) => {
-      const total = drops.red + drops.blue + drops.yellow + drops.green + drops.white + drops.black;
-      if (total === 0) return { name: '비어있음 (색상을 추가하세요)', hex: '#1e293b', r: 30, g: 41, b: 59 };
-
-      let c = (drops.blue * 1 + drops.green * 1) / total;
-      let m = (drops.red * 1 + drops.blue * 0.5) / total;
-      let y = (drops.yellow * 1 + drops.red * 1 + drops.green * 1) / total;
-      let k = (drops.black * 1) / total;
-
-      const concentration = 1 - (drops.white / total);
-      c *= concentration; m *= concentration; y *= concentration;
-
-      const r = Math.round(255 * (1 - c) * (1 - k));
-      const g = Math.round(255 * (1 - m) * (1 - k));
-      const b = Math.round(255 * (1 - y) * (1 - k));
-      const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-
-      let name = '';
-      const active = Object.keys(drops).filter(k => drops[k] > 0 && k !== 'white' && k !== 'black');
-      if (active.length === 1) {
-          const names: any = { red: '빨강 (Red)', blue: '파랑 (Blue)', yellow: '노랑 (Yellow)', green: '초록 (Green)' };
-          name = names[active[0]];
-      } else if (active.includes('red') && active.includes('blue') && active.includes('yellow')) { name = '탁한 회갈색 (Muddy Brown)';
-      } else if (active.includes('red') && active.includes('blue')) { name = '보라 (Purple)';
-      } else if (active.includes('red') && active.includes('yellow')) { name = '주황 (Orange)';
-      } else if (active.includes('blue') && active.includes('yellow')) { name = '청록/녹색 (Teal/Green)';
-      } else if (active.includes('red') && active.includes('green')) { name = '갈색 (Brown)';
-      } else if (active.includes('blue') && active.includes('green')) { name = '바다색 (Deep Cyan)';
-      } else if (active.includes('yellow') && active.includes('green')) { name = '연두 (Yellow-Green)';
-      } else if (active.length === 0) { name = '무채색';
-      } else { name = '혼합색 (Mixed)'; }
-
-      if (drops.white > 0 && drops.black === 0 && active.length > 0) name = `파스텔 ${name}`;
-      if (drops.black > 0 && active.length > 0) name = `어두운 ${name}`;
-      if (drops.white > 0 && drops.black > 0 && active.length === 0) name = '회색 (Gray)';
-      if (drops.white > 0 && drops.black === 0 && active.length === 0) name = '흰색 (White)';
-      if (drops.black > 0 && drops.white === 0 && active.length === 0) name = '검정 (Black)';
-
-      return { name, hex, r, g, b };
-  };
-const showBottomBar = !(isMobile && isKeyboardOpen);
+  const showBottomBar = !(isMobile && isKeyboardOpen);
 
   if (!isAuthorized) {
       return (
           <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
               <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[100px]"></div>
               <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[100px]"></div>
+
               <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-lg border border-slate-200 flex flex-col items-center relative z-10 overflow-hidden">
+                  
                   {authStatus === 'idle' && (
                       <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
                           <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg mb-6"><Lock size={32} className="text-white"/></div>
                           <h1 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">조색 Pro 접근 승인</h1>
                           <p className="text-sm text-slate-500 mb-8 text-center break-keep">이 시스템은 승인된 작업자만 사용할 수 있습니다. 관리자 확인을 위해 정확한 정보를 입력해주세요.</p>
+                          
                           <form onSubmit={handleRequestApproval} className="w-full flex flex-col gap-4">
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   <div>
                                       <label className="text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
-                                      <input type="text" value={loginForm.brand} onChange={e => setLoginForm({...loginForm, brand: e.target.value})} placeholder="예: 도이치 모터스" className="w-full border border-slate-300 p-3 rounded-xl text-sm focus:ring-2 focus:ring-blue-500" />
+                                      <input 
+                                          type="text" 
+                                          value={loginForm.brand} 
+                                          onChange={e => setLoginForm({...loginForm, brand: e.target.value})}
+                                          placeholder="예: 도이치 모터스 BMW" 
+                                          className="w-full border border-slate-300 p-3 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner bg-slate-50"
+                                      />
                                   </div>
                                   <div>
                                       <label className="text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
-                                      <input type="text" value={loginForm.branch} onChange={e => setLoginForm({...loginForm, branch: e.target.value})} placeholder="예: 성수동" className="w-full border border-slate-300 p-3 rounded-xl text-sm focus:ring-2 focus:ring-blue-500" />
+                                      <input 
+                                          type="text" 
+                                          value={loginForm.branch} 
+                                          onChange={e => setLoginForm({...loginForm, branch: e.target.value})}
+                                          placeholder="예: 성수동" 
+                                          className="w-full border border-slate-300 p-3 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner bg-slate-50"
+                                      />
                                   </div>
                               </div>
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                   <div className="sm:col-span-2">
                                       <label className="text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1"><UserCheck size={12}/> 작업자 이름</label>
-                                      <input type="text" value={loginForm.name} onChange={e => setLoginForm({...loginForm, name: e.target.value})} placeholder="홍길동" className="w-full border border-slate-300 p-3 rounded-xl text-sm focus:ring-2 focus:ring-blue-500" />
+                                      <input 
+                                          type="text" 
+                                          value={loginForm.name} 
+                                          onChange={e => setLoginForm({...loginForm, name: e.target.value})}
+                                          placeholder="홍길동" 
+                                          className="w-full border border-slate-300 p-3 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner bg-slate-50"
+                                      />
                                   </div>
                                   <div>
                                       <label className="text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1"><Hash size={12}/> 연령(나이)</label>
-                                      <input type="number" value={loginForm.age} onChange={e => setLoginForm({...loginForm, age: e.target.value})} placeholder="50" className="w-full border border-slate-300 p-3 rounded-xl text-sm focus:ring-2 focus:ring-blue-500" />
+                                      <input 
+                                          type="number" 
+                                          value={loginForm.age} 
+                                          onChange={e => setLoginForm({...loginForm, age: e.target.value})}
+                                          placeholder="50" 
+                                          className="w-full border border-slate-300 p-3 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner bg-slate-50"
+                                      />
                                   </div>
                               </div>
                               <div>
                                   <label className="text-xs font-bold text-slate-600 mb-1.5 block">현 직책</label>
-                                  <select value={loginForm.role} onChange={e => setLoginForm({...loginForm, role: e.target.value})} className="w-full border border-slate-300 p-3 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-500 bg-white">
-                                      <option value="사원">사원</option><option value="주임">주임</option><option value="대리">대리</option><option value="과장">과장</option><option value="차장">차장</option><option value="부장">부장</option><option value="지점장">지점장</option><option value="대표">대표</option>
+                                  <select 
+                                      value={loginForm.role} 
+                                      onChange={e => setLoginForm({...loginForm, role: e.target.value})}
+                                      className="w-full border border-slate-300 p-3 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner bg-white cursor-pointer"
+                                  >
+                                      <option value="사원">사원</option>
+                                      <option value="주임">주임</option>
+                                      <option value="대리">대리</option>
+                                      <option value="과장">과장</option>
+                                      <option value="차장">차장</option>
+                                      <option value="부장">부장</option>
+                                      <option value="지점장">지점장</option>
+                                      <option value="대표">대표</option>
                                   </select>
                               </div>
-                              <button type="submit" className="w-full bg-slate-800 hover:bg-slate-900 text-white font-black py-4 rounded-xl mt-4 transition-all shadow-lg flex justify-center items-center gap-2">
-                                  <ShieldCheck size={20}/> 관리자에게 승인 요청하기
+                              
+                              <button type="submit" className="w-full bg-slate-800 hover:bg-slate-900 text-white font-black py-4 rounded-xl mt-4 transition-all shadow-[0_4px_20px_rgba(0,0,0,0.15)] flex justify-center items-center gap-2 group">
+                                  <ShieldCheck size={20} className="group-hover:scale-110 transition-transform"/> 관리자에게 승인 요청하기
                               </button>
                           </form>
                       </div>
                   )}
+
                   {authStatus === 'waiting' && (
                       <div className="w-full flex flex-col items-center py-12 animate-in fade-in zoom-in duration-300">
                           <Loader2 size={64} className="text-blue-500 animate-spin mb-6" />
                           <h2 className="text-xl font-black text-slate-800 mb-3 tracking-tight">승인 요청 전송 완료</h2>
-                          <p className="text-sm font-bold text-slate-600 text-center leading-relaxed">현재 관리자가 접속 정보를 검토 중입니다.<br/>잠시만 기다려주세요.</p>
+                          <p className="text-sm font-bold text-slate-600 text-center leading-relaxed">
+                              현재 관리자가 접속 정보를 검토 중입니다.<br/>잠시만 기다려주세요.
+                          </p>
+                          <div className="mt-8 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-xs font-black animate-pulse border border-blue-200">
+                              통상 1~2분 정도 소요됩니다...
+                          </div>
                       </div>
                   )}
+
                   {authStatus === 'approved' && (
                       <div className="w-full flex flex-col items-center py-12 animate-in fade-in zoom-in duration-300">
-                          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6 border-4 border-emerald-50"><CheckCircle size={40} className="text-emerald-500" /></div>
+                          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6 border-4 border-emerald-50 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                              <CheckCircle size={40} className="text-emerald-500" />
+                          </div>
                           <h2 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">관리자 승인 완료!</h2>
-                          <p className="text-sm font-bold text-slate-500 text-center">인증이 정상적으로 처리되었습니다.<br/>잠시 후 조색 Pro 시스템으로 이동합니다.</p>
+                          <p className="text-sm font-bold text-slate-500 text-center">
+                              인증이 정상적으로 처리되었습니다.<br/>잠시 후 조색 Pro 시스템으로 이동합니다.
+                          </p>
                       </div>
                   )}
               </div>
@@ -782,61 +905,75 @@ const showBottomBar = !(isMobile && isKeyboardOpen);
                 <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200 cursor-default">
                     <span className="text-red-600 font-black italic text-sm tracking-tighter">Spies Hecker</span>
                 </div>
-                <button onClick={() => { window.location.replace("https://glasurit-pro-v2-2va8x70wv-ysm0427-1929s-projects.vercel.app"); }} className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white transition-all group">
-                    <span className="text-xl group-hover:scale-110 transition-transform">🦜</span><span className="font-bold text-xs tracking-wide">Glasurit</span>
+                <button 
+                    onClick={() => { window.location.replace("https://glasurit-pro-v2-2va8x70wv-ysm0427-1929s-projects.vercel.app"); }} 
+                    className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white transition-all group cursor-pointer"
+                    title="글라슈리트 90라인으로 이동"
+                >
+                    <span className="text-xl group-hover:scale-110 transition-transform origin-center">🦜</span>
+                    <span className="font-bold text-xs tracking-wide">Glasurit</span>
                 </button>
             </div>
             <span className="bg-slate-800 text-slate-400 text-[10px] px-2.5 py-1 rounded-full border border-slate-700 hidden md:inline-block shrink-0">Last Patch: {LAST_PATCH_DATE}</span>
         </div>
 
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x items-center">
-            <button onClick={() => { setIsUsersModalOpen(true); setSelectedUserInfo(null); }} className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap"><Users size={14} /> 작업자 <span className="bg-indigo-900 px-1.5 py-0.5 rounded text-[10px]">{authorizedUsers.length}명</span></button>
+            <button onClick={() => { setIsUsersModalOpen(true); setSelectedUserInfo(null); }} className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white border border-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                <Users size={14} /> 승인된 작업자 <span className="bg-indigo-900 px-1.5 py-0.5 rounded text-[10px]">{authorizedUsers.length}명</span>
+            </button>
             <div className="w-px h-6 bg-slate-700 mx-1 hidden sm:block"></div>
-            <button onClick={() => { setIsCloudModalOpen(true); setCopied(false); }} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap">☁️ 초고속 연동</button>
-            
-            {/* ✅ 복구 완료: 도장/조색 용어 사전 버튼 */}
-            <button onClick={() => setIsGlossaryModalOpen(true)} className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap">📖 도장/조색 용어 사전</button>
-            
-            {/* ✅ 복구 완료: 시편 게시판 버튼 */}
-            <button onClick={() => setIsBoardOpen(true)} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-900/50 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap"><Layers size={14} /> 시편 게시판</button>
+
+            <button onClick={() => { setIsCloudModalOpen(true); setCopied(false); }} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                ☁️ 기기 간 초고속 연동
+            </button>
+            <button onClick={() => setIsGlossaryModalOpen(true)} className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                📖 도장/조색 용어 사전
+            </button>
+            <button onClick={() => setIsBoardOpen(true)} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                <Layers size={14} /> 시편 게시판
+            </button>
         </div>
       </header>
 
       <div className="flex-1 p-3 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        {/* 좌측: 배합 워크 시트 */}
         <div className="lg:col-span-7 flex flex-col bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden">
           <div className="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-slate-800 flex items-center shrink-0"><Sliders className="text-blue-600 mr-2" size={16} />공식 배합 워크 시트</h2>
-              <button onClick={handleClearAllInfo} className="text-[11px] font-bold text-slate-500 hover:text-red-600 flex items-center transition-colors bg-white hover:bg-red-50 px-2.5 py-1.5 rounded-md border border-slate-200"><Trash2 size={14} className="mr-1"/> 전체 초기화</button>
+              <button onClick={handleClearAllInfo} className="text-[11px] font-bold text-slate-500 hover:text-red-600 flex items-center transition-colors bg-white hover:bg-red-50 px-2.5 py-1.5 rounded-md border border-slate-200 shadow-sm shrink-0"><Trash2 size={14} className="mr-1"/> 전체 초기화</button>
             </div>
             <div className="flex flex-col gap-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📅 등록 날짜</label><input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full text-slate-700" /></div>
-                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚗 차량 번호</label><input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="예: 12가3456" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full" /></div>
-                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 브랜드 등록</label><input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 현대, BMW..." className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full" /></div>
-                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🎨 컬러코드</label><input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="예: UX" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full uppercase" /></div>
+                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📅 등록 날짜</label><input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm cursor-pointer" /></div>
+                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚗 차량 번호</label><input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="예: 12가3456" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm" /></div>
+                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 브랜드 등록</label><input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 현대, BMW..." className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm" /></div>
+                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🎨 컬러코드</label><input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="예: UX" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full uppercase focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm notranslate" translate="no" /></div>
               </div>
-              <div><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🛠️ 작업 내용</label><input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="예: 조수석 앞휀다 교환 등" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full" /></div>
-              <div><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📌 특이사항 및 스펙 메모</label><input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="직접 입력 (예: 이색 심함)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full" /></div>
+              <div><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🛠️ 작업 내용</label><input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="예: 조수석 앞휀다 교환 등" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm" /></div>
+              <div><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📌 특이사항 및 스펙 메모</label><input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="직접 입력 (예: 이색 심함)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400" /></div>
               
               <div className="flex w-full gap-2 mt-2">
-                <button onClick={() => setIsExcelModalOpen(true)} className="flex-[1.2] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
+                <button onClick={() => setIsExcelModalOpen(true)} className="flex-[1.2] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
+                
                 <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
-                <button onClick={() => fileInputRef.current?.click()} className={`flex-[1.2] ${attachedImages.length > 0 ? 'bg-amber-600 hover:bg-amber-700' : 'bg-slate-700 hover:bg-slate-600'} text-white p-3 rounded text-xs font-black flex items-center justify-center`}>
+                <button onClick={() => fileInputRef.current?.click()} className={`flex-[1.2] ${attachedImages.length > 0 ? 'bg-amber-600 hover:bg-amber-700' : 'bg-slate-700 hover:bg-slate-600'} text-white p-3 rounded text-xs font-black flex items-center justify-center shadow-sm`}>
                     <Camera size={16} className="mr-1 hidden sm:block"/> {attachedImages.length > 0 ? `사진(${attachedImages.length})` : '사진첨부'}
                 </button>
-                <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.3] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 등록</button>
-                <button onClick={() => setIsShareModalOpen(true)} className="flex-[1.8] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100]"><Share2 size={18} className="mr-1.5"/> 공유 전송</button>
-                <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 whitespace-nowrap"><Trash2 size={18} className="mb-0.5" /><span className="text-[9px] font-black">리셋</span></button>
+
+                <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.3] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 등록</button>
+                
+                <button onClick={() => setIsShareModalOpen(true)} className="flex-[1.8] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] shadow-sm"><Share2 size={18} className="mr-1.5"/> 공유 전송</button>
+                <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 shadow-sm whitespace-nowrap"><Trash2 size={18} className="mb-0.5" /><span className="text-[9px] font-black">리셋</span></button>
               </div>
 
               {attachedImages.length > 0 && (
                   <div className="flex gap-2 overflow-x-auto py-2 px-2 bg-amber-50/50 rounded-xl border border-amber-200">
                       {attachedImages.map((imgSrc, idx) => (
-                          <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-amber-300 shrink-0 group bg-white">
+                          <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-amber-300 shrink-0 shadow-sm group bg-white">
                               <img src={imgSrc} alt={`시편 ${idx+1}`} className="w-full h-full object-cover cursor-pointer" onClick={() => setPreviewModalImage(imgSrc)} />
-                              <button onClick={() => removeAttachedImage(idx)} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"><X size={10} /></button>
+                              <button onClick={() => removeAttachedImage(idx)} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 shadow-md">
+                                  <X size={10} />
+                              </button>
                           </div>
                       ))}
                   </div>
@@ -845,13 +982,13 @@ const showBottomBar = !(isMobile && isKeyboardOpen);
           </div>
           
           <div className="p-3 bg-white">
-            <div className="mb-4 bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div className="mb-4 bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-between shadow-sm gap-2">
                 <div className="flex items-center gap-2"><Beaker size={14} className="text-indigo-600" /><span className="text-xs font-bold text-indigo-800">현장 실시간 용량 배율 변환기</span></div>
                 <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end">
                     <input type="text" inputMode="decimal" value={scaleFactor} onChange={(e) => setScaleFactor(e.target.value.replace(/[^0-9.]/g, ''))} className="w-12 text-center text-sm font-black text-indigo-700 border rounded py-1" />
                     <span className="text-[11px] font-bold text-indigo-400 mr-1">배</span>
-                    <button onClick={() => handleScaleAll(true)} className="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded hover:bg-indigo-700">× 곱하기</button>
-                    <button onClick={() => handleScaleAll(false)} className="bg-white border border-indigo-300 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded hover:bg-indigo-50">÷ 나누기</button>
+                    <button onClick={() => handleScaleAll(true)} className="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded shadow-sm hover:bg-indigo-700 transition-colors">× 곱하기</button>
+                    <button onClick={() => handleScaleAll(false)} className="bg-white border border-indigo-300 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded shadow-sm hover:bg-indigo-50 transition-colors">÷ 나누기</button>
                 </div>
             </div>
 
@@ -861,41 +998,94 @@ const showBottomBar = !(isMobile && isKeyboardOpen);
                 const info = TONER_DB[toner.code] || { role: '', type: 'solid', face: '#e2e8f0', flop: '#e2e8f0', desc: '' };
                 const isEffect = info.type !== 'solid' && info.type !== 'binder' && info.type !== 'candy';
                 return (
-                  <div key={toner.id} className="flex flex-col bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                  <div key={toner.id} className="flex flex-col bg-slate-50 hover:bg-blue-50/50 p-2.5 rounded-xl border border-slate-200 shadow-sm transition-colors">
+                    
                     <div className="flex items-center w-full gap-2">
-                      <button type="button" className="flex w-[50px] h-[36px] rounded border border-slate-300 overflow-hidden shrink-0 relative" onClick={() => setMemoModal({isOpen: true, id: toner.id, code: toner.code, isPearl: false, text: toner.memo || '', history: toner.history || []})}>
+                      <button 
+                           type="button"
+                           className="flex w-[50px] h-[36px] rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-blue-400" 
+                           onClick={() => setMemoModal({isOpen: true, id: toner.id, code: toner.code, isPearl: false, text: toner.memo || '', history: toner.history || []})}
+                           title="메모 및 히스토리 보기"
+                      >
                            <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
                            <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
-                           {toner.memo && <div className="absolute -top-1.5 -right-1.5 bg-yellow-400 w-4 h-4 rounded-full border-2 border-white z-20"></div>}
+                           {toner.memo && <div className="absolute -top-1.5 -right-1.5 bg-yellow-400 w-4 h-4 rounded-full border-2 border-white shadow-md z-20"></div>}
                       </button>
-                      <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code.replace('WT ', '').replace('PP ', '')} onChange={e => handleCodeChange(toner.id, e.target.value, false)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }} type="text" inputMode="decimal" className="w-16 h-[36px] text-center text-sm font-black border border-slate-300 rounded focus:border-blue-500 focus:outline-none uppercase" placeholder="번호" />
+                      
+                      <input 
+                          ref={el => { codeRefs.current[toner.id] = el; }} 
+                          value={toner.code.replace('WT ', '').replace('PP ', '')} 
+                          onChange={e => handleCodeChange(toner.id, e.target.value, false)} 
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }}
+                          type="text"
+                          inputMode="decimal" 
+                          pattern="[0-9]*" 
+                          className="w-16 h-[36px] text-center text-sm font-black border border-slate-300 rounded focus:border-blue-500 focus:outline-none shadow-inner shrink-0 uppercase" 
+                          placeholder="번호" 
+                      />
+
                       <div className="flex-1"></div>
-                      <div className="flex items-center bg-white border rounded-md px-1 h-[36px] shrink-0">
+
+                      <div className="flex items-center bg-white border rounded-md px-1 h-[36px] shrink-0 shadow-sm">
                          <button onClick={() => quickEditWeight(toner.id, -0.1, false)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
-                         <input ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" value={toner.adjustedWeight} onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} onBlur={e => handleWeightBlur(toner.id, e.target.value, false)} onKeyDown={e => handleWeightKeyDown(e, toner.id, false)} className="w-14 text-right text-[15px] font-black text-blue-600 focus:outline-none" placeholder="0.0" />
+                         <input 
+                             ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} 
+                             onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} onBlur={e => handleWeightBlur(toner.id, e.target.value, false)} onKeyDown={e => handleWeightKeyDown(e, toner.id, false)} 
+                             className="w-14 text-right text-[15px] font-black text-blue-600 focus:outline-none clean-number-input" placeholder="0.0" 
+                         />
                          <button onClick={() => quickEditWeight(toner.id, 0.1, false)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
                          <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
-                         <button onClick={() => removeToner(toner.id, false)} className="ml-1 px-1"><Trash2 size={16} className="text-slate-300 hover:text-red-500"/></button>
+                         <button onClick={() => removeToner(toner.id, false)} className="ml-1 px-1"><Trash2 size={16} className="text-slate-300 hover:text-red-500 transition-colors"/></button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 cursor-pointer py-1.5 px-1 mt-1 w-full" onClick={() => toggleExpand(toner.id, false)}>
-                        <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 pl-1">{toner.code ? (info.role || '미등록 안료') : '안료 번호 입력 (예: 321)'}</span>
-                        {toner.isExpanded ? <ChevronUp size={16} className="text-blue-400" /> : <ChevronDown size={16} className="text-blue-400" />}
+
+                    <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, false)}>
+                        <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep">
+                            {toner.code ? (info.role || '등록된 안료 정보 없음') : '안료 번호를 입력하세요 (예: 321, 385...)'}
+                        </span>
+                        {toner.isExpanded ? <ChevronUp size={16} className="text-blue-400 shrink-0" /> : <ChevronDown size={16} className="text-blue-400 shrink-0" />}
                     </div>
+
+                    {toner.isExpanded && (
+                        <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-1 pt-2 border-t border-slate-200">
+                            {info.details && info.details.length > 0 ? (
+                                <div className="flex flex-col gap-1.5 w-full">
+                                    {info.details.map((d: any, idx: number) => {
+                                        const splitIndex = d[0].indexOf('('); let mainTitle = d[0]; let subTitle = '';
+                                        if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim().replace(/\s*&\s*/g, '&'); }
+                                        return (
+                                        <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2.5 mb-2">
+                                            <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-1 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
+                                                <span className="text-[11px] font-black leading-tight break-keep">{mainTitle}</span>
+                                                {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
+                                            </div>
+                                            <span className="text-[11px] text-slate-700 leading-relaxed break-keep pt-0.5 whitespace-pre-line">{d[1]}</span>
+                                        </div>
+                                    )})}
+                                </div>
+                            ) : <p className="text-[11px] text-slate-500 leading-tight break-keep pl-1">{info.desc}</p>}
+                        </div>
+                    )}
                   </div>
                 )
               })}
+
               <div className="flex w-full gap-2 mt-3">
-                  <button onClick={() => addToner(false)} className="flex-1 py-3 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center"><Plus size={18} className="mr-1"/>베이스 안료 추가</button>
-                  <button onClick={handleSaveSnapshot} className="w-[100px] sm:w-[130px] bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold text-[11px] sm:text-sm flex justify-center items-center"><Save size={16} className="mr-1"/>데이터 확정</button>
-                  <button onClick={() => setIsSnapshotModalOpen(true)} className="w-[100px] sm:w-[130px] bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-bold text-[11px] sm:text-sm flex justify-center items-center relative"><History size={16} className="mr-1"/>수정 내역
-                      {snapshots.length > 0 && <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">{snapshots.length}</span>}
+                  <button onClick={() => addToner(false)} className="flex-1 py-3 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center transition-all shadow-sm">
+                      <Plus size={18} className="mr-1"/>베이스 안료 추가
+                  </button>
+                  <button onClick={handleSaveSnapshot} className="w-[100px] sm:w-[130px] bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold text-[11px] sm:text-sm flex flex-col sm:flex-row justify-center items-center transition-all shadow-sm">
+                      <Save size={16} className="mb-1 sm:mb-0 sm:mr-1.5"/>데이터 확정
+                  </button>
+                  <button onClick={() => setIsSnapshotModalOpen(true)} className="w-[100px] sm:w-[130px] bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-bold text-[11px] sm:text-sm flex flex-col sm:flex-row justify-center items-center transition-all shadow-sm relative">
+                      <History size={16} className="mb-1 sm:mb-0 sm:mr-1.5"/>수정 내역
+                      {snapshots.length > 0 && <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-md border border-white">{snapshots.length}</span>}
                   </button>
               </div>
             </div>
             
             <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between">
-                <label className="flex items-center cursor-pointer bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+                <label className="flex items-center cursor-pointer bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm hover:bg-purple-50 transition-colors">
                   <span className="mr-2 text-xs font-black text-purple-700">3Coat (펄 추가) 켜기</span>
                   <div className="relative">
                     <input type="checkbox" className="sr-only" checked={isThreeCoatMode} onChange={() => setIsThreeCoatMode(!isThreeCoatMode)} />
@@ -912,44 +1102,92 @@ const showBottomBar = !(isMobile && isKeyboardOpen);
                   const info = TONER_DB[toner.code] || { role: '', type: 'solid', face: '#e2e8f0', flop: '#e2e8f0', desc: '' };
                   const isEffect = info.type !== 'solid' && info.type !== 'binder' && info.type !== 'candy';
                   return (
-                    <div key={toner.id} className="flex flex-col bg-purple-50 p-2.5 rounded-xl border border-purple-200">
+                    <div key={toner.id} className="flex flex-col bg-purple-50 p-2.5 rounded-xl border border-purple-200 shadow-sm transition-colors hover:bg-purple-100/50">
+                      
                       <div className="flex items-center w-full gap-2">
-                        <button type="button" className="flex w-[50px] h-[36px] rounded border border-slate-300 overflow-hidden shrink-0 relative" onClick={() => setMemoModal({isOpen: true, id: toner.id, code: toner.code, isPearl: true, text: toner.memo || '', history: toner.history || []})}>
+                        <button 
+                             type="button"
+                             className="flex w-[50px] h-[36px] rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-purple-400" 
+                             onClick={() => setMemoModal({isOpen: true, id: toner.id, code: toner.code, isPearl: true, text: toner.memo || '', history: toner.history || []})}
+                             title="메모 및 히스토리 보기"
+                        >
                              <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
                              <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
-                             {toner.memo && <div className="absolute -top-1.5 -right-1.5 bg-yellow-400 w-4 h-4 rounded-full border-2 border-white z-20"></div>}
+                             {toner.memo && <div className="absolute -top-1.5 -right-1.5 bg-yellow-400 w-4 h-4 rounded-full border-2 border-white shadow-md z-20"></div>}
                         </button>
-                        <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code.replace('WT ', '').replace('PP ', '')} onChange={e => handleCodeChange(toner.id, e.target.value, true)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }} type="text" inputMode="decimal" className="w-16 h-[36px] text-center text-sm font-black border border-purple-200 rounded text-purple-800 uppercase focus:outline-none focus:border-purple-500" placeholder="번호" />
+                        
+                        <input 
+                            ref={el => { codeRefs.current[toner.id] = el; }} 
+                            value={toner.code.replace('WT ', '').replace('PP ', '')} 
+                            onChange={e => handleCodeChange(toner.id, e.target.value, true)} 
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }}
+                            type="text" 
+                            inputMode="decimal"
+                            pattern="[0-9]*"
+                            className="w-16 h-[36px] text-center text-sm font-black border border-purple-200 rounded text-purple-800 shadow-inner focus:outline-none focus:border-purple-500 shrink-0 uppercase" 
+                            placeholder="번호" 
+                        />
+
                         <div className="flex-1"></div>
-                        <div className="flex items-center bg-white border border-purple-100 rounded-md px-1 h-[36px] shrink-0">
+
+                        <div className="flex items-center bg-white border border-purple-100 rounded-md px-1 h-[36px] shrink-0 shadow-sm">
                            <button onClick={() => quickEditWeight(toner.id, -0.1, true)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
-                           <input ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" value={toner.adjustedWeight} onChange={e => handleWeightInputChange(toner.id, e.target.value, true)} onBlur={e => handleWeightBlur(toner.id, e.target.value, true)} onKeyDown={e => handleWeightKeyDown(e, toner.id, true)} className="w-14 text-right text-[15px] font-black text-purple-600 focus:outline-none" placeholder="0.0" />
+                           <input 
+                               ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} 
+                               onChange={e => handleWeightInputChange(toner.id, e.target.value, true)} onBlur={e => handleWeightBlur(toner.id, e.target.value, true)} onKeyDown={e => handleWeightKeyDown(e, toner.id, true)} 
+                               className="w-14 text-right text-[15px] font-black text-purple-600 focus:outline-none clean-number-input" placeholder="0.0" 
+                           />
                            <button onClick={() => quickEditWeight(toner.id, 0.1, true)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
                            <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
-                           <button onClick={() => removeToner(toner.id, true)} className="ml-1 px-1"><Trash2 size={16} className="text-purple-300 hover:text-red-500"/></button>
+                           <button onClick={() => removeToner(toner.id, true)} className="ml-1 px-1"><Trash2 size={16} className="text-purple-300 hover:text-red-500 transition-colors"/></button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 cursor-pointer py-1.5 px-1 mt-1 w-full" onClick={() => toggleExpand(toner.id, true)}>
-                          <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 pl-1">{toner.code ? (info.role || '미등록 펄') : '펄 번호 입력 (예: PP201)'}</span>
-                          {toner.isExpanded ? <ChevronUp size={16} className="text-purple-400" /> : <ChevronDown size={16} className="text-purple-400" />}
+
+                      <div className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, true)}>
+                          <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep">
+                              {toner.code ? (info.role || '등록된 펄 정보 없음') : '펄 번호를 입력하세요 (예: PP201...)'}
+                          </span>
+                          {toner.isExpanded ? <ChevronUp size={16} className="text-purple-400 shrink-0" /> : <ChevronDown size={16} className="text-purple-400 shrink-0" />}
                       </div>
+
+                      {toner.isExpanded && (
+                          <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-1 pt-2 border-t border-purple-200">
+                              {info.details && info.details.length > 0 ? (
+                                  <div className="flex flex-col gap-1.5 w-full">
+                                      {info.details.map((d: any, idx: number) => {
+                                          const splitIndex = d[0].indexOf('('); let mainTitle = d[0]; let subTitle = '';
+                                          if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim().replace(/\s*&\s*/g, '&'); }
+                                          return (
+                                          <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2.5 mb-2">
+                                              <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-2 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
+                                                  <span className="text-[10.5px] font-black leading-tight">{mainTitle}</span>
+                                                  {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
+                                              </div>
+                                              <span className={`text-[11.5px] leading-relaxed break-keep pt-0.5 whitespace-pre-line ${getBadgeClass(d[0]).includes('yellow') ? 'text-yellow-800 font-bold' : 'text-slate-700'}`}>{d[1]}</span>
+                                          </div>
+                                      )})}
+                                  </div>
+                              ) : <p className="text-[11px] text-slate-500 leading-tight break-keep pl-1">{info.desc}</p>}
+                          </div>
+                      )}
                     </div>
                   )
                 })}
-                <button onClick={() => addToner(true)} className="w-full py-3 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 rounded-lg text-purple-600 font-bold flex items-center justify-center space-x-2 text-sm mt-3"><Plus size={18} /><span>펄 조색제 추가</span></button>
+
+                <button onClick={() => addToner(true)} className="w-full py-3 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-lg text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-3 shadow-sm">
+                    <Plus size={18} /><span>펄 조색제 추가</span>
+                </button>
               </div>
             )}
           </div>
         </div>
 
-        {/* 우측: 갤러리 및 먼셀 랩 버튼 */}
         <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
             <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
               <h3 className="text-xs font-black mb-2 flex justify-between items-center text-slate-800">
                 <span className="flex items-center"><Target size= {14} className="mr-1 text-blue-600"/> 📘 마스터 기술자료실 (Visual Guide)</span>
-                {/* 먼셀 믹싱 랩 (AI 조색 시뮬레이터 팝업 열기) */}
-                <button onClick={() => setIsConfiguratorOpen(true)} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"><Maximize size={10} className="mr-1"/>먼셀 믹싱 랩 / AI 조색기</button>
+                <button onClick={() => setIsConfiguratorOpen(true)} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"><Maximize size={10} className="mr-1"/>먼셀 믹싱 랩</button>
               </h3>
               
               <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-md border border-blue-200">
@@ -962,17 +1200,28 @@ const showBottomBar = !(isMobile && isKeyboardOpen);
                   </div>
                   <div className="p-3 grid grid-cols-2 gap-3 h-52 overflow-y-auto custom-scrollbar bg-slate-50/50">
                       {GUIDE_IMAGES[activeGuideTab].map(img => (
-                          <div key={img.id} onClick={() => openImageModal(img)} className="bg-white rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 shadow-sm border border-slate-200 group flex flex-col justify-center items-center text-center p-4 min-h-[90px] relative">
-                              {img.url && <div className="absolute inset-0 z-0"><img src={img.url} alt={img.title} className="w-full h-full object-cover opacity-10 group-hover:opacity-100 transition-opacity" /></div>}
-                              <div className="relative z-10 flex flex-col items-center justify-center w-full h-full p-1"><h4 className="text-[13px] font-black text-blue-800 group-hover:text-blue-600 mb-1.5">{img.title}</h4><p className="text-[11px] font-bold text-slate-500">{img.desc}</p></div>
+                          <div key={img.id} onClick={() => openImageModal(img)} className="bg-white rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 hover:shadow-xl transition-all shadow-sm border border-slate-200 group flex flex-col justify-center items-center text-center p-4 min-h-[90px] relative">
+                              {img.url && (
+                                  <div className="absolute inset-0 z-0">
+                                      <img src={img.url} alt={img.title} className="w-full h-full object-cover opacity-10 group-hover:opacity-100 transition-opacity duration-300" />
+                                  </div>
+                              )}
+                              <div className="relative z-10 flex flex-col items-center justify-center w-full h-full p-1 transition-colors duration-300">
+                                  <h4 className="text-[13px] font-black text-blue-800 group-hover:text-blue-600 mb-1.5 leading-tight drop-shadow-sm">{img.title}</h4>
+                                  <p className="text-[11px] font-bold text-slate-500 group-hover:text-slate-700 break-keep leading-tight">{img.desc}</p>
+                              </div>
                           </div>
                       ))}
                   </div>
               </div>
+
               <div className="flex gap-2 mt-3 relative z-50">
-                  {/* ✅ 복구 완료: PP(건식 펄) 가이드 열기 */}
-                  <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-purple-200"><BookOpen size={16} className="mr-1.5" /> PP(분말) 가이드 열기</button>
-                  <button onClick={() => setIsProcessOpen(true)} className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white"><Code size={16} className="mr-1.5 text-slate-400" /> Pro 제작 과정 보기</button>
+                  <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-sm cursor-pointer">
+                      <BookOpen size={16} className="mr-1.5" /> <span className="pointer-events-none">PP(분말) 가이드 열기</span>
+                  </button>
+                  <button onClick={() => setIsProcessOpen(true)} className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white transition-colors shadow-sm cursor-pointer">
+                      <Code size={16} className="mr-1.5 text-slate-400 pointer-events-none" /> <span className="pointer-events-none">Pro 제작 과정 보기</span>
+                  </button>
               </div>
             </div>
 
@@ -984,40 +1233,61 @@ const showBottomBar = !(isMobile && isKeyboardOpen);
                 </div>
                 <div className="p-3 bg-slate-800 border-b border-slate-700 flex shrink-0 gap-2">
                     <div className="relative flex-1">
-                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료명 / 색상코드 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-blue-500" />
+                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="안료명 / 차량코드 / 색상명 검색 (띄어쓰기 무관)" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
                     </div>
                 </div>
+                
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3">
-                    {catalogSearch.trim() !== '' && OEM_COLORS.some(c => String(c.code).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase()) || String(c.name).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase())) && (
-                        <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200">
-                            <h4 className="text-xs font-black text-blue-800 mb-2">🔍 FORD 색상 검색 결과</h4>
+                    {activeTab === 'CANDY' && (
+                        <div className="mb-4 bg-yellow-50 border border-yellow-300 p-4 rounded-xl shadow-sm">
+                           <h4 className="text-sm font-black text-yellow-800 mb-2">⚠️ 퍼마솔리드 캔디 6단계 시공 및 3대 철칙</h4>
+                           <ul className="text-xs text-yellow-700 space-y-1.5 font-bold">
+                              <li>1. 이소시아네이트 포함. 방독 마스크 및 환기 필수</li>
+                              <li>2. 반사층 도장 후 완벽한 플래시 오프 필수</li>
+                              <li>3. 블렌딩 불가(전체 도장), 건조 타임 준수</li>
+                              <li>4. 2액형 클리어 조색비 엄수 및 Clear over Clear 필수</li>
+                           </ul>
+                        </div>
+                    )}
+                    
+                    {/* ✅ 에러 완전 해결: OEM 엑셀 데이터 검색 시 숫자 깨짐 버그 및 띄어쓰기 무시 로직 적용 */}
+                    {catalogSearch.replace(/\s/g, '') !== '' && OEM_COLORS.some(c => String(c.code).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase()) || String(c.name).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase())) && (
+                        <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm">
+                            <h4 className="text-xs font-black text-blue-800 mb-2">🔍 자동차 제조사(OEM) 색상 검색 결과</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {OEM_COLORS.filter(c => String(c.code).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase()) || String(c.name).replace(/\s/g, '').toUpperCase().includes(catalogSearch.replace(/\s/g, '').toUpperCase())).slice(0, 20).map((oem, idx) => (
-                                    <div key={idx} className="flex justify-between items-center bg-white px-3 py-2 rounded border border-slate-200 cursor-pointer hover:border-blue-400" onClick={() => setTargetColorCode(String(oem.code))}><span className="font-black text-blue-600 text-sm">{oem.code}</span><span className="text-xs text-slate-600 font-bold truncate max-w-[100px]">{oem.name}</span></div>
+                                    <div key={idx} className="flex justify-between items-center bg-white px-3 py-2 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(String(oem.code))}>
+                                        <span className="font-black text-blue-600 text-sm">{oem.code}</span>
+                                        <span className="text-xs text-slate-600 font-bold truncate max-w-[100px]" title={oem.name}>{oem.name}</span>
+                                    </div>
                                 ))}
                             </div>
                         </div>
                     )}
+
                     {sortedCatalog.map((item) => {
                         const isMetallic = item.type !== 'solid' && item.type !== 'binder' && item.type !== 'candy';
                         const isCurrentlyUsed = activeCodes.includes(item.code);
                         return (
-                            <div key={item.code} className={`flex flex-col bg-white rounded-xl shadow-sm border overflow-hidden transition-all duration-300 ${isCurrentlyUsed ? 'border-2 border-blue-500 transform scale-[1.01]' : 'border-slate-200 cursor-pointer'}`} onClick={() => setSelectedTonerForView(item.code)}>
-                                <div className="h-12 w-full relative border-b border-slate-200" style={{background: getTonerDetailBackground(item.code, item.role, 'face')}}>
+                            <div key={item.code} className={`flex flex-col bg-white rounded-xl shadow-sm border overflow-hidden transition-all duration-300 ${isCurrentlyUsed ? 'border-2 border-blue-500 shadow-md transform scale-[1.01]' : 'border-slate-200 hover:border-blue-300 cursor-pointer'}`} onClick={() => setSelectedTonerForView(item.code)}>
+                                <div className="h-12 w-full relative transition-all border-b border-slate-200" style={{background: getTonerDetailBackground(item.code, item.role, 'face')}}>
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                                    <div className="absolute bottom-1.5 left-3 text-white text-sm font-black">{item.code} <span className="text-[10px] font-normal ml-1">{item.role}</span></div>
-                                    {isCurrentlyUsed && <div className="absolute top-1.5 right-2 bg-blue-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">배합 중</div>}
+                                    <div className="absolute bottom-1.5 left-3 text-white text-sm font-black drop-shadow-md">{item.code} <span className="text-[10px] font-normal opacity-90 ml-1">{item.role}</span></div>
+                                    {isCurrentlyUsed && <div className="absolute top-1.5 right-2 bg-blue-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold shadow">배합 중</div>}
                                 </div>
                                 <div className="p-3 flex flex-col gap-1.5">
-                                    <p className="text-[11px] text-slate-500 font-bold mb-1 break-keep leading-tight">{item.desc}</p>
+                                    <p className="text-[11px] text-slate-500 font-bold mb-1 break-keep leading-tight bg-slate-50 p-1.5 rounded">{item.desc}</p>
                                     {item.details?.map((d: any, idx: number) => {
                                         const splitIndex = d[0].indexOf('('); let mainTitle = d[0]; let subTitle = '';
                                         if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim().replace(/\s*&\s*/g, '&'); }
                                         return (
                                         <div key={idx} className="flex items-start gap-2.5 mb-2">
-                                            <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-2 py-1.5 text-[10px] font-bold rounded-md border text-center ${getBadgeClass(d[0])}`}><span className="text-[10px] font-black">{mainTitle}</span></div>
-                                            <span className={`text-[11.5px] leading-relaxed break-keep pt-0.5 whitespace-pre-line text-slate-700`}>{d[1]}</span>
+                                            <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-2 py-1.5 text-[10px] font-bold rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
+                                                <span className="text-[10px] font-black leading-tight">{mainTitle}</span>
+                                                {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
+                                            </div>
+                                            <span className={`text-[11.5px] leading-relaxed break-keep pt-0.5 whitespace-pre-line ${getBadgeClass(d[0]).includes('yellow') ? 'text-yellow-800 font-black' : 'text-slate-700'}`}>{d[1]}</span>
                                         </div>
                                     )})}
                                 </div>
@@ -1030,89 +1300,619 @@ const showBottomBar = !(isMobile && isKeyboardOpen);
         </div>
       </div>
 
-      {/* 하단 요약 바 */}
       {showBottomBar && (
-          <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 text-slate-100 pb-[env(safe-area-inset-bottom)]">
+          <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
               <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-4xl mx-auto p-3 md:p-4 h-full items-stretch justify-center">
-                  <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4"><span className="text-[10px] text-slate-400 font-black mb-2"><Layers size={11} className="mr-1 inline text-blue-400"/> A. 베이스 코트 요약</span><div className="flex justify-between items-center text-xs md:text-sm"><div className="flex flex-col"><span className="text-[9px] text-slate-500 mb-0.5">순수 안료</span><span className="font-black">{totalBaseWeight}g</span></div><span className="font-black">+</span><div className="flex flex-col"><span className="text-[9px] text-blue-400 mb-0.5">필수 수지(20%)</span><span className="font-black text-blue-400">{formatWeight(parseFloat(totalBaseWeight)*0.2)}g</span></div><span className="font-black">=</span><div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{formatWeight(parseFloat(totalBaseWeight)*1.2)}g</span></div></div></div>
+                  <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4 shadow-inner">
+                     <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase mb-2"><Layers size={11} className="mr-1 text-blue-400"/> A. 베이스 코트 요약</span>
+                     <div className="flex items-center justify-between text-xs md:text-sm">
+                         <div className="flex flex-col items-start"><span className="text-[9px] text-slate-500 font-bold mb-0.5">순수 안료</span><span className="font-black text-white">{totalBaseWeight}g</span></div>
+                         <span className="text-slate-600 font-black">+</span>
+                         <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold mb-0.5">필수 수지(20%)</span><span className="font-black text-blue-400">{formatWeight(parseFloat(totalBaseWeight) * 0.2)}g</span></div>
+                         <span className="text-slate-600 font-black">=</span>
+                         <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{formatWeight(parseFloat(totalBaseWeight) * 1.2)}g</span></div>
+                     </div>
+                  </div>
                   {isThreeCoatMode && (
-                  <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4"><span className="text-[10px] text-slate-400 font-black mb-2"><Zap size={11} className="mr-1 inline text-purple-400"/> B. 펄 코트 요약</span><div className="flex justify-between items-center text-xs md:text-sm"><div className="flex flex-col"><span className="text-[9px] text-slate-500 mb-0.5">순수 펄</span><span className="font-black">{totalPearlWeight}g</span></div><span className="font-black">+</span><div className="flex flex-col"><span className="text-[9px] text-purple-400 mb-0.5">펄 수지(30%)</span><span className="font-black text-purple-400">{formatWeight(parseFloat(totalPearlWeight)*0.3)}g</span></div><span className="font-black">=</span><div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{formatWeight(parseFloat(totalPearlWeight)*1.3)}g</span></div></div></div>
+                  <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4 shadow-inner">
+                     <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase mb-2"><Zap size={11} className="mr-1 text-purple-400"/> B. 펄 코트 요약</span>
+                     <div className="flex items-center justify-between text-xs md:text-sm">
+                         <div className="flex flex-col items-start"><span className="text-[9px] text-slate-500 font-bold mb-0.5">순수 펄</span><span className="font-black text-white">{totalPearlWeight}g</span></div>
+                         <span className="text-slate-600 font-black">+</span>
+                         <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold mb-0.5">펄 수지(30%)</span><span className="font-black text-purple-400">{formatWeight(parseFloat(totalPearlWeight) * 0.3)}g</span></div>
+                         <span className="text-slate-600 font-black">=</span>
+                         <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{formatWeight(parseFloat(totalPearlWeight) * 1.3)}g</span></div>
+                     </div>
+                  </div>
                   )}
               </div>
           </div>
       )}
 
-      {/* ✅ 1. 시편 게시판 모달 (복구) */}
-      {isBoardOpen && (
-        <div className="fixed inset-0 bg-slate-900/90 z-[1000] flex flex-col animate-in fade-in">
-          <div className="p-4 bg-slate-900 flex justify-between items-center text-white border-b border-slate-700">
-            <h3 className="font-black flex items-center gap-2"><Layers size={20} className="text-emerald-400" /> 커뮤니티 시편 게시판</h3>
-            <button onClick={() => setIsBoardOpen(false)} className="hover:text-red-400"><X size={20} /></button>
-          </div>
-          <div className="p-4 bg-slate-800 flex flex-col sm:flex-row gap-2 shrink-0">
-             <input type="text" placeholder="차량 브랜드, 컬러코드, 메모 검색" className="flex-1 p-3 rounded bg-slate-700 text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500" value={boardSearch} onChange={e => setBoardSearch(e.target.value)} />
-          </div>
-          <div className="flex-1 p-4 overflow-y-auto custom-scrollbar bg-slate-100 flex flex-col gap-3">
-             {boardPosts.length === 0 ? <p className="text-center mt-10 text-slate-500 font-bold">등록된 시편이 없습니다.</p> : 
-               boardPosts.filter(p => p.brand.includes(boardSearch) || p.code.toUpperCase().includes(boardSearch.toUpperCase()) || p.spec.includes(boardSearch)).map(post => (
-                 <div key={post.id} onClick={() => handleOpenPost(post)} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-2 cursor-pointer hover:border-emerald-400 transition-colors">
-                     <div className="flex justify-between items-start">
-                        <div><span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded mr-2 font-bold">{post.brand}</span><span className="font-black text-lg text-slate-800">{post.code}</span></div>
-                        <span className="text-[10px] text-slate-400">{post.date}</span>
-                     </div>
-                     <p className="text-sm text-slate-600 font-bold bg-slate-50 p-2 rounded truncate">{post.spec}</p>
-                     <div className="flex justify-between text-xs text-slate-400 font-bold mt-1"><span>{post.images.length > 0 ? `📷 사진 ${post.images.length}장` : '텍스트 배합만 있음'}</span><span>조회수 {post.views}</span></div>
-                 </div>
-             ))}
+      {isUsersModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[80vh]">
+            <div className="p-4 bg-indigo-600 flex justify-between items-center text-white shrink-0">
+              <h3 className="font-bold flex items-center gap-2"><Users size={18} /> 접속 승인된 작업자 현황</h3>
+              <button onClick={() => setIsUsersModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar">
+                {!selectedUserInfo ? (
+                    <>
+                        <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl mb-6">
+                            <p className="text-xs text-indigo-800 font-bold mb-1">🔐 실시간 접속 보안 패널 (Admin Only)</p>
+                            <p className="text-[11px] text-indigo-600 leading-relaxed break-keep">이 시스템은 승인된 사용자의 기기 목록을 보여줍니다. 실제 배포 시 Firebase DB와 연동되어 원격 차단 등 실시간 통계가 제공될 예정입니다.</p>
+                        </div>
+
+                        <div className="space-y-3">
+                            {authorizedUsers.length === 0 ? (
+                                <div className="text-center py-8 text-slate-400 text-sm font-bold">승인된 사용자가 없습니다.</div>
+                            ) : (
+                                authorizedUsers.map((user, idx) => (
+                                    <button key={idx} onClick={() => setSelectedUserInfo(user)} className="w-full bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex justify-between items-center hover:border-indigo-300 hover:shadow-md transition-all text-left group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                                {user.device === 'Mobile' ? <Smartphone size={16} className={user.device === 'Mobile' ? 'text-indigo-500 group-hover:text-white' : ''}/> : <Monitor size={16} className={user.device !== 'Mobile' ? 'text-indigo-500 group-hover:text-white' : ''}/>}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="font-black text-slate-800 text-sm">[{user.branch}] {user.name}</span>
+                                                <span className="text-[10px] text-slate-400 font-bold mt-0.5">{user.brand}</span>
+                                            </div>
+                                        </div>
+                                        <span className="bg-slate-100 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-700 text-[10px] font-black px-2 py-1 rounded transition-colors">상세 보기</span>
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                    </>
+                ) : (
+                    <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4">
+                        <button onClick={() => setSelectedUserInfo(null)} className="flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-slate-800 mb-2 w-max">
+                            <ChevronDown className="rotate-90"/> 목록으로 돌아가기
+                        </button>
+                        <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm flex flex-col items-center text-center">
+                            <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4 border-2 border-indigo-200 shadow-sm">
+                               <Users size={32}/>
+                            </div>
+                            <h4 className="text-xl font-black text-slate-800 mb-1">[{selectedUserInfo.branch}] {selectedUserInfo.name}</h4>
+                            <span className="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full mb-6 shadow-sm">{selectedUserInfo.role}</span>
+                            
+                            <div className="w-full flex flex-col gap-3 text-left">
+                                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <span className="text-xs font-bold text-slate-500">소속 브랜드</span>
+                                    <span className="text-sm font-black text-slate-800">{selectedUserInfo.brand}</span>
+                                </div>
+                                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <span className="text-xs font-bold text-slate-500">연령 (나이)</span>
+                                    <span className="text-sm font-black text-slate-800">{selectedUserInfo.age}세</span>
+                                </div>
+                                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <span className="text-xs font-bold text-slate-500">접속 기기</span>
+                                    <span className="text-sm font-black text-slate-800 flex items-center gap-1">
+                                       {selectedUserInfo.device === 'Mobile' ? <Smartphone size={14}/> : <Monitor size={14}/>} {selectedUserInfo.device}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <span className="text-xs font-bold text-slate-500">최초 등록일시</span>
+                                    <span className="text-xs font-black text-slate-800">{selectedUserInfo.date}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* ✅ 2. 게시물 상세 보기 모달 (복구) */}
+      {isCloudModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 h-auto max-h-[85vh]">
+            <div className="p-4 bg-blue-600 flex justify-between items-center text-white shrink-0">
+              <h3 className="font-bold flex items-center gap-2"><Cloud size={18} /> 기기 간 초고속 다이렉트 연동 (오류 0%)</h3>
+              <button onClick={() => setIsCloudModalOpen(false)} className="hover:text-red-200 transition-colors bg-blue-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            
+            <div className="p-6 flex flex-col gap-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar pb-12 sm:pb-6">
+              <div className="bg-white p-5 rounded-xl border border-blue-200 shadow-sm flex flex-col items-center text-center shrink-0">
+                  <span className="bg-blue-100 text-blue-800 text-[11px] font-black px-3 py-1 rounded-full mb-3 flex items-center gap-1.5"><Monitor size={14}/> PC ➔ 모바일 연결</span>
+                  <h4 className="text-base font-black text-slate-800 mb-1 flex items-center gap-1.5"><QrCode size={18} className="text-blue-600"/> 스마트폰 카메라로 QR 스캔</h4>
+                  <p className="text-xs text-slate-500 mb-4">현재 PC 화면의 배합을 모바일로 즉시 넘기려면<br/>스마트폰 기본 카메라로 아래 QR 코드를 비추세요.</p>
+                  <div className="bg-white p-3 border-2 border-dashed border-blue-300 rounded-2xl">
+                      <img src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(generateSyncUrl())}`} alt="배합 동기화 QR코드" className="w-[140px] h-[140px]" />
+                  </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-xl border border-yellow-200 shadow-sm flex flex-col items-center text-center relative overflow-hidden shrink-0">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-[#FEE500]"></div>
+                  <span className="bg-yellow-100 text-yellow-800 text-[11px] font-black px-3 py-1 rounded-full mb-3 flex items-center gap-1.5 mt-2"><Smartphone size={14}/> 모바일 ➔ PC 연결</span>
+                  <h4 className="text-base font-black text-slate-800 mb-1 flex items-center gap-1.5"><MessageSquare size={18} className="text-yellow-500"/> PC 카카오톡으로 전송하기</h4>
+                  <p className="text-xs text-slate-500 mb-4 break-keep">모바일에서 작업한 내역을 PC로 보낼 때는<br/><b>카카오톡 PC버전</b>으로 보내는 것이 가장 빠르고 확실합니다.</p>
+                  
+                  <div className="flex flex-col gap-2.5 w-full">
+                      <button 
+                          onClick={handleSendToPcKakao} 
+                          className="w-full bg-[#FEE500] hover:bg-[#E5C100] text-slate-900 py-3.5 rounded-xl font-black text-sm shadow-sm transition-colors flex items-center justify-center gap-2"
+                      >
+                          <MessageSquare size={18} /> 카카오톡 (나에게 쓰기) 로 보내기
+                      </button>
+                      <button 
+                          onClick={handleCopyLinkForPc} 
+                          className={`w-full py-3.5 rounded-xl font-black text-sm shadow-sm transition-colors flex items-center justify-center gap-2 ${copied ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
+                      >
+                          {copied ? <><Check size={18}/> 링크가 복사되었습니다!</> : <><Link size={18}/> 다이렉트 링크 주소 복사하기</>}
+                      </button>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {previewModalImage && (
+        <div className="fixed inset-0 bg-black/95 z-[5000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setPreviewModalImage(null)}>
+            <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[5010] shadow-lg"><X size={24}/></button>
+            <div className="max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl border border-slate-700 shadow-2xl bg-slate-900 p-2" onClick={e => e.stopPropagation()}>
+                <img src={previewModalImage} alt="시편 확대 사진" className="w-full h-full object-contain max-h-[80vh]" />
+            </div>
+        </div>
+      )}
+
+      {zoomedImage && (
+        <div className="fixed inset-0 bg-black/95 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setZoomedImage(null)}>
+            <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[4010] shadow-lg"><X size={24}/></button>
+            <div className="w-full h-full max-w-5xl flex flex-col items-center relative py-12" onClick={e => e.stopPropagation()}>
+                
+                {zoomedImage.id === 12 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-100 mt-8">
+                        <div className="border-b-4 border-red-600 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center flex-wrap gap-2">
+                                WT386 <span className="text-lg text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded">(측면밝기조정제)</span>의 역할
+                            </h2>
+                            <div className="text-red-600 font-black italic text-xl sm:text-2xl tracking-tighter shrink-0 ml-4">Permahyd<sup className="text-sm">®</sup> HI-TEC</div>
+                        </div>
+
+                        <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-8 flex flex-col md:flex-row gap-6 items-center">
+                            <div className="flex-1">
+                                <p className="text-slate-700 font-bold text-base leading-relaxed mb-4">
+                                    WT386(측면밝기조정제)는 마치 <span className="text-blue-600 font-black">투명한 구슬</span>과 같아서, 알루미늄 입자에 혼합하면 입자가 불규칙하게 배열되도록 만듭니다.
+                                </p>
+                                <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-r-lg shadow-sm">
+                                    <p className="text-[13px] sm:text-sm text-yellow-800 font-black leading-relaxed">
+                                        💡 핵심: 측면밝기조정제를 사용하면 입자의 배열이 불규칙해져,<br/> 
+                                        빛 반사 유사각도<span className="text-red-600 bg-red-100 px-1.5 py-0.5 mx-1 rounded">정면(15도)은 어두워지고</span> 
+                                        나머지 각도<span className="text-blue-600 bg-blue-100 px-1.5 py-0.5 mx-1 rounded">측면(45도/110도)은 밝아집니다.</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="w-full md:w-1/3 flex flex-row md:flex-col gap-3">
+                                <div className="bg-white border border-slate-300 rounded p-3 text-center shadow-inner flex-1">
+                                    <span className="text-[11px] font-bold text-slate-500 mb-2 block">&lt;사용 안 함&gt;</span>
+                                    <div className="h-6 bg-slate-300 w-full rounded flex items-center justify-around px-2">
+                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                                    </div>
+                                </div>
+                                <div className="bg-white border border-slate-300 rounded p-3 text-center shadow-inner flex-1">
+                                    <span className="text-[11px] font-bold text-blue-600 mb-2 block">&lt;사용 함&gt;</span>
+                                    <div className="h-12 bg-slate-200 w-full rounded relative overflow-hidden flex items-center justify-center">
+                                        <div className="w-6 h-6 bg-blue-300/60 rounded-full absolute left-4 top-1 blur-[1px]"></div>
+                                        <div className="w-7 h-7 bg-blue-300/60 rounded-full absolute right-6 bottom-1 blur-[1px]"></div>
+                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-45 absolute top-2 left-6"></div>
+                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full -rotate-12 absolute bottom-3 left-14"></div>
+                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-90 absolute top-4 right-10"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 className="text-xl font-black text-slate-800 mb-4 flex items-center"><Target className="text-red-600 mr-2" size={20}/> WT386 vs WT352 vs WT322 특성 비교</h3>
+                        <div className="overflow-x-auto rounded-xl border border-slate-300 shadow-sm">
+                            <table className="w-full text-sm sm:text-base text-center border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr className="bg-slate-800 text-white">
+                                        <th className="p-3 font-black w-24 border-r border-slate-700">조색제</th>
+                                        <th className="p-3 font-black w-16 border-r border-slate-700">구분</th>
+                                        <th className="p-3 font-black text-blue-300 border-r border-slate-700">15도 (정면)</th>
+                                        <th className="p-3 font-black text-yellow-300">45도 & 110도 (측면)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="bg-white border-b border-slate-200">
+                                        <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-50" rowSpan={2}>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-xl">WT386</span>
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">명암</td>
+                                        <td className="border-r border-slate-200 font-black text-white bg-slate-700/80 p-3">어두워짐</td>
+                                        <td className="font-black text-slate-800 bg-yellow-50 p-3">밝아짐</td>
+                                    </tr>
+                                    <tr className="bg-white border-b-4 border-slate-300">
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">색상</td>
+                                        <td className="border-r border-slate-200 font-bold text-blue-600 p-3">약하게 청색이 짙어짐</td>
+                                        <td className="font-bold text-yellow-600 p-3">약하게 황색이 짙어짐</td>
+                                    </tr>
+                                    <tr className="bg-slate-50 border-b border-slate-200">
+                                        <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-100" rowSpan={2}>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-xl">WT352</span>
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">명암</td>
+                                        <td className="border-r border-slate-200 font-black text-white bg-slate-700/80 p-3">어두워짐</td>
+                                        <td className="font-black text-slate-800 bg-yellow-50 p-3">밝아짐</td>
+                                    </tr>
+                                    <tr className="bg-slate-50 border-b-4 border-slate-300">
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">색상</td>
+                                        <td className="border-r border-slate-200 font-black text-blue-700 p-3">강하게 청색이 짙어짐</td>
+                                        <td className="font-bold text-red-500 p-3">약하게 적색이 짙어짐</td>
+                                    </tr>
+                                    <tr className="bg-white border-b border-slate-200">
+                                        <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-50" rowSpan={2}>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-xl">WT322</span>
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">명암</td>
+                                        <td className="border-r border-slate-200 font-black text-white bg-slate-700/80 p-3">어두워짐</td>
+                                        <td className="font-black text-slate-800 bg-yellow-50 p-3">밝아짐</td>
+                                    </tr>
+                                    <tr className="bg-white">
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">색상</td>
+                                        <td className="border-r border-slate-200 font-black text-yellow-600 p-3">강하게 황색이 짙어짐</td>
+                                        <td className="font-black text-red-600 p-3">강하게 적색이 짙어짐</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="w-full h-full flex flex-col justify-center relative">
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 w-full mb-3 text-center shadow-2xl shrink-0 z-10">
+                            <h3 className="text-slate-900 font-black text-xl mb-1">{zoomedImage.title}</h3>
+                            <p className="text-blue-700 text-xs font-bold">{zoomedImage.desc}</p>
+                        </div>
+                        {zoomedImage.url ? (
+                            <div className="relative w-full h-[65vh] flex flex-col bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
+                                <div 
+                                    ref={scrollContainerRef}
+                                    className={`w-full h-full overflow-auto custom-scrollbar touch-pan-x touch-pan-y relative ${isDragging ? 'cursor-grabbing' : (imgScale > 1 ? 'cursor-grab' : '')}`}
+                                    style={{
+                                        display: imgScale === 1 ? 'flex' : 'block',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                    onMouseDown={handleMouseDown}
+                                    onMouseMove={handleMouseMove}
+                                    onMouseUp={handleMouseUp}
+                                    onMouseLeave={handleMouseUp}
+                                    onTouchStart={handleTouchStart}
+                                    onTouchMove={handleTouchMove}
+                                    onTouchEnd={handleTouchEnd}
+                                >
+                                    <img 
+                                        draggable={false}
+                                        src={zoomedImage.url} 
+                                        alt={zoomedImage.title} 
+                                        style={{ 
+                                            display: 'block',
+                                            margin: imgScale === 1 ? '0' : 'auto', 
+                                            width: imgScale === 1 ? 'auto' : `${imgScale * 100}%`, 
+                                            height: imgScale === 1 ? '100%' : 'auto',
+                                            maxWidth: imgScale === 1 ? '100%' : 'none',
+                                            maxHeight: imgScale === 1 ? '100%' : 'none',
+                                            objectFit: 'contain',
+                                            transition: pinchDist > 0 ? 'none' : 'width 0.1s ease-out' 
+                                        }}
+                                    />
+                                </div>
+                                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full px-5 py-2 flex items-center gap-6 z-50 shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-slate-600">
+                                    <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.max(1, s - 0.2)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">-</button>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-white text-sm font-black min-w-[45px] text-center tracking-wider">{Math.round(imgScale * 100)}%</span>
+                                        <button onClick={(e) => { e.stopPropagation(); setImgScale(1); }} className="text-[10px] text-blue-400 font-bold hover:text-white mt-0.5">RESET</button>
+                                    </div>
+                                    <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.min(5, s + 0.2)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">+</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="w-full h-[65vh] flex flex-col items-center justify-center bg-slate-800/80 rounded-3xl shadow-2xl border border-slate-700">
+                                <Camera size={56} className="text-slate-500 mb-4" />
+                                <p className="text-slate-300 font-black text-lg mb-1">상세 이미지가 준비 중입니다.</p>
+                                <p className="text-slate-500 text-sm font-bold">추후 원본 데이터가 업데이트될 예정입니다.</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+      )}
+
+      {memoModal.isOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[2000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-indigo-600 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><Edit3 size={18} /> {memoModal.code || '선택된 안료'} 메모 및 히스토리</h3>
+              <button onClick={() => setMemoModal({...memoModal, isOpen: false})} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-5 flex flex-col gap-4 bg-slate-50">
+              <div>
+                <label className="text-xs font-black text-indigo-800 mb-1.5 flex items-center gap-1"><Edit3 size={14}/> 조색 커스텀 메모</label>
+                <textarea 
+                    value={memoModal.text} 
+                    onChange={e => setMemoModal({...memoModal, text: e.target.value})} 
+                    placeholder="이 안료에 대한 특별한 조색 팁이나 주의사항을 자유롭게 적어두세요." 
+                    className="w-full border border-slate-300 p-3 rounded-lg text-sm text-slate-800 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-inner font-medium" 
+                />
+              </div>
+              {memoModal.history.length > 0 && (
+                <div>
+                  <label className="text-xs font-black text-slate-500 mb-1.5 flex items-center gap-1"><History size={14}/> 용량(g) 변경 히스토리 기록</label>
+                  <div className="flex flex-wrap gap-1.5 bg-white p-3 rounded-lg border border-slate-200 shadow-sm max-h-32 overflow-y-auto">
+                    {memoModal.history.map((h, i) => (
+                      <span key={i} className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded border border-slate-200">{h}g</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <button 
+                  onClick={() => {
+                      if(memoModal.isPearl) setPearlToners(prev => prev.map(t => t.id === memoModal.id ? {...t, memo: memoModal.text} : t));
+                      else setToners(prev => prev.map(t => t.id === memoModal.id ? {...t, memo: memoModal.text} : t));
+                      setMemoModal({...memoModal, isOpen: false});
+                  }} 
+                  className="w-full bg-indigo-600 text-white py-3 rounded-xl font-black shadow-md hover:bg-indigo-700 transition-colors flex justify-center items-center gap-2"
+              >
+                <Save size={18}/> 메모 저장하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isExcelModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border-2 border-green-600">
+            <div className="p-4 bg-green-600 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><FileSpreadsheet size={18} /> 엑셀(Excel) 연동 가이드 및 복사</h3>
+              <button onClick={() => setIsExcelModalOpen(false)} className="hover:text-red-200 transition-colors bg-green-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-5 flex flex-col gap-4 bg-slate-50">
+              <div className="text-sm text-slate-700 leading-relaxed bg-green-50 p-4 rounded-xl border border-green-200">
+                  <p className="font-black text-green-800 mb-2">✅ 초간단 엑셀 복사 사용 방법 (매크로 불필요!)</p>
+                  <p><b>Step 1.</b> 처음 사용하실 때만 아래 <b>'엑셀 기본 양식 복사'</b>를 눌러 엑셀 A1 셀에 붙여넣어 <b>제목 틀</b>을 만드세요.</p>
+                  <p className="mt-1"><b>Step 2.</b> 데이터 입력 후 <b>초록색 [엑셀 복사] 버튼을 누른 다음, 엑셀의 빈 줄 첫 칸(A열)에 바로 붙여넣기(Ctrl+V)</b> 하시면 자동으로 팝업 복원 링크가 생성됩니다.</p>
+              </div>
+              <div className="flex flex-col gap-2 mt-2">
+                  <button onClick={handleCopyExcelTemplate} className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold shadow-sm hover:bg-slate-700 transition-colors">📋 Step 1. 엑셀 기본 양식 복사 (제목줄 만들기)</button>
+                  <button onClick={handleDirectExcelCopy} className="w-full bg-green-600 text-white py-3 rounded-xl font-black shadow-md hover:bg-green-700 transition-colors">🚀 Step 2. 현재 데이터 엑셀 복사 (배합 저장하기)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isShareModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-slate-800 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><Share2 size={18} /> 배합 데이터 공유 전송</h3>
+              <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-3 bg-slate-50">
+                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 바로 전송하기</button>
+                <button onClick={handleShareSMS} className="w-full bg-blue-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS) 앱 열기</button>
+                <button onClick={handleShareMail} className="w-full bg-slate-600 text-white py-3 rounded-xl font-black shadow-sm hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><Mail size={18}/> 이메일 앱 열기</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isProcessOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[3000] p-4 backdrop-blur-sm transition-opacity">
+          <div className="bg-slate-800 p-6 rounded-xl border border-slate-600 shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden relative">
+            <button onClick={() => setIsProcessOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 p-1.5 rounded-full transition-colors z-10"><X size={20} /></button>
+            <div className="border-b border-emerald-500/50 pb-4 mb-5 shrink-0">
+                <h4 className="text-2xl sm:text-3xl font-black text-white tracking-wide mb-1">
+                    Spies Hecker DB Architecture
+                </h4>
+                <p className="text-emerald-400 font-bold text-sm sm:text-base">
+                    Total 110 Items Perfectly Built & Engineered
+                </p>
+                <div className="mt-4 inline-flex bg-slate-900 px-3 py-1.5 rounded border border-slate-700 items-center">
+                    <span className="text-slate-400 text-[11px] sm:text-xs mr-2">Lead Color & Data Engineer:</span>
+                    <span className="text-white font-black text-sm sm:text-base">윤성만 팀장</span>
+                </div>
+            </div>
+            <div className="overflow-y-auto space-y-6 text-slate-300 font-sans text-xs sm:text-[13px] leading-relaxed break-keep pr-2 custom-scrollbar">
+                <p>DB 완벽 분리 및 모바일 최적화, 화이트톤 갤러리 탭 적용 완료. 에러 Zero 패치 탑재.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEmailModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-yellow-500 flex justify-between items-center text-slate-900">
+              <h3 className="font-black flex items-center gap-2"><Mail size={18} /> 개발자에게 피드백 보내기</h3>
+              <button onClick={() => setIsEmailModalOpen(false)} className="hover:text-red-600 transition-colors bg-yellow-400 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-4 bg-slate-50">
+              <div className="flex gap-3 mt-2">
+                  <a href="https://mail.naver.com/v2/new?to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-[#03C75A] text-white py-3 rounded-xl font-black text-center shadow-md">네이버 메일</a>
+                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com" target="_blank" rel="noreferrer" className="flex-1 bg-white border text-slate-700 py-3 rounded-xl font-black text-center shadow-sm">구글 메일</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isSnapshotModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#1e293b] rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-700">
+            <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-slate-900 shrink-0">
+              <h3 className="text-white font-bold flex items-center gap-2"><History size={18} className="text-blue-400" /> 현재 페이지 데이터 수정 내역 보기</h3>
+              <button onClick={() => setIsSnapshotModalOpen(false)} className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"><X size={16} /></button>
+            </div>
+            
+            <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-[#0f172a]">
+                <div className={`w-full md:w-1/3 border-b md:border-b-0 md:border-r border-slate-700/50 overflow-y-auto bg-slate-900/50 flex-col custom-scrollbar ${selectedSnapshot ? 'hidden md:flex' : 'flex'}`}>
+                    {snapshots.length === 0 ? ( <div className="p-6 text-center text-slate-500 text-sm">확정된 기록이 없습니다.</div> ) : (
+                        snapshots.map((snap, idx) => (
+                            <button key={snap.id} onClick={() => setSelectedSnapshot(snap)} className={`p-4 text-left border-b border-slate-800 transition-colors flex flex-col gap-1 ${selectedSnapshot?.id === snap.id ? 'bg-indigo-900/40 border-l-4 border-indigo-500' : 'hover:bg-slate-800'}`}>
+                                <span className="text-xs text-slate-400 font-bold">{snap.dateStr}</span>
+                                <span className="text-white font-black text-sm">{snapshots.length - idx}차 확정 데이터</span>
+                                <span className="text-xs text-emerald-400 font-bold flex items-center"><CheckCircle size={12} className="mr-1"/> {snap.timestamp}</span>
+                            </button>
+                        ))
+                    )}
+                </div>
+                
+                <div className={`flex-1 p-6 overflow-y-auto bg-[#0f172a] custom-scrollbar ${selectedSnapshot ? 'block' : 'hidden md:block'}`}>
+                    {selectedSnapshot ? (
+                        <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                            <button onClick={() => setSelectedSnapshot(null)} className="md:hidden mb-4 bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-sm w-full flex items-center justify-center gap-2"><ChevronDown className="rotate-90"/> 목록으로 돌아가기</button>
+                            
+                            <h4 className="text-lg font-black text-white mb-4 flex items-center gap-2 border-b border-slate-700 pb-3"><Search size={20} className="text-yellow-400"/> 데이터 상세 보기 및 복원</h4>
+                            <div className="bg-[#1e293b] p-4 rounded-xl border border-slate-700/50 mb-4 flex justify-between items-center"><span className="text-sm text-slate-300 font-bold">최종 혼합 총량</span><span className="text-xl font-black text-yellow-400">{selectedSnapshot.totalFinal}g</span></div>
+                            <div className="mb-4">
+                                <h5 className="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1 uppercase"><Layers size={14} className="text-blue-400"/> 베이스 코트 내역</h5>
+                                <div className="space-y-2">
+                                    {selectedSnapshot.base?.filter((t: any) => t.code).map((t: any, i: number) => (
+                                        <div key={i} className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-slate-700/50">
+                                            <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
+                                            <span className="text-blue-400 font-bold">{formatWeight(t.adjustedWeight)}g</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            {selectedSnapshot.isThreeCoat && selectedSnapshot.pearl?.filter((t: any) => t.code).length > 0 && (
+                                <div className="mb-6">
+                                    <h5 className="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1 uppercase"><Zap size={14} className="text-purple-400"/> 펄 코트 내역</h5>
+                                    <div className="space-y-2">
+                                        {selectedSnapshot.pearl?.filter((t: any) => t.code).map((t: any, i: number) => (
+                                            <div key={i} className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-purple-900/30">
+                                                <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">WT {t.code.replace('WT ', '')}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">{TONER_DB[t.code]?.role || ''}</span></div>
+                                                <span className="text-purple-400 font-bold">{formatWeight(t.adjustedWeight)}g</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            <button onClick={() => restoreSnapshot(selectedSnapshot)} className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl mt-4 hover:bg-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all flex justify-center items-center gap-2 text-base"><RefreshCw size={20}/> 이 상태로 완벽하게 덮어쓰기 (복원)</button>
+                        </div>
+                    ) : ( <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50"><History size={64} className="mb-4"/><p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p></div> )}
+                </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ 1. 시편 게시판 팝업창 모달 복구 완료 (기존 디자인 적용) */}
+      {isBoardOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[600px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-slate-800 flex justify-between items-center text-white shrink-0">
+              <h3 className="font-black flex items-center gap-2"><Layers size={18} className="text-emerald-400" /> 커뮤니티 시편 게시판</h3>
+              <button onClick={() => setIsBoardOpen(false)} className="hover:text-red-400 bg-slate-700 p-1.5 rounded-full transition-colors"><X size={16} /></button>
+            </div>
+            <div className="p-4 bg-slate-100 flex flex-col sm:flex-row gap-2 shrink-0 border-b border-slate-200">
+               <div className="relative flex-1">
+                   <Search size={16} className="absolute left-3 top-3 text-slate-400" />
+                   <input type="text" placeholder="차량 브랜드, 컬러코드, 메모 검색" className="w-full p-2.5 pl-9 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner" value={boardSearch} onChange={e => setBoardSearch(e.target.value)} />
+               </div>
+            </div>
+            <div className="flex-1 p-4 overflow-y-auto custom-scrollbar bg-slate-50 flex flex-col gap-3">
+               {boardPosts.length === 0 ? <p className="text-center mt-10 text-slate-500 font-bold">등록된 시편이 없습니다.</p> : 
+                 boardPosts.filter(p => p.brand.includes(boardSearch) || p.code.toUpperCase().includes(boardSearch.toUpperCase()) || p.spec.includes(boardSearch)).map(post => (
+                   <div key={post.id} onClick={() => handleOpenPost(post)} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-2 cursor-pointer hover:border-emerald-400 transition-all hover:shadow-md">
+                       <div className="flex justify-between items-start">
+                          <div className="flex items-center gap-2"><span className="text-xs bg-slate-200 text-slate-700 px-2.5 py-1 rounded-md font-bold">{post.brand}</span><span className="font-black text-lg text-slate-800">{post.code}</span></div>
+                          <span className="text-[10px] text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded">{post.date}</span>
+                       </div>
+                       <p className="text-sm text-slate-600 font-bold bg-emerald-50/50 p-2.5 rounded-lg border border-emerald-100/50 truncate mt-1">{post.spec}</p>
+                       <div className="flex justify-between items-center text-[11px] text-slate-400 font-bold mt-1">
+                           <span className="flex items-center gap-1">{post.images.length > 0 ? <><ImageIcon size={12}/> 사진 {post.images.length}장</> : '텍스트 배합'}</span>
+                           <span className="flex items-center gap-1"><Eye size={12}/> {post.views}</span>
+                       </div>
+                   </div>
+               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ 2. 게시물 보기 팝업창 모달 복구 완료 (기존 디자인 적용) */}
       {viewingPost && (
-        <div className="fixed inset-0 bg-slate-950/95 z-[2000] p-4 md:p-8 flex items-center justify-center animate-in fade-in">
-           <div className="bg-white rounded-2xl w-full max-w-2xl max-h-full flex flex-col shadow-2xl overflow-hidden border border-slate-300">
-               <div className="p-4 bg-emerald-600 flex justify-between items-center text-white"><h3 className="font-black">{viewingPost.brand} - {viewingPost.code}</h3><button onClick={() => setViewingPost(null)}><X size={20}/></button></div>
+        <div className="fixed inset-0 bg-slate-900/90 z-[2000] p-4 flex items-center justify-center animate-in fade-in backdrop-blur-sm">
+           <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-slate-300">
+               <div className="p-4 bg-emerald-600 flex justify-between items-center text-white shrink-0">
+                   <h3 className="font-black flex items-center gap-2"><Layers size={18}/> {viewingPost.brand} - {viewingPost.code}</h3>
+                   <button onClick={() => setViewingPost(null)} className="hover:text-red-200 bg-emerald-700 p-1.5 rounded-full transition-colors"><X size={16}/></button>
+               </div>
                <div className="flex-1 p-6 overflow-y-auto bg-slate-50 custom-scrollbar">
                    {viewingPost.images?.length > 0 && (
-                       <div className="mb-6 flex gap-2 overflow-x-auto p-2 bg-slate-200 rounded-lg">
+                       <div className="mb-6 flex gap-3 overflow-x-auto p-3 bg-slate-200/50 rounded-xl border border-slate-200 shadow-inner">
                            {viewingPost.images.map((img:string, idx:number) => (
-                               <div key={idx} className="relative w-32 h-32 shrink-0"><img src={img} className="w-full h-full object-cover rounded cursor-pointer border border-slate-300 shadow-sm" onClick={() => setPreviewModalImage(img)}/><button onClick={(e) => {e.stopPropagation(); handleDeletePostImage(viewingPost.id, idx);}} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1"><X size={12}/></button></div>
+                               <div key={idx} className="relative w-36 h-36 shrink-0 group">
+                                   <img src={img} className="w-full h-full object-cover rounded-lg cursor-pointer border border-slate-300 shadow-sm" onClick={() => setPreviewModalImage(img)}/>
+                                   <button onClick={(e) => {e.stopPropagation(); handleDeletePostImage(viewingPost.id, idx);}} className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"><X size={12}/></button>
+                               </div>
                            ))}
                        </div>
                    )}
-                   <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-4"><p className="text-sm font-bold text-slate-700"><span className="text-emerald-600">특이사항:</span> {viewingPost.spec}</p></div>
-                   <h4 className="text-sm font-black text-slate-800 mb-2">▼ 베이스 코트 배합</h4>
-                   <div className="bg-white p-3 rounded-lg border border-slate-200 mb-4">{viewingPost.baseFormula.map((t:any, i:number) => (<div key={i} className="flex justify-between py-1 border-b last:border-0"><span className="font-bold">{t.code}</span><span className="text-blue-600 font-black">{t.adjustedWeight}g</span></div>))}</div>
-                   {viewingPost.isThreeCoat && (
-                       <><h4 className="text-sm font-black text-slate-800 mb-2">▼ 펄 코트 배합</h4><div className="bg-white p-3 rounded-lg border border-slate-200">{viewingPost.pearlFormula.map((t:any, i:number) => (<div key={i} className="flex justify-between py-1 border-b last:border-0"><span className="font-bold">{t.code}</span><span className="text-purple-600 font-black">{t.adjustedWeight}g</span></div>))}</div></>
-                   )}
-                   <div className="mt-8 flex justify-end">
-                       <button onClick={(e) => { deleteBoardPost(viewingPost.id, e); setViewingPost(null); }} className="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold border border-red-200 hover:bg-red-100 flex items-center"><Trash2 size={16} className="mr-1"/> 시편 영구 삭제</button>
+                   <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 shadow-sm mb-6">
+                       <p className="text-sm font-bold text-slate-800"><span className="text-yellow-700 mb-1 flex items-center gap-1"><Edit3 size={14}/> 작업자 특이사항/스펙 메모</span>{viewingPost.spec}</p>
+                   </div>
+                   
+                   <div className="flex flex-col gap-4 sm:flex-row">
+                       <div className="flex-1">
+                           <h4 className="text-sm font-black text-slate-800 mb-2 flex items-center gap-1"><Sliders size={14} className="text-blue-500"/> 베이스 코트 배합</h4>
+                           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                               {viewingPost.baseFormula.map((t:any, i:number) => (<div key={i} className="flex justify-between items-center border-b border-slate-100 pb-2 last:border-0 last:pb-0"><span className="font-bold text-slate-700">{t.code}</span><span className="text-blue-600 font-black text-sm">{t.adjustedWeight}g</span></div>))}
+                           </div>
+                       </div>
+                       {viewingPost.isThreeCoat && (
+                           <div className="flex-1">
+                               <h4 className="text-sm font-black text-slate-800 mb-2 flex items-center gap-1"><Zap size={14} className="text-purple-500"/> 펄 코트 배합</h4>
+                               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                                   {viewingPost.pearlFormula.map((t:any, i:number) => (<div key={i} className="flex justify-between items-center border-b border-slate-100 pb-2 last:border-0 last:pb-0"><span className="font-bold text-slate-700">{t.code}</span><span className="text-purple-600 font-black text-sm">{t.adjustedWeight}g</span></div>))}
+                               </div>
+                           </div>
+                       )}
+                   </div>
+                   <div className="mt-8 flex justify-end pt-4 border-t border-slate-200">
+                       <button onClick={(e) => { deleteBoardPost(viewingPost.id, e); setViewingPost(null); }} className="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold border border-red-200 hover:bg-red-100 flex items-center shadow-sm transition-colors"><Trash2 size={16} className="mr-1.5"/> 시편 영구 삭제</button>
                    </div>
                </div>
            </div>
         </div>
       )}
 
-      {/* ✅ 3. 도장 용어 사전 모달 (복구) */}
+      {/* ✅ 3. 도장 용어 사전 팝업창 모달 복구 완료 (기존 디자인 적용) */}
       {isGlossaryModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+        <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 h-auto max-h-[85vh]">
             <div className="p-4 bg-emerald-600 flex justify-between items-center text-white shrink-0">
-              <h3 className="font-bold flex items-center gap-2"><BookOpen size={18} /> 도장/조색 전문 용어 검색 사전</h3>
-              <button onClick={() => setIsGlossaryModalOpen(false)} className="hover:text-emerald-200 transition-colors"><X size={16} /></button>
+              <h3 className="font-bold flex items-center gap-2"><BookOpen size={18} /> 도장/조색 전문 용어 사전</h3>
+              <button onClick={() => setIsGlossaryModalOpen(false)} className="hover:text-emerald-200 bg-emerald-700 p-1.5 rounded-full transition-colors"><X size={16} /></button>
             </div>
-            <div className="p-5 flex flex-col gap-4 bg-slate-50">
+            <div className="p-6 flex flex-col gap-5 bg-slate-50 overflow-y-auto custom-scrollbar">
                 <div className="flex gap-2">
-                    <input id="glossarySearchInput" type="text" placeholder="궁금한 용어 (예: 플래시 오프, 오렌지필)" className="flex-1 border border-slate-300 p-3 rounded-xl focus:ring-2 focus:ring-emerald-500" />
-                    <button onClick={handleGoogleGlossarySearch} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 rounded-xl shadow-md">검색</button>
+                    <input id="glossarySearchInput" type="text" placeholder="궁금한 용어 (예: 플래시 오프, 오렌지필)" className="flex-1 border border-slate-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner" />
+                    <button onClick={handleGoogleGlossarySearch} className="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 rounded-xl shadow-md transition-colors flex items-center gap-1"><Search size={16}/> 검색</button>
                 </div>
-                <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl mt-2">
-                    <p className="text-xs font-black text-emerald-800 mb-3">💡 자주 찾는 조색 용어 (클릭 시 자동 검색)</p>
-                    <div className="flex flex-wrap gap-2">
-                        {['솔리드', '메탈릭', '3코트', '블렌딩', '스카프', '이색', '정면', '측면', '오렌지필'].map(term => (
-                            <button key={term} onClick={() => { (document.getElementById('glossarySearchInput') as HTMLInputElement).value = term; handleGoogleGlossarySearch(); }} className="bg-white text-emerald-700 text-xs font-bold border border-emerald-200 px-3 py-1.5 rounded-full hover:bg-emerald-100">{term}</button>
+                
+                <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-xl mt-2 shadow-sm">
+                    <p className="text-xs font-black text-emerald-800 mb-4 flex items-center gap-1"><Zap size={14} className="text-emerald-600"/> 현장에서 자주 찾는 필수 도장 용어</p>
+                    <div className="flex flex-wrap gap-2.5">
+                        {['솔리드', '메탈릭', '3코트', '블렌딩', '스카프', '이색', '정면', '측면', '오렌지필', '은폐', '은폐력', '바인더', '클리어', '플래시 오프', '하도', '중도', '상도'].map(term => (
+                            <button key={term} onClick={() => { (document.getElementById('glossarySearchInput') as HTMLInputElement).value = term; handleGoogleGlossarySearch(); }} className="bg-white text-emerald-700 text-sm font-bold border border-emerald-300 px-3.5 py-2 rounded-lg hover:bg-emerald-100 hover:scale-105 transition-all shadow-sm">
+                                {term}
+                            </button>
                         ))}
                     </div>
                 </div>
@@ -1121,25 +1921,32 @@ const showBottomBar = !(isMobile && isKeyboardOpen);
         </div>
       )}
 
-      {/* ✅ 4. PP(건식 펄) 가이드 모달 (복구) */}
+      {/* ✅ 4. PP(건식 펄) 가이드 팝업창 모달 복구 완료 (기존 디자인 적용) */}
       {isPearlGuideOpen && (
         <div className="fixed inset-0 bg-slate-900/90 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-purple-200">
+          <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-purple-200">
              <div className="p-4 bg-purple-700 flex justify-between items-center text-white shrink-0">
-                 <h3 className="font-black flex items-center gap-2"><Sun size={20}/> PP (건식 펄 파우더) 입자 특성 및 혼합 가이드</h3>
-                 <button onClick={() => setIsPearlGuideOpen(false)} className="hover:text-purple-200"><X size={20}/></button>
+                 <h3 className="font-black flex items-center gap-2 text-lg"><Sun size={20} className="text-purple-300"/> PP (건식 펄 파우더) 입자 특성 및 조색 가이드</h3>
+                 <button onClick={() => setIsPearlGuideOpen(false)} className="hover:text-purple-200 bg-purple-800 p-1.5 rounded-full transition-colors"><X size={20}/></button>
              </div>
-             <div className="flex-1 overflow-y-auto bg-slate-50 p-6 custom-scrollbar">
-                 <div className="bg-purple-50 p-4 rounded-xl border border-purple-200 mb-6">
-                     <h4 className="text-sm font-black text-purple-800 mb-2">📌 건식 펄(PP) 배합 시 필수 주의사항</h4>
-                     <ul className="text-xs text-purple-700 space-y-1.5 font-bold list-disc pl-4"><li>건식 펄(PP)은 일반 액상 조색제보다 입자가 무거워 침전이 빠릅니다.</li><li>사용 전 반드시 전용 바인더(WT)와 충분히 희석 및 교반해야 합니다.</li><li>측면 이색 변화가 심하므로 테스트 시편 도장이 필수입니다.</li></ul>
+             <div className="flex-1 overflow-y-auto bg-slate-50 p-6 sm:p-8 custom-scrollbar">
+                 <div className="bg-purple-50 p-5 rounded-2xl border border-purple-200 mb-8 shadow-sm">
+                     <h4 className="text-base font-black text-purple-800 mb-3 flex items-center gap-2"><AlertTriangle size={18} className="text-purple-600"/> 건식 펄(PP) 배합 시 필수 주의사항 3가지</h4>
+                     <ul className="text-sm text-purple-700 space-y-2.5 font-bold list-none">
+                         <li className="flex items-start gap-2"><span className="text-purple-500">•</span> 건식 펄(PP)은 일반 액상 조색제보다 입자가 무거워 침전이 매우 빠릅니다.</li>
+                         <li className="flex items-start gap-2"><span className="text-purple-500">•</span> 사용 전 반드시 전용 바인더(WT)와 충분히 희석하고 교반기로 완벽히 풀어야 합니다.</li>
+                         <li className="flex items-start gap-2"><span className="text-purple-500">•</span> 정/측면 이색 변화가 심하므로 본도장 전 반드시 2~3장의 테스트 시편 도장이 필수입니다.</li>
+                     </ul>
                  </div>
-                 <h4 className="font-black text-slate-800 mb-4">건식 펄(PP) 라인업 및 특성</h4>
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                 <h4 className="text-lg font-black text-slate-800 mb-5 pl-2 border-l-4 border-purple-600">스피스헥커 건식 펄(PP) 라인업 상세 분석</h4>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                      {Object.entries(TONER_DB).filter(([code]) => code.startsWith('PP')).map(([code, info]) => (
-                         <div key={code} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2">
-                             <div className="flex justify-between items-center border-b pb-2"><span className="font-black text-purple-700">{code}</span><span className="text-xs font-bold bg-slate-100 px-2 py-1 rounded text-slate-600">{info.role}</span></div>
-                             <p className="text-xs text-slate-600 font-bold leading-relaxed">{info.desc}</p>
+                         <div key={code} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-3 hover:shadow-md hover:border-purple-300 transition-all group">
+                             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                                 <span className="font-black text-xl text-purple-700 group-hover:text-purple-600">{code}</span>
+                                 <span className="text-[11px] font-bold bg-slate-100 px-2.5 py-1.5 rounded-md text-slate-600 border border-slate-200">{info.role}</span>
+                             </div>
+                             <p className="text-sm text-slate-600 font-bold leading-relaxed break-keep mt-1">{info.desc}</p>
                          </div>
                      ))}
                  </div>
@@ -1148,19 +1955,16 @@ const showBottomBar = !(isMobile && isKeyboardOpen);
         </div>
       )}
 
-      {/* ✅ 5. 먼셀 믹싱 랩 + [NEW] AI 가상 조색 시뮬레이터 */}
       {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-auto custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-slate-900/80 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md shadow-md">
-            <h2 className="text-base font-black tracking-widest text-slate-300 uppercase flex items-center"><Beaker className="mr-2 text-indigo-500"/> 먼셀 믹싱 랩 & AI 시뮬레이터</h2>
+            <h2 className="text-base font-black tracking-widest text-slate-300 uppercase flex items-center"><Beaker className="mr-2 text-indigo-500"/> 먼셀 컬러 믹싱 스튜디오 (Munsell Mixing Lab)</h2>
             <button onClick={() => setIsConfiguratorOpen(false)} className="p-2 bg-slate-800 hover:bg-red-600 rounded-full border border-slate-700 transition-colors"><X size={18}/></button>
           </header>
-          
           <main className="flex-1 p-4 md:p-8 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950 overflow-x-hidden">
              
-             {/* 2x2 완벽 분할 그리드 (먼셀 랩) */}
              <div className="w-full max-w-[1400px] grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch mb-8">
-                 {/* 좌측상단: 20 색상환 */}
+                 
                  <div className="w-full flex flex-col items-center justify-center h-[460px] bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6">
                      <h3 className="text-lg font-black text-white mb-6 flex items-center bg-slate-800 px-6 py-2 rounded-full border border-slate-600 shadow-lg shrink-0"><Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)</h3>
                      <div className="relative flex justify-center items-center w-[360px] h-[360px] shrink-0">
@@ -1168,7 +1972,7 @@ const showBottomBar = !(isMobile && isKeyboardOpen);
                             <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" /></marker></defs>
                             {MUNSELL_WHEEL_COLORS.map((color, index) => {
                                 const startAngle = index * 18; const endAngle = (index + 1) * 18 - 1; const pathData = describeArc(200, 200, 100, 170, startAngle, endAngle); const isSelected = selectedWheelIndex === index;
-                                return ( <path key={index} d={pathData} fill={color.hex} stroke={isSelected ? "#ffffff" : "transparent"} strokeWidth={isSelected ? "3" : "0"} className="cursor-pointer transition-all duration-300 hover:opacity-80" onClick={() => handleWheelClick(index)} style={{ transformOrigin: '200px 200px', transform: isSelected ? 'scale(1.05)' : 'scale(1)' }} /> );
+                                return ( <path key={index} d={pathData} fill={color.hex} stroke={isSelected ? "#ffffff" : "transparent"} strokeWidth={isSelected ? "3" : "0"} className={`cursor-pointer transition-all duration-300 hover:opacity-80`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleWheelClick(index); }} style={{ transformOrigin: '200px 200px', transform: isSelected ? 'scale(1.05)' : 'scale(1)' }} /> );
                             })}
                             {MUNSELL_WHEEL_COLORS.map((color, index) => {
                                 const midAngle = index * 18 + 8.5; const pos = polarToCartesian(200, 200, 185, midAngle); let textRotation = midAngle; if (midAngle > 90 && midAngle < 270) textRotation += 180;
@@ -1182,27 +1986,28 @@ const showBottomBar = !(isMobile && isKeyboardOpen);
                      </div>
                  </div>
 
-                 {/* 우측상단: RGB */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px] bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6">
-                    <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[380px] h-[380px] justify-center">
-                        <h4 className="text-xl font-black text-white mb-6 tracking-widest flex items-center"><BookOpen className="mr-2 text-blue-400" size={20}/>RGB <span className="text-xs text-slate-500 ml-2 font-normal">Additive Color</span></h4>
-                        <div className="w-60 h-60 relative">
+                    <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[380px] h-[380px] justify-center transition-all">
+                        <h4 className="text-xl font-black text-white mb-6 tracking-widest flex items-center shrink-0"><BookOpen className="mr-2 text-blue-400" size={20}/>RGB <span className="text-xs text-slate-500 ml-2 font-normal">Additive Color (빛의 혼합)</span></h4>
+                        <div className="w-60 h-60 relative shrink-0">
                             <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
                                 <circle cx="75" cy="75" r="55" fill="#0000FF" style={{ mixBlendMode: 'screen' }} />
                                 <circle cx="125" cy="75" r="55" fill="#FF0000" style={{ mixBlendMode: 'screen' }} />
                                 <circle cx="100" cy="120" r="55" fill="#00FF00" style={{ mixBlendMode: 'screen' }} />
+                                <g stroke="#ffffff" strokeWidth="1" strokeOpacity="0.5">
+                                    <line x1="75" y1="75" x2="30" y2="40" /><line x1="125" y1="75" x2="170" y2="40" /><line x1="100" y1="120" x2="100" y2="175" /><line x1="100" y1="55" x2="100" y2="25" /> <line x1="75" y1="105" x2="30" y2="130" /> <line x1="125" y1="105" x2="170" y2="130" /> <line x1="100" y1="90" x2="150" y2="90" /> 
+                                </g>
                                 <g fill="#ffffff" fontSize="10" fontWeight="bold" textAnchor="middle" className="drop-shadow-md"><text x="25" y="35">Blue</text><text x="175" y="35">Red</text><text x="100" y="185">Green</text><text x="100" y="20" fill="#FF00FF">Magenta</text><text x="25" y="140" fill="#00FFFF">Cyan</text><text x="175" y="140" fill="#FFFF00">Yellow</text><rect x="155" y="82" width="30" height="14" fill="#ffffff" rx="2" /><text x="170" y="93" fill="#000000">White</text></g>
                             </svg>
                         </div>
                     </div>
                  </div>
 
-                 {/* 좌측하단: 배합 데이터 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px] bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6">
                     {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
                         <div className="bg-slate-800 p-6 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[380px] h-[380px] flex flex-col justify-center text-center">
-                            <h4 className="text-lg font-black text-white mb-6 flex items-center justify-center gap-3"><span className="w-5 h-5 rounded-full shadow-md border border-slate-400" style={{backgroundColor: MUNSELL_WHEEL_COLORS[selectedWheelIndex].hex}}></span>{MUNSELL_WHEEL_COLORS[selectedWheelIndex].name} ({MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol}) 배합</h4>
-                            <div className="flex justify-center items-center gap-4 bg-slate-900 py-6 px-4 rounded-xl border border-slate-700 w-full min-h-[140px]">
+                            <h4 className="text-lg font-black text-white mb-6 flex items-center justify-center gap-3 shrink-0"><span className="w-5 h-5 rounded-full shadow-md border border-slate-400" style={{backgroundColor: MUNSELL_WHEEL_COLORS[selectedWheelIndex].hex}}></span>{MUNSELL_WHEEL_COLORS[selectedWheelIndex].name} ({MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol}) 배합</h4>
+                            <div className="flex justify-center items-center gap-4 bg-slate-900 py-6 px-4 rounded-xl border border-slate-700 w-full shrink-0 min-h-[140px]">
                                 {MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol] ? (
                                     <div className="flex flex-row justify-center items-center gap-4 w-full">
                                         <div className="flex flex-col items-center gap-2"><div className="w-12 h-12 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].h1}}></div><span className="text-slate-300 font-bold text-xs">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c1}</span><span className="text-white font-black text-2xl">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].r1}%</span></div>
@@ -1212,69 +2017,33 @@ const showBottomBar = !(isMobile && isKeyboardOpen);
                                     </div>
                                 ) : ( <div className="text-red-400 text-sm font-bold w-full text-center">배합 데이터를 불러올 수 없습니다.</div> )}
                             </div>
-                            <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
+                            <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg shrink-0">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
                         </div>
                     ) : (
-                        <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700 border-dashed w-full max-w-[380px] h-[380px] flex flex-col items-center justify-center gap-4 text-center text-slate-500"><Sun className="text-slate-600 mb-2" size={40} /><p className="text-base font-bold text-slate-400">색상환에서 컬러를 클릭하세요.</p></div>
+                        <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700 border-dashed w-full max-w-[380px] h-[380px] flex flex-col items-center justify-center gap-4 text-center text-slate-500"><Sun className="text-slate-600 mb-2" size={40} /><p className="text-base font-bold text-slate-400">색상환에서 컬러를 클릭하세요.</p><p className="text-sm">선택된 색상의 원색 조색 배율이<br/>이곳에 표시됩니다.</p></div>
                     )}
                  </div>
 
-                 {/* 우측하단: CMYK */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px] bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6">
-                    <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[380px] h-[380px] justify-center">
-                        <h4 className="text-xl font-black text-slate-900 mb-6 tracking-widest flex items-center"><BookOpen className="mr-2 text-pink-500" size={20}/>CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color</span></h4>
-                        <div className="w-60 h-60 relative">
+                    <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[380px] h-[380px] justify-center transition-all">
+                        <h4 className="text-xl font-black text-slate-900 mb-6 tracking-widest flex items-center shrink-0"><BookOpen className="mr-2 text-pink-500" size={20}/>CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color (물감의 혼합)</span></h4>
+                        <div className="w-60 h-60 relative shrink-0">
                             <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
                                 <circle cx="75" cy="75" r="55" fill="#00FFFF" style={{ mixBlendMode: 'multiply' }} />
                                 <circle cx="125" cy="75" r="55" fill="#FF00FF" style={{ mixBlendMode: 'multiply' }} />
                                 <circle cx="100" cy="120" r="55" fill="#FFFF00" style={{ mixBlendMode: 'multiply' }} />
+                                <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
+                                    <line x1="75" y1="75" x2="30" y2="40" /><line x1="125" y1="75" x2="170" y2="40" /><line x1="100" y1="120" x2="100" y2="175" /><line x1="100" y1="55" x2="100" y2="25" /> <line x1="75" y1="105" x2="30" y2="130" /> <line x1="125" y1="105" x2="170" y2="130" /> <line x1="100" y1="90" x2="150" y2="90" /> 
+                                </g>
                                 <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Yellow</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
                             </svg>
                         </div>
                     </div>
                  </div>
-
-                 {/* 🎨 5. [NEW] AI 가상 조색 시뮬레이터 (물감 혼합 팔레트) */}
-                 <div className="w-full lg:col-span-2 flex flex-col items-center justify-center bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6 md:p-10">
-                    <h3 className="text-xl md:text-2xl font-black text-white mb-8 flex items-center bg-indigo-600 px-8 py-3 rounded-full shadow-[0_0_20px_rgba(79,70,229,0.5)]"><Beaker className="mr-3 text-white" size={24}/> AI 가상 조색 시뮬레이터 (물감 혼합)</h3>
-                    
-                    {(() => {
-                        const simColor = getSimulatedColor(paletteDrops);
-                        return (
-                            <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl">
-                                {/* 방울 수 조절 컨트롤러 */}
-                                <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                    {['red', 'blue', 'yellow', 'green', 'white', 'black'].map(color => (
-                                        <div key={color} className="bg-slate-800 rounded-xl p-4 flex flex-col items-center gap-3 border border-slate-700 shadow-inner">
-                                            <div className="w-12 h-12 rounded-full border-2 border-slate-400 shadow-md" style={{backgroundColor: color}}></div>
-                                            <span className="text-slate-300 font-bold text-sm uppercase">{color}</span>
-                                            <div className="flex items-center gap-3 bg-slate-900 rounded-lg p-1 border border-slate-700">
-                                                <button onClick={() => setPaletteDrops(p => ({...p, [color]: Math.max(0, p[color as keyof typeof p] - 1)}))} className="w-8 h-8 flex items-center justify-center text-red-400 hover:bg-slate-800 rounded font-black">-</button>
-                                                <span className="text-white font-black w-4 text-center">{paletteDrops[color as keyof typeof paletteDrops]}</span>
-                                                <button onClick={() => setPaletteDrops(p => ({...p, [color]: p[color as keyof typeof p] + 1}))} className="w-8 h-8 flex items-center justify-center text-blue-400 hover:bg-slate-800 rounded font-black">+</button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                                {/* 시뮬레이션 결과창 */}
-                                <div className="flex-1 flex flex-col items-center justify-center bg-slate-800 rounded-3xl p-8 border border-slate-700 shadow-2xl relative overflow-hidden">
-                                    <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
-                                    <div className="w-40 h-40 rounded-full shadow-[0_0_40px_rgba(0,0,0,0.5)] border-4 border-slate-500 mb-6 transition-colors duration-500 z-10" style={{backgroundColor: simColor.hex}}></div>
-                                    <h4 className="text-2xl font-black text-white mb-2 z-10 drop-shadow-md">{simColor.name}</h4>
-                                    <div className="flex gap-4 text-sm font-bold text-slate-400 z-10 bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
-                                        <span>HEX: {simColor.hex.toUpperCase()}</span>
-                                        <span>RGB: {simColor.r}, {simColor.g}, {simColor.b}</span>
-                                    </div>
-                                    <button onClick={() => setPaletteDrops({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 })} className="mt-6 z-10 text-xs text-slate-500 hover:text-white border border-slate-600 px-4 py-2 rounded-full transition-colors"><RefreshCw size={14} className="inline mr-1"/> 팔레트 초기화</button>
-                                </div>
-                            </div>
-                        );
-                    })()}
-                 </div>
              </div>
              
              <div className="pb-12 w-full flex justify-center shrink-0">
-                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-lg flex items-center gap-2 text-lg"><X size={24} /> 믹싱 스튜디오 닫기</button>
+                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg"><X size={24} /> 믹싱 스튜디오 닫기</button>
              </div>
           </main>
         </div>
