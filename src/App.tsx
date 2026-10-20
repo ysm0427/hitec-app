@@ -1445,6 +1445,119 @@ export default function App() {
                         </div>
                     </div>
                 ) :
+                  zoomedImage.id === 8 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-200 mt-8">
+                        <div className="border-b-4 border-slate-600 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Target className="text-slate-600" size={32}/> 이펙트 포지셔닝 맵
+                            </h2>
+                        </div>
+                        <div className="bg-slate-900 rounded-xl p-6 shadow-lg border border-slate-700 relative h-80 flex items-center justify-center overflow-hidden">
+                            <div className="absolute w-full h-px bg-slate-600/50"></div>
+                            <div className="absolute h-full w-px bg-slate-600/50"></div>
+                            <span className="absolute top-6 font-black text-slate-300 bg-slate-900 px-2">입자 굵음 (Coarse)</span>
+                            <span className="absolute bottom-6 font-black text-slate-300 bg-slate-900 px-2">입자 고움 (Fine)</span>
+                            <span className="absolute left-6 font-black text-slate-300 bg-slate-900 py-1">정면 밝음 (Brilliant)</span>
+                            <span className="absolute right-6 font-black text-slate-300 bg-slate-900 py-1">측면 밝음 (Flop)</span>
+                            <div className="z-10 text-center flex flex-col items-center">
+                                <div className="flex gap-2 mb-4">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-slate-200 to-slate-400 rounded-full border-2 border-white shadow-lg"></div>
+                                    <div className="w-10 h-10 bg-gradient-to-br from-purple-300 to-blue-300 rounded-full border-2 border-white shadow-lg"></div>
+                                </div>
+                                <span className="bg-white/10 text-white px-4 py-2 rounded-lg font-black backdrop-blur-sm border border-white/20">은분 / 펄 입자 좌표 매핑</span>
+                                <p className="text-slate-400 text-xs mt-2 font-bold">크기와 광채 특성에 따른 이펙트 안료 스페이스</p>
+                            </div>
+                        </div>
+                    </div>
+                ) : zoomedImage.id === 9 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-300 mt-8">
+                        <div className="border-b-4 border-slate-500 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Eye className="text-slate-500" size={32}/> 알루미늄 입자 형상 비교
+                            </h2>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-slate-50 p-6 rounded-xl border border-slate-300 shadow-sm flex flex-col items-center text-center">
+                                <h3 className="font-black text-slate-800 mb-4 bg-white px-5 py-2 rounded-full shadow-sm border border-slate-200">콘플레이크 (Cornflake)</h3>
+                                <div className="w-32 h-20 bg-slate-300 rounded-lg mb-5 flex items-center justify-center border-2 border-dashed border-slate-500 text-xs font-black text-slate-600 shadow-inner">불규칙한 가장자리</div>
+                                <p className="text-sm font-bold text-slate-700 break-keep">가장자리가 깨진 형태입니다. 서로 겹쳐지기 쉬워 은폐력이 우수하지만, 빛이 부서지며 난반사가 생겨 정면 광채가 부드럽고 측면이 비교적 밝습니다.</p>
+                            </div>
+                            <div className="bg-slate-800 p-6 rounded-xl shadow-lg flex flex-col items-center text-center border border-slate-600">
+                                <h3 className="font-black text-white mb-4 bg-slate-700 px-5 py-2 rounded-full shadow-sm border border-slate-500">실버달러 (Silver Dollar)</h3>
+                                <div className="w-32 h-20 bg-gradient-to-br from-slate-200 to-slate-400 rounded-full mb-5 flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.3)] border-2 border-slate-400 text-xs font-black text-slate-800">매끄러운 동전 모양</div>
+                                <p className="text-sm font-bold text-slate-300 break-keep">동전처럼 둥글고 납작한 형태입니다. 빛을 한 방향으로 거울처럼 튕겨내어 정면(15도)이 매우 눈부시고 측면(Flop)이 깊게 어두워집니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                ) : zoomedImage.id === 10 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-pink-100 mt-8">
+                        <div className="border-b-4 border-pink-500 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Zap className="text-pink-500" size={32}/> 천연 마이카 vs 시라릭 펄
+                            </h2>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200 shadow-sm flex flex-col items-center text-center">
+                                <h3 className="font-black text-yellow-800 mb-3 bg-white px-4 py-1.5 rounded-full shadow-sm">천연 마이카 (Natural Mica)</h3>
+                                <p className="text-sm font-bold text-slate-700 break-keep">자연 운모석을 쪼개어 만든 진주 펄입니다. 입자의 두께가 불규칙하여 부드럽고 은은한 진줏빛 광택을 냅니다.</p>
+                            </div>
+                            <div className="bg-pink-50 p-6 rounded-xl border border-pink-200 shadow-sm flex flex-col items-center text-center">
+                                <h3 className="font-black text-pink-800 mb-3 bg-white px-4 py-1.5 rounded-full shadow-sm">시라릭 펄 (Xirallic Pearl)</h3>
+                                <p className="text-sm font-bold text-slate-700 break-keep">인공 합성 알루미나를 베이스로 하여 두께가 완벽하게 일정합니다. 투명도가 극도로 높고, 다이아몬드처럼 날카로운 반짝임(Sparkle)을 뿜어냅니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                ) : zoomedImage.id === 11 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-purple-100 mt-8">
+                        <div className="border-b-4 border-purple-600 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Layers className="text-purple-600" size={32}/> PP 분말 펄 (Powder Pearl) 특성
+                            </h2>
+                        </div>
+                        <div className="bg-purple-50 border border-purple-200 p-6 rounded-xl shadow-sm">
+                            <p className="text-sm font-bold text-purple-900 mb-4">액상 수지가 전혀 포함되지 않은 100% 가루 형태의 극미세 펄 안료입니다.</p>
+                            <ul className="space-y-3 text-sm font-black text-slate-700">
+                                <li className="bg-white p-3 rounded-lg border border-purple-100 shadow-sm">PP 201 ~ 205 : 파스텔 톤의 간섭 펄 (카멜레온 효과)</li>
+                                <li className="bg-white p-3 rounded-lg border border-purple-100 shadow-sm">PP 304 : 수지가 없는 순수 글라스 플레이크 (다이아몬드 광채)</li>
+                                <li className="bg-white p-3 rounded-lg border border-purple-100 shadow-sm">PP 401 ~ 406 : 컬러스트림 (다중 색상 변환 고급 펄)</li>
+                            </ul>
+                            <div className="mt-5 p-4 bg-red-50 rounded-lg border border-red-200 text-red-700 text-xs font-bold">
+                                ⚠️ 주의: 가루 형태이므로 베이스에 직접 투하하면 덩어리집니다. 반드시 블렌딩 수지에 미리 개어서 액상화 한 후 투입해야 합니다.
+                            </div>
+                        </div>
+                    </div>
+                ) : zoomedImage.id === 13 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-emerald-100 mt-8">
+                        <div className="border-b-4 border-emerald-600 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Layers className="text-emerald-600" size={32}/> 3코트 (3-Coat) 컬러 특성
+                            </h2>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-200 p-6 rounded-xl shadow-sm">
+                            <h3 className="font-black text-emerald-800 mb-4 text-lg">하도(Ground) ➔ 중도(Pearl) ➔ 상도(Clear)</h3>
+                            <p className="text-sm font-bold text-slate-700 mb-4 break-keep">솔리드 베이스 위에 반투명한 펄 코트를 올려 입체감과 깊이감을 극대화하는 방식입니다. 펄 코트의 도장 횟수(두께)에 따라 최종 색상이 완전히 달라집니다.</p>
+                            <div className="flex flex-col gap-2">
+                                <div className="bg-white p-3 rounded-lg border border-emerald-100 text-sm font-black text-slate-800 shadow-sm">도장 횟수 증가 ➔ 펄 효과 강해짐 / 베이스 색상 은폐됨 / 명도 변화 발생</div>
+                                <div className="bg-red-50 p-3 rounded-lg border border-red-100 text-sm font-black text-red-700 shadow-sm">얼룩(Mottling) 주의: 중도 펄 코트가 젖은 상태로 두껍게 올라가면 은분/펄이 뭉쳐 구름 같은 얼룩이 발생합니다.</div>
+                            </div>
+                        </div>
+                    </div>
+                ) : zoomedImage.id === 14 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-cyan-100 mt-8">
+                        <div className="border-b-4 border-cyan-600 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Beaker className="text-cyan-600" size={32}/> 틴티드 크리어 (Tinted Clear)
+                            </h2>
+                        </div>
+                        <div className="bg-cyan-50 border border-cyan-200 p-6 rounded-xl shadow-sm">
+                            <p className="text-sm font-bold text-slate-700 mb-4 break-keep">가장 위쪽에 뿌리는 투명한 클리어(투명 페인트)에 아주 적은 양의 '투명 안료(트랜스페어런트)'나 '캔디 안료'를 섞어 뿌리는 초고난도 시스템입니다.</p>
+                            <ul className="space-y-3 text-sm font-black text-slate-800">
+                                <li className="bg-white p-3 rounded-lg border border-cyan-100 shadow-sm">깊고 풍부한 색감: 돋보기나 셀로판지를 덧댄 것처럼 밑색을 화사하게 증폭시킵니다. (주로 마쓰다 소울레드 46V, 현대/기아 캔디 컬러 등에 적용)</li>
+                                <li className="bg-white p-3 rounded-lg border border-cyan-100 shadow-sm text-red-600">수정 불가: 투명한 층 자체가 색을 띠고 있으므로, 먼지가 앉아 사포로 갈아내면 그 부분만 하얗게 색이 빠져버립니다. 블렌딩(보카시) 도장이 불가능에 가깝습니다.</li>
+                            </ul>
+                        </div>
+                    </div>
+                ) :
                 zoomedImage.id === 12 ? (
                     <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-100 mt-8">
                         <div className="border-b-4 border-red-600 pb-2 mb-6 flex justify-between items-end">
