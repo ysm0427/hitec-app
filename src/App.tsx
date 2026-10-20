@@ -1354,43 +1354,38 @@ export default function App() {
                         {zoomedImage.url ? (
                             <div className="relative w-full h-[65vh] flex flex-col bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
                                 <div 
-                                    ref={scrollContainerRef}
-                                    className={`w-full h-full overflow-auto custom-scrollbar touch-pan-x touch-pan-y relative ${isDragging ? 'cursor-grabbing' : (imgScale > 1 ? 'cursor-grab' : '')}`}
-                                    onMouseDown={handleMouseDown}
-                                    onMouseMove={handleMouseMove}
-                                    onMouseUp={handleMouseUp}
-                                    onMouseLeave={handleMouseUp}
-                                    onTouchStart={handleTouchStart}
-                                    onTouchMove={handleTouchMove}
-                                    onTouchEnd={handleTouchEnd}
-                                >
-                                    {/* 🖼️ [NEW 2] 양면(2장) 연속 페이지 뷰어 적용 */}
-                                    <div style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        gap: '16px',
-                                        width: imgScale === 1 ? '100%' : `${imgScale * 100}%`,
-                                        height: '100%',
-                                        transition: pinchDist > 0 ? 'none' : 'width 0.1s ease-out'
-                                    }}>
-                                        <img 
-                                            draggable={false}
-                                            src={zoomedImage.url} 
-                                            alt={zoomedImage.title} 
-                                            style={{ display: 'block', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', flex: 1, width: isMobile ? '100%' : '50%' }}
-                                        />
-                                        {!isMobile && currentImgIndex >= 0 && currentImgIndex < ALL_GUIDE_IMAGES.length - 1 && zoomedImage.id !== 12 && (
-                                            <img 
-                                                draggable={false}
-                                                src={ALL_GUIDE_IMAGES[currentImgIndex + 1].url} 
-                                                alt="Next Page" 
-                                                style={{ display: 'block', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', flex: 1, width: '50%' }}
-                                            />
-                                        )}
-                                    </div>
-                                </div>
+                                    <div 
+    ref={scrollContainerRef}
+    className={`w-full h-full overflow-auto custom-scrollbar touch-pan-x touch-pan-y relative ${isDragging ? 'cursor-grabbing' : (imgScale > 1 ? 'cursor-grab' : '')}`}
+    style={{
+        display: imgScale === 1 ? 'flex' : 'block',
+        alignItems: 'center',
+        justifyContent: 'center'
+    }}
+    onMouseDown={handleMouseDown}
+    onMouseMove={handleMouseMove}
+    onMouseUp={handleMouseUp}
+    onMouseLeave={handleMouseUp}
+    onTouchStart={handleTouchStart}
+    onTouchMove={handleTouchMove}
+    onTouchEnd={handleTouchEnd}
+>
+    <img 
+        draggable={false}
+        src={zoomedImage.url} 
+        alt={zoomedImage.title} 
+        style={{ 
+            display: 'block',
+            margin: imgScale === 1 ? '0' : 'auto', 
+            width: imgScale === 1 ? 'auto' : `${imgScale * 100}%`, 
+            height: imgScale === 1 ? '100%' : 'auto',
+            maxWidth: imgScale === 1 ? '100%' : 'none',
+            maxHeight: imgScale === 1 ? '100%' : 'none',
+            objectFit: 'contain',
+            transition: pinchDist > 0 ? 'none' : 'width 0.1s ease-out' 
+        }}
+    />
+</div>
                                 
                                 {/* 🖼️ [NEW 2] 하단 인디케이터(쪽수) 표시 장착 */}
                                 <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full px-5 py-2 flex items-center gap-6 z-[4020] shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-slate-600">
