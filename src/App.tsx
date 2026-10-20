@@ -321,7 +321,7 @@ export default function App() {
   useEffect(() => {
       const el = scrollContainerRef.current; if (!el || !zoomedImage || zoomedImage.id === 12) return; 
       // 📌 [NEW 3] 마우스 휠 스크롤 줌 단위를 5% (0.05)로 부드럽게 세밀화
-      const handleNativeWheel = (e: WheelEvent) => { e.preventDefault(); const delta = e.deltaY < 0 ? 0.05 : -0.05; setImgScale(s => Number(Math.max(1, Math.min(s + delta, 5)).toFixed(2))); };
+      const handleNativeWheel = (e: WheelEvent) => { e.preventDefault(); const delta = e.deltaY < 0 ? 0.01 : -0.01; setImgScale(s => Number(Math.max(1, Math.min(s + delta, 5)).toFixed(2))); };
       el.addEventListener('wheel', handleNativeWheel, { passive: false });
       return () => el.removeEventListener('wheel', handleNativeWheel);
   }, [zoomedImage]);
