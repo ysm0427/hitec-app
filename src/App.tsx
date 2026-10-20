@@ -1240,7 +1240,93 @@ export default function App() {
 
             <div className="w-full h-full max-w-[1400px] flex flex-col items-center relative py-8 px-12 sm:px-24" onClick={e => e.stopPropagation()}>
                 
-                {zoomedImage.id === 12 ? (
+                {zoomedImage.id === 1 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-blue-100 mt-8">
+                        <div className="border-b-4 border-blue-600 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Sun className="text-blue-600" size={32}/> 색의 인식과 3원색
+                            </h2>
+                            <div className="text-blue-600 font-black italic text-xl tracking-tighter shrink-0 ml-4 hidden sm:block">Permahyd<sup className="text-sm">®</sup> HI-TEC</div>
+                        </div>
+                        <div className="flex flex-col md:flex-row gap-6 mb-8">
+                            <div className="flex-1 bg-slate-900 p-6 rounded-xl shadow-lg border border-slate-700 flex flex-col items-center text-center">
+                                <h3 className="text-white font-black text-lg mb-4 bg-slate-800 px-4 py-1.5 rounded-full border border-slate-600">빛의 혼합 (가산혼합 / RGB)</h3>
+                                <div className="w-32 h-32 relative mb-4">
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full bg-red-500 mix-blend-screen opacity-90"></div>
+                                    <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-green-500 mix-blend-screen opacity-90"></div>
+                                    <div className="absolute bottom-0 right-0 w-20 h-20 rounded-full bg-blue-500 mix-blend-screen opacity-90"></div>
+                                </div>
+                                <p className="text-slate-300 text-sm font-bold break-keep">빛은 섞을수록 <span className="text-white font-black">점점 밝아지며 (명도 증가)</span>, 모든 빛을 합치면 순수한 백색(White) 광선이 됩니다.</p>
+                            </div>
+                            <div className="flex-1 bg-slate-50 p-6 rounded-xl shadow-inner border border-slate-300 flex flex-col items-center text-center">
+                                <h3 className="text-slate-800 font-black text-lg mb-4 bg-white px-4 py-1.5 rounded-full border border-slate-300 shadow-sm">안료의 혼합 (감산혼합 / CMYK)</h3>
+                                <div className="w-32 h-32 relative mb-4">
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full bg-cyan-400 mix-blend-multiply opacity-80"></div>
+                                    <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-yellow-400 mix-blend-multiply opacity-80"></div>
+                                    <div className="absolute bottom-0 right-0 w-20 h-20 rounded-full bg-fuchsia-500 mix-blend-multiply opacity-80"></div>
+                                </div>
+                                <p className="text-slate-600 text-sm font-bold break-keep">조색제(페인트)는 섞을수록 <span className="text-slate-900 font-black">점점 어두워지며 탁해지고 (명도/채도 감소)</span>, 모두 합치면 흑색(Black)에 가까워집니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                ) : zoomedImage.id === 2 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-emerald-100 mt-8">
+                        <div className="border-b-4 border-emerald-600 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Beaker className="text-emerald-600" size={32}/> 단색 안료의 2대 특성
+                            </h2>
+                        </div>
+                        <div className="space-y-6">
+                            <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-xl shadow-sm">
+                                <h3 className="text-lg font-black text-emerald-800 mb-3 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-emerald-500"></div> 유기 안료 (Organic Pigments)</h3>
+                                <p className="text-sm text-slate-700 font-bold mb-3">석유화학 합성으로 만들어진 안료로, 입자가 매우 미세하고 색상이 화려합니다.</p>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs font-black">
+                                    <div className="bg-white p-2 rounded border border-emerald-100 text-emerald-700 shadow-sm">맑고 투명함</div>
+                                    <div className="bg-white p-2 rounded border border-emerald-100 text-emerald-700 shadow-sm">채도가 매우 높음</div>
+                                    <div className="bg-white p-2 rounded border border-emerald-100 text-red-500 shadow-sm">은폐력 부족 (투과)</div>
+                                    <div className="bg-white p-2 rounded border border-emerald-100 text-emerald-700 shadow-sm">원색 (청/녹/적)</div>
+                                </div>
+                            </div>
+                            <div className="bg-amber-50 border border-amber-200 p-5 rounded-xl shadow-sm">
+                                <h3 className="text-lg font-black text-amber-800 mb-3 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-amber-500"></div> 무기 안료 (Inorganic Pigments)</h3>
+                                <p className="text-sm text-slate-700 font-bold mb-3">광물(흙, 돌, 철)에서 추출한 안료로, 입자가 굵고 무거우며 튼튼합니다.</p>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs font-black">
+                                    <div className="bg-white p-2 rounded border border-amber-100 text-amber-700 shadow-sm">불투명하고 탁함</div>
+                                    <div className="bg-white p-2 rounded border border-amber-100 text-red-500 shadow-sm">채도가 낮음</div>
+                                    <div className="bg-white p-2 rounded border border-amber-100 text-amber-700 shadow-sm">은폐력 매우 우수</div>
+                                    <div className="bg-white p-2 rounded border border-amber-100 text-amber-700 shadow-sm">산화철/황연/백/흑</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) : zoomedImage.id === 3 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-purple-100 mt-8">
+                        <div className="border-b-4 border-purple-600 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Layers className="text-purple-600" size={32}/> 빛과 안료 상호작용
+                            </h2>
+                        </div>
+                        <p className="text-slate-600 font-bold mb-6">입자의 종류에 따라 빛이 도막에 닿았을 때 반사, 굴절, 투과되는 메커니즘이 완전히 달라집니다.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl shadow-sm flex flex-col">
+                                <h4 className="font-black text-slate-800 mb-2 border-b border-slate-200 pb-2">1. 솔리드 (Solid)</h4>
+                                <div className="h-24 bg-red-600 rounded-lg mb-3 shadow-inner flex items-center justify-center text-white font-black text-xl">흡수 & 난반사</div>
+                                <p className="text-xs text-slate-600 font-bold break-keep">빛이 표면에 닿으면 특정 파장은 흡수되고 나머지는 모든 방향으로 불규칙하게 흩어집니다(난반사). 각도에 따른 색상 변화가 없습니다.</p>
+                            </div>
+                            <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl shadow-sm flex flex-col">
+                                <h4 className="font-black text-slate-800 mb-2 border-b border-slate-200 pb-2">2. 알루미늄 (Metallic)</h4>
+                                <div className="h-24 bg-gradient-to-br from-slate-300 via-slate-400 to-slate-600 rounded-lg mb-3 shadow-inner flex items-center justify-center text-white font-black text-xl">거울 반사 (정반사)</div>
+                                <p className="text-xs text-slate-600 font-bold break-keep">거울처럼 빛을 한 방향으로 강하게 튕겨냅니다. 정면(15도)에서는 눈부시게 밝고, 측면(45도)에서는 급격히 어두워집니다(플롭 효과).</p>
+                            </div>
+                            <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl shadow-sm flex flex-col">
+                                <h4 className="font-black text-slate-800 mb-2 border-b border-slate-200 pb-2">3. 펄/마이카 (Pearl)</h4>
+                                <div className="h-24 bg-gradient-to-tr from-purple-200 via-pink-100 to-blue-200 rounded-lg mb-3 shadow-inner flex items-center justify-center text-purple-700 font-black text-xl">투과 & 다중 간섭</div>
+                                <p className="text-xs text-slate-600 font-bold break-keep">반투명한 입자 층을 빛이 통과하며 굴절과 반사를 반복합니다. 보는 각도에 따라 빛이 간섭을 일으켜 진주처럼 영롱한 이색 현상을 만듭니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                ) :
+              {zoomedImage.id === 12 ? (
                     <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-100 mt-8">
                         <div className="border-b-4 border-red-600 pb-2 mb-6 flex justify-between items-end">
                             <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center flex-wrap gap-2">
