@@ -1326,6 +1326,125 @@ export default function App() {
                         </div>
                     </div>
                 ) :
+                  zoomedImage.id === 4 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-200 mt-8">
+                        <div className="border-b-4 border-slate-600 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <BookOpen className="text-slate-600" size={32}/> 조색제 포스터의 이해
+                            </h2>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="bg-slate-50 border border-slate-200 p-5 rounded-xl shadow-sm">
+                                <h3 className="font-black text-slate-800 mb-2">포스터 기호 읽는 법</h3>
+                                <p className="text-sm text-slate-600 font-bold">스피스헥커 조색제 포스터의 각 기호는 안료의 투명도, 색상 방향, 특성을 나타냅니다.</p>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 text-center">
+                                    <div className="bg-white p-4 border border-slate-200 rounded-xl shadow-sm flex flex-col items-center justify-center">
+                                        <div className="w-10 h-10 bg-black mb-3 rounded-full border-2 border-white shadow-md"></div>
+                                        <span className="text-xs font-black text-slate-700">완전 불투명 (Opaque)</span>
+                                    </div>
+                                    <div className="bg-white p-4 border border-slate-200 rounded-xl shadow-sm flex flex-col items-center justify-center">
+                                        <div className="w-10 h-10 bg-black/40 mb-3 rounded-full border-2 border-white shadow-md"></div>
+                                        <span className="text-xs font-black text-slate-700">반투명 (Translucent)</span>
+                                    </div>
+                                    <div className="bg-white p-4 border border-slate-200 rounded-xl shadow-sm flex flex-col items-center justify-center">
+                                        <div className="w-10 h-10 bg-transparent mb-3 rounded-full border-2 border-slate-300 shadow-md"></div>
+                                        <span className="text-xs font-black text-slate-700">완전 투명 (Transparent)</span>
+                                    </div>
+                                    <div className="bg-white p-4 border border-slate-200 rounded-xl shadow-sm flex flex-col items-center justify-center">
+                                        <div className="w-10 h-10 bg-white mb-3 rounded-full border-2 border-blue-500 shadow-inner flex items-center justify-center">
+                                            <span className="text-xl font-black text-blue-600">T</span>
+                                        </div>
+                                        <span className="text-xs font-black text-slate-700">착색 펄 (Tinted Pearl)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) : zoomedImage.id === 5 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-orange-100 mt-8">
+                        <div className="border-b-4 border-orange-500 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Target className="text-orange-500" size={32}/> 솔리드 포지셔닝 맵
+                            </h2>
+                        </div>
+                        <div className="bg-slate-900 rounded-xl p-6 shadow-lg border border-slate-700 relative h-80 flex items-center justify-center overflow-hidden">
+                            <div className="absolute w-[320px] h-[320px] rounded-full border-2 border-slate-600/50"></div>
+                            <div className="absolute w-[200px] h-[200px] rounded-full border border-slate-500/50"></div>
+                            <div className="absolute w-full h-px bg-slate-600/50"></div>
+                            <div className="absolute h-full w-px bg-slate-600/50"></div>
+                            <span className="absolute top-6 font-black text-yellow-400 bg-slate-900 px-2">Yellow (황)</span>
+                            <span className="absolute bottom-6 font-black text-blue-400 bg-slate-900 px-2">Blue (청)</span>
+                            <span className="absolute left-6 font-black text-emerald-400 bg-slate-900 py-1">Green (녹)</span>
+                            <span className="absolute right-6 font-black text-red-400 bg-slate-900 py-1">Red (적)</span>
+                            <div className="z-10 text-center flex flex-col items-center">
+                                <div className="w-16 h-16 bg-white rounded-full mix-blend-screen shadow-[0_0_30px_rgba(255,255,255,0.5)] mb-4"></div>
+                                <span className="bg-white/10 text-white px-4 py-2 rounded-lg font-black backdrop-blur-sm border border-white/20">단색 원색 좌표 매핑</span>
+                                <p className="text-slate-400 text-xs mt-2 font-bold">각 안료의 명도와 채도 위치를 확인하는 스페이스입니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                ) : zoomedImage.id === 6 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-red-100 mt-8">
+                        <div className="border-b-4 border-red-500 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Sun className="text-red-500" size={32}/> 황색 / 적색 계열도
+                            </h2>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200 shadow-sm">
+                                <h3 className="text-lg font-black text-yellow-700 mb-4 border-b border-yellow-200 pb-2 flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-yellow-400 shadow-sm"></div> Yellow (황색) 방향성</h3>
+                                <ul className="text-sm font-bold text-slate-700 space-y-3">
+                                    <li className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-yellow-100"><span className="text-yellow-500 font-black text-base">WT 326</span><span>그리니쉬 옐로우 (차가운 황색)</span></li>
+                                    <li className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-yellow-100"><span className="text-yellow-600 font-black text-base">WT 324</span><span>레디쉬 옐로우 (따뜻한 금빛)</span></li>
+                                    <li className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-yellow-100"><span className="text-yellow-800 font-black text-base">WT 328</span><span>오커 (황토색, 탁색 섀도우)</span></li>
+                                </ul>
+                            </div>
+                            <div className="bg-red-50 p-6 rounded-xl border border-red-200 shadow-sm">
+                                <h3 className="text-lg font-black text-red-700 mb-4 border-b border-red-200 pb-2 flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-red-500 shadow-sm"></div> Red (적색) 방향성</h3>
+                                <ul className="text-sm font-bold text-slate-700 space-y-3">
+                                    <li className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-red-100"><span className="text-red-500 font-black text-base">WT 340</span><span>옐로우 마젠타 (따뜻한 주황빛)</span></li>
+                                    <li className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-red-100"><span className="text-pink-600 font-black text-base">WT 338</span><span>블루이쉬 마젠타 (차가운 자주빛)</span></li>
+                                    <li className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-red-100"><span className="text-red-800 font-black text-base">WT 330</span><span>마룬 (적갈색, 묵직한 섀도우)</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                ) : zoomedImage.id === 7 ? (
+                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-indigo-100 mt-8">
+                        <div className="border-b-4 border-indigo-600 pb-2 mb-6 flex justify-between items-end">
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Layers className="text-indigo-600" size={32}/> 청색 / 녹색 / 흑색 계열도
+                            </h2>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                            <div className="bg-blue-50 p-5 rounded-xl border border-blue-200 shadow-sm">
+                                <h3 className="font-black text-blue-800 mb-2 text-lg">Blue (청색)</h3>
+                                <p className="text-xs text-slate-600 font-bold mb-4">정면/측면 이색 현상 제어가 핵심입니다.</p>
+                                <div className="space-y-3 text-xs font-black">
+                                    <div className="bg-white p-3 rounded-lg border border-blue-100 flex justify-between shadow-sm"><span className="text-blue-500 text-sm">WT 341</span><span>애저 (맑은 청록)</span></div>
+                                    <div className="bg-white p-3 rounded-lg border border-blue-100 flex justify-between shadow-sm"><span className="text-blue-700 text-sm">WT 343</span><span>정직한 블루</span></div>
+                                    <div className="bg-white p-3 rounded-lg border border-blue-100 flex justify-between shadow-sm"><span className="text-indigo-600 text-sm">WT 318</span><span>측면 붉은 블루</span></div>
+                                </div>
+                            </div>
+                            <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200 shadow-sm">
+                                <h3 className="font-black text-emerald-800 mb-2 text-lg">Green (녹색)</h3>
+                                <p className="text-xs text-slate-600 font-bold mb-4">빛의 투과 및 캔디 효과에 주로 쓰입니다.</p>
+                                <div className="space-y-3 text-xs font-black">
+                                    <div className="bg-white p-3 rounded-lg border border-emerald-100 flex justify-between shadow-sm"><span className="text-emerald-500 text-sm">WT 347</span><span>투명 그린 (100% 투과)</span></div>
+                                    <div className="bg-white p-3 rounded-lg border border-emerald-100 flex justify-between shadow-sm"><span className="text-emerald-700 text-sm">WT 349</span><span>반투명 그린 (저농)</span></div>
+                                </div>
+                            </div>
+                            <div className="bg-slate-100 p-5 rounded-xl border border-slate-300 shadow-sm">
+                                <h3 className="font-black text-slate-800 mb-2 text-lg">Black (흑색)</h3>
+                                <p className="text-xs text-slate-600 font-bold mb-4">은분과 만났을 때 쿨톤/웜톤 결정.</p>
+                                <div className="space-y-3 text-xs font-black">
+                                    <div className="bg-white p-3 rounded-lg border border-slate-200 flex justify-between shadow-sm"><span className="text-slate-900 text-sm">WT 188</span><span>슈퍼 딥 블랙 (쿨톤)</span></div>
+                                    <div className="bg-white p-3 rounded-lg border border-slate-200 flex justify-between shadow-sm"><span className="text-slate-600 text-sm">WT 323</span><span>스페셜 블랙 (웜톤)</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) :
                 zoomedImage.id === 12 ? (
                     <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-100 mt-8">
                         <div className="border-b-4 border-red-600 pb-2 mb-6 flex justify-between items-end">
