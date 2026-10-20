@@ -1067,7 +1067,7 @@ export default function App() {
                         </div>
                     )}
                     
-                    {/* 🔍 [NEW 2] OEM 컬러 렌더링 (클릭 시 컬러코드 입력 & 공식 웹사이트 자동 팝업) */}
+{/* 🔍 [NEW 2] OEM 컬러 렌더링 (클릭 시 컬러코드 입력 & 공식 웹사이트 자동 팝업) */}
 {oemSearch.replace(/\s/g, '') !== '' && filteredOemColors.length > 0 && (
     <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm animate-in fade-in">
         <h4 className="text-xs font-black text-blue-800 mb-2">🔍 자동차 제조사(OEM) 색상 검색 결과</h4>
@@ -1079,8 +1079,8 @@ export default function App() {
                     onClick={() => {
                         // 1. 위쪽 상단에 컬러코드 자동 입력
                         setTargetColorCode(String(oem.code));
-                        // 2. 새 탭(새 창)으로 Axalta 공식 로그인 페이지 즉시 팝업 오픈
-                        window.open("https://auth.axalta.com/am/XUI/?realm=/alpha&spEntityID=https%3A%2F%2Fphoenix.spieshecker.com&AMAuthCookie=&authIndexType=composite_advice&authIndexValue=%3CAdvices%3E%0A%20%20%20%20%3CAttributeValuePair%3E%0A%20%20%20%20%20%20%20%20%3CAttribute%20name%3D%22TransactionConditionAdvice%22%2F%3E%0A%20%20%20%20%20%20%20%20%3CValue%3Ec8d9cd9c-c1cc-47a3-8bb0-d11ea2e80a80%3C%2FValue%3E%0A%20%20%20%20%3C%2FAttributeValuePair%3E%0A%3C%2FAdvices%3E%0A&samlObjectKey=9e685f10-f747-4f7c-95d1-d40a3d7b5e47&goto=https%3A%2F%2Fauth.axalta.com%3A443%2Fam%2Fsaml2%2Fcontinue%2FmetaAlias%2Falpha%2Fidp%3FsecondVisitUrl%3D%2Fam%2FSSORedirect%2FmetaAlias%2Falpha%2Fidp%3FReqID%253D_ae311088-1856-49b8-94fc-a58aa6aee3d4%2526TxId%253Dc8d9cd9c-c1cc-47a3-8bb0-d11ea2e80a80#/", "_blank");
+                        // 2. 새 탭(새 창)으로 Axalta 피닉스 기본 접속 주소 오픈 (세션 만료 해결)
+                        window.open("https://phoenix.spieshecker.com", "_blank");
                     }}
                 >
                     <span className="font-black text-blue-600 text-sm whitespace-nowrap mr-3 mb-1 sm:mb-0 shrink-0 group-hover:text-blue-800">{oem.code}</span>
