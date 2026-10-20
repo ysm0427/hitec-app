@@ -1993,7 +1993,16 @@ export default function App() {
                             <circle cx="200" cy="200" r="98" fill="#0f172a" stroke="#1e293b" strokeWidth="2" />
                             <text x="200" y="195" fill="#94a3b8" fontSize="14" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" className="tracking-widest">MUNSELL</text>
                             <text x="200" y="215" fill="#ffffff" fontSize="16" fontWeight="900" textAnchor="middle" dominantBaseline="middle">표준 색상환</text>
-                            {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] && ( <line x1={polarToCartesian(200, 200, 80, selectedWheelIndex * 18 + 8.5).x} y1={polarToCartesian(200, 200, 80, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).x} y2={polarToCartesian(200, 200, 80, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).y} stroke="#ef4444" strokeWidth="3.5" markerEnd="url(#arrowhead)" className="drop-shadow-[0_0_12px_rgba(239,68,68,1)] pointer-events-none" /> )}
+                            {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] && ( 
+    <line 
+        x1="200" 
+        y1="200" 
+        x2={polarToCartesian(200, 200, 150, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).x} 
+        y2={polarToCartesian(200, 200, 150, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).y} 
+        stroke="#ef4444" strokeWidth="3.5" markerEnd="url(#arrowhead)" 
+        className="drop-shadow-[0_0_12px_rgba(239,68,68,1)] pointer-events-none" 
+    /> 
+)}
                         </svg>
                      </div>
                  </div>
