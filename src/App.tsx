@@ -1326,7 +1326,7 @@ export default function App() {
                         </div>
                     </div>
                 ) :
-              {zoomedImage.id === 12 ? (
+                zoomedImage.id === 12 ? (
                     <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-100 mt-8">
                         <div className="border-b-4 border-red-600 pb-2 mb-6 flex justify-between items-end">
                             <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center flex-wrap gap-2">
