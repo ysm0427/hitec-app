@@ -5,7 +5,8 @@ import {
   Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
   FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp, 
   CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud,
-  QrCode, Smartphone, Monitor, Link, Check, Users, Lock, ShieldCheck, Briefcase, MapPin, UserCheck, Hash
+  QrCode, Smartphone, Monitor, Link, Check, Users, Lock, ShieldCheck, Briefcase, MapPin, UserCheck, Hash,
+  ChevronLeft, ChevronRight, Loader2
 } from 'lucide-react';
 
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS } from './tonerDB';
@@ -17,7 +18,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.19 (스마트 프로그레스바 / 교집합(AND) 정밀검색 / 풀네임 렌더링)"; 
+const LAST_PATCH_DATE = "2026.10.19 (휴먼 리얼리티 가상 승인 / 기술자료실 연속 뷰어 페이지네이션)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -44,6 +45,14 @@ const GUIDE_IMAGES: Record<string, any[]> = {
     { id: 14, title: '틴티드 크리어 (Tinted Clear)', desc: '착색 클리어 시스템', url: '/image14.jpg' },
   ]
 };
+
+// 📌 [NEW 2] 탭 경계를 넘어가는 연속 열람을 위한 전체 이미지 배열
+const ALL_GUIDE_IMAGES = [
+  ...GUIDE_IMAGES.theory,
+  ...GUIDE_IMAGES.spectrum,
+  ...GUIDE_IMAGES.effect,
+  ...GUIDE_IMAGES.special
+];
 
 export const catalogData = Object.entries(TONER_DB).map(([code, data]) => { return { code, ...data }; });
 export const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
@@ -115,7 +124,7 @@ interface BoardPost {
 }
 
 export default function App() {
-  // 🛡️ [NEW 1] 가상 오토 승인(보안 위장) 시스템 (빈칸방지 + 프로그레스바 + 단독팝업)
+  // 🛡️ [NEW 1] 휴먼 리얼리티 가상 승인 시나리오 (3+2+1+5 융합 로직)
   const [isAuthorized, setIsAuthorized] = useState(() => {
     if (typeof window !== 'undefined') return sessionStorage.getItem('hitec_auth_passed') === 'true';
     return false;
@@ -125,27 +134,31 @@ export default function App() {
   const isAuthFormValid = authForm.company.trim() !== '' && authForm.location.trim() !== '' && authForm.name.trim() !== '' && String(authForm.age).trim() !== '';
   
   const [isApproving, setIsApproving] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [approvalMessage, setApprovalMessage] = useState("");
   const [showApprovalSuccess, setShowApprovalSuccess] = useState(false);
 
-  const handleFakeApproval = (e: React.FormEvent) => {
+  const handleFakeApproval = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAuthFormValid) return; // 빈칸이 있으면 절대 실행 불가
+    if (!isAuthFormValid) return; 
     setIsApproving(true);
-    setProgress(0);
     
-    // 리얼리티를 위한 프로그레스 바 3.5초 구동 (0~100%)
-    let currentProgress = 0;
-    const interval = setInterval(() => {
-        currentProgress += 2; 
-        if (currentProgress >= 100) {
-            clearInterval(interval);
-            setIsApproving(false);
-            setShowApprovalSuccess(true); // 완료되면 깔끔한 팝업만 노출
-        } else {
-            setProgress(currentProgress);
-        }
-    }, 70); 
+    // [1단계] 발송 완료 (약 1초 소요: 빠름)
+    setApprovalMessage("마스터(윤성만) 기기로 승인 요청 알림 전송 완료...");
+    await new Promise(r => setTimeout(r, 1000));
+    
+    // [2단계] 휴먼 검토 타임 (약 2.5초 ~ 4.5초 소요: 랜덤하게 아주 긺) - 핵심 구간
+    setApprovalMessage("관리자가 입력된 소속 및 직책 정보를 확인하고 있습니다...");
+    const phase2Delay = Math.floor(Math.random() * 2000) + 2500; 
+    await new Promise(r => setTimeout(r, phase2Delay));
+
+    // [3단계] 최종 승인 처리 (약 0.5초 ~ 1.5초 소요: 랜덤)
+    setApprovalMessage("보안 접근 권한 부여 및 시스템 개방 중...");
+    const phase3Delay = Math.floor(Math.random() * 1000) + 500; 
+    await new Promise(r => setTimeout(r, phase3Delay));
+
+    // [최종 완료]
+    setIsApproving(false);
+    setShowApprovalSuccess(true); 
   };
 
   const handleApprovalConfirm = () => {
@@ -221,7 +234,6 @@ export default function App() {
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight', tempInput?: HTMLInputElement} | null>(null); 
   
-  // 🔍 양방향 스마트 검색창 상태 (50:50 분할)
   const [catalogSearch, setCatalogSearch] = useState(''); 
   const [oemSearch, setOemSearch] = useState('');         
   
@@ -238,7 +250,6 @@ export default function App() {
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
   
-  // 🔍 [NEW 2] 왼쪽: 조색제(안료) 스마트 검색 (AND 논리 교집합)
   const sortedCatalog = [...catalogData].filter(item => {
     const code = item.code;
     if (activeTab === 'CANDY') return code.startsWith('90');
@@ -250,19 +261,16 @@ export default function App() {
   }).filter(item => {
       const searchTxt = catalogSearch.toUpperCase();
       if (!searchTxt.trim()) return true;
-      const searchTerms = searchTxt.split(/\s+/).filter(Boolean); // 띄어쓰기로 분리
+      const searchTerms = searchTxt.split(/\s+/).filter(Boolean);
       const fullString = `${String(item.code || '')} ${String(item.role || '')} ${String(item.desc || '')}`.toUpperCase();
-      // 입력된 '모든 단어'가 fullString에 다 들어있어야만 검색 결과에 나옴 (AND 조건)
       return searchTerms.every(term => fullString.includes(term));
   });
 
-  // 🔍 [NEW 2] 오른쪽: 엑셀 OEM 스마트 검색 (AND 논리 교집합) - LUCID RED TC 완벽 해결
   const filteredOemColors = OEM_COLORS.filter(c => {
       const searchTxt = oemSearch.toUpperCase();
       if (!searchTxt.trim()) return false;
-      const searchTerms = searchTxt.split(/\s+/).filter(Boolean); // 띄어쓰기로 분리
+      const searchTerms = searchTxt.split(/\s+/).filter(Boolean);
       const fullString = `${String(c.code || '')} ${String(c.name || '')}`.toUpperCase();
-      // 입력된 '모든 단어'가 fullString에 다 들어있어야만 검색 결과에 나옴 (AND 조건)
       return searchTerms.every(term => fullString.includes(term));
   });
 
@@ -324,6 +332,23 @@ export default function App() {
   const handleTouchEnd = () => { setPinchDist(0); };
 
   const openImageModal = (img: any) => { setZoomedImage(img); setImgScale(1); };
+  
+  // 🖼️ [NEW 2] 기술자료실 이미지 뷰어 연속 열람 로직
+  const currentImgIndex = zoomedImage ? ALL_GUIDE_IMAGES.findIndex(img => img.id === zoomedImage.id) : -1;
+  const handleNextImage = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if(currentImgIndex >= 0 && currentImgIndex < ALL_GUIDE_IMAGES.length - 1) {
+          setZoomedImage(ALL_GUIDE_IMAGES[currentImgIndex + 1]);
+          setImgScale(1);
+      }
+  };
+  const handlePrevImage = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if(currentImgIndex > 0) {
+          setZoomedImage(ALL_GUIDE_IMAGES[currentImgIndex - 1]);
+          setImgScale(1);
+      }
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -399,7 +424,6 @@ export default function App() {
     setToners(applyScale(toners)); setPearlToners(applyScale(pearlToners));
   };
 
-  // 🧠 [NEW 4] AI 가상 조색 시뮬레이터 지능 대폭 업그레이드
   const getSimulatedColor = (drops: any) => {
       const rDrop = drops.red; const bDrop = drops.blue; const yDrop = drops.yellow; const gDrop = drops.green; const wDrop = drops.white; const kDrop = drops.black;
       const total = rDrop + bDrop + yDrop + gDrop + wDrop + kDrop;
@@ -420,7 +444,6 @@ export default function App() {
           else if (kDrop > wDrop) name = '어두운 회색 (Dark Gray)';
           else name = '중간 회색 (Medium Gray)';
       } else {
-          // 기본 혼합색 판별
           if (rDrop > 0 && bDrop > 0 && yDrop > 0 && gDrop === 0) name = '탁한 회갈색 (Muddy Brown)';
           else if (rDrop > 0 && bDrop > 0 && yDrop === 0 && gDrop === 0) name = rDrop > bDrop ? '적보라 (Red-Purple)' : (bDrop > rDrop ? '청보라 (Blue-Purple)' : '보라 (Purple)');
           else if (rDrop > 0 && yDrop > 0 && bDrop === 0 && gDrop === 0) name = rDrop > yDrop ? '다홍 (Red-Orange)' : (yDrop > rDrop ? '귤색 (Yellow-Orange)' : '주황 (Orange)');
@@ -435,7 +458,6 @@ export default function App() {
               if (maxColor === 'red') name = '빨강 (Red)'; else if (maxColor === 'blue') name = '파랑 (Blue)'; else if (maxColor === 'yellow') name = '노랑 (Yellow)'; else if (maxColor === 'green') name = '초록 (Green)';
           }
 
-          // 흰색/검은색 첨가에 따른 디테일한 네이밍 변화
           if (name.includes('보라')) {
               if (wDrop > 0 && kDrop === 0) name = '연한 파스텔 라벤더 (Pastel Lavender)';
               else if (kDrop > 0 && wDrop === 0) name = '다크 플럼 (Dark Plum)';
@@ -617,7 +639,7 @@ export default function App() {
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
 
-  // 🛡️ [NEW 1] 가상 오토 승인(보안) 1차 방어선 (빈칸 방지 + 프로그레스바 + 단독팝업)
+  // 🛡️ [NEW 1] 휴먼 리얼리티 가상 승인 시스템 (빈칸 방지 + 랜덤 딜레이 스피너)
   if (!isAuthorized) {
     return (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 notranslate" translate="no">
@@ -659,17 +681,16 @@ export default function App() {
                                 </select>
                             </div>
                             
+                            {/* [NEW 1] 무한 로딩 스피너 및 단계별 메시지 연출 */}
                             {isApproving && (
-                                <div className="flex flex-col items-center mt-2 animate-in fade-in">
-                                    <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden shadow-inner">
-                                        <div className="bg-blue-600 h-2.5 rounded-full transition-all ease-linear" style={{ width: `${progress}%`, transitionDuration: '70ms' }}></div>
-                                    </div>
-                                    <span className="text-xs font-black text-blue-600 mt-2">{progress}% 시스템 검증 중...</span>
+                                <div className="flex flex-col items-center justify-center py-4 mt-2 animate-in fade-in bg-blue-50/50 border border-blue-100 rounded-xl shadow-inner">
+                                    <Loader2 size={28} className="text-blue-600 animate-spin mb-3" />
+                                    <span className="text-xs font-black text-blue-800 text-center break-keep px-4 leading-relaxed">{approvalMessage}</span>
                                 </div>
                             )}
 
                             <button type="submit" disabled={!isAuthFormValid || isApproving} className={`w-full font-black py-4 rounded-xl mt-2 transition-colors shadow-md flex justify-center items-center gap-2 text-sm ${!isAuthFormValid ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-[#1e293b] hover:bg-slate-800 text-white'}`}>
-                                {isApproving ? "관리자 승인 대기 중..." : <><ShieldCheck size={18}/> 관리자에게 승인 요청하기</>}
+                                {isApproving ? "시스템 검증 중..." : <><ShieldCheck size={18}/> 관리자에게 승인 요청하기</>}
                             </button>
                         </form>
                     </>
@@ -1046,7 +1067,6 @@ export default function App() {
                         </div>
                     )}
                     
-                    {/* 🔍 [NEW 2] OEM 컬러 렌더링 (풀네임 표시 적용) */}
                     {oemSearch.replace(/\s/g, '') !== '' && filteredOemColors.length > 0 && (
                         <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm animate-in fade-in">
                             <h4 className="text-xs font-black text-blue-800 mb-2">🔍 자동차 제조사(OEM) 색상 검색 결과</h4>
@@ -1054,7 +1074,7 @@ export default function App() {
                                 {filteredOemColors.slice(0, 20).map((oem, idx) => (
                                     <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white px-3 py-2.5 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" onClick={() => setTargetColorCode(String(oem.code))}>
                                         <span className="font-black text-blue-600 text-sm whitespace-nowrap mr-3 mb-1 sm:mb-0 shrink-0">{oem.code}</span>
-                                        <span className="text-[11.5px] text-slate-700 font-bold whitespace-normal break-words text-left sm:text-right leading-tight">{oem.name}</span>
+                                        <span className="text-[11.5px] text-slate-700 font-bold whitespace-normal break-words text-left sm:text-right leading-tight flex-1 ml-0 sm:ml-2">{oem.name}</span>
                                     </div>
                                 ))}
                             </div>
@@ -1180,6 +1200,19 @@ export default function App() {
       {zoomedImage && (
         <div className="fixed inset-0 bg-black/95 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setZoomedImage(null)}>
             <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[4010] shadow-lg"><X size={24}/></button>
+            
+            {/* 🖼️ [NEW 2] 좌우 페이지 넘김 내비게이션 버튼 적용 */}
+            {currentImgIndex > 0 && (
+                <button onClick={handlePrevImage} className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 text-white bg-slate-900/60 hover:bg-blue-600 p-3 sm:p-4 rounded-full transition-colors z-[4020] shadow-lg border border-slate-600/50">
+                    <ChevronLeft size={32}/>
+                </button>
+            )}
+            {currentImgIndex >= 0 && currentImgIndex < ALL_GUIDE_IMAGES.length - 1 && (
+                <button onClick={handleNextImage} className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 text-white bg-slate-900/60 hover:bg-blue-600 p-3 sm:p-4 rounded-full transition-colors z-[4020] shadow-lg border border-slate-600/50">
+                    <ChevronRight size={32}/>
+                </button>
+            )}
+
             <div className="w-full h-full max-w-5xl flex flex-col items-center relative py-12" onClick={e => e.stopPropagation()}>
                 
                 {zoomedImage.id === 12 ? (
@@ -1327,13 +1360,24 @@ export default function App() {
                                         }}
                                     />
                                 </div>
-                                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full px-5 py-2 flex items-center gap-6 z-50 shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-slate-600">
+                                
+                                {/* 🖼️ [NEW 2] 확대 축소 및 하단 인디케이터(쪽수) 표시 장착 */}
+                                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full px-5 py-2 flex items-center gap-6 z-[4020] shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-slate-600">
                                     <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.max(1, s - 0.2)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">-</button>
                                     <div className="flex flex-col items-center">
                                         <span className="text-white text-sm font-black min-w-[45px] text-center tracking-wider">{Math.round(imgScale * 100)}%</span>
                                         <button onClick={(e) => { e.stopPropagation(); setImgScale(1); }} className="text-[10px] text-blue-400 font-bold hover:text-white mt-0.5">RESET</button>
                                     </div>
                                     <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.min(5, s + 0.2)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">+</button>
+                                    
+                                    {currentImgIndex >= 0 && (
+                                        <>
+                                            <div className="w-px h-6 bg-slate-600 mx-1"></div>
+                                            <div className="text-white font-black text-sm whitespace-nowrap min-w-[50px] text-center tracking-widest text-emerald-400">
+                                                {currentImgIndex + 1} / {ALL_GUIDE_IMAGES.length}
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         ) : (
