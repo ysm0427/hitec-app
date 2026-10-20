@@ -18,7 +18,7 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-const LAST_PATCH_DATE = "2026.10.19 (휴먼 리얼리티 가상 승인 / 기술자료실 연속 뷰어 페이지네이션)"; 
+const LAST_PATCH_DATE = "2026.10.19 (UI/UX 5대 편의성 마스터 패치 적용완료)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -46,7 +46,6 @@ const GUIDE_IMAGES: Record<string, any[]> = {
   ]
 };
 
-// 📌 [NEW 2] 탭 경계를 넘어가는 연속 열람을 위한 전체 이미지 배열
 const ALL_GUIDE_IMAGES = [
   ...GUIDE_IMAGES.theory,
   ...GUIDE_IMAGES.spectrum,
@@ -124,7 +123,6 @@ interface BoardPost {
 }
 
 export default function App() {
-  // 🛡️ [NEW 1] 휴먼 리얼리티 가상 승인 시나리오 (3+2+1+5 융합 로직)
   const [isAuthorized, setIsAuthorized] = useState(() => {
     if (typeof window !== 'undefined') return sessionStorage.getItem('hitec_auth_passed') === 'true';
     return false;
@@ -141,22 +139,14 @@ export default function App() {
     e.preventDefault();
     if (!isAuthFormValid) return; 
     setIsApproving(true);
-    
-    // [1단계] 발송 완료 (약 1초 소요: 빠름)
     setApprovalMessage("마스터(윤성만) 기기로 승인 요청 알림 전송 완료...");
     await new Promise(r => setTimeout(r, 1000));
-    
-    // [2단계] 휴먼 검토 타임 (약 2.5초 ~ 4.5초 소요: 랜덤하게 아주 긺) - 핵심 구간
     setApprovalMessage("관리자가 입력된 소속 및 직책 정보를 확인하고 있습니다...");
     const phase2Delay = Math.floor(Math.random() * 2000) + 2500; 
     await new Promise(r => setTimeout(r, phase2Delay));
-
-    // [3단계] 최종 승인 처리 (약 0.5초 ~ 1.5초 소요: 랜덤)
     setApprovalMessage("보안 접근 권한 부여 및 시스템 개방 중...");
     const phase3Delay = Math.floor(Math.random() * 1000) + 500; 
     await new Promise(r => setTimeout(r, phase3Delay));
-
-    // [최종 완료]
     setIsApproving(false);
     setShowApprovalSuccess(true); 
   };
@@ -246,6 +236,20 @@ export default function App() {
   
   const [paletteDrops, setPaletteDrops] = useState({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 });
 
+  // 📌 [NEW 5] 모달창 뒷배경 스크롤 방지 로직
+  const isAnyModalOpen = isGlossaryModalOpen || isBoardOpen || isShareModalOpen || isExcelModalOpen || !!viewingPost || isCloudModalOpen || !!previewModalImage || !!zoomedImage || memoModal.isOpen || isSnapshotModalOpen || isProcessOpen || isConfiguratorOpen || isPearlGuideOpen;
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (isAnyModalOpen) {
+          document.body.style.overflow = 'hidden';
+      } else {
+          document.body.style.overflow = '';
+      }
+    }
+    return () => { if (typeof window !== 'undefined') document.body.style.overflow = ''; };
+  }, [isAnyModalOpen]);
+
   const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
 
   const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
@@ -307,18 +311,17 @@ export default function App() {
   useEffect(() => {
     let meta = document.querySelector('meta[name="viewport"]');
     if (zoomedImage) {
-        document.body.style.overflow = 'hidden'; 
         if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); 
     } else {
-        document.body.style.overflow = '';
         if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'); 
     }
-    return () => { document.body.style.overflow = ''; if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1'); };
+    return () => { if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1'); };
   }, [zoomedImage]);
 
   useEffect(() => {
       const el = scrollContainerRef.current; if (!el || !zoomedImage || zoomedImage.id === 12) return; 
-      const handleNativeWheel = (e: WheelEvent) => { e.preventDefault(); const delta = e.deltaY < 0 ? 0.15 : -0.15; setImgScale(s => Number(Math.max(1, Math.min(s + delta, 5)).toFixed(2))); };
+      // 📌 [NEW 3] 마우스 휠 스크롤 줌 단위를 5% (0.05)로 부드럽게 세밀화
+      const handleNativeWheel = (e: WheelEvent) => { e.preventDefault(); const delta = e.deltaY < 0 ? 0.05 : -0.05; setImgScale(s => Number(Math.max(1, Math.min(s + delta, 5)).toFixed(2))); };
       el.addEventListener('wheel', handleNativeWheel, { passive: false });
       return () => el.removeEventListener('wheel', handleNativeWheel);
   }, [zoomedImage]);
@@ -333,18 +336,26 @@ export default function App() {
 
   const openImageModal = (img: any) => { setZoomedImage(img); setImgScale(1); };
   
-  // 🖼️ [NEW 2] 기술자료실 이미지 뷰어 연속 열람 로직
+  // 🖼️ [NEW 2] 기술자료실 이미지 뷰어 연속 열람 페이지네이션 로직
   const currentImgIndex = zoomedImage ? ALL_GUIDE_IMAGES.findIndex(img => img.id === zoomedImage.id) : -1;
   const handleNextImage = (e: React.MouseEvent) => {
       e.stopPropagation();
-      if(currentImgIndex >= 0 && currentImgIndex < ALL_GUIDE_IMAGES.length - 1) {
+      const jumpAmount = isMobile ? 1 : 2;
+      if(currentImgIndex >= 0 && currentImgIndex < ALL_GUIDE_IMAGES.length - jumpAmount) {
+          setZoomedImage(ALL_GUIDE_IMAGES[currentImgIndex + jumpAmount]);
+          setImgScale(1);
+      } else if (currentImgIndex >= 0 && currentImgIndex < ALL_GUIDE_IMAGES.length - 1) {
           setZoomedImage(ALL_GUIDE_IMAGES[currentImgIndex + 1]);
           setImgScale(1);
       }
   };
   const handlePrevImage = (e: React.MouseEvent) => {
       e.stopPropagation();
-      if(currentImgIndex > 0) {
+      const jumpAmount = isMobile ? 1 : 2;
+      if(currentImgIndex >= jumpAmount) {
+          setZoomedImage(ALL_GUIDE_IMAGES[currentImgIndex - jumpAmount]);
+          setImgScale(1);
+      } else if (currentImgIndex > 0) {
           setZoomedImage(ALL_GUIDE_IMAGES[currentImgIndex - 1]);
           setImgScale(1);
       }
@@ -639,7 +650,6 @@ export default function App() {
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
 
-  // 🛡️ [NEW 1] 휴먼 리얼리티 가상 승인 시스템 (빈칸 방지 + 랜덤 딜레이 스피너)
   if (!isAuthorized) {
     return (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 notranslate" translate="no">
@@ -681,7 +691,6 @@ export default function App() {
                                 </select>
                             </div>
                             
-                            {/* [NEW 1] 무한 로딩 스피너 및 단계별 메시지 연출 */}
                             {isApproving && (
                                 <div className="flex flex-col items-center justify-center py-4 mt-2 animate-in fade-in bg-blue-50/50 border border-blue-100 rounded-xl shadow-inner">
                                     <Loader2 size={28} className="text-blue-600 animate-spin mb-3" />
@@ -711,7 +720,6 @@ export default function App() {
     );
   }
 
-  // 메인 렌더링 화면
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
       
@@ -740,6 +748,12 @@ export default function App() {
             <button onClick={() => setIsGlossaryModalOpen(true)} className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 📖 도장/조색 용어 사전
             </button>
+            
+            {/* 📌 [NEW 4] 업데이트 버튼 완벽 복구 */}
+            <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                <RefreshCw size={14} /> 업데이트
+            </button>
+            
             <button onClick={() => setIsBoardOpen(true)} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
                 <Layers size={14} /> 시편 게시판
             </button>
@@ -851,10 +865,12 @@ export default function App() {
                     </div>
 
                     <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, false)}>
-                        <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep">
+                        <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
                             {toner.code ? (info.role || '등록된 안료 정보 없음') : '안료 번호를 입력하세요 (예: 321, 385...)'}
+                            {/* 📌 [NEW 1] '상세보기 ▼' 화살표 상시 노출 적용 */}
+                            {!toner.isExpanded && <span className="ml-2 text-[10px] text-blue-500 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
+                            {toner.isExpanded && <span className="ml-2 text-[10px] text-blue-500 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
                         </span>
-                        {toner.isExpanded ? <ChevronUp size={16} className="text-blue-400 shrink-0" /> : <ChevronDown size={16} className="text-blue-400 shrink-0" />}
                     </div>
 
                     {toner.isExpanded && (
@@ -955,10 +971,12 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, true)}>
-                          <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep">
+                          <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
                               {toner.code ? (info.role || '등록된 펄 정보 없음') : '펄 번호를 입력하세요 (예: PP201...)'}
+                              {/* 📌 [NEW 1] '상세보기 ▼' 화살표 상시 노출 적용 */}
+                              {!toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
+                              {toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
                           </span>
-                          {toner.isExpanded ? <ChevronUp size={16} className="text-purple-400 shrink-0" /> : <ChevronDown size={16} className="text-purple-400 shrink-0" />}
                       </div>
 
                       {toner.isExpanded && (
@@ -1067,29 +1085,26 @@ export default function App() {
                         </div>
                     )}
                     
-{/* 🔍 [NEW 2] OEM 컬러 렌더링 (클릭 시 컬러코드 입력 & 공식 웹사이트 자동 팝업) */}
-{oemSearch.replace(/\s/g, '') !== '' && filteredOemColors.length > 0 && (
-    <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm animate-in fade-in">
-        <h4 className="text-xs font-black text-blue-800 mb-2">🔍 자동차 제조사(OEM) 색상 검색 결과</h4>
-        <div className="flex flex-col gap-2">
-            {filteredOemColors.slice(0, 20).map((oem, idx) => (
-                <div 
-                    key={idx} 
-                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white px-3 py-2.5 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-500 transition-colors group" 
-                    onClick={() => {
-                        // 1. 위쪽 상단에 컬러코드 자동 입력
-                        setTargetColorCode(String(oem.code));
-                        // 2. 새 탭(새 창)으로 Axalta 피닉스 기본 접속 주소 오픈 (세션 만료 해결)
-                        window.open("https://phoenix.spieshecker.com", "_blank");
-                    }}
-                >
-                    <span className="font-black text-blue-600 text-sm whitespace-nowrap mr-3 mb-1 sm:mb-0 shrink-0 group-hover:text-blue-800">{oem.code}</span>
-                    <span className="text-[11.5px] text-slate-700 font-bold whitespace-normal break-words text-left sm:text-right leading-tight flex-1 ml-0 sm:ml-2">{oem.name}</span>
-                </div>
-            ))}
-        </div>
-    </div>
-)}
+                    {oemSearch.replace(/\s/g, '') !== '' && filteredOemColors.length > 0 && (
+                        <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm animate-in fade-in">
+                            <h4 className="text-xs font-black text-blue-800 mb-2">🔍 자동차 제조사(OEM) 색상 검색 결과</h4>
+                            <div className="flex flex-col gap-2">
+                                {filteredOemColors.slice(0, 20).map((oem, idx) => (
+                                    <div 
+                                        key={idx} 
+                                        className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white px-3 py-2.5 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-500 transition-colors group" 
+                                        onClick={() => {
+                                            setTargetColorCode(String(oem.code));
+                                            window.open("https://phoenix.spieshecker.com", "_blank");
+                                        }}
+                                    >
+                                        <span className="font-black text-blue-600 text-sm whitespace-nowrap mr-3 mb-1 sm:mb-0 shrink-0 group-hover:text-blue-800">{oem.code}</span>
+                                        <span className="text-[11.5px] text-slate-700 font-bold whitespace-normal break-words text-left sm:text-right leading-tight flex-1 ml-0 sm:ml-2">{oem.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {sortedCatalog.map((item) => {
                         const isMetallic = item.type !== 'solid' && item.type !== 'binder' && item.type !== 'candy';
@@ -1211,7 +1226,7 @@ export default function App() {
         <div className="fixed inset-0 bg-black/95 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setZoomedImage(null)}>
             <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[4010] shadow-lg"><X size={24}/></button>
             
-            {/* 🖼️ [NEW 2] 좌우 페이지 넘김 내비게이션 버튼 적용 */}
+            {/* 🖼️ [NEW 2] 좌우 페이지 넘김 내비게이션 버튼 */}
             {currentImgIndex > 0 && (
                 <button onClick={handlePrevImage} className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 text-white bg-slate-900/60 hover:bg-blue-600 p-3 sm:p-4 rounded-full transition-colors z-[4020] shadow-lg border border-slate-600/50">
                     <ChevronLeft size={32}/>
@@ -1223,7 +1238,7 @@ export default function App() {
                 </button>
             )}
 
-            <div className="w-full h-full max-w-5xl flex flex-col items-center relative py-12" onClick={e => e.stopPropagation()}>
+            <div className="w-full h-full max-w-[1400px] flex flex-col items-center relative py-8 px-12 sm:px-24" onClick={e => e.stopPropagation()}>
                 
                 {zoomedImage.id === 12 ? (
                     <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-100 mt-8">
@@ -1332,7 +1347,7 @@ export default function App() {
                     </div>
                 ) : (
                     <div className="w-full h-full flex flex-col justify-center relative">
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 w-full mb-3 text-center shadow-2xl shrink-0 z-10">
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 w-full mb-3 text-center shadow-2xl shrink-0 z-10 hidden sm:block">
                             <h3 className="text-slate-900 font-black text-xl mb-1">{zoomedImage.title}</h3>
                             <p className="text-blue-700 text-xs font-bold">{zoomedImage.desc}</p>
                         </div>
@@ -1341,11 +1356,6 @@ export default function App() {
                                 <div 
                                     ref={scrollContainerRef}
                                     className={`w-full h-full overflow-auto custom-scrollbar touch-pan-x touch-pan-y relative ${isDragging ? 'cursor-grabbing' : (imgScale > 1 ? 'cursor-grab' : '')}`}
-                                    style={{
-                                        display: imgScale === 1 ? 'flex' : 'block',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}
                                     onMouseDown={handleMouseDown}
                                     onMouseMove={handleMouseMove}
                                     onMouseUp={handleMouseUp}
@@ -1354,24 +1364,35 @@ export default function App() {
                                     onTouchMove={handleTouchMove}
                                     onTouchEnd={handleTouchEnd}
                                 >
-                                    <img 
-                                        draggable={false}
-                                        src={zoomedImage.url} 
-                                        alt={zoomedImage.title} 
-                                        style={{ 
-                                            display: 'block',
-                                            margin: imgScale === 1 ? '0' : 'auto', 
-                                            width: imgScale === 1 ? 'auto' : `${imgScale * 100}%`, 
-                                            height: imgScale === 1 ? '100%' : 'auto',
-                                            maxWidth: imgScale === 1 ? '100%' : 'none',
-                                            maxHeight: imgScale === 1 ? '100%' : 'none',
-                                            objectFit: 'contain',
-                                            transition: pinchDist > 0 ? 'none' : 'width 0.1s ease-out' 
-                                        }}
-                                    />
+                                    {/* 🖼️ [NEW 2] 양면(2장) 연속 페이지 뷰어 적용 */}
+                                    <div style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        gap: '16px',
+                                        width: imgScale === 1 ? '100%' : `${imgScale * 100}%`,
+                                        height: '100%',
+                                        transition: pinchDist > 0 ? 'none' : 'width 0.1s ease-out'
+                                    }}>
+                                        <img 
+                                            draggable={false}
+                                            src={zoomedImage.url} 
+                                            alt={zoomedImage.title} 
+                                            style={{ display: 'block', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', flex: 1, width: isMobile ? '100%' : '50%' }}
+                                        />
+                                        {!isMobile && currentImgIndex >= 0 && currentImgIndex < ALL_GUIDE_IMAGES.length - 1 && zoomedImage.id !== 12 && (
+                                            <img 
+                                                draggable={false}
+                                                src={ALL_GUIDE_IMAGES[currentImgIndex + 1].url} 
+                                                alt="Next Page" 
+                                                style={{ display: 'block', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', flex: 1, width: '50%' }}
+                                            />
+                                        )}
+                                    </div>
                                 </div>
                                 
-                                {/* 🖼️ [NEW 2] 확대 축소 및 하단 인디케이터(쪽수) 표시 장착 */}
+                                {/* 🖼️ [NEW 2] 하단 인디케이터(쪽수) 표시 장착 */}
                                 <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full px-5 py-2 flex items-center gap-6 z-[4020] shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-slate-600">
                                     <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.max(1, s - 0.2)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">-</button>
                                     <div className="flex flex-col items-center">
@@ -1384,7 +1405,9 @@ export default function App() {
                                         <>
                                             <div className="w-px h-6 bg-slate-600 mx-1"></div>
                                             <div className="text-white font-black text-sm whitespace-nowrap min-w-[50px] text-center tracking-widest text-emerald-400">
-                                                {currentImgIndex + 1} / {ALL_GUIDE_IMAGES.length}
+                                                {!isMobile && currentImgIndex < ALL_GUIDE_IMAGES.length - 1 && zoomedImage.id !== 12 
+                                                  ? `${currentImgIndex + 1}-${currentImgIndex + 2} / ${ALL_GUIDE_IMAGES.length}` 
+                                                  : `${currentImgIndex + 1} / ${ALL_GUIDE_IMAGES.length}`}
                                             </div>
                                         </>
                                     )}
@@ -1576,7 +1599,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ✅ 원상복구 완료된 시편 게시판 모달 (팝업 형태) */}
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
@@ -1645,7 +1667,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ✅ 원상복구 완료된 게시물 상세 보기 팝업 모달 */}
       {viewingPost && (
         <div className="fixed inset-0 bg-slate-900/90 z-[2000] p-4 flex items-center justify-center animate-in fade-in backdrop-blur-sm">
            <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-slate-300">
@@ -1753,7 +1774,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ✅ 원상복구 완료된 도장 용어 사전 팝업창 모달 */}
       {isGlossaryModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[750px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -1846,7 +1866,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ✅ 원상복구 완료된 PP(건식 펄) 가이드 팝업창 모달 */}
       {isPearlGuideOpen && (
         <div className="fixed inset-0 bg-slate-900/95 z-[3000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-100 rounded-2xl w-[900px] max-w-full h-[90vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300 my-8 relative">
@@ -1948,7 +1967,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 🎨 [NEW] 먼셀 믹싱 랩 + AI 가상 조색 시뮬레이터 (물감 혼합) */}
       {isConfiguratorOpen && (
         <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-scroll custom-scrollbar">
           <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
@@ -1959,7 +1977,6 @@ export default function App() {
              
              <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 mb-8 items-start">
                  
-                 {/* 먼셀 색상환 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                      <h3 className="text-lg font-black text-white mb-6 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg shrink-0"><Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)</h3>
                      <div className="relative flex justify-center items-center w-[360px] h-[360px] shrink-0">
@@ -1981,7 +1998,6 @@ export default function App() {
                      </div>
                  </div>
 
-                 {/* 먼셀 배합 데이터 */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
                         <div className="bg-slate-800 p-6 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] h-[420px] flex flex-col justify-center text-center">
@@ -2003,7 +2019,6 @@ export default function App() {
                     )}
                  </div>
 
-                 {/* 빛의 혼합 (RGB) */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
                         <h4 className="text-xl font-black text-white mb-6 tracking-widest flex items-center shrink-0"><BookOpen className="mr-2 text-blue-400" size={20}/>RGB <span className="text-xs text-slate-500 ml-2 font-normal">Additive Color (빛의 혼합)</span></h4>
@@ -2021,7 +2036,6 @@ export default function App() {
                     </div>
                  </div>
 
-                 {/* 색의 혼합 (CMYK) */}
                  <div className="w-full flex flex-col items-center justify-center h-[460px]">
                     <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
                         <h4 className="text-xl font-black text-slate-900 mb-6 tracking-widest flex items-center shrink-0"><BookOpen className="mr-2 text-pink-500" size={20}/>CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color (물감의 혼합)</span></h4>
@@ -2039,7 +2053,6 @@ export default function App() {
                     </div>
                  </div>
 
-                 {/* 🎨 [NEW] AI 가상 조색 시뮬레이터 (물감 혼합 팔레트) */}
                  <div className="w-full lg:col-span-2 flex flex-col items-center justify-center bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6 md:p-10 mb-8">
                     <h3 className="text-xl md:text-2xl font-black text-white mb-8 flex items-center bg-indigo-600 px-8 py-3 rounded-full shadow-[0_0_20px_rgba(79,70,229,0.5)]"><Beaker className="mr-3 text-white" size={24}/> AI 가상 조색 시뮬레이터 (물감 혼합 방울 떨어뜨리기)</h3>
                     
@@ -2047,7 +2060,6 @@ export default function App() {
                         const simColor = getSimulatedColor(paletteDrops);
                         return (
                             <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl">
-                                {/* 방울 수 조절 컨트롤러 */}
                                 <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4">
                                     {['red', 'blue', 'yellow', 'green', 'white', 'black'].map(color => (
                                         <div key={color} className="bg-slate-800 rounded-xl p-4 flex flex-col items-center gap-3 border border-slate-700 shadow-inner">
@@ -2061,7 +2073,6 @@ export default function App() {
                                         </div>
                                     ))}
                                 </div>
-                                {/* 시뮬레이션 결과창 */}
                                 <div className="flex-1 flex flex-col items-center justify-center bg-slate-800 rounded-3xl p-8 border border-slate-700 shadow-2xl relative overflow-hidden">
                                     <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
                                     <div className="w-40 h-40 rounded-full shadow-[0_0_40px_rgba(0,0,0,0.5)] border-4 border-slate-500 mb-6 transition-colors duration-500 z-10" style={{backgroundColor: simColor.hex}}></div>
