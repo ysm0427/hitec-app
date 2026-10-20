@@ -1374,15 +1374,13 @@ export default function App() {
         src={zoomedImage.url} 
         alt={zoomedImage.title} 
         style={{ 
-            display: 'block',
-            margin: imgScale === 1 ? '0' : 'auto', 
-            width: imgScale === 1 ? 'auto' : `${imgScale * 100}%`, 
-            height: imgScale === 1 ? '100%' : 'auto',
-            maxWidth: imgScale === 1 ? '100%' : 'none',
-            maxHeight: imgScale === 1 ? '100%' : 'none',
-            objectFit: 'contain',
-            transition: pinchDist > 0 ? 'none' : 'width 0.1s ease-out' 
-        }}
+    display: 'block',
+    margin: 'auto', 
+    width: `${imgScale * 100}%`, 
+    height: `${imgScale * 100}%`,
+    objectFit: 'contain',
+    transition: pinchDist > 0 ? 'none' : 'width 0.1s ease-out, height 0.1s ease-out' 
+}}
     />
 </div>
                                 
