@@ -1354,7 +1354,6 @@ export default function App() {
                         {zoomedImage.url ? (
                             <div className="relative w-full h-[65vh] flex flex-col bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
                                 <div 
-                                    <div 
     ref={scrollContainerRef}
     className={`w-full h-full overflow-auto custom-scrollbar touch-pan-x touch-pan-y relative ${isDragging ? 'cursor-grabbing' : (imgScale > 1 ? 'cursor-grab' : '')}`}
     style={{
