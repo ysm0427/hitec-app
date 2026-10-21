@@ -811,382 +811,10 @@ export default function App() {
       </header>
 
       <div className="flex-1 p-3 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        <div className="lg:col-span-7 flex flex-col bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden">
-          <div className="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-slate-800 flex items-center shrink-0"><Sliders className="text-blue-600 mr-2" size={16} />공식 배합 워크 시트</h2>
-              <button onClick={handleClearAllInfo} className="text-[11px] font-bold text-slate-500 hover:text-red-600 flex items-center transition-colors bg-white hover:bg-red-50 px-2.5 py-1.5 rounded-md border border-slate-200 shadow-sm shrink-0"><Trash2 size={14} className="mr-1"/> 전체 초기화</button>
-            </div>
-            <div className="flex flex-col gap-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📅 등록 날짜</label><input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm cursor-pointer" /></div>
-                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚗 차량 번호</label><input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="예: 12가3456" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm" /></div>
-                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 브랜드 등록</label><input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value.toUpperCase())} placeholder="예: 현대, BMW..." className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm" /></div>
-                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🎨 컬러코드</label><input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value.toUpperCase())} placeholder="예: UX" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full uppercase focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm notranslate" translate="no" /></div>
-              </div>
-              <div><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🛠️ 작업 내용</label><input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="예: 조수석 앞휀다 교환 등" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm" /></div>
-              <div><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📌 특이사항 및 스펙 메모</label><input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="직접 입력 (예: 이색 심함)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400" /></div>
-              
-              <div className="flex w-full gap-2 mt-2">
-                <button onClick={() => setIsExcelModalOpen(true)} className="flex-[1.2] bg-green-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-green-700 shadow-sm"><FileSpreadsheet size={16} className="mr-1 hidden sm:block"/> 엑셀 복사</button>
-                
-                <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
-                <button onClick={() => fileInputRef.current?.click()} className={`flex-[1.2] ${attachedImages.length > 0 ? 'bg-amber-600 hover:bg-amber-700' : 'bg-slate-700 hover:bg-slate-600'} text-white p-3 rounded text-xs font-black flex items-center justify-center shadow-sm`}>
-                    <Camera size={16} className="mr-1 hidden sm:block"/> {attachedImages.length > 0 ? `사진(${attachedImages.length})` : '사진첨부'}
-                </button>
-
-                <button onClick={() => { saveToBoard(); setIsBoardOpen(true); }} className="flex-[1.3] bg-blue-600 text-white p-3 rounded text-xs font-black flex items-center justify-center hover:bg-blue-700 shadow-sm"><Layers size={16} className="mr-1 hidden sm:block"/> 시편 등록</button>
-                
-                <button onClick={() => setIsShareModalOpen(true)} className="flex-[1.8] bg-[#FEE500] text-slate-900 p-3 rounded text-sm font-black flex items-center justify-center hover:bg-[#E5C100] shadow-sm"><Share2 size={18} className="mr-1.5"/> 공유 전송</button>
-                <button onClick={handleResetFormula} className="bg-white border border-red-200 text-red-500 px-3 rounded flex flex-col items-center justify-center hover:bg-red-50 shadow-sm whitespace-nowrap"><Trash2 size={18} className="mb-0.5" /><span className="text-[9px] font-black">리셋</span></button>
-              </div>
-
-              {attachedImages.length > 0 && (
-                  <div className="flex gap-2 overflow-x-auto py-2 px-2 bg-amber-50/50 rounded-xl border border-amber-200">
-                      {attachedImages.map((imgSrc, idx) => (
-                          <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-amber-300 shrink-0 shadow-sm group bg-white">
-                              <img src={imgSrc} alt={`시편 ${idx+1}`} className="w-full h-full object-cover cursor-pointer" onClick={() => setPreviewModalImage(imgSrc)} />
-                              <button onClick={() => removeAttachedImage(idx)} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 shadow-md">
-                                  <X size={10} />
-                              </button>
-                          </div>
-                      ))}
-                  </div>
-              )}
-            </div>
-          </div>
-          
-          <div className="p-3 bg-white">
-            <div className="mb-4 bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-between shadow-sm gap-2">
-                <div className="flex items-center gap-2"><Beaker size={14} className="text-indigo-600" /><span className="text-xs font-bold text-indigo-800">현장 실시간 용량 배율 변환기</span></div>
-                <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end">
-                    <input type="text" inputMode="decimal" value={scaleFactor} onChange={(e) => setScaleFactor(e.target.value.replace(/[^0-9.]/g, ''))} className="w-12 text-center text-sm font-black text-indigo-700 border rounded py-1" />
-                    <span className="text-[11px] font-bold text-indigo-400 mr-1">배</span>
-                    <button onClick={() => handleScaleAll(true)} className="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded shadow-sm hover:bg-indigo-700 transition-colors">× 곱하기</button>
-                    <button onClick={() => handleScaleAll(false)} className="bg-white border border-indigo-300 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded shadow-sm hover:bg-indigo-50 transition-colors">÷ 나누기</button>
-                </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-xs font-black text-slate-400 flex justify-between border-b pb-1"><span>▼ 베이스 원색 리스트 (Ground Coat)</span></div>
-              {toners.map((toner) => {
-                const info = TONER_DB[toner.code] || { role: '', type: 'solid', face: '#e2e8f0', flop: '#e2e8f0', desc: '' };
-                const isEffect = info.type !== 'solid' && info.type !== 'binder' && info.type !== 'candy';
-                return (
-                  <div key={toner.id} className="flex flex-col bg-slate-50 hover:bg-blue-50/50 p-2.5 rounded-xl border border-slate-200 shadow-sm transition-colors">
-                    
-                    <div className="flex items-center w-full gap-2">
-                      <button 
-                           type="button"
-                           className="flex w-[50px] h-[36px] rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-blue-400" 
-                           onClick={() => setMemoModal({isOpen: true, id: toner.id, code: toner.code, isPearl: false, text: toner.memo || '', history: toner.history || []})}
-                           title="메모 및 히스토리 보기"
-                      >
-                           <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
-                           <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
-                           {toner.memo && <div className="absolute -top-1.5 -right-1.5 bg-yellow-400 w-4 h-4 rounded-full border-2 border-white shadow-md z-20"></div>}
-                      </button>
-                      
-                      <input 
-                          ref={el => { codeRefs.current[toner.id] = el; }} 
-                          value={toner.code.replace('WT ', '').replace('PP ', '')} 
-                          onChange={e => handleCodeChange(toner.id, e.target.value, false)} 
-                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }}
-                          type="text"
-                          inputMode="decimal" 
-                          pattern="[0-9]*" 
-                          className="w-16 h-[36px] text-center text-sm font-black border border-slate-300 rounded focus:border-blue-500 focus:outline-none shadow-inner shrink-0 uppercase" 
-                          placeholder="번호" 
-                      />
-
-                      <div className="flex-1"></div>
-
-                      <div className="flex items-center bg-white border rounded-md px-1 h-[36px] shrink-0 shadow-sm">
-                         <button onClick={() => quickEditWeight(toner.id, -0.1, false)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
-                         <input 
-                             ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} 
-                             onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} onBlur={e => handleWeightBlur(toner.id, e.target.value, false)} onKeyDown={e => handleWeightKeyDown(e, toner.id, false)} 
-                             className="w-14 text-right text-[15px] font-black text-blue-600 focus:outline-none clean-number-input" placeholder="0.0" 
-                         />
-                         <button onClick={() => quickEditWeight(toner.id, 0.1, false)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
-                         <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
-                         <button onClick={() => removeToner(toner.id, false)} className="ml-1 px-1"><Trash2 size={16} className="text-slate-300 hover:text-red-500 transition-colors"/></button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, false)}>
-                        <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
-                            {toner.code ? (info.role || '등록된 안료 정보 없음') : '안료 번호를 입력하세요 (예: 321, 385...)'}
-                            {/* 📌 [NEW 1] '상세보기 ▼' 화살표 상시 노출 적용 */}
-                            {!toner.isExpanded && <span className="ml-2 text-[10px] text-blue-500 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
-                            {toner.isExpanded && <span className="ml-2 text-[10px] text-blue-500 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
-                        </span>
-                    </div>
-
-                    {toner.isExpanded && (
-                        <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-1 pt-2 border-t border-slate-200">
-                            {info.details && info.details.length > 0 ? (
-                                <div className="flex flex-col gap-1.5 w-full">
-                                    {info.details.map((d: any, idx: number) => {
-                                        const splitIndex = d[0].indexOf('('); let mainTitle = d[0]; let subTitle = '';
-                                        if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim().replace(/\s*&\s*/g, '&'); }
-                                        return (
-                                        <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2.5 mb-2">
-                                            <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-1 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
-                                                <span className="text-[11px] font-black leading-tight break-keep">{mainTitle}</span>
-                                                {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
-                                            </div>
-                                            <span className="text-[11px] text-slate-700 leading-relaxed break-keep pt-0.5 whitespace-pre-line">{d[1]}</span>
-                                        </div>
-                                    )})}
-                                </div>
-                            ) : <p className="text-[11px] text-slate-500 leading-tight break-keep pl-1">{info.desc}</p>}
-                        </div>
-                    )}
-                  </div>
-                )
-              })}
-
-              <div className="flex w-full gap-2 mt-3">
-                  <button onClick={() => addToner(false)} className="flex-1 py-3 border border-dashed border-slate-300 bg-white hover:bg-blue-50 hover:border-blue-400 rounded-lg text-slate-500 hover:text-blue-600 font-bold text-sm flex justify-center items-center transition-all shadow-sm">
-                      <Plus size={18} className="mr-1"/>베이스 안료 추가
-                  </button>
-                  <button onClick={handleSaveSnapshot} className="w-[100px] sm:w-[130px] bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold text-[11px] sm:text-sm flex flex-col sm:flex-row justify-center items-center transition-all shadow-sm">
-                      <Save size={16} className="mb-1 sm:mb-0 sm:mr-1.5"/>데이터 확정
-                  </button>
-                  <button onClick={() => setIsSnapshotModalOpen(true)} className="w-[100px] sm:w-[130px] bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-bold text-[11px] sm:text-sm flex flex-col sm:flex-row justify-center items-center transition-all shadow-sm relative">
-                      <History size={16} className="mb-1 sm:mb-0 sm:mr-1.5"/>수정 내역
-                      {snapshots.length > 0 && <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-md border border-white">{snapshots.length}</span>}
-                  </button>
-              </div>
-            </div>
-            
-            <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
-                <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-purple-50 transition-colors">
-                    <span className="text-xs font-black text-purple-700">3Coat (펄 추가) 켜기</span>
-                    <div className="relative">
-                        <input type="checkbox" className="sr-only" checked={isThreeCoatMode} onChange={() => setIsThreeCoatMode(!isThreeCoatMode)} />
-                        <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isThreeCoatMode ? 'bg-purple-500' : 'bg-slate-300'}`}></div>
-                        <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isThreeCoatMode ? 'transform translate-x-5' : ''}`}></div>
-                    </div>
-                </label>
-                <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-rose-50 transition-colors">
-                    <span className="text-xs font-black text-rose-700">Candy (캔디 추가) 켜기</span>
-                    <div className="relative">
-                        <input type="checkbox" className="sr-only" checked={isCandyCoatMode} onChange={() => setIsCandyCoatMode(!isCandyCoatMode)} />
-                        <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isCandyCoatMode ? 'bg-rose-600' : 'bg-slate-300'}`}></div>
-                        <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isCandyCoatMode ? 'transform translate-x-5' : ''}`}></div>
-                    </div>
-                </label>
-            </div>
-                <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-yellow-50 transition-colors">
-                    <span className="text-xs font-black text-yellow-700">Candy (캔디 추가) 켜기</span>
-                    <div className="relative">
-                        <input type="checkbox" className="sr-only" checked={isCandyCoatMode} onChange={() => setIsCandyCoatMode(!isCandyCoatMode)} />
-                        <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isCandyCoatMode ? 'bg-yellow-500' : 'bg-slate-300'}`}></div>
-                        <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isCandyCoatMode ? 'transform translate-x-5' : ''}`}></div>
-                    </div>
-                </label>
-            </div>
-
-            {isThreeCoatMode && (
-              <div className="pt-4 mt-4 border-t border-purple-200 space-y-2 pb-8">
-                <div className="text-xs font-black text-purple-700 flex justify-between border-b pb-1"><span>▼ 펄 코트 (Mid Coat)</span></div>
-                {pearlToners.map((toner) => {
-                  const info = TONER_DB[toner.code] || { role: '', type: 'solid', face: '#e2e8f0', flop: '#e2e8f0', desc: '' };
-                  const isEffect = info.type !== 'solid' && info.type !== 'binder' && info.type !== 'candy';
-                  return (
-                    <div key={toner.id} className="flex flex-col bg-purple-50 p-2.5 rounded-xl border border-purple-200 shadow-sm transition-colors hover:bg-purple-100/50">
-                      
-                      <div className="flex items-center w-full gap-2">
-                        <button 
-                             type="button"
-                             className="flex w-[50px] h-[36px] rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-purple-400" 
-                             onClick={() => setMemoModal({isOpen: true, id: toner.id, code: toner.code, isPearl: true, text: toner.memo || '', history: toner.history || []})}
-                             title="메모 및 히스토리 보기"
-                        >
-                             <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
-                             <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
-                             {toner.memo && <div className="absolute -top-1.5 -right-1.5 bg-yellow-400 w-4 h-4 rounded-full border-2 border-white shadow-md z-20"></div>}
-                        </button>
-                        
-                        <input 
-                            ref={el => { codeRefs.current[toner.id] = el; }} 
-                            value={toner.code.replace('WT ', '').replace('PP ', '')} 
-                            onChange={e => handleCodeChange(toner.id, e.target.value, true)} 
-                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }}
-                            type="text" 
-                            inputMode="decimal"
-                            pattern="[0-9]*"
-                            className="w-16 h-[36px] text-center text-sm font-black border border-purple-200 rounded text-purple-800 shadow-inner focus:outline-none focus:border-purple-500 shrink-0 uppercase" 
-                            placeholder="번호" 
-                        />
-
-                        <div className="flex-1"></div>
-
-                        <div className="flex items-center bg-white border border-purple-100 rounded-md px-1 h-[36px] shrink-0 shadow-sm">
-                           <button onClick={() => quickEditWeight(toner.id, -0.1, true)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
-                           <input 
-                               ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} 
-                               onChange={e => handleWeightInputChange(toner.id, e.target.value, true)} onBlur={e => handleWeightBlur(toner.id, e.target.value, true)} onKeyDown={e => handleWeightKeyDown(e, toner.id, true)} 
-                               className="w-14 text-right text-[15px] font-black text-purple-600 focus:outline-none clean-number-input" placeholder="0.0" 
-                           />
-                           <button onClick={() => quickEditWeight(toner.id, 0.1, true)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
-                           <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
-                           <button onClick={() => removeToner(toner.id, true)} className="ml-1 px-1"><Trash2 size={16} className="text-purple-300 hover:text-red-500 transition-colors"/></button>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, true)}>
-                          <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
-                              {toner.code ? (info.role || '등록된 펄 정보 없음') : '펄 번호를 입력하세요 (예: PP201...)'}
-                              {/* 📌 [NEW 1] '상세보기 ▼' 화살표 상시 노출 적용 */}
-                              {!toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
-                              {toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
-                          </span>
-                      </div>
-
-                      {toner.isExpanded && (
-                          <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-1 pt-2 border-t border-purple-200">
-                              {info.details && info.details.length > 0 ? (
-                                  <div className="flex flex-col gap-1.5 w-full">
-                                      {info.details.map((d: any, idx: number) => {
-                                          const splitIndex = d[0].indexOf('('); let mainTitle = d[0]; let subTitle = '';
-                                          if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim().replace(/\s*&\s*/g, '&'); }
-                                          return (
-                                          <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2.5 mb-2">
-                                              <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-2 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
-                                                  <span className="text-[10.5px] font-black leading-tight">{mainTitle}</span>
-                                                  {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
-                                              </div>
-                                              <span className={`text-[11.5px] leading-relaxed break-keep pt-0.5 whitespace-pre-line ${getBadgeClass(d[0]).includes('yellow') ? 'text-yellow-800 font-bold' : 'text-slate-700'}`}>{d[1]}</span>
-                                          </div>
-                                      )})}
-                                  </div>
-                              ) : <p className="text-[11px] text-slate-500 leading-tight break-keep pl-1">{info.desc}</p>}
-                          </div>
-                      )}
-                    </div>
-                  )
-                })}
-
-                <button onClick={() => addToner(true)} className="w-full py-3 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-lg text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-3 shadow-sm">
-                    <Plus size={18} /><span>펄 조색제 추가</span>
-                </button>
-              </div>
-            )}
-          {isCandyCoatMode && (
-              <div className="pt-4 mt-4 border-t border-rose-200 space-y-3 pb-8">
-                 <div className="text-xs font-black text-rose-700 flex justify-between border-b pb-1"><span>▼ 캔디 코트 (Candy Coat)</span></div>
-
-                 {/* 9048 마룬 정보 배너 */}
-                 <div className="bg-white rounded-xl overflow-hidden border border-rose-200 shadow-sm flex flex-col">
-                     <div className="bg-gradient-to-r from-[#5a1827] to-[#8b253f] p-3 text-white">
-                         <div className="flex items-center gap-2">
-                             <input type="text" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} className="bg-white/20 text-white border border-white/30 rounded px-2 py-1 w-20 text-center font-black focus:outline-none" />
-                             <span className="font-bold text-sm tracking-wide">{candyCode === '9048' ? '마룬 / 흑갈색 투명 첨가제' : '특수 캔디 첨가제'}</span>
-                         </div>
-                     </div>
-                     <div className="p-4 flex flex-col gap-3">
-                         <p className="text-sm font-bold text-slate-700 break-keep">
-                             {candyCode === '9048' ? '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.' : '고투명 프리미엄 캔디 첨가제.'}
-                         </p>
-                         <div className="flex items-start gap-2">
-                             <span className="shrink-0 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded text-[10px] font-black mt-0.5">🎯 캔디 도장 공정</span>
-                             <span className="text-xs font-medium text-slate-600 leading-relaxed">
-                                 {candyCode === '9048' ? '마쯔다(Mazda) 소울 레드 크리스탈(46V) 등 고휘도 실버 하도를 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침(Overlap) 없이 코팅해야 얼룩을 막을 수 있습니다.' : '고휘도 실버 위에 2액형 클리어와 정밀 혼합하여 일정한 두께로 코팅하세요.'}
-                             </span>
-                         </div>
-                     </div>
-                 </div>
-
-                 {/* 2:1 클리어 배합기 */}
-                 <div className="bg-rose-50 p-4 rounded-xl border border-rose-200 shadow-sm flex flex-col gap-3">
-                     <h4 className="text-sm font-black text-rose-800 flex items-center gap-2"><Beaker size={16}/> 현장 2:1 캔디 배합기</h4>
-                     <div className="flex flex-col sm:flex-row gap-3">
-                         <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
-                             <span className="text-[10px] font-bold text-slate-500 mb-1">7500 클리어 (비율 2)</span>
-                             <div className="flex items-center gap-1">
-                                 <input type="text" inputMode="decimal" value={candyClear} onChange={e => {
-                                     let val = e.target.value.replace(/[^0-9.]/g, '');
-                                     setCandyClear(val);
-                                     if(val) setCandyHardener((parseFloat(val)/2).toFixed(1));
-                                     else setCandyHardener("");
-                                 }} className="w-full text-lg font-black text-slate-800 bg-transparent focus:outline-none" />
-                                 <span className="font-bold text-slate-400">g</span>
-                             </div>
-                         </div>
-                         <div className="flex items-center justify-center shrink-0"><span className="text-xl font-black text-slate-400">+</span></div>
-                         <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
-                             <span className="text-[10px] font-bold text-slate-500 mb-1">7205 경화제 (비율 1)</span>
-                             <div className="flex items-center gap-1">
-                                 <input type="text" inputMode="decimal" value={candyHardener} onChange={e => setCandyHardener(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-lg font-black text-slate-800 bg-transparent focus:outline-none" />
-                                 <span className="font-bold text-slate-400">g</span>
-                             </div>
-                         </div>
-                         <div className="flex items-center justify-center shrink-0"><span className="text-xl font-black text-slate-400">+</span></div>
-                         <div className="flex-1 bg-rose-100 p-3 rounded-lg border border-rose-300 shadow-inner flex flex-col">
-                             <span className="text-[10px] font-black text-rose-700 mb-1">캔디 첨가제 (기준량)</span>
-                             <div className="flex items-center gap-1">
-                                 <input type="text" inputMode="decimal" value={candyAdditive} onChange={e => setCandyAdditive(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-lg font-black text-rose-700 bg-transparent focus:outline-none" />
-                                 <span className="font-bold text-rose-500">g</span>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-              </div>
-            )}
-        </div>    
-        <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
-          <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
-            <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
-              <h3 className="text-xs font-black mb-2 flex justify-between items-center text-slate-800">
-                <span className="flex items-center"><Target size= {14} className="mr-1 text-blue-600"/> 📘 마스터 기술자료실 (Visual Guide)</span>
-                <button onClick={() => setIsConfiguratorOpen(true)} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"><Maximize size={10} className="mr-1"/>먼셀 믹싱 랩</button>
-              </h3>
-              
-              <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-md border border-blue-200">
-                  <div className="flex border-b border-blue-200 bg-slate-50">
-                      {['theory', 'spectrum', 'effect', 'special'].map(tab => (
-                          <button key={tab} onClick={() => setActiveGuideTab(tab as any)} className={`flex-1 py-3 text-[12px] font-black transition-all ${activeGuideTab === tab ? 'bg-blue-600 text-white shadow-md transform scale-[1.02] rounded-t-xl z-10' : 'text-slate-500 hover:text-blue-700 hover:bg-blue-50'}`}>
-                              {tab === 'theory' ? '이론/기초' : tab === 'spectrum' ? '컬러 맵' : tab === 'effect' ? '이펙트/펄' : '특수/3코트'}
-                          </button>
-                      ))}
-                  </div>
-                  <div className="p-3 grid grid-cols-2 gap-3 h-52 overflow-y-auto custom-scrollbar bg-slate-50/50">
-                      {GUIDE_IMAGES[activeGuideTab].map(img => (
-                          <div key={img.id} onClick={() => openImageModal(img)} className="bg-white rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 hover:shadow-xl transition-all shadow-sm border border-slate-200 group flex flex-col justify-center items-center text-center p-4 min-h-[90px] relative">
-                              {img.url && (
-                                  <div className="absolute inset-0 z-0">
-                                      <img src={img.url} alt={img.title} className="w-full h-full object-cover opacity-10 group-hover:opacity-100 transition-opacity duration-300" />
-                                  </div>
-                              )}
-                              <div className="relative z-10 flex flex-col items-center justify-center w-full h-full p-1 transition-colors duration-300">
-                                  <h4 className="text-[13px] font-black text-blue-800 group-hover:text-blue-600 mb-1.5 leading-tight drop-shadow-sm">{img.title}</h4>
-                                  <p className="text-[11px] font-bold text-slate-500 group-hover:text-slate-700 break-keep leading-tight">{img.desc}</p>
-                              </div>
-                          </div>
-                      ))}
-                  </div>
-              </div>
-
-              <div className="flex gap-2 mt-3 relative z-50">
-                  <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-sm cursor-pointer">
-                      <BookOpen size={16} className="mr-1.5" /> <span className="pointer-events-none">PP(분말) 가이드 열기</span>
-                  </button>
-                  <button onClick={() => setIsProcessOpen(true)} className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white transition-colors shadow-sm cursor-pointer">
-                      <Code size={16} className="mr-1.5 text-slate-400 pointer-events-none" /> <span className="pointer-events-none">Pro 제작 과정 보기</span>
-                  </button>
-              </div>
-            </div>
-
-            <div className="flex flex-col h-full bg-slate-100">
-                <div className="flex bg-slate-900 shrink-0 border-b border-slate-700">
-                    <button onClick={()=>{setActiveTab('WT'); setCatalogSearch('');}} className={`flex-1 py-3 text-sm font-black transition-colors ${activeTab === 'WT' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>💧 WT (액상)</button>
-                    <button onClick={()=>{setActiveTab('PP'); setCatalogSearch('');}} className={`flex-1 py-3 text-sm font-black transition-colors ${activeTab === 'PP' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>🌬️ PP (분말)</button>
-                    <button onClick={()=>{setActiveTab('CANDY'); setCatalogSearch('');}} className={`flex-1 py-3 text-sm font-black transition-colors ${activeTab === 'CANDY' ? 'bg-yellow-500 text-slate-900' : 'text-slate-400 hover:text-slate-200'}`}>🍬 CANDY</button>
-                </div>
-                
+        {/* 왼쪽 화면: 조색 작업 패널 */}
+        <div className="lg:col-span-7 flex flex-col space-y-4 h-full">
+            <div className="bg-slate-800 rounded-xl shadow-lg border border-slate-700 flex flex-col h-full overflow-hidden">
+                {/* 1. 검색 바 */}
                 <div className="p-3 bg-slate-800 border-b border-slate-700 flex flex-col sm:flex-row shrink-0 gap-2">
                     <div className="relative flex-1">
                         <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value.toUpperCase())} placeholder="조색제(WT/PP) 번호 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
@@ -1197,135 +825,205 @@ export default function App() {
                         <Search size={14} className="absolute left-2.5 top-2.5 text-emerald-400/70" />
                     </div>
                 </div>
-                
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3">
-                    {activeTab === 'CANDY' && (
-                        <div className="mb-4 bg-yellow-50 border border-yellow-300 p-4 rounded-xl shadow-sm">
-                           <h4 className="text-sm font-black text-yellow-800 mb-2">⚠️ 퍼마솔리드 캔디 6단계 시공 및 3대 철칙</h4>
-                           <ul className="text-xs text-yellow-700 space-y-1.5 font-bold">
-                              <li>1. 이소시아네이트 포함. 방독 마스크 및 환기 필수</li>
-                              <li>2. 반사층 도장 후 완벽한 플래시 오프 필수</li>
-                              <li>3. 블렌딩 불가(전체 도장), 건조 타임 준수</li>
-                              <li>4. 2액형 클리어 조색비 엄수 및 Clear over Clear 필수</li>
-                           </ul>
-                        </div>
-                    )}
-                    
-                    {oemSearch.replace(/\s/g, '') !== '' && filteredOemColors.length > 0 && (
-                        <div className="mb-2 p-3 bg-blue-50 rounded-xl border border-blue-200 shadow-sm animate-in fade-in">
-                            <h4 className="text-xs font-black text-blue-800 mb-2">🔍 자동차 제조사(OEM) 색상 검색 결과</h4>
-                            <div className="flex flex-col gap-2">
-                                {filteredOemColors.slice(0, 20).map((oem, idx) => (
-                                    <div 
-                                        key={idx} 
-                                        className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white px-3 py-2.5 rounded shadow-sm border border-slate-200 cursor-pointer hover:border-blue-500 transition-colors group" 
-                                        onClick={() => {
-                                            setTargetColorCode(String(oem.code));
-                                            window.open("https://phoenix.spieshecker.com", "_blank");
-                                        }}
-                                    >
-                                        <span className="font-black text-blue-600 text-sm whitespace-nowrap mr-3 mb-1 sm:mb-0 shrink-0 group-hover:text-blue-800">{oem.code}</span>
-                                        <span className="text-[11.5px] text-slate-700 font-bold whitespace-normal break-words text-left sm:text-right leading-tight flex-1 ml-0 sm:ml-2">{oem.name}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
 
-                    {sortedCatalog.map((item) => {
-                        const isMetallic = item.type !== 'solid' && item.type !== 'binder' && item.type !== 'candy';
-                        const isCurrentlyUsed = activeCodes.includes(item.code);
-                        return (
-                            <div key={item.code} className={`flex flex-col bg-white rounded-xl shadow-sm border overflow-hidden transition-all duration-300 ${isCurrentlyUsed ? 'border-2 border-blue-500 shadow-md transform scale-[1.01]' : 'border-slate-200 hover:border-blue-300 cursor-pointer'}`} onClick={() => setSelectedTonerForView(item.code)}>
-                                <div className="h-12 w-full relative transition-all border-b border-slate-200" style={{background: getTonerDetailBackground(item.code, item.role, 'face')}}>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                                    <div className="absolute bottom-1.5 left-3 text-white text-sm font-black drop-shadow-md">{item.code} <span className="text-[10px] font-normal opacity-90 ml-1">{item.role}</span></div>
-                                    {isCurrentlyUsed && <div className="absolute top-1.5 right-2 bg-blue-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold shadow">배합 중</div>}
-                                </div>
-                                <div className="p-3 flex flex-col gap-1.5">
-                                    <p className="text-[11px] text-slate-500 font-bold mb-1 break-keep leading-tight bg-slate-50 p-1.5 rounded">{item.desc}</p>
-                                    {item.details?.map((d: any, idx: number) => {
-                                        const splitIndex = d[0].indexOf('('); let mainTitle = d[0]; let subTitle = '';
-                                        if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim().replace(/\s*&\s*/g, '&'); }
-                                        return (
-                                        <div key={idx} className="flex items-start gap-2.5 mb-2">
-                                            <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-2 py-1.5 text-[10px] font-bold rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
-                                                <span className="text-[10px] font-black leading-tight">{mainTitle}</span>
-                                                {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
-                                            </div>
-                                            <span className={`text-[11.5px] leading-relaxed break-keep pt-0.5 whitespace-pre-line ${getBadgeClass(d[0]).includes('yellow') ? 'text-yellow-800 font-black' : 'text-slate-700'}`}>{d[1]}</span>
+                {/* 2. 조색제 입력창 영역 */}
+                <div className="flex-1 overflow-y-auto p-3 sm:p-5 pb-32">
+                    {/* 베이스 코트 */}
+                    <div className="space-y-2 mb-4">
+                        {toners.map((toner) => {
+                            const info = TONER_DB[toner.code] || { role: '', type: 'solid', face: '#f8fafc', flop: '#e2e8f0', desc: '' };
+                            const isEffect = info.type !== 'solid' && info.type !== 'binder' && info.type !== 'candy';
+                            return (
+                                <div key={toner.id} className="flex flex-col bg-slate-50 p-2.5 rounded-xl border border-slate-200 shadow-sm transition-colors hover:bg-slate-100">
+                                    <div className="flex items-center w-full gap-2">
+                                        <button type="button" className="flex w-[50px] h-[36px] rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
+                                            <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
+                                        </button>
+                                        <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code.replace('WT ', '').replace('PP ', '')} onChange={e => handleCodeChange(toner.id, e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleCodeEnter(toner.id, toner.code); }} placeholder="코드" className="w-[60px] text-sm font-black text-slate-800 bg-white border border-slate-300 rounded-md px-2 h-[36px] uppercase shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shrink-0 notranslate" translate="no" />
+                                        <div className="flex-1 min-w-0"><div className="text-xs font-bold text-slate-700 truncate">{toner.code ? (info.role || '등록된 정보 없음') : '안료 번호를 입력하세요 (예: 321, 385...)'}</div></div>
+                                        <div className="flex items-center bg-white border border-slate-300 rounded-md px-1 h-[36px] shrink-0 shadow-sm">
+                                            <button onClick={() => quickEditWeight(toner.id, -0.1)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
+                                            <input ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} onChange={e => handleWeightInputChange(toner.id, e.target.value)} onBlur={e => handleWeightBlur(toner.id, e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleWeightEnter(toner.id, e.currentTarget.value); }} className="w-[45px] text-center text-sm font-black text-slate-800 bg-transparent border-none focus:outline-none focus:ring-0 p-0" placeholder="0.0" />
+                                            <button onClick={() => quickEditWeight(toner.id, 0.1)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
+                                            <span className="text-slate-400 font-bold text-xs ml-1">g</span>
+                                            <button onClick={() => removeToner(toner.id)} className="ml-1 px-1"><Trash2 size={16} className="text-slate-400 hover:text-red-500 transition-colors"/></button>
                                         </div>
-                                    )})}
+                                    </div>
                                 </div>
+                            );
+                        })}
+                        <div className="flex gap-2">
+                            <button onClick={() => addToner()} className="flex-1 py-3 border border-dashed border-slate-300 hover:border-blue-500 bg-white hover:bg-blue-50 rounded-lg text-blue-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm shadow-sm">
+                                <Plus size={18} /><span>베이스 안료 추가</span>
+                            </button>
+                            <button onClick={() => setShowRawData(true)} className="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-all flex items-center justify-center space-x-2 text-sm shadow-md shrink-0">
+                                <Save size={18} /><span>데이터 확정</span>
+                            </button>
+                            <button onClick={() => setHistoryPanelOpen(true)} className="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold transition-all flex items-center justify-center space-x-2 text-sm shadow-md shrink-0">
+                                <FileText size={18} /><span>수정 내역</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* 3Coat 및 Candy 스위치 */}
+                    <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
+                        <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-purple-50 transition-colors">
+                            <span className="text-xs font-black text-purple-700">3Coat (펄 추가) 켜기</span>
+                            <div className="relative">
+                                <input type="checkbox" className="sr-only" checked={isThreeCoatMode} onChange={() => setIsThreeCoatMode(!isThreeCoatMode)} />
+                                <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isThreeCoatMode ? 'bg-purple-500' : 'bg-slate-300'}`}></div>
+                                <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isThreeCoatMode ? 'transform translate-x-5' : ''}`}></div>
                             </div>
-                        );
-                    })}
+                        </label>
+                        <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-rose-50 transition-colors">
+                            <span className="text-xs font-black text-rose-700">Candy (캔디 추가) 켜기</span>
+                            <div className="relative">
+                                <input type="checkbox" className="sr-only" checked={isCandyCoatMode} onChange={() => setIsCandyCoatMode(!isCandyCoatMode)} />
+                                <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isCandyCoatMode ? 'bg-rose-600' : 'bg-slate-300'}`}></div>
+                                <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isCandyCoatMode ? 'transform translate-x-5' : ''}`}></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    {/* 펄 조색제 추가 패널 (3Coat 켜졌을 때만 보임) */}
+                    {isThreeCoatMode && (
+                        <div className="pt-4 mt-4 border-t border-purple-200 space-y-2 pb-8">
+                            <div className="text-xs font-black text-purple-700 flex justify-between border-b pb-1"><span>▼ 펄 코트 (Pearl Coat)</span></div>
+                            {pearlToners.map((toner) => {
+                                const info = TONER_DB[toner.code] || { role: '', type: 'pearl', face: '#f8fafc', flop: '#e2e8f0', desc: '' };
+                                const isEffect = true;
+                                return (
+                                    <div key={toner.id} className="flex flex-col bg-purple-50 p-2.5 rounded-xl border border-purple-200 shadow-sm transition-colors hover:bg-purple-100/50">
+                                        <div className="flex items-center w-full gap-2">
+                                            <button type="button" className="flex w-[50px] h-[36px] rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-purple-400">
+                                                <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
+                                                <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${info.flop} 100%)` }}></div>
+                                            </button>
+                                            <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code.replace('WT ', '').replace('PP ', '')} onChange={e => handlePearlCodeChange(toner.id, e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handlePearlCodeEnter(toner.id, toner.code); }} placeholder="코드" className="w-[60px] text-sm font-black text-slate-800 bg-white border border-purple-200 rounded-md px-2 h-[36px] uppercase shadow-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 shrink-0 notranslate" translate="no" />
+                                            <div className="flex-1 min-w-0"><div className="text-xs font-bold text-slate-700 truncate">{toner.code ? (info.role || '등록된 정보 없음') : '펄/오팔 번호 입력'}</div></div>
+                                            <div className="flex items-center bg-white border border-purple-200 rounded-md px-1 h-[36px] shrink-0 shadow-sm">
+                                                <button onClick={() => quickEditPearlWeight(toner.id, -0.1)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
+                                                <input ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} onChange={e => handlePearlWeightInputChange(toner.id, e.target.value)} onBlur={e => handlePearlWeightBlur(toner.id, e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handlePearlWeightEnter(toner.id, e.currentTarget.value); }} className="w-[45px] text-center text-sm font-black text-slate-800 bg-transparent border-none focus:outline-none focus:ring-0 p-0" placeholder="0.0" />
+                                                <button onClick={() => quickEditPearlWeight(toner.id, 0.1)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
+                                                <span className="text-slate-400 font-bold text-xs ml-1">g</span>
+                                                <button onClick={() => removePearlToner(toner.id)} className="ml-1 px-1"><Trash2 size={16} className="text-purple-400 hover:text-red-500 transition-colors"/></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                            <button onClick={() => addToner(true)} className="w-full py-3 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-lg text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-3 shadow-sm">
+                                <Plus size={18} /><span>펄 조색제 추가</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
-          </div>
+        </div>    
+        {/* 오른쪽 화면: 마스터 기술자료실 (캔디 패널 포함) */}
+        <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
+            <div className="bg-slate-800 rounded-xl shadow-lg border border-slate-700 flex flex-col h-full overflow-hidden">
+                <div className="p-4 border-b border-slate-700 bg-slate-900/50 flex justify-between items-center shrink-0">
+                    <h3 className="font-black text-white text-sm flex items-center"><BookOpen size={16} className="mr-2 text-blue-400" />마스터 기술자료실</h3>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-32">
+                    
+                    {/* 🚨 캔디 스위치가 켜졌을 때만 보이는 '전용 캔디 패널' 🚨 */}
+                    {isCandyCoatMode ? (
+                        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                            {/* 캔디 마룬 9048 스타일 배너 */}
+                            <div className="bg-white rounded-xl overflow-hidden border border-[#8b253f]/30 shadow-md flex flex-col">
+                                <div className="bg-gradient-to-r from-[#5a1827] to-[#8b253f] p-3 text-white">
+                                    <div className="flex items-center gap-3">
+                                        <input type="text" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} className="bg-white/20 text-white border border-white/30 rounded px-3 py-1.5 w-24 text-center font-black text-lg focus:outline-none" />
+                                        <span className="font-bold text-base tracking-wide">{candyCode === '9048' ? '마룬 / 흑갈색 투명 첨가제' : '특수 캔디 첨가제'}</span>
+                                    </div>
+                                </div>
+                                <div className="p-5 flex flex-col gap-4">
+                                    <p className="text-sm font-bold text-slate-700 break-keep leading-relaxed">
+                                        {candyCode === '9048' ? '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.' : '고투명 프리미엄 캔디 첨가제.'}
+                                    </p>
+                                    <div className="flex items-start gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                        <span className="shrink-0 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded text-xs font-black mt-0.5 shadow-sm">🎯 캔디 도장 공정</span>
+                                        <span className="text-sm font-medium text-slate-600 leading-relaxed break-keep">
+                                            {candyCode === '9048' ? '마쯔다(Mazda) 소울 레드 크리스탈(46V) 등 고휘도 실버 하도를 완벽하게 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침(Overlap) 없이 코팅해야 얼룩(지도 현상)을 막을 수 있습니다.' : '고휘도 실버 위에 2액형 클리어와 정밀 혼합하여 일정한 두께로 코팅하세요.'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 현장 2:1 클리어 배합기 */}
+                            <div className="bg-rose-50/50 p-5 rounded-xl border border-rose-200 shadow-md flex flex-col gap-4">
+                                <h4 className="text-sm font-black text-rose-800 flex items-center gap-2"><Beaker size={18}/> 현장 2:1 캔디 배합기</h4>
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <div className="flex-1 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col transition-all focus-within:ring-2 focus-within:ring-rose-200">
+                                        <span className="text-xs font-bold text-slate-500 mb-2">7500 클리어 (비율 2)</span>
+                                        <div className="flex items-center gap-2">
+                                            <input type="text" inputMode="decimal" value={candyClear} onChange={e => {
+                                                let val = e.target.value.replace(/[^0-9.]/g, '');
+                                                setCandyClear(val);
+                                                if(val) setCandyHardener((parseFloat(val)/2).toFixed(1));
+                                                else setCandyHardener("");
+                                            }} className="w-full text-2xl font-black text-slate-800 bg-transparent focus:outline-none" />
+                                            <span className="font-bold text-slate-400 text-lg">g</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-center shrink-0"><span className="text-2xl font-black text-slate-300">+</span></div>
+                                    <div className="flex-1 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col transition-all focus-within:ring-2 focus-within:ring-rose-200">
+                                        <span className="text-xs font-bold text-slate-500 mb-2">7205 경화제 (비율 1)</span>
+                                        <div className="flex items-center gap-2">
+                                            <input type="text" inputMode="decimal" value={candyHardener} onChange={e => setCandyHardener(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-2xl font-black text-slate-800 bg-transparent focus:outline-none" />
+                                            <span className="font-bold text-slate-400 text-lg">g</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-center shrink-0"><span className="text-2xl font-black text-slate-300">+</span></div>
+                                    <div className="flex-1 bg-rose-100/50 p-4 rounded-xl border border-rose-300 shadow-sm flex flex-col transition-all focus-within:ring-2 focus-within:ring-rose-400">
+                                        <span className="text-xs font-black text-rose-700 mb-2">캔디 첨가제 (기준량)</span>
+                                        <div className="flex items-center gap-2">
+                                            <input type="text" inputMode="decimal" value={candyAdditive} onChange={e => setCandyAdditive(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-2xl font-black text-rose-700 bg-transparent focus:outline-none" />
+                                            <span className="font-bold text-rose-500 text-lg">g</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        /* 캔디 스위치가 꺼져있을 때 원래 보이던 조색제 상세 정보들 */
+                        <div className="space-y-3">
+                            {toners.filter(t => t.code).map((toner) => {
+                                const info = TONER_DB[toner.code];
+                                if (!info) return null;
+                                return (
+                                    <div key={`guide-${toner.id}`} className="bg-slate-900 rounded-xl p-4 border border-slate-700 shadow-sm">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-lg font-black text-white">{toner.code}</span>
+                                            <span className="text-xs font-bold text-slate-400 bg-slate-800 px-2 py-1 rounded">{info.type}</span>
+                                        </div>
+                                        <div className="text-sm font-bold text-slate-300 mb-2">{info.role}</div>
+                                        <div className="text-xs text-slate-400 leading-relaxed break-keep">{info.desc}</div>
+                                        <div className="mt-3 flex gap-2">
+                                            {['blue', 'red', 'yellow', 'green', 'purple', 'emerald', 'orange', 'sky'].map(color => {
+                                                if (info.desc.includes(color) || info.role.includes(color)) {
+                                                    return <span key={color} className={`w-3 h-3 rounded-full bg-${color}-500 shadow-sm`}></span>;
+                                                }
+                                                return null;
+                                            })}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                            {toners.filter(t => t.code).length === 0 && (
+                                <div className="text-center py-10 text-slate-500 text-sm font-bold">
+                                    <BookOpen size={32} className="mx-auto mb-3 opacity-20" />
+                                    조색제를 추가하시면 기술 자료가 표시됩니다.
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
-      </div>
-{isCandyCoatMode && (
-              <div className="pt-4 mt-4 border-t border-rose-200 space-y-3 pb-8">
-                 <div className="text-xs font-black text-rose-700 flex justify-between border-b pb-1"><span>▼ 캔디 코트 (Candy Coat)</span></div>
-
-                 {/* 9048 마룬 정보 배너 */}
-                 <div className="bg-white rounded-xl overflow-hidden border border-rose-200 shadow-sm flex flex-col">
-                     <div className="bg-gradient-to-r from-[#5a1827] to-[#8b253f] p-3 text-white">
-                         <div className="flex items-center gap-2">
-                             <input type="text" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} className="bg-white/20 text-white border border-white/30 rounded px-2 py-1 w-20 text-center font-black focus:outline-none" />
-                             <span className="font-bold text-sm tracking-wide">{candyCode === '9048' ? '마룬 / 흑갈색 투명 첨가제' : '특수 캔디 첨가제'}</span>
-                         </div>
-                     </div>
-                     <div className="p-4 flex flex-col gap-3">
-                         <p className="text-sm font-bold text-slate-700 break-keep">
-                             {candyCode === '9048' ? '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.' : '고투명 프리미엄 캔디 첨가제.'}
-                         </p>
-                         <div className="flex items-start gap-2">
-                             <span className="shrink-0 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded text-[10px] font-black mt-0.5">🎯 캔디 도장 공정</span>
-                             <span className="text-xs font-medium text-slate-600 leading-relaxed">
-                                 {candyCode === '9048' ? '마쯔다(Mazda) 소울 레드 크리스탈(46V) 등 고휘도 실버 하도를 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침(Overlap) 없이 코팅해야 얼룩을 막을 수 있습니다.' : '고휘도 실버 위에 2액형 클리어와 정밀 혼합하여 일정한 두께로 코팅하세요.'}
-                             </span>
-                         </div>
-                     </div>
-                 </div>
-
-                 {/* 2:1 클리어 배합기 */}
-                 <div className="bg-rose-50 p-4 rounded-xl border border-rose-200 shadow-sm flex flex-col gap-3">
-                     <h4 className="text-sm font-black text-rose-800 flex items-center gap-2"><Beaker size={16}/> 현장 2:1 캔디 배합기</h4>
-                     <div className="flex flex-col sm:flex-row gap-3">
-                         <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
-                             <span className="text-[10px] font-bold text-slate-500 mb-1">7500 클리어 (비율 2)</span>
-                             <div className="flex items-center gap-1">
-                                 <input type="text" inputMode="decimal" value={candyClear} onChange={e => {
-                                     let val = e.target.value.replace(/[^0-9.]/g, '');
-                                     setCandyClear(val);
-                                     if(val) setCandyHardener((parseFloat(val)/2).toFixed(1));
-                                     else setCandyHardener("");
-                                 }} className="w-full text-lg font-black text-slate-800 bg-transparent focus:outline-none" />
-                                 <span className="font-bold text-slate-400">g</span>
-                             </div>
-                         </div>
-                         <div className="flex items-center justify-center shrink-0"><span className="text-xl font-black text-slate-400">+</span></div>
-                         <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
-                             <span className="text-[10px] font-bold text-slate-500 mb-1">7205 경화제 (비율 1)</span>
-                             <div className="flex items-center gap-1">
-                                 <input type="text" inputMode="decimal" value={candyHardener} onChange={e => setCandyHardener(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-lg font-black text-slate-800 bg-transparent focus:outline-none" />
-                                 <span className="font-bold text-slate-400">g</span>
-                             </div>
-                         </div>
-                         <div className="flex items-center justify-center shrink-0"><span className="text-xl font-black text-slate-400">+</span></div>
-                         <div className="flex-1 bg-rose-100 p-3 rounded-lg border border-rose-300 shadow-inner flex flex-col">
-                             <span className="text-[10px] font-black text-rose-700 mb-1">캔디 첨가제 (기준량)</span>
-                             <div className="flex items-center gap-1">
-                                 <input type="text" inputMode="decimal" value={candyAdditive} onChange={e => setCandyAdditive(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-lg font-black text-rose-700 bg-transparent focus:outline-none" />
-                                 <span className="font-bold text-rose-500">g</span>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-              </div>
-            )}
       {showBottomBar && (
           <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
               <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-4xl mx-auto p-3 md:p-4 h-full items-stretch justify-center">
