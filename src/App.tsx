@@ -239,7 +239,7 @@ const [candyAdditive, setCandyAdditive] = useState("2.0");
 
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [previewModalImage, setPreviewModalImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement null |>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false); 
@@ -259,7 +259,7 @@ const [candyAdditive, setCandyAdditive] = useState("2.0");
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [scrollStart, setScrollStart] = useState({ x: 0, y: 0 });
-  const scrollContainerRef = useRef<HTMLDivElement null |>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [isPearlGuideOpen, setIsPearlGuideOpen] = useState(false);
   const [activePearlLevel, setActivePearlLevel] = useState(6);
