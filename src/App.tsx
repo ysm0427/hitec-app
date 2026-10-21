@@ -1311,8 +1311,66 @@ export default function App() {
         </div>
       </div>
 {isCandyCoatMode && (
-              <div className="pt-4 mt-4 border-t border-rose-200 space-y-3 pb-8 w-full max-w-5xl mx-auto">
-                 <div className="text-xs font-black text-rose-700 flex justify-between border-b pb-1"><span>▼ 캔디
+              <div className="pt-4 mt-4 border-t border-rose-200 space-y-3 pb-8">
+                 <div className="text-xs font-black text-rose-700 flex justify-between border-b pb-1"><span>▼ 캔디 코트 (Candy Coat)</span></div>
+
+                 {/* 9048 마룬 정보 배너 */}
+                 <div className="bg-white rounded-xl overflow-hidden border border-rose-200 shadow-sm flex flex-col">
+                     <div className="bg-gradient-to-r from-[#5a1827] to-[#8b253f] p-3 text-white">
+                         <div className="flex items-center gap-2">
+                             <input type="text" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} className="bg-white/20 text-white border border-white/30 rounded px-2 py-1 w-20 text-center font-black focus:outline-none" />
+                             <span className="font-bold text-sm tracking-wide">{candyCode === '9048' ? '마룬 / 흑갈색 투명 첨가제' : '특수 캔디 첨가제'}</span>
+                         </div>
+                     </div>
+                     <div className="p-4 flex flex-col gap-3">
+                         <p className="text-sm font-bold text-slate-700 break-keep">
+                             {candyCode === '9048' ? '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.' : '고투명 프리미엄 캔디 첨가제.'}
+                         </p>
+                         <div className="flex items-start gap-2">
+                             <span className="shrink-0 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded text-[10px] font-black mt-0.5">🎯 캔디 도장 공정</span>
+                             <span className="text-xs font-medium text-slate-600 leading-relaxed">
+                                 {candyCode === '9048' ? '마쯔다(Mazda) 소울 레드 크리스탈(46V) 등 고휘도 실버 하도를 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침(Overlap) 없이 코팅해야 얼룩을 막을 수 있습니다.' : '고휘도 실버 위에 2액형 클리어와 정밀 혼합하여 일정한 두께로 코팅하세요.'}
+                             </span>
+                         </div>
+                     </div>
+                 </div>
+
+                 {/* 2:1 클리어 배합기 */}
+                 <div className="bg-rose-50 p-4 rounded-xl border border-rose-200 shadow-sm flex flex-col gap-3">
+                     <h4 className="text-sm font-black text-rose-800 flex items-center gap-2"><Beaker size={16}/> 현장 2:1 캔디 배합기</h4>
+                     <div className="flex flex-col sm:flex-row gap-3">
+                         <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
+                             <span className="text-[10px] font-bold text-slate-500 mb-1">7500 클리어 (비율 2)</span>
+                             <div className="flex items-center gap-1">
+                                 <input type="text" inputMode="decimal" value={candyClear} onChange={e => {
+                                     let val = e.target.value.replace(/[^0-9.]/g, '');
+                                     setCandyClear(val);
+                                     if(val) setCandyHardener((parseFloat(val)/2).toFixed(1));
+                                     else setCandyHardener("");
+                                 }} className="w-full text-lg font-black text-slate-800 bg-transparent focus:outline-none" />
+                                 <span className="font-bold text-slate-400">g</span>
+                             </div>
+                         </div>
+                         <div className="flex items-center justify-center shrink-0"><span className="text-xl font-black text-slate-400">+</span></div>
+                         <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
+                             <span className="text-[10px] font-bold text-slate-500 mb-1">7205 경화제 (비율 1)</span>
+                             <div className="flex items-center gap-1">
+                                 <input type="text" inputMode="decimal" value={candyHardener} onChange={e => setCandyHardener(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-lg font-black text-slate-800 bg-transparent focus:outline-none" />
+                                 <span className="font-bold text-slate-400">g</span>
+                             </div>
+                         </div>
+                         <div className="flex items-center justify-center shrink-0"><span className="text-xl font-black text-slate-400">+</span></div>
+                         <div className="flex-1 bg-rose-100 p-3 rounded-lg border border-rose-300 shadow-inner flex flex-col">
+                             <span className="text-[10px] font-black text-rose-700 mb-1">캔디 첨가제 (기준량)</span>
+                             <div className="flex items-center gap-1">
+                                 <input type="text" inputMode="decimal" value={candyAdditive} onChange={e => setCandyAdditive(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-lg font-black text-rose-700 bg-transparent focus:outline-none" />
+                                 <span className="font-bold text-rose-500">g</span>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+              </div>
+            )}
       {showBottomBar && (
           <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
               <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-4xl mx-auto p-3 md:p-4 h-full items-stretch justify-center">
