@@ -1136,52 +1136,7 @@ export default function App() {
                  </div>
               </div>
             )}
-            {isCandyCoatMode && (
-              <div className="pt-4 mt-4 border-t border-yellow-200 space-y-2 pb-8">
-                <div className="text-xs font-black text-yellow-700 flex justify-between border-b pb-1"><span>▼ 캔디 코트 (Candy Coat)</span></div>
-                {candyToners.map((toner) => {
-                    const info = TONER_DB[toner.code] || { role: '', type: 'candy', face: '#fef08a', flop: '#eab308', desc: '' };
-                    const isEffect = info.type !== 'solid' && info.type !== 'binder' && info.type !== 'candy';
-                    return (
-                        <div key={toner.id} className="flex flex-col bg-yellow-50 p-2.5 rounded-xl border border-yellow-200 shadow-sm transition-colors hover:bg-yellow-100/50">
-                            <div className="flex items-center w-full gap-2">
-                                <button type="button" className="flex w-[50px] h-[36px] rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-yellow-400">
-                                    <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
-                                    <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
-                                </button>
-                                <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code.replace('WT ', '').replace('PP ', '')} onChange={e => handleCandyCodeChange(toner.id, e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }} type="text" inputMode="decimal" pattern="[0-9]*" className="w-16 h-[36px] text-center text-sm font-black border border-yellow-300 rounded text-yellow-800 shadow-inner focus:outline-none focus:border-yellow-500 shrink-0 uppercase" placeholder="번호" />
-                                <div className="flex-1"></div>
-                                <div className="flex items-center bg-white border border-yellow-200 rounded-md px-1 h-[36px] shrink-0 shadow-sm">
-                                    <button onClick={() => quickEditCandyWeight(toner.id, -0.1)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
-                                    <input ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} onChange={e => handleCandyWeightInputChange(toner.id, e.target.value)} onBlur={e => handleCandyWeightBlur(toner.id, e.target.value)} onKeyDown={e => handleCandyWeightKeyDown(e, toner.id)} className="w-14 text-right text-[15px] font-black text-yellow-700 focus:outline-none clean-number-input" placeholder="0.0" />
-                                    <button onClick={() => quickEditCandyWeight(toner.id, 0.1)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
-                                    <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
-                                    <button onClick={() => removeCandyToner(toner.id)} className="ml-1 px-1"><Trash2 size={16} className="text-yellow-400 hover:text-red-500 transition-colors"/></button>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-1 cursor-pointer hover:bg-yellow-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleCandyExpand(toner.id)}>
-                                <span className="font-bold text-yellow-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
-                                    {toner.code ? (info.role || '등록된 캔디 정보 없음') : '캔디 번호를 입력하세요 (예: 9021...)'}
-                                    {!toner.isExpanded && <span className="ml-2 text-[10px] text-yellow-600 bg-yellow-100 border border-yellow-200 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
-                                    {toner.isExpanded && <span className="ml-2 text-[10px] text-yellow-600 bg-yellow-100 border border-yellow-200 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
-                                </span>
-                            </div>
-                            {toner.isExpanded && (
-                                <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-1 pt-2 border-t border-yellow-200">
-                                    <p className="text-[11px] text-slate-500 leading-tight break-keep pl-1">{info.desc || '투명도 높은 캔디(Transparent) 전용 안료입니다.'}</p>
-                                </div>
-                            )}
-                        </div>
-                    )
-                })}
-                <button onClick={() => addCandyToner()} className="w-full py-3 border border-dashed border-yellow-300 hover:border-yellow-500 bg-yellow-50/50 hover:bg-yellow-100/50 rounded-lg text-yellow-700 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-3 shadow-sm">
-                    <Plus size={18} /><span>캔디 조색제 추가</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
+            
         <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
             <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
