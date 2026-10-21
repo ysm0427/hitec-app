@@ -160,7 +160,41 @@ export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
-  const [isThreeCoatMode, setIsThreeCoatMode] = useState(false); 
+  const [isThreeCoatMode, setIsThreeCoatMode] = useState(false);
+  const [isCandyCoatMode, setIsCandyCoatMode] = useState(false);
+  const [candyToners, setCandyToners] = useState<any[]>([{ id: `c_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
+  const [totalCandyWeight, setTotalCandyWeight] = useState("0");
+
+  const handleCandyCodeChange = (id: string, newCode: string) => {
+      const rawVal = newCode.toUpperCase(); const numOnly = rawVal.replace(/[^0-9]/g, ''); let finalCode = rawVal;
+      if (rawVal.startsWith('90') && numOnly.length >= 4) finalCode = numOnly.substring(0, 4);
+      else if (['1051', '1500', '455', 'AXT700'].includes(numOnly) || rawVal === 'AXT700') finalCode = rawVal === 'AXT700' ? 'AXT700' : numOnly;
+      else if (numOnly) finalCode = `WT ${numOnly}`;
+      setCandyToners(prev => prev.map(toner => { if (toner.id === id) { if (TONER_DB[finalCode]) { setFocusTarget({ id: id, type: 'weight' }); } return { ...toner, code: finalCode }; } return toner; }));
+  };
+  const handleCandyWeightInputChange = (id: string, rawValue: string) => {
+      let val = rawValue.replace(/[^0-9.]/g, ''); const parts = val.split('.'); if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
+      if (val === '') val = ''; else if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, ''); else if (val.startsWith('.')) val = '0' + val;
+      setCandyToners(candyToners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
+  };
+  const handleCandyWeightBlur = (id: string, value: string) => {
+      if (!value) return; setCandyToners(prev => prev.map(t => { if (t.id === id) { const currentHistory = t.history || []; if (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== value) return { ...t, history: [...currentHistory, value] }; } return t; }));
+  };
+  const handleCandyWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string) => { if (e.key === 'Enter') { e.preventDefault(); const newId = `new_c_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; setCandyToners([...candyToners, { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setFocusTarget({ id: newId, type: 'code' }); } };
+  const removeCandyToner = (id: string) => setCandyToners(candyToners.filter(t => t.id !== id));
+  const addCandyToner = () => {
+      let tempInput: HTMLInputElement | undefined;
+      if (typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          tempInput = document.createElement('input'); tempInput.type = 'number'; tempInput.style.position = 'fixed'; tempInput.style.top = '50%'; tempInput.style.left = '50%'; tempInput.style.opacity = '0'; tempInput.style.width = '1px'; tempInput.style.height = '1px'; document.body.appendChild(tempInput); tempInput.focus();
+      }
+      const newId = `new_c_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      setCandyToners([...candyToners, { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
+      setFocusTarget({ id: newId, type: 'code', tempInput });
+  };
+  const quickEditCandyWeight = (id: string, delta: number) => {
+      setCandyToners(prev => prev.map(t => { if(t.id === id) { let newVal = Math.max(0, (parseFloat(t.adjustedWeight) || 0) + delta); let strVal = String(Number(Math.round(newVal * 100000) / 100000)); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== strVal) ? [...currentHistory, strVal] : currentHistory; return { ...t, adjustedWeight: strVal, history: nextHistory }; } return t; }));
+  };
+  const toggleCandyExpand = (id: string) => setCandyToners(prev => prev.map(t => t.id === id ? { ...t, isExpanded: !t.isExpanded } : t));
   const [targetColorCode, setTargetColorCode] = useState(''); 
   const [vehicleNumber, setVehicleNumber] = useState(''); 
   const [carModel, setCarModel] = useState(''); 
@@ -410,8 +444,9 @@ export default function App() {
   useEffect(() => {
     const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); 
     const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
-    setTotalBaseWeight(formatWeight(baseTotal)); setTotalPearlWeight(formatWeight(pearlTotal)); 
-    setTotalFinalWeight(formatWeight((baseTotal * 1.2) + (isThreeCoatMode ? (pearlTotal * 1.3) : 0)));
+    const candyTotal = candyToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
+    setTotalBaseWeight(formatWeight(baseTotal)); setTotalPearlWeight(formatWeight(pearlTotal)); setTotalCandyWeight(formatWeight(candyTotal));
+    setTotalFinalWeight(formatWeight((baseTotal * 1.2) + (isThreeCoatMode ? (pearlTotal * 1.3) : 0) + (isCandyCoatMode ? candyTotal : 0)));
     const checkMetallic = (list: any[]) => list.some(t => { const type = TONER_DB[t.code]?.type || ''; return type !== 'solid' && type !== 'binder' && type !== '' && type !== 'candy'; });
     setIsBaseMetallic(checkMetallic(toners)); setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
@@ -550,7 +585,19 @@ export default function App() {
     return resultText;
   };
 
-  const handleShareKakao = () => { window.location.href = `kakaotalk://send?text=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
+  const handleShareKakao = () => { 
+      const text = generateShareText();
+      if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(() => {
+              window.location.href = 'kakaotalk://'; 
+          }).catch(() => {
+              window.location.href = `kakaotalk://send?text=${encodeURIComponent(text)}`;
+          });
+      } else {
+          window.location.href = `kakaotalk://send?text=${encodeURIComponent(text)}`;
+      }
+      setIsShareModalOpen(false); 
+  };
   const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareNaverMail = () => { window.open(`https://mail.naver.com/v2/new?body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
   const handleShareGoogleMail = () => { window.open(`https://mail.google.com/mail/?view=cm&fs=1&body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
@@ -771,8 +818,8 @@ export default function App() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📅 등록 날짜</label><input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm cursor-pointer" /></div>
                 <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚗 차량 번호</label><input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="예: 12가3456" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm" /></div>
-                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 브랜드 등록</label><input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="예: 현대, BMW..." className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm" /></div>
-                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🎨 컬러코드</label><input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value)} placeholder="예: UX" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full uppercase focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm notranslate" translate="no" /></div>
+                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🚙 브랜드 등록</label><input type="text" value={carModel} onChange={(e) => setCarModel(e.target.value.toUpperCase())} placeholder="예: 현대, BMW..." className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm" /></div>
+                <div className="flex flex-col"><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🎨 컬러코드</label><input type="text" value={targetColorCode} onChange={(e) => setTargetColorCode(e.target.value.toUpperCase())} placeholder="예: UX" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full uppercase focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm notranslate" translate="no" /></div>
               </div>
               <div><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">🛠️ 작업 내용</label><input type="text" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="예: 조수석 앞휀다 교환 등" className="bg-white border border-slate-300 p-2.5 rounded text-sm font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm" /></div>
               <div><label className="block text-[11px] font-black text-slate-600 mb-1 ml-0.5">📌 특이사항 및 스펙 메모</label><input type="text" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="직접 입력 (예: 이색 심함)" className="bg-yellow-50 border-yellow-400 border p-2.5 rounded text-sm font-bold w-full shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400" /></div>
@@ -911,14 +958,22 @@ export default function App() {
               </div>
             </div>
             
-            <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between">
-                <label className="flex items-center cursor-pointer bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm hover:bg-purple-50 transition-colors">
-                  <span className="mr-2 text-xs font-black text-purple-700">3Coat (펄 추가) 켜기</span>
-                  <div className="relative">
-                    <input type="checkbox" className="sr-only" checked={isThreeCoatMode} onChange={() => setIsThreeCoatMode(!isThreeCoatMode)} />
-                    <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isThreeCoatMode ? 'bg-purple-500' : 'bg-slate-300'}`}></div>
-                    <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isThreeCoatMode ? 'transform translate-x-5' : ''}`}></div>
-                  </div>
+            <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
+                <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-purple-50 transition-colors">
+                    <span className="text-xs font-black text-purple-700">3Coat (펄 추가) 켜기</span>
+                    <div className="relative">
+                        <input type="checkbox" className="sr-only" checked={isThreeCoatMode} onChange={() => setIsThreeCoatMode(!isThreeCoatMode)} />
+                        <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isThreeCoatMode ? 'bg-purple-500' : 'bg-slate-300'}`}></div>
+                        <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isThreeCoatMode ? 'transform translate-x-5' : ''}`}></div>
+                    </div>
+                </label>
+                <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-yellow-50 transition-colors">
+                    <span className="text-xs font-black text-yellow-700">Candy (캔디 추가) 켜기</span>
+                    <div className="relative">
+                        <input type="checkbox" className="sr-only" checked={isCandyCoatMode} onChange={() => setIsCandyCoatMode(!isCandyCoatMode)} />
+                        <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isCandyCoatMode ? 'bg-yellow-500' : 'bg-slate-300'}`}></div>
+                        <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isCandyCoatMode ? 'transform translate-x-5' : ''}`}></div>
+                    </div>
                 </label>
             </div>
 
@@ -1008,6 +1063,49 @@ export default function App() {
                 </button>
               </div>
             )}
+            {isCandyCoatMode && (
+              <div className="pt-4 mt-4 border-t border-yellow-200 space-y-2 pb-8">
+                <div className="text-xs font-black text-yellow-700 flex justify-between border-b pb-1"><span>▼ 캔디 코트 (Candy Coat)</span></div>
+                {candyToners.map((toner) => {
+                    const info = TONER_DB[toner.code] || { role: '', type: 'candy', face: '#fef08a', flop: '#eab308', desc: '' };
+                    const isEffect = info.type !== 'solid' && info.type !== 'binder' && info.type !== 'candy';
+                    return (
+                        <div key={toner.id} className="flex flex-col bg-yellow-50 p-2.5 rounded-xl border border-yellow-200 shadow-sm transition-colors hover:bg-yellow-100/50">
+                            <div className="flex items-center w-full gap-2">
+                                <button type="button" className="flex w-[50px] h-[36px] rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                                    <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
+                                    <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
+                                </button>
+                                <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code.replace('WT ', '').replace('PP ', '')} onChange={e => handleCandyCodeChange(toner.id, e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }} type="text" inputMode="decimal" pattern="[0-9]*" className="w-16 h-[36px] text-center text-sm font-black border border-yellow-300 rounded text-yellow-800 shadow-inner focus:outline-none focus:border-yellow-500 shrink-0 uppercase" placeholder="번호" />
+                                <div className="flex-1"></div>
+                                <div className="flex items-center bg-white border border-yellow-200 rounded-md px-1 h-[36px] shrink-0 shadow-sm">
+                                    <button onClick={() => quickEditCandyWeight(toner.id, -0.1)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
+                                    <input ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} onChange={e => handleCandyWeightInputChange(toner.id, e.target.value)} onBlur={e => handleCandyWeightBlur(toner.id, e.target.value)} onKeyDown={e => handleCandyWeightKeyDown(e, toner.id)} className="w-14 text-right text-[15px] font-black text-yellow-700 focus:outline-none clean-number-input" placeholder="0.0" />
+                                    <button onClick={() => quickEditCandyWeight(toner.id, 0.1)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
+                                    <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
+                                    <button onClick={() => removeCandyToner(toner.id)} className="ml-1 px-1"><Trash2 size={16} className="text-yellow-400 hover:text-red-500 transition-colors"/></button>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-1 cursor-pointer hover:bg-yellow-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleCandyExpand(toner.id)}>
+                                <span className="font-bold text-yellow-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
+                                    {toner.code ? (info.role || '등록된 캔디 정보 없음') : '캔디 번호를 입력하세요 (예: 9021...)'}
+                                    {!toner.isExpanded && <span className="ml-2 text-[10px] text-yellow-600 bg-yellow-100 border border-yellow-200 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
+                                    {toner.isExpanded && <span className="ml-2 text-[10px] text-yellow-600 bg-yellow-100 border border-yellow-200 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
+                                </span>
+                            </div>
+                            {toner.isExpanded && (
+                                <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-1 pt-2 border-t border-yellow-200">
+                                    <p className="text-[11px] text-slate-500 leading-tight break-keep pl-1">{info.desc || '투명도 높은 캔디(Transparent) 전용 안료입니다.'}</p>
+                                </div>
+                            )}
+                        </div>
+                    )
+                })}
+                <button onClick={() => addCandyToner()} className="w-full py-3 border border-dashed border-yellow-300 hover:border-yellow-500 bg-yellow-50/50 hover:bg-yellow-100/50 rounded-lg text-yellow-700 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-3 shadow-sm">
+                    <Plus size={18} /><span>캔디 조색제 추가</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1063,8 +1161,8 @@ export default function App() {
                 
                 <div className="p-3 bg-slate-800 border-b border-slate-700 flex flex-col sm:flex-row shrink-0 gap-2">
                     <div className="relative flex-1">
-                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value)} placeholder="조색제(WT/PP) 번호 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
-                        <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
+                        <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value.toUpperCase())} placeholder="OEM 차량 컬러 (LUCID 등) 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-emerald-500 transition-colors" />
+                        <Search size={14} className="absolute left-2.5 top-2.5 text-emerald-400/70" />
                     </div>
                     <div className="relative flex-1">
                         <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value)} placeholder="OEM 차량 컬러 (LUCID 등) 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-emerald-500 transition-colors" />
