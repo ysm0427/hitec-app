@@ -166,7 +166,6 @@ export default function App() {
   const [candyHardener, setCandyHardener] = useState("50.0");
   const [candyCode, setCandyCode] = useState("9048");
   const [candyAdditive, setCandyAdditive] = useState("2.0");
-  const [isCandyCoatMode, setIsCandyCoatMode] = useState(false);
   const [candyToners, setCandyToners] = useState<any[]>([{ id: `c_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [totalCandyWeight, setTotalCandyWeight] = useState("0");
 
