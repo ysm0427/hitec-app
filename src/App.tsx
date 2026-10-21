@@ -162,6 +162,11 @@ export default function App() {
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [isThreeCoatMode, setIsThreeCoatMode] = useState(false);
   const [isCandyCoatMode, setIsCandyCoatMode] = useState(false);
+  const [candyClear, setCandyClear] = useState("100.0");
+  const [candyHardener, setCandyHardener] = useState("50.0");
+  const [candyCode, setCandyCode] = useState("9048");
+  const [candyAdditive, setCandyAdditive] = useState("2.0");
+  const [isCandyCoatMode, setIsCandyCoatMode] = useState(false);
   const [candyToners, setCandyToners] = useState<any[]>([{ id: `c_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [totalCandyWeight, setTotalCandyWeight] = useState("0");
 
@@ -587,15 +592,14 @@ export default function App() {
 
   const handleShareKakao = () => { 
       const text = generateShareText();
-      if (navigator.clipboard) {
-          navigator.clipboard.writeText(text).then(() => {
-              window.location.href = 'kakaotalk://'; 
-          }).catch(() => {
-              window.location.href = `kakaotalk://send?text=${encodeURIComponent(text)}`;
-          });
-      } else {
-          window.location.href = `kakaotalk://send?text=${encodeURIComponent(text)}`;
-      }
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try { document.execCommand('copy'); } catch (err) {}
+      document.body.removeChild(textArea);
+      
+      window.location.href = `kakaotalk://send?text=${encodeURIComponent(text)}`;
       setIsShareModalOpen(false); 
   };
   const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
@@ -967,6 +971,15 @@ export default function App() {
                         <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isThreeCoatMode ? 'transform translate-x-5' : ''}`}></div>
                     </div>
                 </label>
+                <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-rose-50 transition-colors">
+                    <span className="text-xs font-black text-rose-700">Candy (캔디 추가) 켜기</span>
+                    <div className="relative">
+                        <input type="checkbox" className="sr-only" checked={isCandyCoatMode} onChange={() => setIsCandyCoatMode(!isCandyCoatMode)} />
+                        <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isCandyCoatMode ? 'bg-rose-600' : 'bg-slate-300'}`}></div>
+                        <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isCandyCoatMode ? 'transform translate-x-5' : ''}`}></div>
+                    </div>
+                </label>
+            </div>
                 <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-yellow-50 transition-colors">
                     <span className="text-xs font-black text-yellow-700">Candy (캔디 추가) 켜기</span>
                     <div className="relative">
@@ -1061,6 +1074,67 @@ export default function App() {
                 <button onClick={() => addToner(true)} className="w-full py-3 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-lg text-purple-600 font-bold transition-all flex items-center justify-center space-x-2 text-sm mt-3 shadow-sm">
                     <Plus size={18} /><span>펄 조색제 추가</span>
                 </button>
+              </div>
+            )}
+          {isCandyCoatMode && (
+              <div className="pt-4 mt-4 border-t border-rose-200 space-y-3 pb-8">
+                 <div className="text-xs font-black text-rose-700 flex justify-between border-b pb-1"><span>▼ 캔디 코트 (Candy Coat)</span></div>
+
+                 {/* 9048 마룬 정보 배너 */}
+                 <div className="bg-white rounded-xl overflow-hidden border border-rose-200 shadow-sm flex flex-col">
+                     <div className="bg-gradient-to-r from-[#5a1827] to-[#8b253f] p-3 text-white">
+                         <div className="flex items-center gap-2">
+                             <input type="text" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} className="bg-white/20 text-white border border-white/30 rounded px-2 py-1 w-20 text-center font-black focus:outline-none" />
+                             <span className="font-bold text-sm tracking-wide">{candyCode === '9048' ? '마룬 / 흑갈색 투명 첨가제' : '특수 캔디 첨가제'}</span>
+                         </div>
+                     </div>
+                     <div className="p-4 flex flex-col gap-3">
+                         <p className="text-sm font-bold text-slate-700 break-keep">
+                             {candyCode === '9048' ? '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.' : '고투명 프리미엄 캔디 첨가제.'}
+                         </p>
+                         <div className="flex items-start gap-2">
+                             <span className="shrink-0 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded text-[10px] font-black mt-0.5">🎯 캔디 도장 공정</span>
+                             <span className="text-xs font-medium text-slate-600 leading-relaxed">
+                                 {candyCode === '9048' ? '마쯔다(Mazda) 소울 레드 크리스탈(46V) 등 고휘도 실버 하도를 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침(Overlap) 없이 코팅해야 얼룩을 막을 수 있습니다.' : '고휘도 실버 위에 2액형 클리어와 정밀 혼합하여 일정한 두께로 코팅하세요.'}
+                             </span>
+                         </div>
+                     </div>
+                 </div>
+
+                 {/* 2:1 클리어 배합기 */}
+                 <div className="bg-rose-50 p-4 rounded-xl border border-rose-200 shadow-sm flex flex-col gap-3">
+                     <h4 className="text-sm font-black text-rose-800 flex items-center gap-2"><Beaker size={16}/> 현장 2:1 캔디 배합기</h4>
+                     <div className="flex flex-col sm:flex-row gap-3">
+                         <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
+                             <span className="text-[10px] font-bold text-slate-500 mb-1">7500 클리어 (비율 2)</span>
+                             <div className="flex items-center gap-1">
+                                 <input type="text" inputMode="decimal" value={candyClear} onChange={e => {
+                                     let val = e.target.value.replace(/[^0-9.]/g, '');
+                                     setCandyClear(val);
+                                     if(val) setCandyHardener((parseFloat(val)/2).toFixed(1));
+                                     else setCandyHardener("");
+                                 }} className="w-full text-lg font-black text-slate-800 bg-transparent focus:outline-none" />
+                                 <span className="font-bold text-slate-400">g</span>
+                             </div>
+                         </div>
+                         <div className="flex items-center justify-center shrink-0"><span className="text-xl font-black text-slate-400">+</span></div>
+                         <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
+                             <span className="text-[10px] font-bold text-slate-500 mb-1">7205 경화제 (비율 1)</span>
+                             <div className="flex items-center gap-1">
+                                 <input type="text" inputMode="decimal" value={candyHardener} onChange={e => setCandyHardener(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-lg font-black text-slate-800 bg-transparent focus:outline-none" />
+                                 <span className="font-bold text-slate-400">g</span>
+                             </div>
+                         </div>
+                         <div className="flex items-center justify-center shrink-0"><span className="text-xl font-black text-slate-400">+</span></div>
+                         <div className="flex-1 bg-rose-100 p-3 rounded-lg border border-rose-300 shadow-inner flex flex-col">
+                             <span className="text-[10px] font-black text-rose-700 mb-1">캔디 첨가제 (기준량)</span>
+                             <div className="flex items-center gap-1">
+                                 <input type="text" inputMode="decimal" value={candyAdditive} onChange={e => setCandyAdditive(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-lg font-black text-rose-700 bg-transparent focus:outline-none" />
+                                 <span className="font-bold text-rose-500">g</span>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
               </div>
             )}
             {isCandyCoatMode && (
@@ -1161,11 +1235,11 @@ export default function App() {
                 
                 <div className="p-3 bg-slate-800 border-b border-slate-700 flex flex-col sm:flex-row shrink-0 gap-2">
                     <div className="relative flex-1">
-                        <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value.toUpperCase())} placeholder="OEM 차량 컬러 (LUCID 등) 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-emerald-500 transition-colors" />
-                        <Search size={14} className="absolute left-2.5 top-2.5 text-emerald-400/70" />
+                        <input type="text" value={catalogSearch} onChange={e=>setCatalogSearch(e.target.value.toUpperCase())} placeholder="조색제(WT/PP) 번호 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-blue-500 transition-colors" />
+                        <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
                     </div>
                     <div className="relative flex-1">
-                        <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value)} placeholder="OEM 차량 컬러 (LUCID 등) 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-emerald-500 transition-colors" />
+                        <input type="text" value={oemSearch} onChange={e=>setOemSearch(e.target.value.toUpperCase())} placeholder="OEM 차량 컬러 (LUCID 등) 검색" className="w-full bg-slate-900 border border-slate-600 text-white text-xs px-2.5 py-2 rounded-lg pl-8 focus:outline-none focus:border-emerald-500 transition-colors" />
                         <Search size={14} className="absolute left-2.5 top-2.5 text-emerald-400/70" />
                     </div>
                 </div>
