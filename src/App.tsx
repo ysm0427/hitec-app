@@ -2353,9 +2353,13 @@ if (!isAuthorized) {
              </div>
              
              <div className="pb-12 w-full flex justify-center shrink-0">
-            <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg"><X size={24} /> 믹싱 스튜디오 닫기</button>
-         </div>
-      </main>
+                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg">
+                  <X size={24} /> 믹싱 스튜디오 닫기
+                </button>
+             </div>
+          </main>
+        </div>
+      )}
     </div>
-  )}
-</div>
+  );
+}
