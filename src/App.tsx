@@ -240,7 +240,6 @@ export default function App() {
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [previewModalImage, setPreviewModalImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement null |>(null);
-
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false); 
 
