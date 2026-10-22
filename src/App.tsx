@@ -1813,10 +1813,18 @@ export default function App() {
                                 </div>
                             </div>
                             <div className="w-full md:w-1/3 flex flex-row md:flex-col gap-3">
-                                <div className="bg-white border border-slate-300 rounded p-3 text-center shadow-inner flex-1">
-                                    <span className="text-[11px] font-bold text-slate-500 mb-2 block">&lt;사용 안 함&gt;</span>
-                                    <div className="h-6 bg-slate-300 w-full rounded flex items-center justify-around px-2">
-                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
-                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
-                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                               <div className="bg-white border border-slate-300 rounded p-3 text-center shadow-inner flex-1">
+                                    <span className="text-[11px] font-bold text-blue-600 mb-2 block">&lt;사용 함&gt;</span>
+                                    <div className="h-12 bg-slate-200 w-full rounded relative overflow-hidden flex items-center justify-center">
+                                        <div className="w-6 h-6 bg-blue-300/60 rounded-full absolute left-4 top-1 blur-[1px]"></div>
+                                        <div className="w-7 h-7 bg-blue-300/60 rounded-full absolute right-6 bottom-1 blur-[1px]"></div>
+                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-45 absolute top-2 left-6"></div>
+                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full -rotate-12 absolute bottom-3 left-14"></div>
+                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-90 absolute top-4 right-10"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 className="text-xl font-black text-slate-800 mb-4 flex items-center"><Target className="text-red-600 mr-2" size={20}/> WT386 vs WT352 vs WT322 특성 비교</h3>
 
