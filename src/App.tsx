@@ -1823,8 +1823,9 @@ export default function App() {
                                         <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-90 absolute top-4 right-10"></div>
                                     </div>
                                 </div>
-                            </div>
+                           </div>
                         </div>
+                    </div>
 
+                    <div className="p-6 md:p-8">
                         <h3 className="text-xl font-black text-slate-800 mb-4 flex items-center"><Target className="text-red-600 mr-2" size={20}/> WT386 vs WT352 vs WT322 특성 비교</h3>
-
