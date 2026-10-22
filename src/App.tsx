@@ -1797,35 +1797,107 @@ export default function App() {
                                 WT386 <span className="text-lg text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded">(측면밝기조정제)</span>의 역할
                             </h2>
                             <div className="text-red-600 font-black italic text-xl sm:text-2xl tracking-tighter shrink-0 ml-4">Permahyd<sup className="text-sm">®</sup> HI-TEC</div>
-                        </div>
+                </div>
 
-                        <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-8 flex flex-col md:flex-row gap-6 items-center">
-                            <div className="flex-1">
-                                <p className="text-slate-700 font-bold text-base leading-relaxed mb-4">
-                                    WT386(측면밝기조정제)는 마치 <span className="text-blue-600 font-black">투명한 구슬</span>과 같아서, 알루미늄 입자에 혼합하면 입자가 불규칙하게 배열되도록 만듭니다.
-                                </p>
-                                <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-r-lg shadow-sm">
-                                    <p className="text-[13px] sm:text-sm text-yellow-800 font-black leading-relaxed">
-                                        💡 핵심: 측면밝기조정제를 사용하면 입자의 배열이 불규칙해져,<br/> 
-                                        빛 반사 유사각도<span className="text-red-600 bg-red-100 px-1.5 py-0.5 mx-1 rounded">정면(15도)은 어두워지고</span> 
-                                        나머지 각도<span className="text-blue-600 bg-blue-100 px-1.5 py-0.5 mx-1 rounded">측면(45도/110도)은 밝아집니다.</span>
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="w-full md:w-1/3 flex flex-row md:flex-col gap-3">
-                               <div className="bg-white border border-slate-300 rounded p-3 text-center shadow-inner flex-1">
-                                    <span className="text-[11px] font-bold text-blue-600 mb-2 block">&lt;사용 함&gt;</span>
-                                    <div className="h-12 bg-slate-200 w-full rounded relative overflow-hidden flex items-center justify-center">
-                                        <div className="w-6 h-6 bg-blue-300/60 rounded-full absolute left-4 top-1 blur-[1px]"></div>
-                                        <div className="w-7 h-7 bg-blue-300/60 rounded-full absolute right-6 bottom-1 blur-[1px]"></div>
-                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-45 absolute top-2 left-6"></div>
-                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full -rotate-12 absolute bottom-3 left-14"></div>
-                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-90 absolute top-4 right-10"></div>
-                                    </div>
-                                </div>
-                           </div>
+                <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-8 flex flex-col md:flex-row gap-6 items-center">
+                    <div className="flex-1">
+                        <p className="text-slate-700 font-bold text-base leading-relaxed mb-4">
+                            WT386(측면밝기조정제)는 마치 <span className="text-blue-600 font-black">투명한 구슬</span>과 같아서, 알루미늄 입자에 혼합하면 입자가 불규칙하게 배열되도록 만듭니다.
+                        </p>
+                        <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-r-lg shadow-sm">
+                            <p className="text-[13px] sm:text-sm text-yellow-800 font-black leading-relaxed">
+                                💡 핵심: 측면밝기조정제를 사용하면 입자의 배열이 불규칙해져,<br/> 
+                                빛 반사 유사각도<span className="text-red-600 bg-red-100 px-1.5 py-0.5 mx-1 rounded">정면(15도)은 어두워지고</span> 
+                                나머지 각도<span className="text-blue-600 bg-blue-100 px-1.5 py-0.5 mx-1 rounded">측면(45도/110도)은 밝아집니다.</span>
+                            </p>
                         </div>
                     </div>
+                    <div className="w-full md:w-1/3 flex flex-row md:flex-col gap-3">
+                        <div className="bg-white border border-slate-300 rounded p-3 text-center shadow-inner flex-1">
+                            <span className="text-[11px] font-bold text-slate-500 mb-2 block">&lt;사용 안 함&gt;</span>
+                            <div className="h-6 bg-slate-300 w-full rounded flex items-center justify-around px-2">
+                                <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                                <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                                <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                            </div>
+                        </div>
+                        <div className="bg-white border border-slate-300 rounded p-3 text-center shadow-inner flex-1">
+                            <span className="text-[11px] font-bold text-blue-600 mb-2 block">&lt;사용 함&gt;</span>
+                            <div className="h-12 bg-slate-200 w-full rounded relative overflow-hidden flex items-center justify-center">
+                                <div className="w-6 h-6 bg-blue-300/60 rounded-full absolute left-4 top-1 blur-[1px]"></div>
+                                <div className="w-7 h-7 bg-blue-300/60 rounded-full absolute right-6 bottom-1 blur-[1px]"></div>
+                                <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-45 absolute top-2 left-6"></div>
+                                <div className="w-8 h-1.5 bg-slate-600 rounded-full -rotate-12 absolute bottom-3 left-14"></div>
+                                <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-90 absolute top-4 right-10"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                    <div className="p-6 md:p-8">
-                        <h3 className="text-xl font-black text-slate-800 mb-4 flex items-center"><Target className="text-red-600 mr-2" size={20}/> WT386 vs WT352 vs WT322 특성 비교</h3>
+                <div className="p-6 md:p-8">
+                    <h3 className="text-xl font-black text-slate-800 mb-4 flex items-center"><Target className="text-red-600 mr-2" size={20}/> WT386 vs WT352 vs WT322 특성 비교</h3>
+                    <div className="overflow-x-auto rounded-xl border border-slate-300 shadow-sm">
+                        <table className="w-full text-sm sm:text-base text-center border-collapse min-w-[500px]">
+                            <thead>
+                                <tr className="bg-slate-800 text-white">
+                                    <th className="p-3 font-black w-24 border-r border-slate-700">조색제</th>
+                                    <th className="p-3 font-black w-16 border-r border-slate-700">구분</th>
+                                    <th className="p-3 font-black text-blue-300 border-r border-slate-700">15도 (정면)</th>
+                                    <th className="p-3 font-black text-yellow-300">45도 & 110도 (측면)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr className="bg-white border-b border-slate-200">
+                                    <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-50" rowSpan={2}>
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-xl">WT386</span>
+                                        </div>
+                                    </td>
+                                    <td className="border-r border-slate-200 font-bold text-slate-600 p-3">명암</td>
+                                    <td className="border-r border-slate-200 font-black text-white bg-slate-700/80 p-3">어두워짐</td>
+                                    <td className="font-black text-slate-800 bg-yellow-50 p-3">밝아짐</td>
+                                </tr>
+                                <tr className="bg-white border-b-4 border-slate-300">
+                                    <td className="border-r border-slate-200 font-bold text-slate-600 p-3">색상</td>
+                                    <td className="border-r border-slate-200 font-bold text-blue-600 p-3">약하게 청색이 짙어짐</td>
+                                    <td className="font-bold text-yellow-600 p-3">약하게 황색이 짙어짐</td>
+                                </tr>
+                                <tr className="bg-slate-50 border-b border-slate-200">
+                                    <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-100" rowSpan={2}>
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-xl">WT352</span>
+                                        </div>
+                                    </td>
+                                    <td className="border-r border-slate-200 font-bold text-slate-600 p-3">명암</td>
+                                    <td className="border-r border-slate-200 font-black text-white bg-slate-700/80 p-3">어두워짐</td>
+                                    <td className="font-black text-slate-800 bg-yellow-50 p-3">밝아짐</td>
+                                </tr>
+                                <tr className="bg-slate-50 border-b-4 border-slate-300">
+                                    <td className="border-r border-slate-200 font-bold text-slate-600 p-3">색상</td>
+                                    <td className="border-r border-slate-200 font-black text-blue-700 p-3">강하게 청색이 짙어짐</td>
+                                    <td className="font-bold text-red-500 p-3">약하게 적색이 짙어짐</td>
+                                </tr>
+                                <tr className="bg-white border-b border-slate-200">
+                                    <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-50" rowSpan={2}>
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-xl">WT322</span>
+                                        </div>
+                                    </td>
+                                    <td className="border-r border-slate-200 font-bold text-slate-600 p-3">명암</td>
+                                    <td className="border-r border-slate-200 font-black text-white bg-slate-700/80 p-3">어두워짐</td>
+                                    <td className="font-black text-slate-800 bg-yellow-50 p-3">밝아짐</td>
+                                </tr>
+                                <tr className="bg-white">
+                                    <td className="border-r border-slate-200 font-bold text-slate-600 p-3">색상</td>
+                                    <td className="border-r border-slate-200 font-black text-yellow-600 p-3">강하게 황색이 짙어짐</td>
+                                    <td className="font-black text-red-600 p-3">강하게 적색이 짙어짐</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        )}
+    </div>
+  );
+}
