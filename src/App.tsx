@@ -175,7 +175,7 @@ export default function App() {
   
   // 🚨 [Mission 4] 9048 자동 기입 해제 (빈칸으로 변경)
   const [candyCode, setCandyCode] = useState("");
-const [candyAdditive, setCandyAdditive] = useState("2.0");
+  const [candyAdditive, setCandyAdditive] = useState("2.0");
   const [candyToners, setCandyToners] = useState<any[]>([{ id: `c_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [totalCandyWeight, setTotalCandyWeight] = useState("0");
 
@@ -239,7 +239,7 @@ const [candyAdditive, setCandyAdditive] = useState("2.0");
 
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [previewModalImage, setPreviewModalImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement null |>(null);
 
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false); 
@@ -259,7 +259,7 @@ const [candyAdditive, setCandyAdditive] = useState("2.0");
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [scrollStart, setScrollStart] = useState({ x: 0, y: 0 });
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement null |>(null);
 
   const [isPearlGuideOpen, setIsPearlGuideOpen] = useState(false);
   const [activePearlLevel, setActivePearlLevel] = useState(6);
@@ -711,7 +711,7 @@ const [candyAdditive, setCandyAdditive] = useState("2.0");
   
   // 📌 [신규 추가] 캔디 스위치를 켰을 때, 오른쪽 기술자료실에 렌더링될 조색제 목록 제어 (캔디 코드 포함)
   const displayCodes = Array.from(new Set([...toners.map(t=>t.code), ...pearlToners.map(t=>t.code), isCandyCoatMode ? candyCode : ''])).filter(c=>c);
-if (!isAuthorized) {
+ if (!isAuthorized) {
     return (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 notranslate" translate="no">
             <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95">
@@ -848,7 +848,7 @@ if (!isAuthorized) {
                                             <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
                                             <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${isEffect ? info.flop : 'rgba(0,0,0,0.2)'} 100%)` }}></div>
                                         </button>
-                                        <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code.replace('WT ', '').replace('PP ', '')} onChange={e => handleCodeChange(toner.id, e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleCodeEnter(toner.id, toner.code); }} placeholder="코드" className="w-[60px] text-sm font-black text-slate-800 bg-white border border-slate-300 rounded-md px-2 h-[36px] uppercase shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shrink-0 notranslate" translate="no" />
+                                        <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code.replace('WT ', '').replace('PP ', '')} onChange={e => handleCodeChange(toner.id, e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }} placeholder="코드" className="w-[60px] text-sm font-black text-slate-800 bg-white border border-slate-300 rounded-md px-2 h-[36px] uppercase shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shrink-0 notranslate" translate="no" />
                                         
                                         {/* 📌 [Mission 1] 좌측 안료 리스트에 도료 타입 뱃지 장착 */}
                                         <div className="flex-1 min-w-0 flex items-center gap-2">
@@ -862,7 +862,7 @@ if (!isAuthorized) {
                                         
                                         <div className="flex items-center bg-white border border-slate-300 rounded-md px-1 h-[36px] shrink-0 shadow-sm">
                                             <button onClick={() => quickEditWeight(toner.id, -0.1, false)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
-                                            <input ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} onChange={e => handleWeightInputChange(toner.id, e.target.value)} onBlur={e => handleWeightBlur(toner.id, e.target.value)} onKeyDown={(e) => handleWeightKeyDown(e, toner.id, false)} className="w-[45px] text-center text-sm font-black text-slate-800 bg-transparent border-none focus:outline-none focus:ring-0 p-0" placeholder="0.0" />
+                                            <input ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} onBlur={e => handleWeightBlur(toner.id, e.target.value, false)} onKeyDown={(e) => handleWeightKeyDown(e, toner.id, false)} className="w-[45px] text-center text-sm font-black text-slate-800 bg-transparent border-none focus:outline-none focus:ring-0 p-0" placeholder="0.0" />
                                             <button onClick={() => quickEditWeight(toner.id, 0.1, false)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
                                             <span className="text-slate-400 font-bold text-xs ml-1">g</span>
                                             <button onClick={() => removeToner(toner.id, false)} className="ml-1 px-1"><Trash2 size={16} className="text-slate-400 hover:text-red-500 transition-colors"/></button>
@@ -919,7 +919,7 @@ if (!isAuthorized) {
                                                 <div className="flex-1" style={getCachedTexture(info.type, info.face, info.flop, isEffect)}></div>
                                                 <div className="flex-1 border-l border-slate-300" style={{ background: `linear-gradient(135deg, ${info.face} 0%, ${info.flop} 100%)` }}></div>
                                             </button>
-                                            <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code.replace('WT ', '').replace('PP ', '')} onChange={e => handleCodeChange(toner.id, e.target.value, true)} onKeyDown={(e) => handleWeightKeyDown(e, toner.id, true)} placeholder="코드" className="w-[60px] text-sm font-black text-slate-800 bg-white border border-purple-200 rounded-md px-2 h-[36px] uppercase shadow-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 shrink-0 notranslate" translate="no" />
+                                            <input ref={el => { codeRefs.current[toner.id] = el; }} value={toner.code.replace('WT ', '').replace('PP ', '')} onChange={e => handleCodeChange(toner.id, e.target.value, true)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setFocusTarget({ id: toner.id, type: 'weight' }); } }} placeholder="코드" className="w-[60px] text-sm font-black text-slate-800 bg-white border border-purple-200 rounded-md px-2 h-[36px] uppercase shadow-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 shrink-0 notranslate" translate="no" />
                                             
                                             {/* 📌 [Mission 1] 펄 리스트 뱃지 장착 */}
                                             <div className="flex-1 min-w-0 flex items-center gap-2">
@@ -1110,7 +1110,8 @@ if (!isAuthorized) {
                 </div>
             </div>
         </div>
-</div>
+      </div> {/* 🚨 완벽 복구된 그리드 마감 괄호 🚨 */}
+
       {showBottomBar && (
           <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
               <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-4xl mx-auto p-3 md:p-4 h-full items-stretch justify-center">
@@ -1769,6 +1770,31 @@ if (!isAuthorized) {
         </div>
       )}
 
+      {/* 🚀 [NEW 3] 1-Click 다이렉트 공유 모달 (이메일 좌우 분할) */}
+      {isShareModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div className="p-4 bg-slate-800 flex justify-between items-center text-white">
+              <h3 className="font-bold flex items-center gap-2"><Share2 size={18} /> 배합 데이터 다이렉트 공유</h3>
+              <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 flex flex-col gap-3 bg-slate-50">
+                <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3.5 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 바로 전송하기</button>
+                <button onClick={handleShareSMS} className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-black shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS) 앱 다이렉트 열기</button>
+                
+                <div className="flex gap-3 mt-1">
+                    <button onClick={handleShareNaverMail} className="flex-1 bg-[#03C75A] hover:bg-[#02b350] text-white py-3.5 rounded-xl font-black shadow-md transition-colors flex items-center justify-center gap-1.5">
+                        <Mail size={16}/> 네이버 메일
+                    </button>
+                    <button onClick={handleShareGoogleMail} className="flex-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 py-3.5 rounded-xl font-black shadow-sm transition-colors flex items-center justify-center gap-1.5">
+                        <Mail size={16} className="text-red-500"/> 구글 메일
+                    </button>
+                </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isProcessOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[3000] p-4 backdrop-blur-sm transition-opacity">
           <div className="bg-slate-800 p-6 rounded-xl border border-slate-600 shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden relative">
@@ -2353,9 +2379,7 @@ if (!isAuthorized) {
              </div>
              
              <div className="pb-12 w-full flex justify-center shrink-0">
-                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg">
-                  <X size={24} /> 믹싱 스튜디오 닫기
-                </button>
+                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg"><X size={24} /> 믹싱 스튜디오 닫기</button>
              </div>
           </main>
         </div>
