@@ -18,12 +18,12 @@ if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')
   document.head.appendChild(script);
 }
 
-// 📌 [미션 5] 누락된 WT 340 및 특수 캔디 라인업 상세 스펙 100% 주입 완료
+// 📌 [Mission 5] 누락된 WT 340 및 특수 캔디 라인업 상세 스펙 완벽 주입 (기존 화이트톤 UI 100% 호환)
 if (!TONER_DB['WT 340']) TONER_DB['WT 340'] = { role: '옐로우 마젠타 레드', type: 'solid', face: '#E53935', flop: '#B71C1C', desc: '맑은 자주색 조색제. 338에 비해 밝고 청색이 적음. 주로 이펙트 컬러에 사용함. 알루미늄 입자에 혼합할 경우 맑은 분홍색을 냄', details: [['일반 특성', '맑은 자주색 조색제로 338에 비해 밝고 청색이 적습니다.'], ['혼합 특성', '주로 이펙트 컬러에 사용하며, 알루미늄 입자에 혼합할 경우 맑은 분홍색을 냅니다.'], ['외관 변화', '정면과 측면 모두 맑고 화사한 적자색(Pinkish Red)을 띱니다.'], ['타겟 컬러', '고채도 레드, 핑크 계열 이펙트 컬러 및 솔리드 레드'], ['배합 비율', '조색 데이터에 따라 베이스 및 펄 컬러에 다양하게 적용'], ['조색 한계점', '은폐력이 매우 낮아 단독 사용 시 바닥이 비칠 수 있습니다.'], ['비교 분석', 'WT 338(블루이쉬 마젠타)보다 청색조가 덜하고 따뜻한 핑크/레드빛을 강하게 띱니다.']] };
 if (!TONER_DB['9031']) TONER_DB['9031'] = { role: '애플 레드 (Apple Red)', type: 'candy', face: '#8b0000', flop: '#ff0000', desc: '은폐력 제로의 투명하고 깊은 정통 캔디 레드. 맑은 사과빛 심도를 냅니다.', details: [['🎯 캔디 도장 공정', '고휘도 실버(WT 361/303) 또는 거친 다이아몬드 하도를 완벽하게 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침 없이 일정한 두께로 코팅해야 얼룩을 막을 수 있습니다.'], ['💡 비교 분석', '[비교] 캔디 9031 vs 일반 투명 틴트 WT 311\nWT 311(루비레드)은 단독 보카시(블렌딩)가 가능하지만, 9031 캔디는 블렌딩이 절대 불가(전체 도장 필수)하며 일반 틴트가 흉내 낼 수 없는 극강의 3D 입체 투명 심도(유리알 텍스처)를 냅니다.']] };
 if (!TONER_DB['9032']) TONER_DB['9032'] = { role: '오션 블루 (Ocean Blue)', type: 'candy', face: '#004488', flop: '#0088ff', desc: '심연의 바다처럼 깊고 투명한 시안 커스텀 캔디 블루입니다.', details: [['🎯 캔디 도장 공정', '스프레이 건의 에어 압력을 높이고 토출량을 줄여 아주 곱고 균일하게 미스트를 쪼개어 도포해야 투명감을 살릴 수 있습니다.'], ['💡 비교 분석', '[비교] 캔디 9032 vs 일반 투명 틴트 WT 348\n일반 투명 틴트(348)도 맑은 편이나 한계가 있는 반면, 9032 캔디는 두껍게 올릴수록 심해가 깊어지듯 끝을 알 수 없는 딥 블루 3D 심도를 연출합니다.']] };
 if (!TONER_DB['9033']) TONER_DB['9033'] = { role: '선셋 골드 (Sunset Gold)', type: 'candy', face: '#886600', flop: '#ffcc00', desc: '노을빛 화려한 황금 스파클 캔디 필터를 제공합니다.', details: [['⚠️ 캔디 3대 철칙', '부분 도장(보카시/블렌딩)은 물리적으로 절대 불가하며, 반드시 패널 전체를 한 판 단위로 끊어서 도장해야 합니다.'], ['💡 비교 분석', '[비교] 캔디 9033 vs 일반 투명 틴트 WT 329\nWT 329는 얇은 황금빛 셀로판지라면, 9033 선셋 골드는 두꺼운 황금색 스테인드글라스처럼 압도적인 빛의 투과율과 공간감을 자랑합니다.']] };
-if (!TONER_DB['9048']) TONER_DB['9048'] = { role: '마룬 / 흑갈색 투명 첨가제', type: 'candy', face: '#5a1827', flop: '#8b253f', desc: '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.', details: [['🎯 캔디 도장 공정', '마쯔다(Mazda) 소울 레드 크리스탈(46V) 등 고휘도 실버 하도를 건조한 뒤, 2액형 클리어와 정밀 혼합하여 코팅해야 얼룩을 막을 수 있습니다.']] };
+if (!TONER_DB['9048']) TONER_DB['9048'] = { role: '마룬 / 흑갈색 투명 첨가제', type: 'candy', face: '#5a1827', flop: '#8b253f', desc: '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.', details: [['🎯 캔디 도장 공정', '마쯔다(Mazda) 소울 레드 크리스탈(46V) 등 고휘도 실버 하도를 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침(Overlap) 없이 코팅해야 얼룩을 막을 수 있습니다.']] };
 
 const LAST_PATCH_DATE = "2026.10.19 (UI/UX 5대 편의성 마스터 패치 적용완료)"; 
 
@@ -171,11 +171,13 @@ export default function App() {
   const [isCandyCoatMode, setIsCandyCoatMode] = useState(false);
   const [candyClear, setCandyClear] = useState("100.0");
   const [candyHardener, setCandyHardener] = useState("50.0");
-  // 📌 [미션 4] 9048 자동 기입 해제 (빈 칸)
+  
+  // 📌 [Mission 4] 캔디 스위치 On 시 9048 강제 기입 해제 (빈칸 처리)
   const [candyCode, setCandyCode] = useState("");
-  const [candyAdditive, setCandyAdditive] = useState("2.0");
+ const [candyAdditive, setCandyAdditive] = useState("2.0");
   const [candyToners, setCandyToners] = useState<any[]>([{ id: `c_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [totalCandyWeight, setTotalCandyWeight] = useState("0");
+
   const handleCandyCodeChange = (id: string, newCode: string) => {
       const rawVal = newCode.toUpperCase(); const numOnly = rawVal.replace(/[^0-9]/g, ''); let finalCode = rawVal;
       if (rawVal.startsWith('90') && numOnly.length >= 4) finalCode = numOnly.substring(0, 4);
@@ -296,7 +298,8 @@ export default function App() {
 
   const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
 
-  const activeCodes = [...toners, ...pearlToners].map(t => t.code).filter(c => c !== '');
+  // 📌 [Mission 4] 캔디 모드일 때 우측 탭 상단에 캔디 데이터가 동적으로 렌더링되도록 activeCodes 수정
+  const activeCodes = [...toners, ...pearlToners, ...(isCandyCoatMode && candyCode ? [{code: candyCode}] : [])].map(t => t.code).filter(c => c !== '');
   
   const sortedCatalog = [...catalogData].filter(item => {
     const code = item.code;
@@ -593,7 +596,7 @@ export default function App() {
     return resultText;
   };
 
-  // 📌 [미션 2] 카카오톡 전송 시, 팝업창 거치지 않고 바로 카톡 앱 실행되게 다이렉트 처리
+  // 📌 [Mission 2] 카카오톡 전송 시, 알림 팝업창 거치지 않고 바로 카톡 앱 실행되도록 다이렉트 처리
   const handleShareKakao = () => { 
       const text = generateShareText();
       const textArea = document.createElement("textarea");
@@ -606,7 +609,6 @@ export default function App() {
       window.location.href = "kakaotalk://"; 
       setIsShareModalOpen(false); 
   };
-  
   const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareNaverMail = () => { window.open(`https://mail.naver.com/v2/new?body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
   const handleShareGoogleMail = () => { window.open(`https://mail.google.com/mail/?view=cm&fs=1&body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
@@ -705,7 +707,7 @@ export default function App() {
   const handleGoogleGlossarySearch = () => { const inputEl = document.getElementById('glossarySearchInput') as HTMLInputElement; const val = inputEl?.value?.trim(); if(!val) { alert("사전 검색창에 뜻이 궁금한 용어를 직접 입력하세요!"); return; } window.open(`https://www.google.com/search?q=스피스헥커+${val}+뜻`, '_blank'); };
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
- if (!isAuthorized) {
+  if (!isAuthorized) {
     return (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 notranslate" translate="no">
             <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95">
@@ -919,12 +921,8 @@ export default function App() {
                     <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, false)}>
                         <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
                             {toner.code ? (info.role || '등록된 안료 정보 없음') : '안료 번호를 입력하세요 (예: 321, 385...)'}
-                            {/* 📌 [미션 1] 도료 타입 뱃지 추가 (베이스 코트) */}
-                            {toner.code && info.type && (
-                                <span className="ml-2 bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px] font-bold border border-slate-600 shadow-sm whitespace-nowrap">
-                                    {info.type}
-                                </span>
-                            )}
+                            {/* 📌 [Mission 1] 도료 타입 뱃지 추가 (베이스 코트) */}
+                            {toner.code && info.type && <span className="ml-2 bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px] font-bold border border-slate-600 shadow-sm whitespace-nowrap">{info.type}</span>}
                             {!toner.isExpanded && <span className="ml-2 text-[10px] text-blue-500 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
                             {toner.isExpanded && <span className="ml-2 text-[10px] text-blue-500 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
                         </span>
@@ -968,7 +966,7 @@ export default function App() {
               </div>
             </div>
             
-            {/* 📌 [미션 3] 불필요한 캔디 중복 스위치 제거 완료 (딱 2개 스위치만 남김) */}
+            {/* 📌 [Mission 3] 불필요한 노란색 캔디 스위치 완전 제거 (딱 2개 스위치만 남김) */}
             <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
                 <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-purple-50 transition-colors">
                     <span className="text-xs font-black text-purple-700">3Coat (펄 추가) 켜기</span>
@@ -1039,12 +1037,8 @@ export default function App() {
                       <div className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, true)}>
                           <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
                               {toner.code ? (info.role || '등록된 펄 정보 없음') : '펄 번호를 입력하세요 (예: PP201...)'}
-                              {/* 📌 [미션 1] 도료 타입 뱃지 추가 (펄 코트) */}
-                              {toner.code && info.type && (
-                                  <span className="ml-2 bg-purple-900 text-purple-200 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-700 shadow-sm whitespace-nowrap">
-                                      {info.type}
-                                  </span>
-                              )}
+                              {/* 📌 [Mission 1] 도료 타입 뱃지 추가 (펄 코트) */}
+                              {toner.code && info.type && <span className="ml-2 bg-purple-900 text-purple-200 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-700 shadow-sm whitespace-nowrap">{info.type}</span>}
                               {!toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
                               {toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
                           </span>
@@ -1080,7 +1074,7 @@ export default function App() {
               </div>
             )}
             
-          {/* 📌 [미션 4] 캔디 배합기 연동 (9048 강제 기입 해제) 및 시인성(텍스트 크기 text-3xl, 4xl) 대폭 확대 */}
+          {/* 📌 [Mission 4] 캔디 배합기 UI 텍스트 크기(text-4xl) 대폭 확대 */}
           {isCandyCoatMode && (
               <div className="pt-4 mt-4 border-t border-rose-200 space-y-3 pb-8">
                  <div className="text-xs font-black text-rose-700 flex justify-between border-b pb-1"><span>▼ 캔디 코트 (Candy Coat)</span></div>
@@ -1141,7 +1135,7 @@ export default function App() {
               </div>
             )}
         </div>
-      <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
+       <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
             <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
               <h3 className="text-xs font-black mb-2 flex justify-between items-center text-slate-800">
@@ -1802,37 +1796,36 @@ export default function App() {
                         {zoomedImage.url ? (
                             <div className="relative w-full h-[65vh] flex flex-col bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
                                 <div 
-    ref={scrollContainerRef}
-    className={`w-full h-full overflow-auto custom-scrollbar touch-pan-x touch-pan-y relative ${isDragging ? 'cursor-grabbing' : (imgScale > 1 ? 'cursor-grab' : '')}`}
-    style={{
-        display: imgScale === 1 ? 'flex' : 'block',
-        alignItems: 'center',
-        justifyContent: 'center'
-    }}
-    onMouseDown={handleMouseDown}
-    onMouseMove={handleMouseMove}
-    onMouseUp={handleMouseUp}
-    onMouseLeave={handleMouseUp}
-    onTouchStart={handleTouchStart}
-    onTouchMove={handleTouchMove}
-    onTouchEnd={handleTouchEnd}
->
-    <img 
-        draggable={false}
-        src={zoomedImage.url} 
-        alt={zoomedImage.title} 
-        style={{ 
-    display: 'block',
-    margin: 'auto', 
-    width: `${imgScale * 100}%`, 
-    height: `${imgScale * 100}%`,
-    objectFit: 'contain',
-    transition: pinchDist > 0 ? 'none' : 'width 0.1s ease-out, height 0.1s ease-out' 
-}}
-    />
-</div>
+                                    ref={scrollContainerRef}
+                                    className={`w-full h-full overflow-auto custom-scrollbar touch-pan-x touch-pan-y relative ${isDragging ? 'cursor-grabbing' : (imgScale > 1 ? 'cursor-grab' : '')}`}
+                                    style={{
+                                        display: imgScale === 1 ? 'flex' : 'block',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                    onMouseDown={handleMouseDown}
+                                    onMouseMove={handleMouseMove}
+                                    onMouseUp={handleMouseUp}
+                                    onMouseLeave={handleMouseUp}
+                                    onTouchStart={handleTouchStart}
+                                    onTouchMove={handleTouchMove}
+                                    onTouchEnd={handleTouchEnd}
+                                >
+                                    <img 
+                                        draggable={false}
+                                        src={zoomedImage.url} 
+                                        alt={zoomedImage.title} 
+                                        style={{ 
+                                            display: 'block',
+                                            margin: 'auto', 
+                                            width: `${imgScale * 100}%`, 
+                                            height: `${imgScale * 100}%`,
+                                            objectFit: 'contain',
+                                            transition: pinchDist > 0 ? 'none' : 'width 0.1s ease-out, height 0.1s ease-out' 
+                                        }}
+                                    />
+                                </div>
                                 
-                                {/* 🖼️ [NEW 2] 하단 인디케이터(쪽수) 표시 장착 */}
                                 <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full px-5 py-2 flex items-center gap-6 z-[4020] shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-slate-600">
                                     <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.max(1, s - 0.2)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">-</button>
                                     <div className="flex flex-col items-center">
@@ -1930,7 +1923,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 🚀 [NEW 3] 1-Click 다이렉트 공유 모달 (이메일 좌우 분할) */}
       {isShareModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
@@ -2546,4 +2538,4 @@ export default function App() {
       )}
     </div>
   );
-}    
+}   
