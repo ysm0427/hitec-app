@@ -1135,6 +1135,7 @@ export default function App() {
               </div>
             )}
         </div>
+          </div>
        <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
             <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
