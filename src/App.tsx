@@ -1818,4 +1818,5 @@ export default function App() {
                                     <div className="h-6 bg-slate-300 w-full rounded flex items-center justify-around px-2">
                                         <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
                                         <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
-                                        <div className="w-8 h-1.5
+                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+
