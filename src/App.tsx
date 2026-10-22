@@ -10,7 +10,22 @@ import {
 } from 'lucide-react';
 
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS } from './tonerDB';
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 
+// Firebase 설정 및 초기화
+const firebaseConfig = {
+  apiKey: "AIzaSyAaVn1BUqEhBNFLDuCMu9zy2VQpOdGHMvI",
+  authDomain: "josek-pro.firebaseapp.com",
+  projectId: "josek-pro",
+  storageBucket: "josek-pro.firebasestorage.app",
+  messagingSenderId: "704984614633",
+  appId: "1:704984614633:web:42f263f9ebfcaf68089278",
+  measurementId: "G-6T7TJRKH1J"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')) {
   const script = document.createElement('script');
   script.id = 'tailwind-script';
@@ -147,6 +162,19 @@ export default function App() {
     if (!isAuthFormValid) return; 
     setIsApproving(true);
     setApprovalMessage("마스터(윤성만) 기기로 승인 요청 알림 전송 완료...");
+    try {
+      // 🚀 실시간 작업자 정보 Firebase 전송
+      await addDoc(collection(db, "active_users"), {
+        company: authForm.company,     // 소속 상호명
+        location: authForm.location,   // 지점 위치
+        name: authForm.name,           // 작업자 이름
+        age: authForm.age,             // 연령
+        role: authForm.role,           // 직책
+        connectedAt: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error("전송 오류:", err);
+    }
     await new Promise(r => setTimeout(r, 1000));
     setApprovalMessage("관리자가 입력된 소속 및 직책 정보를 확인하고 있습니다...");
     const phase2Delay = Math.floor(Math.random() * 2000) + 2500; 
