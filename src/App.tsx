@@ -2841,7 +2841,6 @@ const [candyAdditive, setCandyAdditive] = useState("2.0");
                                 </div>
                             </div>
                         </div>
-                        </div>
                     </div>
                 </main>
             </div>
