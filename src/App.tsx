@@ -2850,6 +2850,7 @@ const [candyAdditive, setCandyAdditive] = useState("2.0");
           </main>
         </div>
       )}
-          </div>
+      </div>
+      </div>
     );
 }
