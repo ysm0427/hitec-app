@@ -135,6 +135,7 @@ const describeArc = (x: number, y: number, innerRadius: number, outerRadius: num
 interface BoardPost {
   id: number; brand: string; code: string; date: string; likes: number; views: number; author: string; spec: string;
   baseFormula: any[]; pearlFormula: any[]; isThreeCoat: boolean; images: string[]; deletedImages?: { url: string; deletedAt: number }[]; 
+  isCandyCoat?: boolean; candyCode?: string; candyAdditive?: string; candyClear?: string; candyHardener?: string; candyThinner?: string;
 }
 
 export default function App() {
@@ -610,8 +611,7 @@ export default function App() {
   const handleShareSMS = () => { 
       const text = encodeURIComponent(generateShareText());
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      window.location.href = isIOS ? `sms:&body=${text}` : `sms:?body=${text}`;
-      setIsShareModalOpen(false); 
+const handleShareSMS = () => { const text = encodeURIComponent(generateShareText()); const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent); window.location.href = isIOS ? `sms:&body=${text}` : `sms:?body=${text}`; setIsShareModalOpen(false); };
   };
   const handleShareNaverMail = () => { window.open(`https://mail.naver.com/v2/new?body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
   const handleShareGoogleMail = () => { window.open(`https://mail.google.com/mail/?view=cm&fs=1&body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
@@ -697,20 +697,13 @@ export default function App() {
   const saveToBoard = () => {
       if(!targetColorCode) { alert("⚠️ 컬러코드를 입력해야 합니다!"); return; }
       const now = new Date(); const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-      
-      let candySpec = '';
-      if(isCandyCoatMode) {
-          candySpec = `\n🍬 [캔디] ${candyCode || '코드없음'} ${candyAdditive}g / 클리어 ${candyClear}g : 경화제 ${candyHardener}g : 신너 ${candyThinner}g`;
-      }
-      const finalSpec = (specialNotes ? specialNotes : '특이사항 없음') + candySpec;
-
-      const newPost: BoardPost = { id: Date.now() + Math.random(), brand: carModel || '미지정', code: targetColorCode, date: timeFormatted, likes: 0, views: 0, author: '내 데이터', spec: finalSpec, baseFormula: [...toners], pearlFormula: [...pearlToners], isThreeCoat: isThreeCoatMode, images: [...attachedImages], deletedImages: [] };
+      const newPost: BoardPost = { id: Date.now() + Math.random(), brand: carModel || '미지정', code: targetColorCode, date: timeFormatted, likes: 0, views: 0, author: '내 데이터', spec: specialNotes || '특이사항 없음', baseFormula: [...toners], pearlFormula: [...pearlToners], isThreeCoat: isThreeCoatMode, images: [...attachedImages], deletedImages: [], isCandyCoat: isCandyCoatMode, candyCode, candyAdditive, candyClear, candyHardener, candyThinner };
       setBoardPosts([newPost, ...boardPosts]); setAttachedImages([]); alert("🎉 시편 사진들과 함께 게시판에 등록되었습니다!");
   };
 
   const deleteBoardPost = (id: number, e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("이 시편 데이터를 완전히 삭제하시겠습니까?")) setBoardPosts(prev => prev.filter(post => post.id !== id)); };
-  const handleSaveSnapshot = () => { const newSnapshot = { id: Date.now(), timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }), dateStr: new Date().toLocaleDateString('ko-KR'), base: JSON.parse(JSON.stringify(toners)), pearl: JSON.parse(JSON.stringify(pearlToners)), isThreeCoat: isThreeCoatMode, totalFinal: totalFinalWeight }; setSnapshots(prev => [newSnapshot, ...prev]); alert(`[${newSnapshot.timestamp}] 데이터가 확정 저장되었습니다.`); };
-  const restoreSnapshot = (snapshot: any) => { if (window.confirm("복원하시겠습니까?")) { setToners(JSON.parse(JSON.stringify(snapshot.base))); setPearlToners(JSON.parse(JSON.stringify(snapshot.pearl))); setIsThreeCoatMode(snapshot.isThreeCoat); setSelectedSnapshot(null); setIsSnapshotModalOpen(false); } };
+  const handleSaveSnapshot = () => { const newSnapshot = { id: Date.now(), timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }), dateStr: new Date().toLocaleDateString('ko-KR'), base: JSON.parse(JSON.stringify(toners)), pearl: JSON.parse(JSON.stringify(pearlToners)), isThreeCoat: isThreeCoatMode, totalFinal: totalFinalWeight, isCandyCoat: isCandyCoatMode, candyCode, candyAdditive, candyClear, candyHardener, candyThinner }; setSnapshots(prev => [newSnapshot, ...prev]); alert(`[${newSnapshot.timestamp}] 데이터가 확정 저장되었습니다.`); };
+  const restoreSnapshot = (snapshot: any) => { if (window.confirm("복원하시겠습니까?")) { setToners(JSON.parse(JSON.stringify(snapshot.base))); setPearlToners(JSON.parse(JSON.stringify(snapshot.pearl))); setIsThreeCoatMode(snapshot.isThreeCoat || false); setIsCandyCoatMode(snapshot.isCandyCoat || false); setCandyCode(snapshot.candyCode || ""); setCandyAdditive(snapshot.candyAdditive || "2.0"); setCandyClear(snapshot.candyClear || "100.0"); setCandyHardener(snapshot.candyHardener || "36.0"); setCandyThinner(snapshot.candyThinner || "6.0"); setSelectedSnapshot(null); setIsSnapshotModalOpen(false); } };
   const handleSavePostEdit = () => { setBoardPosts(prev => prev.map(p => p.id === viewingPost.id ? { ...p, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec } : p)); setViewingPost({ ...viewingPost, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec }); setIsEditingPost(false); };
   const handleOpenPost = (post: any) => { setViewingPost(post); setEditPostForm({ brand: post.brand, code: post.code, spec: post.spec }); setIsEditingPost(false); };
 
@@ -1010,13 +1003,20 @@ export default function App() {
                  <div className="bg-white rounded-xl overflow-hidden border border-rose-200 shadow-sm flex flex-col">
                      <div className="bg-gradient-to-r from-[#5a1827] to-[#8b253f] p-3 text-white">
                          <div className="flex items-center gap-2">
-                             <input type="text" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} className="bg-white/20 text-white border border-white/30 rounded px-2 py-1 w-20 text-center font-black focus:outline-none placeholder-rose-300" placeholder="입력" />
-                             <span className="font-bold text-sm tracking-wide">{candyCode && TONER_DB[candyCode] ? TONER_DB[candyCode].role : '특수 캔디 첨가제 (코드를 입력하세요)'}</span>
+                             <input type="text" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} className="bg-white/20 text-white border border-white/30 rounded px-2 py-1 w-16 text-center font-black focus:outline-none placeholder-rose-300" placeholder="입력" />
+                             <span className="font-bold text-sm tracking-wide shrink-0">{candyCode && TONER_DB[candyCode] ? TONER_DB[candyCode].role : '캔디 코드 입력'}</span>
+                             <div className="flex-1"></div>
+                             <div className="flex items-center bg-white/10 border border-white/20 rounded-md px-1 h-[32px] shrink-0 shadow-sm">
+                                 <button onClick={() => setCandyAdditive(String(Math.max(0, parseFloat(candyAdditive||'0') - 0.1).toFixed(1)))} className="px-2 text-white font-bold">-</button>
+                                 <input type="text" inputMode="decimal" value={candyAdditive} onChange={e => setCandyAdditive(e.target.value.replace(/[^0-9.]/g, ''))} className="w-10 text-center text-sm font-black text-white bg-transparent focus:outline-none" />
+                                 <button onClick={() => setCandyAdditive(String((parseFloat(candyAdditive||'0') + 0.1).toFixed(1)))} className="px-2 text-white font-bold">+</button>
+                                 <span className="text-[10px] font-bold text-rose-200 mr-1">g</span>
+                             </div>
                          </div>
                      </div>
                      <div className="p-4 flex flex-col gap-3">
                          <p className="text-sm font-bold text-slate-700 break-keep">
-                             {candyCode && TONER_DB[candyCode] ? TONER_DB[candyCode].desc : '고투명 프리미엄 캔디 첨가제. (예: 9048, 9031, 9032, 9033)'}
+                             {candyCode && TONER_DB[candyCode] ? TONER_DB[candyCode].desc : '고투명 프리미엄 캔디 첨가제 코드를 입력하세요. (예: 9048, 9031, 9032, 9033)'}
                          </p>
                          {candyCode && TONER_DB[candyCode]?.details?.map((d: any, idx: number) => {
                              const splitIndex = d[0].indexOf('('); let mainTitle = d[0]; let subTitle = '';
@@ -1024,13 +1024,11 @@ export default function App() {
                              return (
                              <div key={idx} className="flex items-start gap-2 mt-1">
                                  <span className={`shrink-0 border px-2 py-1 rounded text-[10px] font-black mt-0.5 ${getBadgeClass(d[0])}`}>{mainTitle}</span>
-                                 <span className={`text-xs font-medium leading-relaxed whitespace-pre-line ${getBadgeClass(d[0]).includes('yellow') ? 'text-yellow-800 font-bold' : 'text-slate-600'}`}>{d[1]}</span>
+                                 <span className={`text-[11.5px] font-medium leading-relaxed whitespace-pre-line ${getBadgeClass(d[0]).includes('yellow') ? 'text-yellow-800 font-bold' : 'text-slate-600'}`}>{d[1]}</span>
                              </div>
                          )})}
                      </div>
                  </div>
-
-                 <div className="bg-rose-50 p-4 rounded-xl border border-rose-200 shadow-sm flex flex-col gap-3">
                      <h4 className="text-sm font-black text-rose-800 flex items-center gap-2"><Beaker size={16}/> 현장 100 : 36 : 6 캔디 배합기</h4>
                      <div className="flex flex-col xl:flex-row gap-3">
                          <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
@@ -2132,6 +2130,29 @@ export default function App() {
                                     </div>
                                 </div>
                             )}
+                          </div>
+                            )}
+                            {selectedSnapshot.isCandyCoat && (
+                                <div className="mb-6">
+                                    <h5 className="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1 uppercase"><Beaker size={14} className="text-rose-400"/> 캔디 코트 내역</h5>
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-rose-900/30">
+                                            <div className="flex items-center gap-3"><span className="text-white font-bold text-sm">WT {selectedSnapshot.candyCode?.replace('WT ', '') || '코드없음'}</span><span className="text-xs text-slate-500 truncate max-w-[120px]">캔디 첨가제</span></div>
+                                            <span className="text-rose-400 font-bold">{formatWeight(selectedSnapshot.candyAdditive)}g</span>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-slate-700/50">
+                                            <span className="text-white font-bold text-sm">7500 클리어</span><span className="text-slate-400 font-bold">{formatWeight(selectedSnapshot.candyClear)}g</span>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-slate-700/50">
+                                            <span className="text-white font-bold text-sm">7205 경화제</span><span className="text-slate-400 font-bold">{formatWeight(selectedSnapshot.candyHardener)}g</span>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg border border-slate-700/50">
+                                            <span className="text-white font-bold text-sm">신너</span><span className="text-slate-400 font-bold">{formatWeight(selectedSnapshot.candyThinner)}g</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            <button onClick={() => restoreSnapshot(selectedSnapshot)} className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl mt-4 hover:bg-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all flex justify-center items-center gap-2 text-base"><RefreshCw size={20}/> 이 상태로 완벽하게 덮어쓰기 (복원)</button>
                             <button onClick={() => restoreSnapshot(selectedSnapshot)} className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl mt-4 hover:bg-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all flex justify-center items-center gap-2 text-base"><RefreshCw size={20}/> 이 상태로 완벽하게 덮어쓰기 (복원)</button>
                         </div>
                     ) : ( <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50"><History size={64} className="mb-4"/><p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p></div> )}
@@ -2307,6 +2328,21 @@ export default function App() {
                                </div>
                            </div>
                        )}
+                     </div>
+                       )}
+                       {viewingPost.isCandyCoat && (
+                           <div className="flex-1">
+                               <h4 className="text-sm font-black text-slate-800 mb-2 flex items-center gap-1"><Beaker size={14} className="text-rose-500"/> 캔디 코트 배합</h4>
+                               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                                   <div className="flex justify-between items-center border-b border-slate-100 pb-2 last:border-0 last:pb-0"><span className="font-bold text-slate-700">{viewingPost.candyCode || '코드없음'}</span><span className="text-rose-600 font-black text-sm">{viewingPost.candyAdditive}g</span></div>
+                                   <div className="flex justify-between items-center border-b border-slate-100 pb-2 last:border-0 last:pb-0"><span className="font-bold text-slate-700">7500 클리어</span><span className="text-slate-600 font-black text-sm">{viewingPost.candyClear}g</span></div>
+                                   <div className="flex justify-between items-center border-b border-slate-100 pb-2 last:border-0 last:pb-0"><span className="font-bold text-slate-700">경화제</span><span className="text-slate-600 font-black text-sm">{viewingPost.candyHardener}g</span></div>
+                                   <div className="flex justify-between items-center border-b border-slate-100 pb-2 last:border-0 last:pb-0"><span className="font-bold text-slate-700">신너</span><span className="text-slate-600 font-black text-sm">{viewingPost.candyThinner}g</span></div>
+                               </div>
+                           </div>
+                       )}
+                   </div>
+                   <div className="mt-8 flex justify-end pt-4 border-t border-slate-200">
                    </div>
                    <div className="mt-8 flex justify-end pt-4 border-t border-slate-200">
                        <button onClick={(e) => { deleteBoardPost(viewingPost.id, e); setViewingPost(null); }} className="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold border border-red-200 hover:bg-red-100 flex items-center shadow-sm transition-colors"><Trash2 size={16} className="mr-1.5"/> 시편 영구 삭제</button>
