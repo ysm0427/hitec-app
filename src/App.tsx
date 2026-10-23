@@ -37,8 +37,7 @@ if (!TONER_DB['WT 340']) TONER_DB['WT 340'] = { role: '옐로우 마젠타 레�
 if (!TONER_DB['9031']) TONER_DB['9031'] = { role: '애플 레드 (Apple Red)', type: 'candy', face: '#8b0000', flop: '#ff0000', desc: '은폐력 제로의 투명하고 깊은 정통 캔디 레드. 맑은 사과빛 심도를 냅니다.', details: [['🎯 캔디 도장 공정', '고휘도 실버(WT 361/303) 또는 거친 다이아몬드 하도를 완벽하게 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침 없이 일정한 두께로 코팅해야 얼룩을 막을 수 있습니다.'], ['💡 비교 분석', '[비교] 캔디 9031 vs 일반 투명 틴트 WT 311\nWT 311(루비레드)은 단독 보카시(블렌딩)가 가능하지만, 9031 캔디는 블렌딩이 절대 불가(전체 도장 필수)하며 일반 틴트가 흉내 낼 수 없는 극강의 3D 입체 투명 심도(유리알 텍스처)를 냅니다.']] };
 if (!TONER_DB['9032']) TONER_DB['9032'] = { role: '오션 블루 (Ocean Blue)', type: 'candy', face: '#004488', flop: '#0088ff', desc: '심연의 바다처럼 깊고 투명한 시안 커스텀 캔디 블루입니다.', details: [['🎯 캔디 도장 공정', '스프레이 건의 에어 압력을 높이고 토출량을 줄여 아주 곱고 균일하게 미스트를 쪼개어 도포해야 투명감을 살릴 수 있습니다.'], ['💡 비교 분석', '[비교] 캔디 9032 vs 일반 투명 틴트 WT 348\n일반 투명 틴트(348)도 맑은 편이나 한계가 있는 반면, 9032 캔디는 두껍게 올릴수록 심해가 깊어지듯 끝을 알 수 없는 딥 블루 3D 심도를 연출합니다.']] };
 if (!TONER_DB['9033']) TONER_DB['9033'] = { role: '선셋 골드 (Sunset Gold)', type: 'candy', face: '#886600', flop: '#ffcc00', desc: '노을빛 화려한 황금 스파클 캔디 필터를 제공합니다.', details: [['⚠️ 캔디 3대 철칙', '부분 도장(보카시/블렌딩)은 물리적으로 절대 불가하며, 반드시 패널 전체를 한 판 단위로 끊어서 도장해야 합니다.'], ['💡 비교 분석', '[비교] 캔디 9033 vs 일반 투명 틴트 WT 329\nWT 329는 얇은 황금빛 셀로판지라면, 9033 선셋 골드는 두꺼운 황금색 스테인드글라스처럼 압도적인 빛의 투과율과 공간감을 자랑합니다.']] };
-if (!TONER_DB['9048']) TONER_DB['9048'] = { role: '마룬 / 흑갈색 투명 첨가제', type: 'candy', face: '#5a1827', flop: '#8b253f', desc: '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.', details: [['🎯 캔디 도장 공정', '마쯔다(Mazda) 소울 레드 크리스탈(46V) 등 고휘도 실버 하도를 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침(Overlap) 없이 코팅해야 얼룩을 막을 수 있습니다.']] };
-
+if (!TONER_DB['9048']) TONER_DB['9048'] = { role: '마룬 / 흑갈색 투명 첨가제', type: 'candy', face: '#5a1827', flop: '#8b253f', desc: '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.', details: [['🎯 캔디 도장 공정', '마쯔다(Mazda) 소울 레드 크리스탈(46V) 등 고휘도 실버 하도를 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침(Overlap) 없이 코팅해야 얼룩을 막을 수 있습니다.'], ['💡 비교 분석', '[비교] 캔디 9048 vs 일반 마룬 틴트\n일반 마룬 베이스는 메탈릭 입자를 탁하게 가리지만, 9048 캔디 첨가제는 100% 투명도를 유지하며 맑고 깊은 적갈색 필터 효과를 부여합니다.']] };
 const LAST_PATCH_DATE = "2026.10.19 (최종 무결점 통합 패치 적용)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
@@ -608,7 +607,12 @@ export default function App() {
       window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
       setIsShareModalOpen(false);
   };
-  const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
+  const handleShareSMS = () => { 
+      const text = encodeURIComponent(generateShareText());
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      window.location.href = isIOS ? `sms:&body=${text}` : `sms:?body=${text}`;
+      setIsShareModalOpen(false); 
+  };
   const handleShareNaverMail = () => { window.open(`https://mail.naver.com/v2/new?body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
   const handleShareGoogleMail = () => { window.open(`https://mail.google.com/mail/?view=cm&fs=1&body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
   
@@ -1006,20 +1010,23 @@ export default function App() {
                  <div className="bg-white rounded-xl overflow-hidden border border-rose-200 shadow-sm flex flex-col">
                      <div className="bg-gradient-to-r from-[#5a1827] to-[#8b253f] p-3 text-white">
                          <div className="flex items-center gap-2">
-                             <input type="text" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} className="bg-white/20 text-white border border-white/30 rounded px-2 py-1 w-20 text-center font-black focus:outline-none placeholder-rose-300" placeholder="코드" />
-                             <span className="font-bold text-sm tracking-wide">{candyCode === '9048' ? '마룬 / 흑갈색 투명 첨가제' : '특수 캔디 첨가제'}</span>
+                             <input type="text" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} className="bg-white/20 text-white border border-white/30 rounded px-2 py-1 w-20 text-center font-black focus:outline-none placeholder-rose-300" placeholder="입력" />
+                             <span className="font-bold text-sm tracking-wide">{candyCode && TONER_DB[candyCode] ? TONER_DB[candyCode].role : '특수 캔디 첨가제 (코드를 입력하세요)'}</span>
                          </div>
                      </div>
                      <div className="p-4 flex flex-col gap-3">
                          <p className="text-sm font-bold text-slate-700 break-keep">
-                             {candyCode === '9048' ? '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.' : '고투명 프리미엄 캔디 첨가제.'}
+                             {candyCode && TONER_DB[candyCode] ? TONER_DB[candyCode].desc : '고투명 프리미엄 캔디 첨가제. (예: 9048, 9031, 9032, 9033)'}
                          </p>
-                         <div className="flex items-start gap-2">
-                             <span className="shrink-0 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded text-[10px] font-black mt-0.5">🎯 캔디 공정</span>
-                             <span className="text-xs font-medium text-slate-600 leading-relaxed">
-                                 {candyCode === '9048' ? '고휘도 실버 하도를 건조한 뒤, 클리어와 정밀 혼합하여 겹침 없이 코팅해야 얼룩을 막을 수 있습니다.' : '고휘도 실버 위에 2액형 클리어와 혼합하여 일정한 두께로 코팅하세요.'}
-                             </span>
-                         </div>
+                         {candyCode && TONER_DB[candyCode]?.details?.map((d: any, idx: number) => {
+                             const splitIndex = d[0].indexOf('('); let mainTitle = d[0]; let subTitle = '';
+                             if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim().replace(/\s*&\s*/g, '&'); }
+                             return (
+                             <div key={idx} className="flex items-start gap-2 mt-1">
+                                 <span className={`shrink-0 border px-2 py-1 rounded text-[10px] font-black mt-0.5 ${getBadgeClass(d[0])}`}>{mainTitle}</span>
+                                 <span className={`text-xs font-medium leading-relaxed whitespace-pre-line ${getBadgeClass(d[0]).includes('yellow') ? 'text-yellow-800 font-bold' : 'text-slate-600'}`}>{d[1]}</span>
+                             </div>
+                         )})}
                      </div>
                  </div>
 
