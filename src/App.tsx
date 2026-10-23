@@ -1961,9 +1961,7 @@ export default function App() {
             </div>
         </div>
       )}
-    </div>
-  );
-}                      
+                     
 {memoModal.isOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[2000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[400px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200">
