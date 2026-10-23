@@ -996,6 +996,7 @@ const handleShareSMS = () => { const text = encodeURIComponent(generateShareText
             </div>
 
             {/* 📌 [NEW] 스위치 바로 아래로 이동한 100:36:6 캔디 배합기 */}
+            {/* 📌 [NEW] 스위치 바로 아래로 이동한 100:36:6 캔디 배합기 및 자동 연동 UI */}
             {isCandyCoatMode && (
               <div className="pt-4 mt-4 border-t border-rose-200 space-y-3 pb-4">
                  <div className="text-xs font-black text-rose-700 flex justify-between border-b pb-1"><span>▼ 캔디 코트 (Candy Coat)</span></div>
@@ -1029,6 +1030,8 @@ const handleShareSMS = () => { const text = encodeURIComponent(generateShareText
                          )})}
                      </div>
                  </div>
+
+                 <div className="bg-rose-50 p-4 rounded-xl border border-rose-200 shadow-sm flex flex-col gap-3">
                      <h4 className="text-sm font-black text-rose-800 flex items-center gap-2"><Beaker size={16}/> 현장 100 : 36 : 6 캔디 배합기</h4>
                      <div className="flex flex-col xl:flex-row gap-3">
                          <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
@@ -1061,14 +1064,6 @@ const handleShareSMS = () => { const text = encodeURIComponent(generateShareText
                              <div className="flex items-end gap-1 border-b border-slate-100 pb-1">
                                  <input type="text" inputMode="decimal" value={candyThinner} onChange={e => setCandyThinner(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-3xl font-black text-slate-800 bg-transparent focus:outline-none" />
                                  <span className="font-bold text-slate-400 text-lg mb-1">g</span>
-                             </div>
-                         </div>
-                         <div className="flex items-center justify-center shrink-0"><span className="text-xl font-black text-slate-400">+</span></div>
-                         <div className="flex-1 bg-rose-100 p-3 rounded-lg border border-rose-300 shadow-inner flex flex-col">
-                             <span className="text-[10px] font-black text-rose-700 mb-1">캔디 첨가제</span>
-                             <div className="flex items-end gap-1 border-b border-rose-300 pb-1">
-                                 <input type="text" inputMode="decimal" value={candyAdditive} onChange={e => setCandyAdditive(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-3xl font-black text-rose-700 bg-transparent focus:outline-none" />
-                                 <span className="font-bold text-rose-500 text-lg mb-1">g</span>
                              </div>
                          </div>
                      </div>
