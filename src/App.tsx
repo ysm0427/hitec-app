@@ -137,6 +137,7 @@ interface BoardPost {
   baseFormula: any[]; pearlFormula: any[]; isThreeCoat: boolean; images: string[]; deletedImages?: { url: string; deletedAt: number }[]; 
   isCandyCoat?: boolean; candyCode?: string; candyAdditive?: string; candyClear?: string; candyHardener?: string; candyThinner?: string;
   isClearCoat?: boolean; clearCode?: string; clearWeight?: string; hardenerCode?: string; hardenerWeight?: string; thinnerCode?: string; thinnerWeight?: string;
+}
 
 export default function App() {
   const [isAuthorized, setIsAuthorized] = useState(() => {
