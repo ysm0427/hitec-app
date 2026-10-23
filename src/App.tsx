@@ -39,7 +39,7 @@ if (!TONER_DB['9032']) TONER_DB['9032'] = { role: '오션 블루 (Ocean Blue)', 
 if (!TONER_DB['9033']) TONER_DB['9033'] = { role: '선셋 골드 (Sunset Gold)', type: 'candy', face: '#886600', flop: '#ffcc00', desc: '노을빛 화려한 황금 스파클 캔디 필터를 제공합니다.', details: [['⚠️ 캔디 3대 철칙', '부분 도장(보카시/블렌딩)은 물리적으로 절대 불가하며, 반드시 패널 전체를 한 판 단위로 끊어서 도장해야 합니다.'], ['💡 비교 분석', '[비교] 캔디 9033 vs 일반 투명 틴트 WT 329\nWT 329는 얇은 황금빛 셀로판지라면, 9033 선셋 골드는 두꺼운 황금색 스테인드글라스처럼 압도적인 빛의 투과율과 공간감을 자랑합니다.']] };
 if (!TONER_DB['9048']) TONER_DB['9048'] = { role: '마룬 / 흑갈색 투명 첨가제', type: 'candy', face: '#5a1827', flop: '#8b253f', desc: '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.', details: [['🎯 캔디 도장 공정', '마쯔다(Mazda) 소울 레드 크리스탈(46V) 등 고휘도 실버 하도를 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침(Overlap) 없이 코팅해야 얼룩을 막을 수 있습니다.']] };
 
-const LAST_PATCH_DATE = "2026.10.19 (최종 무결점 연동 패치 적용)"; 
+const LAST_PATCH_DATE = "2026.10.19 (최종 무결점 통합 패치 적용)"; 
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -211,49 +211,18 @@ export default function App() {
     setIsAuthorized(true);
     sessionStorage.setItem('hitec_auth_passed', 'true');
   };
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [pearlToners, setPearlToners] = useState<any[]>([{ id: `p_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
   const [isThreeCoatMode, setIsThreeCoatMode] = useState(false);
   const [isCandyCoatMode, setIsCandyCoatMode] = useState(false);
-const [candyClear, setCandyClear] = useState("100.0");
+  
+  const [candyClear, setCandyClear] = useState("100.0");
   const [candyHardener, setCandyHardener] = useState("36.0");
   const [candyThinner, setCandyThinner] = useState("6.0");
   const [candyCode, setCandyCode] = useState("");
   const [candyAdditive, setCandyAdditive] = useState("2.0");
-  const [candyToners, setCandyToners] = useState<any[]>([{ id: `c_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
-  const [totalCandyWeight, setTotalCandyWeight] = useState("0");
-
-  const handleCandyCodeChange = (id: string, newCode: string) => {
-      const rawVal = newCode.toUpperCase(); const numOnly = rawVal.replace(/[^0-9]/g, ''); let finalCode = rawVal;
-      if (rawVal.startsWith('90') && numOnly.length >= 4) finalCode = numOnly.substring(0, 4);
-      else if (['1051', '1500', '455', 'AXT700'].includes(numOnly) || rawVal === 'AXT700') finalCode = rawVal === 'AXT700' ? 'AXT700' : numOnly;
-      else if (numOnly) finalCode = `WT ${numOnly}`;
-      setCandyToners(prev => prev.map(toner => { if (toner.id === id) { if (TONER_DB[finalCode]) { setFocusTarget({ id: id, type: 'weight' }); } return { ...toner, code: finalCode }; } return toner; }));
-  };
-  const handleCandyWeightInputChange = (id: string, rawValue: string) => {
-      let val = rawValue.replace(/[^0-9.]/g, ''); const parts = val.split('.'); if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
-      if (val === '') val = ''; else if (val.length > 1 && val.startsWith('0') && val[1] !== '.') val = val.replace(/^0+/, ''); else if (val.startsWith('.')) val = '0' + val;
-      setCandyToners(candyToners.map(t => t.id === id ? { ...t, adjustedWeight: val } : t));
-  };
-  const handleCandyWeightBlur = (id: string, value: string) => {
-      if (!value) return; setCandyToners(prev => prev.map(t => { if (t.id === id) { const currentHistory = t.history || []; if (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== value) return { ...t, history: [...currentHistory, value] }; } return t; }));
-  };
-  const handleCandyWeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string) => { if (e.key === 'Enter') { e.preventDefault(); const newId = `new_c_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; setCandyToners([...candyToners, { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]); setFocusTarget({ id: newId, type: 'code' }); } };
-  const removeCandyToner = (id: string) => setCandyToners(candyToners.filter(t => t.id !== id));
-  const addCandyToner = () => {
-      let tempInput: HTMLInputElement | undefined;
-      if (typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-          tempInput = document.createElement('input'); tempInput.type = 'number'; tempInput.style.position = 'fixed'; tempInput.style.top = '50%'; tempInput.style.left = '50%'; tempInput.style.opacity = '0'; tempInput.style.width = '1px'; tempInput.style.height = '1px'; document.body.appendChild(tempInput); tempInput.focus();
-      }
-      const newId = `new_c_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      setCandyToners([...candyToners, { id: newId, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
-      setFocusTarget({ id: newId, type: 'code', tempInput });
-  };
-  const quickEditCandyWeight = (id: string, delta: number) => {
-      setCandyToners(prev => prev.map(t => { if(t.id === id) { let newVal = Math.max(0, (parseFloat(t.adjustedWeight) || 0) + delta); let strVal = String(Number(Math.round(newVal * 100000) / 100000)); const currentHistory = t.history || []; const nextHistory = (currentHistory.length === 0 || currentHistory[currentHistory.length - 1] !== strVal) ? [...currentHistory, strVal] : currentHistory; return { ...t, adjustedWeight: strVal, history: nextHistory }; } return t; }));
-  };
-  const toggleCandyExpand = (id: string) => setCandyToners(prev => prev.map(t => t.id === id ? { ...t, isExpanded: !t.isExpanded } : t));
   const [targetColorCode, setTargetColorCode] = useState(''); 
   const [vehicleNumber, setVehicleNumber] = useState(''); 
   const [carModel, setCarModel] = useState(''); 
@@ -332,11 +301,8 @@ const [candyClear, setCandyClear] = useState("100.0");
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      if (isAnyModalOpen) {
-          document.body.style.overflow = 'hidden';
-      } else {
-          document.body.style.overflow = '';
-      }
+      if (isAnyModalOpen) { document.body.style.overflow = 'hidden'; } 
+      else { document.body.style.overflow = ''; }
     }
     return () => { if (typeof window !== 'undefined') document.body.style.overflow = ''; };
   }, [isAnyModalOpen]);
@@ -499,9 +465,12 @@ const [candyClear, setCandyClear] = useState("100.0");
   useEffect(() => {
     const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); 
     const pearlTotal = pearlToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
-    const candyTotal = candyToners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0);
-    setTotalBaseWeight(formatWeight(baseTotal)); setTotalPearlWeight(formatWeight(pearlTotal)); setTotalCandyWeight(formatWeight(candyTotal));
-    setTotalFinalWeight(formatWeight((baseTotal * 1.2) + (isThreeCoatMode ? (pearlTotal * 1.3) : 0) + (isCandyCoatMode ? candyTotal : 0)));
+    setTotalBaseWeight(formatWeight(baseTotal)); setTotalPearlWeight(formatWeight(pearlTotal));
+    
+    // 최종 도막 총량 계산
+    const finalTotal = (baseTotal * 1.2) + (isThreeCoatMode ? (pearlTotal * 1.3) : 0);
+    setTotalFinalWeight(formatWeight(finalTotal));
+    
     const checkMetallic = (list: any[]) => list.some(t => { const type = TONER_DB[t.code]?.type || ''; return type !== 'solid' && type !== 'binder' && type !== '' && type !== 'candy'; });
     setIsBaseMetallic(checkMetallic(toners)); setIsPearlMetallic(checkMetallic(pearlToners));
   }, [toners, pearlToners, isThreeCoatMode]);
@@ -635,16 +604,9 @@ const [candyClear, setCandyClear] = useState("100.0");
   };
 
   const handleShareKakao = () => { 
-      const text = generateShareText();
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try { document.execCommand('copy'); } catch (err) {}
-      document.body.removeChild(textArea);
-      
-      window.location.href = "kakaotalk://"; 
-      setIsShareModalOpen(false); 
+      const shareText = generateShareText();
+      window.location.href = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
+      setIsShareModalOpen(false);
   };
   const handleShareSMS = () => { window.location.href = `sms:?body=${encodeURIComponent(generateShareText())}`; setIsShareModalOpen(false); };
   const handleShareNaverMail = () => { window.open(`https://mail.naver.com/v2/new?body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
@@ -728,7 +690,7 @@ const [candyClear, setCandyClear] = useState("100.0");
       if (viewingPost && viewingPost.id === postId) { const newDeleted = [...viewingPost.deletedImages]; newDeleted.splice(delIdx, 1); setViewingPost({ ...viewingPost, deletedImages: newDeleted }); }
   };
 
-const saveToBoard = () => {
+  const saveToBoard = () => {
       if(!targetColorCode) { alert("⚠️ 컬러코드를 입력해야 합니다!"); return; }
       const now = new Date(); const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
       
@@ -740,7 +702,7 @@ const saveToBoard = () => {
 
       const newPost: BoardPost = { id: Date.now() + Math.random(), brand: carModel || '미지정', code: targetColorCode, date: timeFormatted, likes: 0, views: 0, author: '내 데이터', spec: finalSpec, baseFormula: [...toners], pearlFormula: [...pearlToners], isThreeCoat: isThreeCoatMode, images: [...attachedImages], deletedImages: [] };
       setBoardPosts([newPost, ...boardPosts]); setAttachedImages([]); alert("🎉 시편 사진들과 함께 게시판에 등록되었습니다!");
-  };;
+  };
 
   const deleteBoardPost = (id: number, e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("이 시편 데이터를 완전히 삭제하시겠습니까?")) setBoardPosts(prev => prev.filter(post => post.id !== id)); };
   const handleSaveSnapshot = () => { const newSnapshot = { id: Date.now(), timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }), dateStr: new Date().toLocaleDateString('ko-KR'), base: JSON.parse(JSON.stringify(toners)), pearl: JSON.parse(JSON.stringify(pearlToners)), isThreeCoat: isThreeCoatMode, totalFinal: totalFinalWeight }; setSnapshots(prev => [newSnapshot, ...prev]); alert(`[${newSnapshot.timestamp}] 데이터가 확정 저장되었습니다.`); };
@@ -753,7 +715,7 @@ const saveToBoard = () => {
   const showBottomBar = !(isMobile && isKeyboardOpen);
 
   if (!isAuthorized) {
- return (
+  return (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 notranslate" translate="no">
             <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95">
                 {!showApprovalSuccess ? (
@@ -1016,78 +978,16 @@ const saveToBoard = () => {
               </div>
             </div>
             
-{/* 📌 [NEW] 스위치 바로 아래로 이동한 100:36:6 캔디 배합기 */}
-            {isCandyCoatMode && (
-              <div className="pt-4 mt-4 border-t border-rose-200 space-y-3 pb-4">
-                 <div className="text-xs font-black text-rose-700 flex justify-between border-b pb-1"><span>▼ 캔디 코트 (Candy Coat)</span></div>
-                 
-                 <div className="bg-white rounded-xl overflow-hidden border border-rose-200 shadow-sm flex flex-col">
-                     <div className="bg-gradient-to-r from-[#5a1827] to-[#8b253f] p-3 text-white">
-                         <div className="flex items-center gap-2">
-                             <input type="text" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} className="bg-white/20 text-white border border-white/30 rounded px-2 py-1 w-20 text-center font-black focus:outline-none placeholder-rose-300" placeholder="코드" />
-                             <span className="font-bold text-sm tracking-wide">{candyCode === '9048' ? '마룬 / 흑갈색 투명 첨가제' : '특수 캔디 첨가제'}</span>
-                         </div>
-                     </div>
-                     <div className="p-4 flex flex-col gap-3">
-                         <p className="text-sm font-bold text-slate-700 break-keep">
-                             {candyCode === '9048' ? '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.' : '고투명 프리미엄 캔디 첨가제.'}
-                         </p>
-                         <div className="flex items-start gap-2">
-                             <span className="shrink-0 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded text-[10px] font-black mt-0.5">🎯 캔디 공정</span>
-                             <span className="text-xs font-medium text-slate-600 leading-relaxed">
-                                 {candyCode === '9048' ? '고휘도 실버 하도를 건조한 뒤, 클리어와 정밀 혼합하여 겹침 없이 코팅해야 얼룩을 막을 수 있습니다.' : '고휘도 실버 위에 2액형 클리어와 혼합하여 일정한 두께로 코팅하세요.'}
-                             </span>
-                         </div>
-                     </div>
-                 </div>
-
-                 <div className="bg-rose-50 p-4 rounded-xl border border-rose-200 shadow-sm flex flex-col gap-3">
-                     <h4 className="text-sm font-black text-rose-800 flex items-center gap-2"><Beaker size={16}/> 현장 100 : 36 : 6 캔디 배합기</h4>
-                     <div className="flex flex-col xl:flex-row gap-3">
-                         <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
-                             <span className="text-[10px] font-bold text-slate-500 mb-1">7500 클리어 (100)</span>
-                             <div className="flex items-end gap-1 border-b border-slate-100 pb-1">
-                                 <input type="text" inputMode="decimal" value={candyClear} onChange={e => {
-                                     let val = e.target.value.replace(/[^0-9.]/g, '');
-                                     setCandyClear(val);
-                                     if(val) {
-                                         setCandyHardener((parseFloat(val) * 0.36).toFixed(1));
-                                         setCandyThinner((parseFloat(val) * 0.06).toFixed(1));
-                                     } else {
-                                         setCandyHardener(""); setCandyThinner("");
-                                     }
-                                 }} className="w-full text-3xl font-black text-slate-800 bg-transparent focus:outline-none" />
-                                 <span className="font-bold text-slate-400 text-lg mb-1">g</span>
-                             </div>
-                         </div>
-                         <div className="flex items-center justify-center shrink-0"><span className="text-xl font-black text-slate-400">+</span></div>
-                         <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
-                             <span className="text-[10px] font-bold text-slate-500 mb-1">경화제 (36)</span>
-                             <div className="flex items-end gap-1 border-b border-slate-100 pb-1">
-                                 <input type="text" inputMode="decimal" value={candyHardener} onChange={e => setCandyHardener(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-3xl font-black text-slate-800 bg-transparent focus:outline-none" />
-                                 <span className="font-bold text-slate-400 text-lg mb-1">g</span>
-                             </div>
-                         </div>
-                         <div className="flex items-center justify-center shrink-0"><span className="text-xl font-black text-slate-400">+</span></div>
-                         <div className="flex-1 bg-white p-3 rounded-lg border border-slate-200 shadow-inner flex flex-col">
-                             <span className="text-[10px] font-bold text-slate-500 mb-1">신너 (6)</span>
-                             <div className="flex items-end gap-1 border-b border-slate-100 pb-1">
-                                 <input type="text" inputMode="decimal" value={candyThinner} onChange={e => setCandyThinner(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-3xl font-black text-slate-800 bg-transparent focus:outline-none" />
-                                 <span className="font-bold text-slate-400 text-lg mb-1">g</span>
-                             </div>
-                         </div>
-                         <div className="flex items-center justify-center shrink-0"><span className="text-xl font-black text-slate-400">+</span></div>
-                         <div className="flex-1 bg-rose-100 p-3 rounded-lg border border-rose-300 shadow-inner flex flex-col">
-                             <span className="text-[10px] font-black text-rose-700 mb-1">캔디 첨가제</span>
-                             <div className="flex items-end gap-1 border-b border-rose-300 pb-1">
-                                 <input type="text" inputMode="decimal" value={candyAdditive} onChange={e => setCandyAdditive(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-3xl font-black text-rose-700 bg-transparent focus:outline-none" />
-                                 <span className="font-bold text-rose-500 text-lg mb-1">g</span>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-              </div>
-            )}
+            {/* 📌 [Mission 3] 불필요한 노란색 캔디 스위치 완전 제거 (딱 2개 스위치만 남김) */}
+            <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
+                <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-purple-50 transition-colors">
+                    <span className="text-xs font-black text-purple-700">3Coat (펄 추가) 켜기</span>
+                    <div className="relative">
+                        <input type="checkbox" className="sr-only" checked={isThreeCoatMode} onChange={() => setIsThreeCoatMode(!isThreeCoatMode)} />
+                        <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isThreeCoatMode ? 'bg-purple-500' : 'bg-slate-300'}`}></div>
+                        <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isThreeCoatMode ? 'transform translate-x-5' : ''}`}></div>
+                    </div>
+                </label>
                 <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-rose-50 transition-colors">
                     <span className="text-xs font-black text-rose-700">Candy (캔디 추가) 켜기</span>
                     <div className="relative">
@@ -1097,7 +997,8 @@ const saveToBoard = () => {
                     </div>
                 </label>
             </div>
-{/* 📌 [NEW] 스위치 바로 아래로 이동한 100:36:6 캔디 배합기 */}
+
+            {/* 📌 [NEW] 스위치 바로 아래로 이동한 100:36:6 캔디 배합기 */}
             {isCandyCoatMode && (
               <div className="pt-4 mt-4 border-t border-rose-200 space-y-3 pb-4">
                  <div className="text-xs font-black text-rose-700 flex justify-between border-b pb-1"><span>▼ 캔디 코트 (Candy Coat)</span></div>
@@ -1169,6 +1070,7 @@ const saveToBoard = () => {
                  </div>
               </div>
             )}
+
             {isThreeCoatMode && (
               <div className="pt-4 mt-4 border-t border-purple-200 space-y-2 pb-8">
                 <div className="text-xs font-black text-purple-700 flex justify-between border-b pb-1"><span>▼ 펄 코트 (Mid Coat)</span></div>
@@ -1177,8 +1079,7 @@ const saveToBoard = () => {
                   const isEffect = info.type !== 'solid' && info.type !== 'binder' && info.type !== 'candy';
                   return (
                     <div key={toner.id} className="flex flex-col bg-purple-50 p-2.5 rounded-xl border border-purple-200 shadow-sm transition-colors hover:bg-purple-100/50">
-                      
-                      <div className="flex items-center w-full gap-2">
+<div className="flex items-center w-full gap-2">
                         <button 
                              type="button"
                              className="flex w-[50px] h-[36px] rounded shadow-sm border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative focus:outline-none focus:ring-2 focus:ring-purple-400" 
@@ -1220,7 +1121,6 @@ const saveToBoard = () => {
                       <div className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, true)}>
                           <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
                               {toner.code ? (info.role || '등록된 펄 정보 없음') : '펄 번호를 입력하세요 (예: PP201...)'}
-                              {/* 📌 [Mission 1] 도료 타입 뱃지 추가 (펄 코트) */}
                               {toner.code && info.type && <span className="ml-2 bg-purple-900 text-purple-200 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-700 shadow-sm whitespace-nowrap">{info.type}</span>}
                               {!toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
                               {toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
@@ -1236,11 +1136,11 @@ const saveToBoard = () => {
                                           if(splitIndex !== -1) { mainTitle = d[0].substring(0, splitIndex).trim(); subTitle = d[0].substring(splitIndex).trim().replace(/\s*&\s*/g, '&'); }
                                           return (
                                           <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2.5 mb-2">
-                                              <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-2 py-1.5 rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
-                                                  <span className="text-[10.5px] font-black leading-tight">{mainTitle}</span>
+                                              <div className={`shrink-0 flex flex-col items-center justify-center w-[120px] sm:w-[130px] px-2 py-1.5 text-[10px] font-bold rounded-md border text-center shadow-sm ${getBadgeClass(d[0])}`}>
+                                                  <span className="text-[10px] font-black leading-tight">{mainTitle}</span>
                                                   {subTitle && <span className="text-[9px] font-bold mt-0.5 opacity-80 leading-tight">{subTitle}</span>}
                                               </div>
-                                              <span className={`text-[11.5px] leading-relaxed break-keep pt-0.5 whitespace-pre-line ${getBadgeClass(d[0]).includes('yellow') ? 'text-yellow-800 font-bold' : 'text-slate-700'}`}>{d[1]}</span>
+                                              <span className={`text-[11.5px] leading-relaxed break-keep pt-0.5 whitespace-pre-line ${getBadgeClass(d[0]).includes('yellow') ? 'text-yellow-800 font-black' : 'text-slate-700'}`}>{d[1]}</span>
                                           </div>
                                       )})}
                                   </div>
@@ -1256,9 +1156,10 @@ const saveToBoard = () => {
                 </button>
               </div>
             )}
-        </div>
           </div>
-<div className="lg:col-span-5 flex flex-col space-y-4 h-full">
+        </div>
+
+        <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
             <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
               <h3 className="text-xs font-black mb-2 flex justify-between items-center text-slate-800">
@@ -1417,7 +1318,6 @@ const saveToBoard = () => {
           </div>
       )}
 
-      {/* 🚨 [NEW] 승인 사용자 관리 및 상세 정보 입력 모달 (팝업창) */}
       {isUsersModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[80vh]">
@@ -2063,4 +1963,4 @@ const saveToBoard = () => {
       )}
     </div>
   );
-}        
+}                      
