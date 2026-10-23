@@ -223,40 +223,14 @@ export default function App() {
   const [candyHardener, setCandyHardener] = useState("36.0");
   const [candyThinner, setCandyThinner] = useState("6.0");
   const [candyCode, setCandyCode] = useState("");
-  const [candyAdditive, setCandyAdditive] = useState("2.0");
+const [candyAdditive, setCandyAdditive] = useState("2.0");
 
-  // 🌟 NEW: 투명(Clear) 스마트 배합기 상태
+  // 🌟 NEW: 클리어 코트 (Clear Coat) 클릭형 상태 및 정밀 계산 변수
   const [isClearCoatMode, setIsClearCoatMode] = useState(false);
-  const [isClearAutoCalc, setIsClearAutoCalc] = useState(true);
-  const [clearCode, setClearCode] = useState("8055");
-  const [clearWeight, setClearWeight] = useState("100.0");
-  const [hardenerCode, setHardenerCode] = useState("3225");
-  const [hardenerWeight, setHardenerWeight] = useState("33.3"); 
-  const [thinnerCode, setThinnerCode] = useState("9034");
-  const [thinnerWeight, setThinnerWeight] = useState("10.0");
-  const [clearRatioPreset, setClearRatioPreset] = useState("3:1");
-
-  const handleClearWeightChange = (valStr: string) => {
-      let val = valStr.replace(/[^0-9.]/g, ''); const parts = val.split('.'); if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); 
-      setClearWeight(val);
-      if(isClearAutoCalc && val) {
-          const base = parseFloat(val) || 0;
-          if (clearRatioPreset === '2:1') { setHardenerWeight((base / 2).toFixed(1)); setThinnerWeight("0.0"); }
-          else if (clearRatioPreset === '3:1') { setHardenerWeight((base / 3).toFixed(1)); setThinnerWeight("0.0"); }
-          else if (clearRatioPreset === '2:1+10%') { setHardenerWeight((base / 2).toFixed(1)); setThinnerWeight((base * 0.1).toFixed(1)); }
-          else if (clearRatioPreset === '3:1+5%') { setHardenerWeight((base / 3).toFixed(1)); setThinnerWeight((base * 0.05).toFixed(1)); }
-          else if (clearRatioPreset === '3:1+10%') { setHardenerWeight((base / 3).toFixed(1)); setThinnerWeight((base * 0.1).toFixed(1)); }
-      }
-  };
-  const handleRatioClick = (ratio: string) => {
-      setClearRatioPreset(ratio); setIsClearAutoCalc(true);
-      const base = parseFloat(clearWeight) || 0;
-      if (ratio === '2:1') { setHardenerWeight((base / 2).toFixed(1)); setThinnerWeight("0.0"); }
-      else if (ratio === '3:1') { setHardenerWeight((base / 3).toFixed(1)); setThinnerWeight("0.0"); }
-      else if (ratio === '2:1+10%') { setHardenerWeight((base / 2).toFixed(1)); setThinnerWeight((base * 0.1).toFixed(1)); }
-      else if (ratio === '3:1+5%') { setHardenerWeight((base / 3).toFixed(1)); setThinnerWeight((base * 0.05).toFixed(1)); }
-      else if (ratio === '3:1+10%') { setHardenerWeight((base / 3).toFixed(1)); setThinnerWeight((base * 0.1).toFixed(1)); }
-  };
+  const [clearWeight, setClearWeight] = useState("100"); // 주제 입력량(g)
+  const [clearBaseValue, setClearBaseValue] = useState("2");
+  const [clearHardenerValue, setClearHardenerValue] = useState("1");
+  const [clearThinnerValue, setClearThinnerValue] = useState("5");
 
   const [targetColorCode, setTargetColorCode] = useState(''); 
   const [vehicleNumber, setVehicleNumber] = useState(''); 
@@ -1020,9 +994,8 @@ export default function App() {
                         <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform ${isCandyCoatMode ? 'transform translate-x-5' : ''}`}></div>
                     </div>
                 </label>
-                {/* 🌟 NEW: 투명(Clear) 스위치 추가 */}
                 <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-cyan-50 transition-colors">
-                    <span className="text-[11px] sm:text-xs font-black text-cyan-700">Clear (투명 추가) 켜기</span>
+                    <span className="text-xs font-black text-cyan-700">Clear (클리어 추가) 켜기</span>
                     <div className="relative">
                         <input type="checkbox" className="sr-only" checked={isClearCoatMode} onChange={() => setIsClearCoatMode(!isClearCoatMode)} />
                         <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isClearCoatMode ? 'bg-cyan-500' : 'bg-slate-300'}`}></div>
@@ -1031,14 +1004,13 @@ export default function App() {
                 </label>
             </div>
 
-            {/* 🌟 1단계: 캔디 압축 One-Line UI + 왕건이 숫자 키패드 + 엔터 시 자동 포커스 적용 */}
             {isCandyCoatMode && (
               <div className="pt-4 mt-4 border-t border-rose-200 space-y-3 pb-4">
                  <div className="text-xs font-black text-rose-700 flex justify-between border-b pb-1"><span>▼ 캔디 코트 (Candy Coat)</span></div>
                  <div className="bg-white rounded-xl overflow-hidden border border-rose-200 shadow-sm flex flex-col">
                      <div className="bg-gradient-to-r from-[#5a1827] to-[#8b253f] p-3 text-white flex items-center gap-2">
-                         <input type="text" inputMode="decimal" pattern="[0-9]*" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} onKeyDown={e => { if(e.key === 'Enter') { e.preventDefault(); document.getElementById('candy-weight-input')?.focus(); } }} className="bg-white/20 text-white border border-white/30 rounded px-2 py-1.5 w-20 text-center font-black focus:outline-none placeholder-rose-300" placeholder="코드입력" />
-                         <span className="font-bold text-sm tracking-wide shrink-0">{candyCode && TONER_DB[candyCode] ? TONER_DB[candyCode].role : '캔디 코드 입력 후 엔터'}</span>
+                         <input type="text" inputMode="decimal" pattern="[0-9]*" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} className="bg-white/20 text-white border border-white/30 rounded px-2 py-1.5 w-20 text-center font-black focus:outline-none placeholder-rose-300" placeholder="입력" />
+                         <span className="font-bold text-sm tracking-wide shrink-0">{candyCode && TONER_DB[candyCode] ? TONER_DB[candyCode].role : '캔디 코드 입력'}</span>
                      </div>
                      <div className="bg-rose-50 p-3 flex flex-row flex-wrap sm:flex-nowrap gap-2 items-center justify-between">
                          <div className="flex-1 bg-white p-2 rounded-lg border border-slate-200 shadow-inner min-w-[80px]">
@@ -1055,9 +1027,101 @@ export default function App() {
                          </div>
                          <div className="flex-1 bg-rose-100 p-2 rounded-lg border border-rose-300 shadow-inner min-w-[80px]">
                              <span className="text-[10px] font-black text-rose-700 block">첨가제 용량</span>
-                             <div className="flex items-end gap-1"><input type="text" id="candy-weight-input" inputMode="decimal" pattern="[0-9]*" value={candyAdditive} onChange={e => setCandyAdditive(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-xl font-black text-rose-700 bg-transparent focus:outline-none" /><span className="font-bold text-rose-500 text-xs">g</span></div>
+                             <div className="flex items-end gap-1"><input type="text" inputMode="decimal" pattern="[0-9]*" value={candyAdditive} onChange={e => setCandyAdditive(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-xl font-black text-rose-700 bg-transparent focus:outline-none" /><span className="font-bold text-rose-500 text-xs">g</span></div>
                          </div>
                      </div>
+                 </div>
+              </div>
+            )}
+
+            {isClearCoatMode && (
+              <div className="pt-4 mt-4 border-t border-cyan-200 space-y-3 pb-4">
+                 <div className="text-xs font-black text-cyan-700 flex justify-between border-b pb-1">
+                     <span>▼ 클리어 코트 (Clear Coat) 스마트 배합기</span>
+                 </div>
+                 <div className="bg-cyan-50 rounded-xl overflow-hidden border border-cyan-200 shadow-sm flex flex-col p-4 gap-4">
+                     
+                     <div className="flex justify-between items-center bg-white p-3 rounded-lg border border-slate-300 shadow-sm">
+                         <span className="text-sm font-black text-slate-700">주제(Clear 8055) 기준 용량 입력:</span>
+                         <div className="flex items-end gap-1">
+                             <input type="text" inputMode="decimal" value={clearWeight} onChange={e => setClearWeight(e.target.value.replace(/[^0-9.]/g, ''))} className="w-24 text-right text-2xl font-black text-cyan-600 focus:outline-none bg-cyan-50 rounded px-2" placeholder="0" />
+                             <span className="font-bold text-slate-400 text-sm mb-1">g</span>
+                         </div>
+                     </div>
+
+                     <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                         <span className="text-[11px] font-black text-slate-600 block mb-2">주제 (Clear 8055) 비율 고정:</span>
+                         <div className="flex gap-2">
+                             {['2', '3', '4', '5'].map(val => (
+                                 <button key={val} onClick={() => setClearBaseValue(val)} className={`flex-1 py-2.5 rounded-lg font-black text-lg transition-all border ${clearBaseValue === val ? 'bg-cyan-600 text-white border-cyan-700 shadow-md transform scale-105' : 'bg-slate-50 text-slate-500 border-slate-300 hover:bg-cyan-100'}`}>{val}</button>
+                             ))}
+                         </div>
+                     </div>
+
+                     <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                         <span className="text-[11px] font-black text-slate-600 block mb-2">경화제 (VHS Hardener) 비율 고정:</span>
+                         <div className="flex gap-2">
+                             {['1', '2', '3'].map(val => (
+                                 <button key={val} onClick={() => setClearHardenerValue(val)} className={`flex-1 py-2.5 rounded-lg font-black text-lg transition-all border ${clearHardenerValue === val ? 'bg-indigo-500 text-white border-indigo-600 shadow-md transform scale-105' : 'bg-slate-50 text-slate-500 border-slate-300 hover:bg-indigo-100'}`}>{val}</button>
+                             ))}
+                         </div>
+                     </div>
+
+                     <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                         <span className="text-[11px] font-black text-slate-600 block mb-2">전용 첨가제 / 신너 (%) 퀵 선택:</span>
+                         <div className="flex gap-2 mb-3">
+                             {['3', '5', '7', '10', '20'].map(val => (
+                                 <button key={val} onClick={() => setClearThinnerValue(val)} className={`flex-1 py-2 rounded-lg font-black text-sm transition-all border ${clearThinnerValue === val ? 'bg-amber-500 text-white border-amber-600 shadow-md transform scale-105' : 'bg-slate-50 text-slate-500 border-slate-300 hover:bg-amber-100'}`}>{val}%</button>
+                             ))}
+                         </div>
+                         <div className="flex items-center justify-between gap-3 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                             <span className="text-[11px] font-bold text-slate-500">미세 조정 (+ / -)</span>
+                             <div className="flex items-center gap-4">
+                                 <button onClick={() => setClearThinnerValue(prev => String(Math.max(0, parseInt(prev || '0') - 1)))} className="w-10 h-10 flex items-center justify-center bg-white border border-slate-300 hover:bg-red-50 hover:text-red-500 hover:border-red-300 text-slate-700 rounded-lg font-black text-xl shadow-sm transition-colors">-</button>
+                                 <div className="w-16 text-center font-black text-2xl text-slate-800 select-none">{clearThinnerValue}<span className="text-sm text-slate-500 ml-1">%</span></div>
+                                 <button onClick={() => setClearThinnerValue(prev => String(parseInt(prev || '0') + 1))} className="w-10 h-10 flex items-center justify-center bg-white border border-slate-300 hover:bg-blue-50 hover:text-blue-500 hover:border-blue-300 text-slate-700 rounded-lg font-black text-xl shadow-sm transition-colors">+</button>
+                             </div>
+                         </div>
+                     </div>
+
+                     {(() => {
+                         const bWeight = parseFloat(clearWeight) || 0;
+                         const bRatio = parseFloat(clearBaseValue) || 2;
+                         const hRatio = parseFloat(clearHardenerValue) || 1;
+                         const tPercent = parseFloat(clearThinnerValue) || 0;
+                         
+                         const hWeight = bWeight * (hRatio / bRatio);
+                         const sumBH = bWeight + hWeight;
+                         const tWeight = sumBH * (tPercent / 100);
+                         const totalClear = sumBH + tWeight;
+
+                         return (
+                             <div className="bg-slate-800 p-4 rounded-xl shadow-inner flex flex-col gap-3">
+                                 <div className="flex justify-between items-center border-b border-slate-600 pb-2">
+                                     <span className="text-xs font-bold text-slate-400">설정 비율</span>
+                                     <span className="text-sm font-black text-emerald-400">{clearBaseValue} : {clearHardenerValue} + {clearThinnerValue}%</span>
+                                 </div>
+                                 <div className="grid grid-cols-3 gap-2 text-center">
+                                     <div className="bg-slate-900 rounded p-2 border border-slate-700">
+                                         <span className="block text-[10px] text-slate-500 mb-1">주제</span>
+                                         <span className="text-sm font-black text-white">{bWeight.toFixed(1)}g</span>
+                                     </div>
+                                     <div className="bg-slate-900 rounded p-2 border border-slate-700">
+                                         <span className="block text-[10px] text-slate-500 mb-1">경화제</span>
+                                         <span className="text-sm font-black text-white">{hWeight.toFixed(1)}g</span>
+                                     </div>
+                                     <div className="bg-slate-900 rounded p-2 border border-slate-700">
+                                         <span className="block text-[10px] text-amber-500 mb-1">신너/첨가제</span>
+                                         <span className="text-sm font-black text-amber-400">{tWeight.toFixed(1)}g</span>
+                                     </div>
+                                 </div>
+                                 <div className="bg-emerald-900/50 border border-emerald-500/30 rounded p-3 flex justify-between items-center mt-1">
+                                     <span className="text-xs font-bold text-emerald-300">클리어 총 혼합량</span>
+                                     <span className="text-xl font-black text-emerald-400">{totalClear.toFixed(1)}g</span>
+                                 </div>
+                             </div>
+                         );
+                     })()}
                  </div>
               </div>
             )}
@@ -1222,30 +1286,70 @@ export default function App() {
                 <button onClick={() => setIsConfiguratorOpen(true)} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"><Maximize size={10} className="mr-1"/>먼셀 믹싱 랩</button>
               </h3>
               
-              <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-md border border-blue-200">
-                  <div className="flex border-b border-blue-200 bg-slate-50">
-                      {['theory', 'spectrum', 'effect', 'special'].map(tab => (
-                          <button key={tab} onClick={() => setActiveGuideTab(tab as any)} className={`flex-1 py-3 text-[12px] font-black transition-all ${activeGuideTab === tab ? 'bg-blue-600 text-white shadow-md transform scale-[1.02] rounded-t-xl z-10' : 'text-slate-500 hover:text-blue-700 hover:bg-blue-50'}`}>
-                              {tab === 'theory' ? '이론/기초' : tab === 'spectrum' ? '컬러 맵' : tab === 'effect' ? '이펙트/펄' : '특수/3코트'}
-                          </button>
-                      ))}
-                  </div>
-                  <div className="p-3 grid grid-cols-2 gap-3 h-52 overflow-y-auto custom-scrollbar bg-slate-50/50">
-                      {GUIDE_IMAGES[activeGuideTab].map(img => (
-                          <div key={img.id} onClick={() => openImageModal(img)} className="bg-white rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 hover:shadow-xl transition-all shadow-sm border border-slate-200 group flex flex-col justify-center items-center text-center p-4 min-h-[90px] relative">
-                              {img.url && (
-                                  <div className="absolute inset-0 z-0">
-                                      <img src={img.url} alt={img.title} className="w-full h-full object-cover opacity-10 group-hover:opacity-100 transition-opacity duration-300" />
-                                  </div>
-                              )}
-                              <div className="relative z-10 flex flex-col items-center justify-center w-full h-full p-1 transition-colors duration-300">
-                                  <h4 className="text-[13px] font-black text-blue-800 group-hover:text-blue-600 mb-1.5 leading-tight drop-shadow-sm">{img.title}</h4>
-                                  <p className="text-[11px] font-bold text-slate-500 group-hover:text-slate-700 break-keep leading-tight">{img.desc}</p>
-                              </div>
-                          </div>
-                      ))}
-                  </div>
+              <div className="flex border-b border-blue-200 bg-slate-50">
+                  {['theory', 'spectrum', 'effect', 'special', 'clear'].map(tab => (
+                      <button key={tab} onClick={() => setActiveGuideTab(tab as any)} className={`flex-1 py-3 text-[11px] sm:text-[12px] font-black transition-all ${activeGuideTab === tab ? 'bg-blue-600 text-white shadow-md transform scale-[1.02] rounded-t-xl z-10' : 'text-slate-500 hover:text-blue-700 hover:bg-blue-50'}`}>
+                          {tab === 'theory' ? '이론/기초' : tab === 'spectrum' ? '컬러 맵' : tab === 'effect' ? '이펙트/펄' : tab === 'special' ? '특수/3코트' : 'Clear 가이드'}
+                      </button>
+                  ))}
               </div>
+              <div className="p-3 h-52 overflow-y-auto custom-scrollbar bg-slate-50/50">
+                  {activeGuideTab === 'clear' ? (
+                      <div className="flex flex-col gap-3 text-sm text-slate-700 animate-in fade-in">
+                          <div className="bg-white p-3 rounded-xl border border-blue-200 shadow-sm">
+                              <h4 className="font-black text-blue-800 text-base mb-2">1. 8055 공식 스펙 및 세팅</h4>
+                              <p className="font-bold mb-1">다목적 프리미엄 2K 하이솔리드(High Solids) 클리어</p>
+                              <ul className="list-disc pl-4 space-y-1 text-xs font-medium">
+                                  <li><span className="font-bold">건 권장:</span> 노즐 1.3~1.4mm, 압력 1.8~2.2 bar</li>
+                                  <li><span className="font-bold">도막 두께:</span> 1.5회(50~60µm), 2회(50~70µm) 두툼한 살오름성</li>
+                                  <li><span className="font-bold">1.5회 패스 도장법:</span> 0.5코트(스킨) 후 대기 없이 곧바로 풀 코트 도장 시 오렌지 필 없이 레벨링 극대화</li>
+                              </ul>
+                          </div>
+                          <div className="bg-white p-3 rounded-xl border border-indigo-200 shadow-sm">
+                              <h4 className="font-black text-indigo-800 text-base mb-2">2. 계절별 추천 세팅 가이드</h4>
+                              <ul className="space-y-2 text-xs font-bold">
+                                  <li className="flex items-center gap-1.5"><span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">봄/가을</span> 8055 + 경화제 3225(표준) + 첨가제 9034(표준)</li>
+                                  <li className="flex items-center gap-1.5"><span className="bg-red-100 text-red-700 px-2 py-0.5 rounded">여름(다판)</span> 8055 + 경화제 3240(극지) + 첨가제 9035(지연)</li>
+                                  <li className="flex items-center gap-1.5"><span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">겨울(부분)</span> 8055 + 경화제 3220(속건) + 디류서 3364(속건)</li>
+                              </ul>
+                          </div>
+                          <div className="bg-white p-3 rounded-xl border border-slate-300 shadow-sm">
+                              <h4 className="font-black text-slate-800 text-base mb-2">3. 경화제 (VHS Hardener) 4종</h4>
+                              <ul className="space-y-1 text-xs font-medium">
+                                  <li><span className="font-bold text-slate-900">3220 (속건):</span> 15°C 이하 겨울철, 1~2판 스팟 보수용</li>
+                                  <li><span className="font-bold text-slate-900">3225 (표준):</span> 20~25°C 밸런스. 메인 경화제</li>
+                                  <li><span className="font-bold text-slate-900">3230 (지연):</span> 25~30°C 본넷/루프 등 수평면 넓은 부위</li>
+                                  <li><span className="font-bold text-slate-900">3240 (극지연):</span> 30°C 이상 한여름 전체 도장. 더스트 100% 방지</li>
+                              </ul>
+                          </div>
+                          <div className="bg-white p-3 rounded-xl border border-amber-200 shadow-sm">
+                              <h4 className="font-black text-amber-800 text-base mb-2">4. 전용 첨가제 (Additive) 2종</h4>
+                              <p className="text-xs font-medium mb-1">일반 신너 대비 광택 하락 방지 및 레벨링 극대화 (5~10% 배합)</p>
+                              <ul className="space-y-1 text-xs font-medium">
+                                  <li><span className="font-bold text-amber-900">9034 (표준):</span> 15~25°C. 오렌지 필 없는 거울 조도 형성</li>
+                                  <li><span className="font-bold text-amber-900">9035 (지연):</span> 25°C 이상. 끓음 억제 및 날린 칠 부드럽게 용해(Melt-in)</li>
+                              </ul>
+                          </div>
+                      </div>
+                  ) : (
+                      <div className="grid grid-cols-2 gap-3">
+                          {GUIDE_IMAGES[activeGuideTab].map(img => (
+                              <div key={img.id} onClick={() => openImageModal(img)} className="bg-white rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 hover:shadow-xl transition-all shadow-sm border border-slate-200 group flex flex-col justify-center items-center text-center p-4 min-h-[90px] relative">
+                                  {img.url && (
+                                      <div className="absolute inset-0 z-0">
+                                          <img src={img.url} alt={img.title} className="w-full h-full object-cover opacity-10 group-hover:opacity-100 transition-opacity duration-300" />
+                                      </div>
+                                  )}
+                                  <div className="relative z-10 flex flex-col items-center justify-center w-full h-full p-1 transition-colors duration-300">
+                                      <h4 className="text-[13px] font-black text-blue-800 group-hover:text-blue-600 mb-1.5 leading-tight drop-shadow-sm">{img.title}</h4>
+                                      <p className="text-[11px] font-bold text-slate-500 group-hover:text-slate-700 break-keep leading-tight">{img.desc}</p>
+                                  </div>
+                              </div>
+                          ))}
+                      </div>
+                  )}
+              </div>
+          </div>  
 
               <div className="flex gap-2 mt-3 relative z-50">
                   <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-sm cursor-pointer">
