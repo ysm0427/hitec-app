@@ -2838,10 +2838,16 @@ const [candyAdditive, setCandyAdditive] = useState("2.0");
                                         <span>RGB: {simColor.r}, {simColor.g}, {simColor.b}</span>
                                     </div>
                                     <button onClick={() => setPaletteDrops({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 })} className="mt-6 z-10 text-xs text-slate-500 hover:text-white border border-slate-600 px-4 py-2 rounded-full transition-colors"><RefreshCw size={14} className="inline mr-1"/> 방울 수 초기화</button>
-                                </div>
-          </main>
-        </div>
-      )}
-    </div>
-  );
-}
+                                      </div>        ← 결과 패널 닫기 (기존 2841줄)
+      </div>          ← 추가
+    );                ← 추가
+  })()}               ← 추가
+  </div>              ← 추가
+  </div>              ← 추가
+  (닫기 버튼 블록)     ← 추가
+</main>               ← 기존
+</div>                ← 기존
+)}                    ← 기존
+</div>                ← 기존
+);                    ← 기존
+}                     ← 기존
