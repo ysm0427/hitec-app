@@ -2125,8 +2125,6 @@ const handleShareSMS = () => { const text = encodeURIComponent(generateShareText
                                     </div>
                                 </div>
                             )}
-                          </div>
-                            )}
                             {selectedSnapshot.isCandyCoat && (
                                 <div className="mb-6">
                                     <h5 className="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1 uppercase"><Beaker size={14} className="text-rose-400"/> 캔디 코트 내역</h5>
@@ -2147,7 +2145,6 @@ const handleShareSMS = () => { const text = encodeURIComponent(generateShareText
                                     </div>
                                 </div>
                             )}
-                            <button onClick={() => restoreSnapshot(selectedSnapshot)} className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl mt-4 hover:bg-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all flex justify-center items-center gap-2 text-base"><RefreshCw size={20}/> 이 상태로 완벽하게 덮어쓰기 (복원)</button>
                             <button onClick={() => restoreSnapshot(selectedSnapshot)} className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl mt-4 hover:bg-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all flex justify-center items-center gap-2 text-base"><RefreshCw size={20}/> 이 상태로 완벽하게 덮어쓰기 (복원)</button>
                         </div>
                     ) : ( <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50"><History size={64} className="mb-4"/><p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p></div> )}
