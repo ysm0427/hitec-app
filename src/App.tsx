@@ -2840,17 +2840,12 @@ const [candyAdditive, setCandyAdditive] = useState("2.0");
                                     <button onClick={() => setPaletteDrops({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 })} className="mt-6 z-10 text-xs text-slate-500 hover:text-white border border-slate-600 px-4 py-2 rounded-full transition-colors"><RefreshCw size={14} className="inline mr-1"/> 방울 수 초기화</button>
                                 </div>
                             </div>
-                        );
-                    })()}
-                 </div>
-             </div>
-             <div className="pb-12 w-full flex justify-center shrink-0">
-                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg"><X size={24} /> 믹싱 스튜디오 닫기</button>
-             </div>
-          </main>
-        </div>
-      )}
-      </div>
-      </div>
-    );
+                        </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        )}
+    </div>
+  );
 }
