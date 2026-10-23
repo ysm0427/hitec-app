@@ -2320,8 +2320,6 @@ const handleShareSMS = () => { const text = encodeURIComponent(generateShareText
                                </div>
                            </div>
                        )}
-                     </div>
-                       )}
                        {viewingPost.isCandyCoat && (
                            <div className="flex-1">
                                <h4 className="text-sm font-black text-slate-800 mb-2 flex items-center gap-1"><Beaker size={14} className="text-rose-500"/> 캔디 코트 배합</h4>
@@ -2333,8 +2331,6 @@ const handleShareSMS = () => { const text = encodeURIComponent(generateShareText
                                </div>
                            </div>
                        )}
-                   </div>
-                   <div className="mt-8 flex justify-end pt-4 border-t border-slate-200">
                    </div>
                    <div className="mt-8 flex justify-end pt-4 border-t border-slate-200">
                        <button onClick={(e) => { deleteBoardPost(viewingPost.id, e); setViewingPost(null); }} className="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold border border-red-200 hover:bg-red-100 flex items-center shadow-sm transition-colors"><Trash2 size={16} className="mr-1.5"/> 시편 영구 삭제</button>
