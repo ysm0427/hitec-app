@@ -2838,16 +2838,18 @@ const [candyAdditive, setCandyAdditive] = useState("2.0");
                                         <span>RGB: {simColor.r}, {simColor.g}, {simColor.b}</span>
                                     </div>
                                     <button onClick={() => setPaletteDrops({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 })} className="mt-6 z-10 text-xs text-slate-500 hover:text-white border border-slate-600 px-4 py-2 rounded-full transition-colors"><RefreshCw size={14} className="inline mr-1"/> 방울 수 초기화</button>
-                                      </div>        ← 결과 패널 닫기 (기존 2841줄)
-      </div>          ← 추가
-    );                ← 추가
-  })()}               ← 추가
-  </div>              ← 추가
-  </div>              ← 추가
-  (닫기 버튼 블록)     ← 추가
-</main>               ← 기존
-</div>                ← 기존
-)}                    ← 기존
-</div>                ← 기존
-);                    ← 기존
-}                     ← 기존
+                                                                      </div>
+                            </div>
+                        );
+                    })()}
+                 </div>
+             </div>
+             <div className="pb-12 w-full flex justify-center shrink-0">
+                <button onClick={() => setIsConfiguratorOpen(false)} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-4 px-16 rounded-full transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center gap-2 text-lg"><X size={24} /> 믹싱 스튜디오 닫기</button>
+             </div>
+          </main>
+        </div>
+      )}
+    </div>
+  );
+}
