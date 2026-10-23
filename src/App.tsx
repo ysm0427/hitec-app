@@ -2404,4 +2404,146 @@ export default function App() {
               <h3 className="font-bold flex items-center gap-2"><BookOpen size={18} /> 📖 자동차 도장/조색 쉬운 용어 사전</h3>
               <button onClick={() => setIsGlossaryModalOpen(false)} className="hover:text-red-200 bg-emerald-700 p-1.5 rounded-full transition-colors"><X size={16} /></button>
             </div>
-            <div className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-slate-50
+            <div className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-slate-50 space-y-8">
+              
+              <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl shadow-sm mb-6 flex flex-col sm:flex-row gap-3 items-center">
+                  <div className="flex-1 w-full text-sm">
+                      <p className="font-black text-blue-800 mb-1">🔍 사전에 없는 용어가 궁금하신가요?</p>
+                      <p className="text-slate-600 text-xs break-keep">아래 검색창에 궁금한 용어를 입력하고 엔터(Enter) 키를 치시면 바로 구글 검색 결과로 이동합니다.</p>
+                      <div className="flex mt-2 shadow-sm">
+                        <input 
+                            id="glossarySearchInput" 
+                            lang="ko" 
+                            onKeyDown={(e) => { if (e.key === 'Enter') handleGoogleGlossarySearch(); }} 
+                            type="text" 
+                            placeholder="예: WT 303, 메탈릭 등 입력 후 엔터" 
+                            className="flex-1 p-2.5 border border-blue-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm" 
+                        />
+                        <button onClick={handleGoogleGlossarySearch} className="bg-blue-600 hover:bg-blue-700 text-white px-5 rounded-r font-black text-sm flex items-center justify-center transition-colors"><Search size={16} className="mr-1.5"/> 검색</button>
+                      </div>
+                  </div>
+              </div>
+
+              <div>
+                <h4 className="font-black text-emerald-800 mb-3 border-b-2 border-emerald-200 pb-1 text-lg">1. 페인트의 종류와 성질</h4>
+                <ul className="space-y-4 text-sm text-slate-700">
+                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">솔리드 컬러 (Solid Color)</span><br/>반짝이는 가루(은분이나 펄)가 단 1%도 들어가지 않은 '순수한 색상' 그 자체입니다.</li>
+                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">이펙트 컬러 (Effect Color)</span><br/>바라보는 각도나 햇빛의 양에 따라 색상과 반짝임이 마술처럼 변하는 페인트입니다.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isPearlGuideOpen && (
+        <div className="fixed inset-0 bg-slate-900/95 z-[3000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
+          <div className="bg-slate-100 rounded-2xl w-[900px] max-w-full h-[90vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300 my-8 relative">
+            <div className="p-4 bg-slate-900 flex justify-between items-center text-white shrink-0 sticky top-0 z-20">
+              <h3 className="font-bold flex items-center gap-2 tracking-wide"><Target size={18} className="text-purple-400"/> PP(분말) 가이드 및 밑색 마스터 클래스</h3>
+              <button onClick={() => setIsPearlGuideOpen(false)} className="hover:text-red-300 transition-colors bg-slate-800 p-1.5 rounded-full"><X size={16} /></button>
+            </div>
+            <div className="p-6 bg-slate-50 flex-1 flex flex-col gap-6 overflow-y-auto">
+                <h2 className="text-xl font-black text-slate-800">PP 분말 및 펄 가이드 상세 내용</h2>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isConfiguratorOpen && (
+        <div className="fixed inset-0 bg-slate-950/98 z-[800] flex flex-col text-white font-sans select-none animate-in fade-in overflow-y-scroll custom-scrollbar">
+          <header className="p-4 flex justify-between items-center bg-black/60 border-b border-slate-800 shrink-0 sticky top-0 z-40 backdrop-blur-md">
+            <h2 className="text-base font-black tracking-widest text-slate-300 uppercase flex items-center"><Beaker className="mr-2 text-indigo-500"/> 먼셀 컬러 믹싱 스튜디오 (Munsell Mixing Lab)</h2>
+            <button onClick={() => setIsConfiguratorOpen(false)} className="p-2 bg-slate-800 hover:bg-red-600 rounded-full border border-slate-700 transition-colors"><X size={18}/></button>
+          </header>
+          <main className="flex-1 p-6 md:p-10 flex flex-col items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950 overflow-x-hidden">
+             
+             <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 mb-8 items-start">
+                 
+                 <div className="w-full flex flex-col items-center justify-center h-[460px]">
+                     <h3 className="text-lg font-black text-white mb-6 flex items-center bg-slate-900 px-6 py-2 rounded-full border border-slate-700 shadow-lg shrink-0"><Sun className="mr-2 text-yellow-400" size={20}/> 먼셀 20 색상환 (Munsell Wheel)</h3>
+                     <div className="relative flex justify-center items-center w-[360px] h-[360px] shrink-0">
+                        <svg className="w-full h-full drop-shadow-[0_0_50px_rgba(0,0,0,0.8)]" viewBox="0 0 400 400">
+                            <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" /></marker></defs>
+                            {MUNSELL_WHEEL_COLORS.map((color, index) => {
+                                const startAngle = index * 18; const endAngle = (index + 1) * 18 - 1; const pathData = describeArc(200, 200, 100, 170, startAngle, endAngle); const isSelected = selectedWheelIndex === index;
+                                return ( <path key={index} d={pathData} fill={color.hex} stroke={isSelected ? "#ffffff" : "transparent"} strokeWidth={isSelected ? "3" : "0"} className={`cursor-pointer transition-all duration-300 hover:opacity-80`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleWheelClick(index); }} style={{ transformOrigin: '200px 200px', transform: isSelected ? 'scale(1.05)' : 'scale(1)' }} /> );
+                            })}
+                            {MUNSELL_WHEEL_COLORS.map((color, index) => {
+                                const midAngle = index * 18 + 8.5; const pos = polarToCartesian(200, 200, 185, midAngle); let textRotation = midAngle; if (midAngle > 90 && midAngle < 270) textRotation += 180;
+                                return ( <g key={`label_${index}`} transform={`rotate(${textRotation}, ${pos.x}, ${pos.y})`}><text x={pos.x} y={pos.y - 4} fill="#cbd5e1" fontSize="10" fontWeight="bold" textAnchor="middle" className="pointer-events-none drop-shadow-md">{color.name}</text><text x={pos.x} y={pos.y + 6} fill="#64748b" fontSize="8" fontWeight="normal" textAnchor="middle" className="pointer-events-none">({color.symbol})</text></g> );
+                            })}
+                            <circle cx="200" cy="200" r="98" fill="#0f172a" stroke="#1e293b" strokeWidth="2" />
+                            <text x="200" y="195" fill="#94a3b8" fontSize="14" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" className="tracking-widest">MUNSELL</text>
+                            <text x="200" y="215" fill="#ffffff" fontSize="16" fontWeight="900" textAnchor="middle" dominantBaseline="middle">표준 색상환</text>
+                            {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] && ( 
+                                <line 
+                                    x1="200" 
+                                    y1="200" 
+                                    x2={polarToCartesian(200, 200, 150, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).x} 
+                                    y2={polarToCartesian(200, 200, 150, ((selectedWheelIndex + 10) % 20) * 18 + 8.5).y} 
+                                    stroke="#ef4444" strokeWidth="3.5" markerEnd="url(#arrowhead)" 
+                                    className="drop-shadow-[0_0_12px_rgba(239,68,68,1)] pointer-events-none" 
+                                /> 
+                            )}
+                        </svg>
+                     </div>
+                 </div>
+
+                 <div className="w-full flex flex-col items-center justify-center h-[460px]">
+                    {selectedWheelIndex !== null && MUNSELL_WHEEL_COLORS[selectedWheelIndex] ? (
+                        <div className="bg-slate-800 p-6 rounded-3xl border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] w-full max-w-[420px] h-[420px] flex flex-col justify-center text-center">
+                            <h4 className="text-xl font-black text-white mb-6 flex items-center justify-center gap-3 shrink-0"><span className="w-6 h-6 rounded-full shadow-md border border-slate-400" style={{backgroundColor: MUNSELL_WHEEL_COLORS[selectedWheelIndex].hex}}></span>{MUNSELL_WHEEL_COLORS[selectedWheelIndex].name} ({MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol}) 배합 규격</h4>
+                            <div className="flex justify-center items-center gap-6 bg-slate-900 py-8 px-4 rounded-xl border border-slate-700 w-full shrink-0 min-h-[140px]">
+                                {MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol] ? (
+                                    <div className="flex flex-row justify-center items-center gap-6 w-full">
+                                        <div className="flex flex-col items-center gap-3"><div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].h1}}></div><span className="text-slate-300 font-bold text-sm">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c1}</span><span className="text-white font-black text-3xl">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].r1}%</span></div>
+                                        {MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c2 && (
+                                            <div className="flex flex-row justify-center items-center gap-6"><span className="text-slate-600 font-black text-2xl">+</span><div className="flex flex-col items-center gap-3"><div className="w-14 h-14 rounded-full border-2 border-slate-500 shadow-inner" style={{backgroundColor: MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].h2}}></div><span className="text-slate-300 font-bold text-sm">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].c2}</span><span className="text-white font-black text-3xl">{MIXING_DATA[MUNSELL_WHEEL_COLORS[selectedWheelIndex].symbol].r2}%</span></div></div>
+                                        )}
+                                    </div>
+                                ) : ( <div className="text-red-400 text-sm font-bold w-full text-center">배합 데이터를 불러올 수 없습니다.</div> )}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700 border-dashed w-full max-w-[420px] h-[420px] flex flex-col items-center justify-center gap-4 text-center text-slate-500"><Sun className="text-slate-600 mb-2" size={40} /><p className="text-base font-bold text-slate-400">색상환에서 컬러를 클릭하세요.</p></div>
+                    )}
+                 </div>
+             </div>
+
+             <div className="w-full lg:col-span-2 flex flex-col items-center justify-center bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6 md:p-10 mb-8">
+                <h3 className="text-xl md:text-2xl font-black text-white mb-8 flex items-center bg-indigo-600 px-8 py-3 rounded-full shadow-[0_0_20px_rgba(79,70,229,0.5)]"><Beaker className="mr-3 text-white" size={24}/> AI 가상 조색 시뮬레이터</h3>
+                
+                {(() => {
+                    const simColor = getSimulatedColor(paletteDrops);
+                    return (
+                        <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl">
+                            <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                {['red', 'blue', 'yellow', 'green', 'white', 'black'].map(color => (
+                                    <div key={color} className="bg-slate-800 rounded-xl p-4 flex flex-col items-center gap-3 border border-slate-700 shadow-inner">
+                                        <div className="w-12 h-12 rounded-full border-2 border-slate-400 shadow-md" style={{backgroundColor: color}}></div>
+                                        <span className="text-slate-300 font-bold text-sm uppercase">{color}</span>
+                                        <div className="flex items-center gap-3 bg-slate-900 rounded-lg p-1 border border-slate-700">
+                                            <button onClick={() => setPaletteDrops(p => ({...p, [color]: Math.max(0, p[color as keyof typeof p] - 1)}))} className="w-8 h-8 flex items-center justify-center text-red-400 hover:bg-slate-800 rounded font-black">-</button>
+                                            <span className="text-white font-black w-4 text-center">{paletteDrops[color as keyof typeof paletteDrops]}</span>
+                                            <button onClick={() => setPaletteDrops(p => ({...p, [color]: p[color as keyof typeof p] + 1}))} className="w-8 h-8 flex items-center justify-center text-blue-400 hover:bg-slate-800 rounded font-black">+</button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex-1 flex flex-col items-center justify-center bg-slate-800 rounded-3xl p-8 border border-slate-700 shadow-2xl relative overflow-hidden">
+                                <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+                                <div className="w-40 h-40 rounded-full shadow-[0_0_40px_rgba(0,0,0,0.5)] border-4 border-slate-500 mb-6 transition-colors duration-500 z-10" style={{backgroundColor: simColor.hex}}></div>
+                                <h4 className="text-2xl font-black text-white mb-2 z-10 drop-shadow-md">{simColor.name}</h4>
+                                <button onClick={() => setPaletteDrops({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 })} className="mt-6 z-10 text-xs text-slate-500 hover:text-white border border-slate-600 px-4 py-2 rounded-full transition-colors"><RefreshCw size={14} className="inline mr-1"/> 방울 수 초기화</button>
+                            </div>
+                        </div>
+                    );
+                })()}
+             </div>
+          </main>
+        </div>
+      )}
+    </div>
+  );
+}
