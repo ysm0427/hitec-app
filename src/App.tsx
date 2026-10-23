@@ -2839,12 +2839,9 @@ const [candyAdditive, setCandyAdditive] = useState("2.0");
                                     </div>
                                     <button onClick={() => setPaletteDrops({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 })} className="mt-6 z-10 text-xs text-slate-500 hover:text-white border border-slate-600 px-4 py-2 rounded-full transition-colors"><RefreshCw size={14} className="inline mr-1"/> 방울 수 초기화</button>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </main>
-            </div>
-        )}
+          </main>
+        </div>
+      )}
     </div>
   );
 }
