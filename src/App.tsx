@@ -1102,73 +1102,98 @@ export default function App() {
               </div>
             )}
 
-            {/* 투명(Clear) 스마트 배합기 (품번 저장 + 프리셋 + 수동/자동 하이브리드 모드) */}
-            {isClearCoatMode && (
-              <div className="pt-4 mt-4 border-t border-cyan-200 space-y-2 pb-2">
-                 <div className="text-xs font-black text-cyan-700 flex justify-between items-center border-b pb-1">
-                     <span>▼ 투명 코트 (Clear Coat) 스마트 배합기</span>
-                     <label className="flex items-center gap-1.5 cursor-pointer">
-                         <span className="text-[10px] font-bold text-slate-500">{isClearAutoCalc ? '자동 계산 ON' : '수동 입력 모드'}</span>
-                         <div className="relative">
-                             <input type="checkbox" className="sr-only" checked={isClearAutoCalc} onChange={() => { const next = !isClearAutoCalc; setIsClearAutoCalc(next); if (next) calcClearWeights(clearWeight, clearRatioPreset, true); }} />
-                             <div className={`w-8 h-4 rounded-full transition-colors ${isClearAutoCalc ? 'bg-cyan-500' : 'bg-slate-300'}`}></div>
-                             <div className={`absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-transform ${isClearAutoCalc ? 'transform translate-x-4' : ''}`}></div>
-                         </div>
-                     </label>
+            {/* 투명(Clear) 스마트 배합기 (3가지 고정 품번 프리셋 + 성분별 세부 합계 표기) */}
+        {isClearCoatMode && (
+          <div className="pt-4 mt-4 border-t border-cyan-200 space-y-2 pb-2">
+             <div className="text-xs font-black text-cyan-700 flex justify-between items-center border-b pb-1">
+                 <span>▼ 투명 코트 (Clear Coat) 스마트 배합기</span>
+                 <label className="flex items-center gap-1.5 cursor-pointer">
+                     <span className="text-[10px] font-bold text-slate-500">{isClearAutoCalc ? '자동 계산 ON' : '수동 입력 모드'}</span>
+                     <div className="relative">
+                         <input type="checkbox" className="sr-only" checked={isClearAutoCalc} onChange={() => { const next = !isClearAutoCalc; setIsClearAutoCalc(next); if (next) calcClearWeights(clearWeight, clearRatioPreset, true); }} />
+                         <div className={`w-8 h-4 rounded-full transition-colors ${isClearAutoCalc ? 'bg-cyan-500' : 'bg-slate-300'}`}></div>
+                         <div className={`absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-transform ${isClearAutoCalc ? 'transform translate-x-4' : ''}`}></div>
+                     </div>
+                 </label>
+             </div>
+             
+             <div className="bg-cyan-50 rounded-xl overflow-hidden border border-cyan-200 shadow-sm flex flex-col p-3 gap-2.5">
+                 {/* 고정 품번 및 비율 프리셋 버튼 3종 */}
+                 <div className="flex flex-wrap gap-1.5 items-center">
+                     <button onClick={() => { setClearCode('355S'); setHardenerCode('7205'); setThinnerCode('9070'); handleRatioClick('3:1'); }} className={`px-2.5 py-1 text-[10px] font-black rounded-full border transition-all ${clearCode === '355S' ? 'bg-blue-600 text-white border-blue-700 shadow-sm' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-100'}`}>
+                         크로맥스 (355S 3:1)
+                     </button>
+                     <button onClick={() => { setClearCode('8055'); setHardenerCode('3225'); setThinnerCode('9034'); handleRatioClick('3:1+5%'); }} className={`px-2.5 py-1 text-[10px] font-black rounded-full border transition-all ${clearCode === '8055' ? 'bg-cyan-600 text-white border-cyan-700 shadow-sm' : 'bg-white text-cyan-700 border-cyan-200 hover:bg-cyan-100'}`}>
+                         스피스헥커 1번 (8055 3:1+5%)
+                     </button>
+                     <button onClick={() => { setClearCode('8700'); setHardenerCode('3470'); setThinnerCode('9070'); handleRatioClick('3:1'); }} className={`px-2.5 py-1 text-[10px] font-black rounded-full border transition-all ${clearCode === '8700' ? 'bg-indigo-600 text-white border-indigo-700 shadow-sm' : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-100'}`}>
+                         스피스헥커 2번 (8700)
+                     </button>
+                 </div>
+
+                 {/* 세부 비율 단독 변경 프리셋 */}
+                 <div className="flex flex-wrap gap-1.5 items-center border-t border-cyan-200/60 pt-2">
+                     {['2:1', '3:1', '2:1+10%', '3:1+5%', '3:1+10%'].map(ratio => (
+                         <button key={ratio} onClick={() => handleRatioClick(ratio)} className={`px-2.5 py-1 text-[10px] font-black rounded-full border transition-all ${clearRatioPreset === ratio ? 'bg-cyan-600 text-white border-cyan-700 shadow-sm' : 'bg-white text-cyan-700 border-cyan-200 hover:bg-cyan-100'}`}>
+                             {ratio}
+                         </button>
+                     ))}
+                     <span className="text-[10px] font-bold text-slate-400 ml-auto flex items-center">
+                        {isClearAutoCalc ? <><Calculator size={12} className="mr-1 text-cyan-500"/>자동 계산</> : '수동 직접입력'}
+                     </span>
                  </div>
                  
-                 <div className="bg-cyan-50 rounded-xl overflow-hidden border border-cyan-200 shadow-sm flex flex-col p-3 gap-2.5">
-                     <div className="flex flex-wrap gap-1.5 items-center">
-                         {['2:1', '3:1', '2:1+10%', '3:1+5%', '3:1+10%'].map(ratio => (
-                             <button key={ratio} onClick={() => handleRatioClick(ratio)} className={`px-2.5 py-1 text-[10px] font-black rounded-full border transition-all ${clearRatioPreset === ratio ? 'bg-cyan-600 text-white border-cyan-700 shadow-sm' : 'bg-white text-cyan-700 border-cyan-200 hover:bg-cyan-100'}`}>
-                                 {ratio}
-                             </button>
-                         ))}
-                         <span className="text-[10px] font-bold text-slate-400 ml-auto flex items-center">
-                            {isClearAutoCalc ? <><Calculator size={12} className="mr-1 text-cyan-500"/>자동 계산</> : '수동 직접입력'}
-                         </span>
-                     </div>
-                     
-                     <div className="grid grid-cols-3 gap-2 items-center">
-                         <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-inner">
-                             <div className="flex items-center justify-between gap-1 mb-1">
-                                 <span className="text-[9px] font-bold text-slate-400">주제</span>
-                                 <input type="text" value={clearCode} onChange={e => setClearCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-cyan-700 bg-cyan-50 px-1 rounded w-12 text-center focus:outline-none" placeholder="품번" />
-                             </div>
-                             <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5">
-                                 <input type="text" inputMode="decimal" pattern="[0-9]*" value={clearWeight} onChange={e => handleClearWeightChange(e.target.value)} className="w-full text-base sm:text-xl font-black text-slate-800 bg-transparent focus:outline-none" />
-                                 <span className="font-bold text-slate-400 text-[10px]">g</span>
-                             </div>
+                 <div className="grid grid-cols-3 gap-2 items-center">
+                     <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-inner">
+                         <div className="flex items-center justify-between gap-1 mb-1">
+                             <span className="text-[9px] font-bold text-slate-400">주제</span>
+                             <input type="text" value={clearCode} onChange={e => setClearCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-cyan-700 bg-cyan-50 px-1 rounded w-12 text-center focus:outline-none" placeholder="품번" />
                          </div>
-                         <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-inner">
-                             <div className="flex items-center justify-between gap-1 mb-1">
-                                 <span className="text-[9px] font-bold text-slate-400">경화제</span>
-                                 <input type="text" value={hardenerCode} onChange={e => setHardenerCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-slate-600 bg-slate-100 px-1 rounded w-12 text-center focus:outline-none" placeholder="품번" />
-                             </div>
-                             <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5">
-                                 <input type="text" inputMode="decimal" pattern="[0-9]*" value={hardenerWeight} onChange={e => setHardenerWeight(e.target.value.replace(/[^0-9.]/g, ''))} readOnly={isClearAutoCalc} className={`w-full text-base sm:text-xl font-black ${isClearAutoCalc ? 'text-slate-500' : 'text-slate-800'} bg-transparent focus:outline-none`} />
-                                 <span className="font-bold text-slate-400 text-[10px]">g</span>
-                             </div>
-                         </div>
-                         <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-inner">
-                             <div className="flex items-center justify-between gap-1 mb-1">
-                                 <span className="text-[9px] font-bold text-slate-400">신너/첨가</span>
-                                 <input type="text" value={thinnerCode} onChange={e => setThinnerCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-slate-600 bg-slate-100 px-1 rounded w-12 text-center focus:outline-none" placeholder="품번" />
-                             </div>
-                             <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5">
-                                 <input type="text" inputMode="decimal" pattern="[0-9]*" value={thinnerWeight} onChange={e => setThinnerWeight(e.target.value.replace(/[^0-9.]/g, ''))} readOnly={isClearAutoCalc} className={`w-full text-base sm:text-xl font-black ${isClearAutoCalc ? 'text-slate-500' : 'text-slate-800'} bg-transparent focus:outline-none`} />
-                                 <span className="font-bold text-slate-400 text-[10px]">g</span>
-                             </div>
+                         <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5">
+                             <input type="text" inputMode="decimal" pattern="[0-9]*" value={clearWeight} onChange={e => handleClearWeightChange(e.target.value)} className="w-full text-base sm:text-xl font-black text-slate-800 bg-transparent focus:outline-none" />
+                             <span className="font-bold text-slate-400 text-[10px]">g</span>
                          </div>
                      </div>
-
-                     <div className="bg-slate-800 px-3 py-2 rounded-lg flex justify-between items-center text-white">
-                         <span className="text-[11px] font-bold text-cyan-300">투명(Clear) 총 혼합량 ({clearRatioPreset})</span>
-                         <span className="text-sm sm:text-base font-black text-emerald-400">{((parseFloat(clearWeight) || 0) + (parseFloat(hardenerWeight) || 0) + (parseFloat(thinnerWeight) || 0)).toFixed(1)}g</span>
+                     <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-inner">
+                         <div className="flex items-center justify-between gap-1 mb-1">
+                             <span className="text-[9px] font-bold text-slate-400">경화제</span>
+                             <input type="text" value={hardenerCode} onChange={e => setHardenerCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-slate-600 bg-slate-100 px-1 rounded w-12 text-center focus:outline-none" placeholder="품번" />
+                         </div>
+                         <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5">
+                             <input type="text" inputMode="decimal" pattern="[0-9]*" value={hardenerWeight} onChange={e => setHardenerWeight(e.target.value.replace(/[^0-9.]/g, ''))} readOnly={isClearAutoCalc} className={`w-full text-base sm:text-xl font-black ${isClearAutoCalc ? 'text-slate-500' : 'text-slate-800'} bg-transparent focus:outline-none`} />
+                             <span className="font-bold text-slate-400 text-[10px]">g</span>
+                         </div>
+                     </div>
+                     <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-inner">
+                         <div className="flex items-center justify-between gap-1 mb-1">
+                             <span className="text-[9px] font-bold text-slate-400">신너/첨가</span>
+                             <input type="text" value={thinnerCode} onChange={e => setThinnerCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-slate-600 bg-slate-100 px-1 rounded w-12 text-center focus:outline-none" placeholder="품번" />
+                         </div>
+                         <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5">
+                             <input type="text" inputMode="decimal" pattern="[0-9]*" value={thinnerWeight} onChange={e => setThinnerWeight(e.target.value.replace(/[^0-9.]/g, ''))} readOnly={isClearAutoCalc} className={`w-full text-base sm:text-xl font-black ${isClearAutoCalc ? 'text-slate-500' : 'text-slate-800'} bg-transparent focus:outline-none`} />
+                             <span className="font-bold text-slate-400 text-[10px]">g</span>
+                         </div>
                      </div>
                  </div>
-              </div>
-            )}
+
+                 {/* 성분별 세부 무게 및 최종 합계 명시 영역 */}
+                 <div className="bg-slate-900 px-3 py-2.5 rounded-lg flex flex-col gap-1 text-white">
+                     <div className="flex justify-between items-center text-[11px] text-slate-300 font-bold border-b border-slate-800 pb-1">
+                         <span>성분별 상세 내역 ({clearRatioPreset})</span>
+                         <span className="text-cyan-300">주제 + 경화제 + 신너/첨가제</span>
+                     </div>
+                     <div className="flex justify-between items-center pt-1">
+                         <span className="text-xs font-bold text-slate-400">
+                             {clearWeight || '0'}g ({clearCode}) + {hardenerWeight || '0'}g ({hardenerCode}) + {thinnerWeight || '0'}g ({thinnerCode})
+                         </span>
+                         <span className="text-sm sm:text-base font-black text-emerald-400">
+                             총합계: {((parseFloat(clearWeight) || 0) + (parseFloat(hardenerWeight) || 0) + (parseFloat(thinnerWeight) || 0)).toFixed(1)}g
+                         </span>
+                     </div>
+                 </div>
+             </div>
+          </div>
+        )}
 
             {isThreeCoatMode && (
               <div className="pt-4 mt-4 border-t border-purple-200 space-y-2 pb-8">
