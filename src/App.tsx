@@ -2427,8 +2427,52 @@ export default function App() {
               <div>
                 <h4 className="font-black text-emerald-800 mb-3 border-b-2 border-emerald-200 pb-1 text-lg">1. 페인트의 종류와 성질</h4>
                 <ul className="space-y-4 text-sm text-slate-700">
-                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">솔리드 컬러 (Solid Color)</span><br/>반짝이는 가루(은분이나 펄)가 단 1%도 들어가지 않은 '순수한 색상' 그 자체입니다.</li>
-                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">이펙트 컬러 (Effect Color)</span><br/>바라보는 각도나 햇빛의 양에 따라 색상과 반짝임이 마술처럼 변하는 페인트입니다.</li>
+                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">솔리드 컬러 (Solid Color)</span><br/>반짝이는 가루(은분이나 펄)가 단 1%도 들어가지 않은 '순수한 색상' 그 자체입니다. (비유: 펄 없는 새빨간 소방차, 노란 유치원 버스)</li>
+                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">이펙트 컬러 (Effect Color)</span><br/>바라보는 각도나 햇빛의 양에 따라 색상과 반짝임이 마술처럼 변하는 페인트입니다. 금속 가루(알루미늄)나 진주 가루(펄)가 섞여 있어야만 이펙트 컬러가 됩니다. (비유: 맑은 날에는 은색인데 그늘에 가면 진한 쥐색으로 변하는 승용차)</li>
+                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">알루미늄 / 실버 (Aluminum / Silver)</span><br/>자동차에 금속 특유의 차갑고 반짝이는 느낌을 주기 위해 페인트에 섞는 '실제 금속(은분) 가루'입니다.</li>
+                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">마이카 / 펄 (Mica / Pearl)</span><br/>금속 가루가 아니라, 조개껍데기 안쪽이나 진주처럼 은은하고 영롱한 빛을 내는 가루입니다. 도장면을 고급스럽고 뽀얗게 만들어줍니다.</li>
+                  <li><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">금속성 (Metallic / 메탈릭)</span><br/>쇠붙이나 깡통 표면처럼 차갑고 매끄럽게 빛을 반사하는 느낌을 말합니다.</li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-1 text-lg">2. 반짝임과 빛의 성질</h4>
+                <ul className="space-y-4 text-sm text-slate-700">
+                  <li><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">브릴리언트 / 광휘형 (Brilliant)</span><br/>일반적인 반짝임을 뛰어넘어, 눈이 부실 정도로 빛을 '쨍'하고 날카롭게 튕겨내는 엄청난 반사력을 뜻합니다. (비유: 일반 은분이 '은박지'라면, 브릴리언트는 '거울 조각'을 잘게 부숴놓은 것처럼 화려하게 반짝입니다.)</li>
+                  <li><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">간섭 펄 (Interference Pearl)</span><br/>빛의 굴절을 이용해, 정면에서 볼 때와 옆에서 볼 때 색이 완전히 다르게 변신하는 카멜레온 같은 특수 펄입니다. (비유: 정면에서는 파란색으로 빛나다가, 고개를 돌려 옆에서 보면 빨간색으로 변하는 신비로운 가루입니다.)</li>
+                  <li className="bg-blue-50/50 p-2 rounded-lg border border-blue-100"><span className="bg-blue-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">착색 펄 (Tinted / Colored Pearl)</span><br/><span className="font-bold text-blue-900">하얀 진주 가루(마이카) 표면에 산화철 같은 색상을 미리 코팅(착색)해 둔 펄</span>입니다. 단순히 빛만 하얗게 튕겨내는 것이 아니라, 가루 자체가 색깔을 품고 있어서 도장면의 색감을 훨씬 깊고 묵직하고 화려하게 만들어줍니다.</li>
+                  <li><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">정면 (15도) vs 측면 (45도/110도, 플롭)</span><br/>자동차 페인트는 빛을 받는 각도에 따라 색이 다릅니다.<br/>- 정면(15도): 차를 햇빛 아래서 똑바로 마주 보았을 때의 밝고 반짝이는 색상.<br/>- 측면(45도/110도): 시선을 비스듬히 돌리거나 그늘진 쪽에서 바라봤을 때 짙어지는 색상(섀도우).</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-black text-purple-800 mb-3 border-b-2 border-purple-200 pb-1 text-lg">3. 물리적인 역할과 재료</h4>
+                <ul className="space-y-4 text-sm text-slate-700">
+                  <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">파우더 펄 (Powder Pearl)</span><br/>일반적인 액체(물감) 상태가 아니라, 밀가루처럼 완전히 바싹 마른 100% 가루 형태로 된 펄 안료입니다.</li>
+                  <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">바인더 / 믹싱 클리어 (Binder)</span><br/>가루나 입자들이 뭉치지 않고 차체에 고르게 달라붙을 수 있도록 도와주는 '투명한 물감'이자 '접착제' 같은 역할입니다.</li>
+                  <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">은폐력 (Hiding Power)</span><br/>페인트를 칠했을 때, 밑바탕에 있던 원래 색이나 흠집을 얼마나 잘 가려주는지(덮어주는지) 나타내는 힘입니다.</li>
+                  <li><span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">캔디 / 트랜스페어런트 (Candy / Transparent)</span><br/>은폐력이 전혀 없이, 투명하게 밑바탕을 비춰주는 '셀로판지' 같은 물감입니다. 밑에 칠해둔 반짝이는 은색을 그대로 투과시키면서 색깔만 예쁘게 입혀줍니다.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-black text-rose-800 mb-3 border-b-2 border-rose-200 pb-1 text-lg">4. 안료(조색제) 영문 명칭 쉬운 해석</h4>
+                <ul className="space-y-4 text-sm text-slate-700">
+                  <li className="bg-rose-50/50 p-2 rounded-lg border border-rose-100"><span className="bg-rose-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">프리즈마 (Prisma)</span><br/><span className="font-bold text-rose-900">빛을 무지개색으로 나누는 다면체(Prism)에서 따온 이름</span>입니다. 햇빛을 받으면 <b>무지갯빛 오로라 광채</b>를 뿜어내는 최고급 안료입니다.</li>
+                  <li className="bg-rose-50/50 p-2 rounded-lg border border-rose-100"><span className="bg-rose-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">그라나다 (Granada)</span><br/><span className="font-bold text-rose-900">스페인어로 '석류'를 뜻합니다.</span> 잘 익은 석류알처럼 <b>아주 검붉고 깊이감 있는 핏빛/와인빛 붉은색</b>을 의미합니다.</li>
+                  <li className="bg-rose-50/50 p-2 rounded-lg border border-rose-100"><span className="bg-rose-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">애저 (Azure)</span><br/>맑고 화창한 가을 하늘빛이나 투명한 바다를 연상시키는 <b>청량하고 맑은 하늘색(청록빛 파랑)</b>을 의미합니다.</li>
+                  <li className="bg-rose-50/50 p-2 rounded-lg border border-rose-100"><span className="bg-rose-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">오커 (Ochre)</span><br/><span className="font-bold text-rose-900">황토(황토색 흙)를 의미합니다.</span> 무게감 있고 탁한 흙빛이 도는 옐로우나 브라운 섀도우를 만들 때 씁니다.</li>
+                  <li className="bg-rose-50/50 p-2 rounded-lg border border-rose-100"><span className="bg-rose-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">트랜스페어런트 (Transparent)</span><br/><span className="font-bold text-rose-900">셀로판지처럼 맑고 '투명하다'는 뜻</span>입니다. 은폐력이 제로(0)인 안료입니다.</li>
+                  <li className="bg-rose-50/50 p-2 rounded-lg border border-rose-100"><span className="bg-rose-500 text-white px-2 py-0.5 rounded font-bold mr-2 shadow-sm">러스터 (Luster)</span><br/>은은하고 부드러운 '윤기'나 '광택'을 뜻합니다. <b>비단결처럼 우아하고 부드러운 반짝임</b>을 냅니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">브라이트(Bright) / 브릴리언트(Brilliant)</span><br/>'밝은', '눈부신', '화사한'이라는 뜻입니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">딥 (Deep) / 인텐스 (Intense)</span><br/>'깊은', '강렬한'이라는 뜻입니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">라이트 (Light) / 다크 (Dark)</span><br/>'밝은(연한)'과 '어두운'을 뜻합니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">그리니쉬(Greenish) / 블루이쉬(Bluish) / 레디쉬(Reddish)</span><br/>'~빛이 도는'이라는 뜻입니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">마룬(Maroon) / 옥사이드(Oxide)</span><br/>마룬은 '밤색, 적갈색(버건디)', 옥사이드는 '산화철(녹슨 철)'을 뜻합니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">마젠타(Magenta) / 시안(Cyan)</span><br/>마젠타는 '자주색', 시안은 '청록색'을 의미합니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">트랜스루센트(Translucent)</span><br/>불투명 유리처럼 빛만 살짝 비치는 '반투명(저농)'을 뜻합니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">매직 (Magic) / 컬러스트림 (Colorstream)</span><br/>보는 각도에 따라 여러 번 색이 변하는 카멜레온 특수 안료입니다.</li>
+                  <li><span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold mr-2 shadow-sm">코스(Coarse) / 파인(Fine) / 마이크로(Micro)</span><br/>입자의 크기입니다. 코스(굵음) &gt; 파인(고움) &gt; 마이크로(초미세).</li>
                 </ul>
               </div>
             </div>
@@ -2443,8 +2487,95 @@ export default function App() {
               <h3 className="font-bold flex items-center gap-2 tracking-wide"><Target size={18} className="text-purple-400"/> PP(분말) 가이드 및 밑색 마스터 클래스</h3>
               <button onClick={() => setIsPearlGuideOpen(false)} className="hover:text-red-300 transition-colors bg-slate-800 p-1.5 rounded-full"><X size={16} /></button>
             </div>
-            <div className="p-6 bg-slate-50 flex-1 flex flex-col gap-6 overflow-y-auto">
-                <h2 className="text-xl font-black text-slate-800">PP 분말 및 펄 가이드 상세 내용</h2>
+            <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
+                <div className="p-6 bg-purple-50 border-b border-purple-200 shrink-0">
+                    <h2 className="text-lg font-black text-purple-900 mb-4 flex items-center gap-2"><Beaker size={20} className="text-purple-600"/> 🌬️ PP (Powder Pearl) 가루 안료 특별 취급 가이드</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white p-4 rounded-xl shadow-sm border border-purple-200">
+                            <h3 className="font-black text-purple-700 text-sm mb-2">PP 304 (분말 다이아몬드)</h3>
+                            <p className="text-xs text-slate-600 mb-2 font-bold">수지가 완전히 배제된 100% 건식 분말 글라스 스파클.</p>
+                            <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-2 rounded">눈부신 다이아몬드 순수 난반사를 발현합니다. 수지가 없으므로 원액에 다이렉트 투입 시 100% 뭉치고 덩어리지는 얼룩(Clumping) 하자가 발생합니다.</p>
+                        </div>
+                        <div className="bg-white p-4 rounded-xl shadow-sm border border-purple-200">
+                            <h3 className="font-black text-purple-700 text-sm mb-2">PP 305 (분말 컬러스트림)</h3>
+                            <p className="text-xs text-slate-600 mb-2 font-bold">포르쉐/마이바흐 전용 초고해상도 카멜레온 가루 펄.</p>
+                            <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-2 rounded">탁색률 0%의 예리한 광채를 뿜어내며 바탕색을 1%도 덮지 않고 투과합니다. 입자가 매우 예민하여 파괴를 막기 위해 기계식 교반기를 절대 사용하면 안 됩니다.</p>
+                        </div>
+                        <div className="bg-red-50 p-4 rounded-xl shadow-sm border border-red-200">
+                            <h3 className="font-black text-red-700 text-sm mb-2">⚠️ PP 분말 조색 공통 철칙</h3>
+                            <ul className="text-[11px] text-red-800 space-y-2 font-bold list-disc pl-4">
+                                <li>가루 형태이므로 베이스 원액에 직접 투하 절대 금지.</li>
+                                <li>반드시 <span className="underline">WT 386(에이전트)</span> 또는 블렌드 수지에 선 계량.</li>
+                                <li>가루가 뭉치지 않도록 스틱으로 액상화(완벽히 개어서 믹스) 후 투입할 것.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-5 bg-white border-b border-slate-200 shrink-0 sticky top-0 z-10 shadow-sm mt-4">
+                    <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                        {PEARL_LEVELS.map(lvl => (
+                            <button key={lvl.level} onClick={() => setActivePearlLevel(lvl.level)} className={`snap-center shrink-0 px-3 py-2 rounded-lg text-[11px] font-black transition-all flex flex-col items-center gap-1 ${activePearlLevel === lvl.level ? 'bg-slate-800 text-white shadow-md transform scale-105' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border border-slate-200'}`}>
+                                <span>Lv.{lvl.level}</span><span className="opacity-80 font-bold whitespace-nowrap">{lvl.name}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="p-6 bg-slate-50 flex-1 flex flex-col gap-6">
+                    {PEARL_LEVELS.filter(lvl => lvl.level === activePearlLevel).map(lvl => (
+                        <div key={lvl.level} className="animate-in slide-in-from-right-4 duration-300 flex flex-col">
+                            <h2 className="text-2xl font-black text-slate-800 tracking-tight mb-4">{lvl.name} <span className="text-sm font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full ml-2">Lv.{lvl.level} Size: {lvl.size}</span></h2>
+                            {lvl.codes.length > 0 && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                                    {lvl.codes.map((code: string) => {
+                                        const tInfo = TONER_DB[code]; if(!tInfo) return null;
+                                        return (
+                                        <div key={code} className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3">
+                                            <div className="w-12 h-12 rounded-lg shadow-inner shrink-0" style={{background: getTonerDetailBackground(code, tInfo.role, 'face')}}></div>
+                                            <div className="flex flex-col"><span className="font-black text-slate-800 text-sm">{code}</span><span className="text-[10px] font-bold text-slate-500">{tInfo.role}</span></div>
+                                        </div>
+                                    )})}
+                                </div>
+                            )}
+                            <div className="grid grid-cols-1 gap-3">
+                                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><h4 className="text-[11px] font-black text-indigo-600 mb-1 flex items-center gap-1"><BookOpen size={14}/> 일반 특성</h4><p className="text-sm font-medium text-slate-700">{lvl.desc}</p></div>
+                                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><h4 className="text-[11px] font-black text-blue-600 mb-1 flex items-center gap-1"><Eye size={14}/> 외관 변화</h4><p className="text-sm font-medium text-slate-700 whitespace-pre-line">{lvl.faceFlop}</p></div>
+                                <div className="bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm"><h4 className="text-[11px] font-black text-red-600 mb-1 flex items-center gap-1"><AlertTriangle size={14}/> 주의점</h4><p className="text-sm font-medium text-red-800">{lvl.warning}</p></div>
+                            </div>
+                        </div>
+                    ))}
+                    
+                    <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 shadow-lg mt-8 shrink-0 flex flex-col gap-6">
+                        <h4 className="text-lg font-black text-yellow-400 flex items-center gap-2"><BookOpen size={20}/> 🧠 [6부작] 실전 이해하기 : 밑색 분석 및 광학 메커니즘</h4>
+                        <div className="space-y-4">
+                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-slate-400">
+                                <p className="text-sm font-bold text-white mb-2">1부: 무채색 (Black & White) 계열의 밑색 분석</p>
+                                <p className="text-xs text-slate-300 leading-relaxed">차가운 푸른빛을 내는 슈퍼 딥 블랙(WT 188)과 따뜻한 황갈색 흙빛을 내는 스페셜 블랙(WT 323)이 은분과 만났을 때의 실무 온도 차이 규명.</p>
+                            </div>
+                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-blue-400">
+                                <p className="text-sm font-bold text-white mb-2">2부: 블루 (Blue) & 바이올렛 (Violet) 계열의 밑색 분석</p>
+                                <p className="text-xs text-slate-300 leading-relaxed">측면(Flop)이 붉어지는 브릴리언트 블루(WT 318), 정직한 블루(WT 343), 청록색으로 빠지는 애저 블루(WT 341)의 색상 왜곡 통제.</p>
+                            </div>
+                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-red-500">
+                                <p className="text-sm font-bold text-white mb-2">3부: 레드 (Red) & 마젠타 (Magenta) 계열의 밑색 분석</p>
+                                <p className="text-xs text-slate-300 leading-relaxed">차가운 자주빛 블루이쉬 마젠타(WT 338)와 화사한 주황빛 옐로우 마젠타(WT 340)의 쿨톤/웜톤 결정 원리.</p>
+                            </div>
+                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-yellow-400">
+                                <p className="text-sm font-bold text-white mb-2">4부: 옐로우 (Yellow) & 오렌지 (Orange) 계열의 밑색 분석</p>
+                                <p className="text-xs text-slate-300 leading-relaxed">따뜻한 금빛 레디쉬 옐로우(WT 324), 차가운 그리니쉬 옐로우(WT 326), 그리고 탁색 마스터 오커(WT 328)의 맑음과 탁함 제어.</p>
+                            </div>
+                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-emerald-400">
+                                <p className="text-sm font-bold text-white mb-2">5부: 그린 (Green) & 투명 (Translucent) 계열의 밑색 분석</p>
+                                <p className="text-xs text-slate-300 leading-relaxed">빛을 100% 투과시키는 투명 그린(WT 347)과 반투명 그린(WT 349)의 필터 효과 및 캔디 도장 깊이감 비교.</p>
+                            </div>
+                            <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 border-l-4 border-l-purple-400">
+                                <p className="text-sm font-bold text-white mb-2">6부: 메탈릭과 펄 질감 변화 메커니즘</p>
+                                <p className="text-xs text-slate-300 leading-relaxed">입자 간 물리적 간섭 및 얼룩(Mottling) 통제, 무거운 입자를 눕혀주는 이펙트 수지(WT 386, WT 390)의 배향 제어 원리 총망라.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
           </div>
         </div>
@@ -2504,46 +2635,87 @@ export default function App() {
                                     </div>
                                 ) : ( <div className="text-red-400 text-sm font-bold w-full text-center">배합 데이터를 불러올 수 없습니다.</div> )}
                             </div>
+                            <p className="text-xs text-slate-400 mt-6 font-medium bg-slate-900/50 py-3 rounded-lg shrink-0">* 기술 보고서 기준의 단일 원색 정밀 조색 비율입니다.</p>
                         </div>
                     ) : (
-                        <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700 border-dashed w-full max-w-[420px] h-[420px] flex flex-col items-center justify-center gap-4 text-center text-slate-500"><Sun className="text-slate-600 mb-2" size={40} /><p className="text-base font-bold text-slate-400">색상환에서 컬러를 클릭하세요.</p></div>
+                        <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700 border-dashed w-full max-w-[420px] h-[420px] flex flex-col items-center justify-center gap-4 text-center text-slate-500"><Sun className="text-slate-600 mb-2" size={40} /><p className="text-base font-bold text-slate-400">색상환에서 컬러를 클릭하세요.</p><p className="text-sm">선택된 색상의 원색 조색 배율이<br/>이곳에 표시됩니다.</p></div>
                     )}
                  </div>
-             </div>
 
-             <div className="w-full lg:col-span-2 flex flex-col items-center justify-center bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6 md:p-10 mb-8">
-                <h3 className="text-xl md:text-2xl font-black text-white mb-8 flex items-center bg-indigo-600 px-8 py-3 rounded-full shadow-[0_0_20px_rgba(79,70,229,0.5)]"><Beaker className="mr-3 text-white" size={24}/> AI 가상 조색 시뮬레이터</h3>
-                
-                {(() => {
-                    const simColor = getSimulatedColor(paletteDrops);
-                    return (
-                        <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl">
-                            <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                {['red', 'blue', 'yellow', 'green', 'white', 'black'].map(color => (
-                                    <div key={color} className="bg-slate-800 rounded-xl p-4 flex flex-col items-center gap-3 border border-slate-700 shadow-inner">
-                                        <div className="w-12 h-12 rounded-full border-2 border-slate-400 shadow-md" style={{backgroundColor: color}}></div>
-                                        <span className="text-slate-300 font-bold text-sm uppercase">{color}</span>
-                                        <div className="flex items-center gap-3 bg-slate-900 rounded-lg p-1 border border-slate-700">
-                                            <button onClick={() => setPaletteDrops(p => ({...p, [color]: Math.max(0, p[color as keyof typeof p] - 1)}))} className="w-8 h-8 flex items-center justify-center text-red-400 hover:bg-slate-800 rounded font-black">-</button>
-                                            <span className="text-white font-black w-4 text-center">{paletteDrops[color as keyof typeof paletteDrops]}</span>
-                                            <button onClick={() => setPaletteDrops(p => ({...p, [color]: p[color as keyof typeof p] + 1}))} className="w-8 h-8 flex items-center justify-center text-blue-400 hover:bg-slate-800 rounded font-black">+</button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="flex-1 flex flex-col items-center justify-center bg-slate-800 rounded-3xl p-8 border border-slate-700 shadow-2xl relative overflow-hidden">
-                                <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
-                                <div className="w-40 h-40 rounded-full shadow-[0_0_40px_rgba(0,0,0,0.5)] border-4 border-slate-500 mb-6 transition-colors duration-500 z-10" style={{backgroundColor: simColor.hex}}></div>
-                                <h4 className="text-2xl font-black text-white mb-2 z-10 drop-shadow-md">{simColor.name}</h4>
-                                <button onClick={() => setPaletteDrops({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 })} className="mt-6 z-10 text-xs text-slate-500 hover:text-white border border-slate-600 px-4 py-2 rounded-full transition-colors"><RefreshCw size={14} className="inline mr-1"/> 방울 수 초기화</button>
-                            </div>
+                 <div className="w-full flex flex-col items-center justify-center h-[460px]">
+                    <div className="bg-[#111111] rounded-3xl p-6 border border-slate-800 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
+                        <h4 className="text-xl font-black text-white mb-6 tracking-widest flex items-center shrink-0"><BookOpen className="mr-2 text-blue-400" size={20}/>RGB <span className="text-xs text-slate-500 ml-2 font-normal">Additive Color (빛의 혼합)</span></h4>
+                        <div className="w-60 h-60 relative shrink-0">
+                            <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
+                                <circle cx="75" cy="75" r="55" fill="#0000FF" style={{ mixBlendMode: 'screen' }} />
+                                <circle cx="125" cy="75" r="55" fill="#FF0000" style={{ mixBlendMode: 'screen' }} />
+                                <circle cx="100" cy="120" r="55" fill="#00FF00" style={{ mixBlendMode: 'screen' }} />
+                                <g stroke="#ffffff" strokeWidth="1" strokeOpacity="0.5">
+                                    <line x1="75" y1="75" x2="30" y2="40" /><line x1="125" y1="75" x2="170" y2="40" /><line x1="100" y1="120" x2="100" y2="175" /><line x1="100" y1="55" x2="100" y2="25" /> <line x1="75" y1="105" x2="30" y2="130" /> <line x1="125" y1="105" x2="170" y2="130" /> <line x1="100" y1="90" x2="150" y2="90" /> 
+                                </g>
+                                <g fill="#ffffff" fontSize="10" fontWeight="bold" textAnchor="middle" className="drop-shadow-md"><text x="25" y="35">Blue</text><text x="175" y="35">Red</text><text x="100" y="185">Green</text><text x="100" y="20" fill="#FF00FF">Magenta</text><text x="25" y="140" fill="#00FFFF">Cyan</text><text x="175" y="140" fill="#FFFF00">Yellow</text><rect x="155" y="82" width="30" height="14" fill="#ffffff" rx="2" /><text x="170" y="93" fill="#000000">White</text></g>
+                            </svg>
                         </div>
-                    );
-                })()}
+                    </div>
+                 </div>
+
+                 <div className="w-full flex flex-col items-center justify-center h-[460px]">
+                    <div className="bg-[#f8f9fa] rounded-3xl p-6 border border-slate-300 shadow-2xl flex flex-col items-center w-full max-w-[420px] h-[420px] justify-center transition-all">
+                        <h4 className="text-xl font-black text-slate-900 mb-6 tracking-widest flex items-center shrink-0"><BookOpen className="mr-2 text-pink-500" size={20}/>CMYK <span className="text-xs text-slate-500 ml-2 font-normal">Subtractive Color (물감의 혼합)</span></h4>
+                        <div className="w-60 h-60 relative shrink-0">
+                            <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-xl" style={{ backgroundColor: 'transparent' }}>
+                                <circle cx="75" cy="75" r="55" fill="#00FFFF" style={{ mixBlendMode: 'multiply' }} />
+                                <circle cx="125" cy="75" r="55" fill="#FF00FF" style={{ mixBlendMode: 'multiply' }} />
+                                <circle cx="100" cy="120" r="55" fill="#FFFF00" style={{ mixBlendMode: 'multiply' }} />
+                                <g stroke="#000000" strokeWidth="1" strokeOpacity="0.5">
+                                    <line x1="75" y1="75" x2="30" y2="40" /><line x1="125" y1="75" x2="170" y2="40" /><line x1="100" y1="120" x2="100" y2="175" /><line x1="100" y1="55" x2="100" y2="25" /> <line x1="75" y1="105" x2="30" y2="130" /> <line x1="125" y1="105" x2="170" y2="130" /> <line x1="100" y1="90" x2="150" y2="90" /> 
+                                </g>
+                                <g fill="#000000" fontSize="10" fontWeight="bold" textAnchor="middle"><text x="25" y="35">Cyan</text><text x="175" y="35">Magenta</text><text x="100" y="185">Yellow</text><text x="100" y="20" fill="#0000FF">Blue</text><text x="25" y="140" fill="#008000">Green</text><text x="175" y="140" fill="#FF0000">Red</text><rect x="155" y="82" width="30" height="14" fill="#000000" rx="2" /><text x="170" y="93" fill="#ffffff">Black</text></g>
+                            </svg>
+                        </div>
+                    </div>
+                 </div>
+
+                 <div className="w-full lg:col-span-2 flex flex-col items-center justify-center bg-slate-900/40 rounded-3xl border border-slate-800 shadow-xl p-6 md:p-10 mb-8">
+                    <h3 className="text-xl md:text-2xl font-black text-white mb-8 flex items-center bg-indigo-600 px-8 py-3 rounded-full shadow-[0_0_20px_rgba(79,70,229,0.5)]"><Beaker className="mr-3 text-white" size={24}/> AI 가상 조색 시뮬레이터 (물감 혼합 방울 떨어뜨리기)</h3>
+                    
+                    {(() => {
+                        const simColor = getSimulatedColor(paletteDrops);
+                        return (
+                            <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl">
+                                <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    {['red', 'blue', 'yellow', 'green', 'white', 'black'].map(color => (
+                                        <div key={color} className="bg-slate-800 rounded-xl p-4 flex flex-col items-center gap-3 border border-slate-700 shadow-inner">
+                                            <div className="w-12 h-12 rounded-full border-2 border-slate-400 shadow-md" style={{backgroundColor: color}}></div>
+                                            <span className="text-slate-300 font-bold text-sm uppercase">{color}</span>
+                                            <div className="flex items-center gap-3 bg-slate-900 rounded-lg p-1 border border-slate-700">
+                                                <button onClick={() => setPaletteDrops(p => ({...p, [color]: Math.max(0, p[color as keyof typeof p] - 1)}))} className="w-8 h-8 flex items-center justify-center text-red-400 hover:bg-slate-800 rounded font-black">-</button>
+                                                <span className="text-white font-black w-4 text-center">{paletteDrops[color as keyof typeof paletteDrops]}</span>
+                                                <button onClick={() => setPaletteDrops(p => ({...p, [color]: p[color as keyof typeof p] + 1}))} className="w-8 h-8 flex items-center justify-center text-blue-400 hover:bg-slate-800 rounded font-black">+</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="flex-1 flex flex-col items-center justify-center bg-slate-800 rounded-3xl p-8 border border-slate-700 shadow-2xl relative overflow-hidden">
+                                    <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+                                    <div className="w-40 h-40 rounded-full shadow-[0_0_40px_rgba(0,0,0,0.5)] border-4 border-slate-500 mb-6 transition-colors duration-500 z-10" style={{backgroundColor: simColor.hex}}></div>
+                                    <h4 className="text-2xl font-black text-white mb-2 z-10 drop-shadow-md">{simColor.name}</h4>
+                                    <div className="flex gap-4 text-sm font-bold text-slate-400 z-10 bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
+                                        <span>HEX: {simColor.hex.toUpperCase()}</span>
+                                        <span>RGB: {simColor.r}, {simColor.g}, {simColor.b}</span>
+                                    </div>
+                                    <button onClick={() => setPaletteDrops({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 })} className="mt-6 z-10 text-xs text-slate-500 hover:text-white border border-slate-600 px-4 py-2 rounded-full transition-colors"><RefreshCw size={14} className="inline mr-1"/> 방울 수 초기화</button>
+                                </div>
+                            </div>
+                        );
+                    })()}
+                 </div>
              </div>
           </main>
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 }
