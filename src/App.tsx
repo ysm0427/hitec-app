@@ -13,6 +13,7 @@ import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS } from './tonerDB';
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 
+// Firebase 설정 및 초기화
 const firebaseConfig = {
   apiKey: "AIzaSyAaVn1BUqEhBNFLDuCMu9zy2VQpOdGHMvI",
   authDomain: "josek-pro.firebaseapp.com",
@@ -37,7 +38,8 @@ if (!TONER_DB['9031']) TONER_DB['9031'] = { role: '애플 레드 (Apple Red)', t
 if (!TONER_DB['9032']) TONER_DB['9032'] = { role: '오션 블루 (Ocean Blue)', type: 'candy', face: '#004488', flop: '#0088ff', desc: '심연의 바다처럼 깊고 투명한 시안 커스텀 캔디 블루입니다.', details: [['🎯 캔디 도장 공정', '스프레이 건의 에어 압력을 높이고 토출량을 줄여 아주 곱고 균일하게 미스트를 쪼개어 도포해야 투명감을 살릴 수 있습니다.'], ['💡 비교 분석', '[비교] 캔디 9032 vs 일반 투명 틴트 WT 348\n일반 투명 틴트(348)도 맑은 편이나 한계가 있는 반면, 9032 캔디는 두껍게 올릴수록 심해가 깊어지듯 끝을 알 수 없는 딥 블루 3D 심도를 연출합니다.']] };
 if (!TONER_DB['9033']) TONER_DB['9033'] = { role: '선셋 골드 (Sunset Gold)', type: 'candy', face: '#886600', flop: '#ffcc00', desc: '노을빛 화려한 황금 스파클 캔디 필터를 제공합니다.', details: [['⚠️ 캔디 3대 철칙', '부분 도장(보카시/블렌딩)은 물리적으로 절대 불가하며, 반드시 패널 전체를 한 판 단위로 끊어서 도장해야 합니다.'], ['💡 비교 분석', '[비교] 캔디 9033 vs 일반 투명 틴트 WT 329\nWT 329는 얇은 황금빛 셀로판지라면, 9033 선셋 골드는 두꺼운 황금색 스테인드글라스처럼 압도적인 빛의 투과율과 공간감을 자랑합니다.']] };
 if (!TONER_DB['9048']) TONER_DB['9048'] = { role: '마룬 / 흑갈색 투명 첨가제', type: 'candy', face: '#5a1827', flop: '#8b253f', desc: '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.', details: [['🎯 캔디 도장 공정', '마쯔다(Mazda) 소울 레드 크리스탈(46V) 등 고휘도 실버 하도를 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침(Overlap) 없이 코팅해야 얼룩을 막을 수 있습니다.'], ['💡 비교 분석', '[비교] 캔디 9048 vs 일반 마룬 틴트\n일반 마룬 베이스는 메탈릭 입자를 탁하게 가리지만, 9048 캔디 첨가제는 100% 투명도를 유지하며 맑고 깊은 적갈색 필터 효과를 부여합니다.']] };
-const LAST_PATCH_DATE = "2026.10.23 (V2.6 투명 배합기 & 캔디 최적화 패치)";
+const LAST_PATCH_DATE = "2026.10.23 (V2.6 투명 배합기 & 캔디 최적화 패치)"; 
+
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
     { id: 1, title: '색의 인식과 3원색', desc: '빛의 혼합 / 안료 혼합 원리', url: '/image1.jpg' },
@@ -129,6 +131,7 @@ const MIXING_DATA: Record<string, any> = {
 
 const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => { const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0; return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) }; };
 const describeArc = (x: number, y: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number) => { const startOuter = polarToCartesian(x, y, outerRadius, endAngle); const endOuter = polarToCartesian(x, y, outerRadius, startAngle); const startInner = polarToCartesian(x, y, innerRadius, endAngle); const endInner = polarToCartesian(x, y, innerRadius, startAngle); const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1"; return [ "M", startOuter.x, startOuter.y, "A", outerRadius, outerRadius, 0, largeArcFlag, 0, endOuter.x, endOuter.y, "L", endInner.x, endInner.y, "A", innerRadius, innerRadius, 0, largeArcFlag, 1, startInner.x, startInner.y, "Z" ].join(" "); };
+
 interface BoardPost {
   id: number; brand: string; code: string; date: string; likes: number; views: number; author: string; spec: string;
   baseFormula: any[]; pearlFormula: any[]; isThreeCoat: boolean; images: string[]; deletedImages?: { url: string; deletedAt: number }[]; 
@@ -221,12 +224,49 @@ export default function App() {
   const [candyThinner, setCandyThinner] = useState("6.0");
   const [candyCode, setCandyCode] = useState("");
   const [candyAdditive, setCandyAdditive] = useState("2.0");
+  const candyAdditiveRef = useRef<HTMLInputElement | null>(null);
 
+  // 🌟 투명(Clear) 스마트 배합기 & 수동/자동 하이브리드 상태 변수
   const [isClearCoatMode, setIsClearCoatMode] = useState(false);
-  const [clearWeight, setClearWeight] = useState("100");
-  const [clearBaseValue, setClearBaseValue] = useState("2");
-  const [clearHardenerValue, setClearHardenerValue] = useState("1");
-  const [clearThinnerValue, setClearThinnerValue] = useState("5");
+  const [isClearAutoCalc, setIsClearAutoCalc] = useState(true);
+  const [clearCode, setClearCode] = useState("8055");
+  const [clearWeight, setClearWeight] = useState("100.0");
+  const [hardenerCode, setHardenerCode] = useState("3225");
+  const [hardenerWeight, setHardenerWeight] = useState("33.3");
+  const [thinnerCode, setThinnerCode] = useState("9034");
+  const [thinnerWeight, setThinnerWeight] = useState("13.3");
+  const [clearRatioPreset, setClearRatioPreset] = useState("3:1+10%");
+
+  const calcClearWeights = (weightStr: string, preset: string, auto: boolean) => {
+    if (!auto) return;
+    const w = parseFloat(weightStr);
+    if (isNaN(w) || w <= 0) {
+      setHardenerWeight("");
+      setThinnerWeight("");
+      return;
+    }
+    const [ratioPart, thinnerPart] = preset.split('+');
+    const [bR, hR] = ratioPart.split(':').map(Number);
+    const hW = w * ((hR || 1) / (bR || 2));
+    setHardenerWeight(hW.toFixed(1));
+    if (thinnerPart) {
+      const tPct = parseFloat(thinnerPart.replace('%', '')) || 0;
+      setThinnerWeight(((w + hW) * (tPct / 100)).toFixed(1));
+    } else {
+      setThinnerWeight("0.0");
+    }
+  };
+
+  const handleRatioClick = (ratio: string) => {
+    setClearRatioPreset(ratio);
+    calcClearWeights(clearWeight, ratio, isClearAutoCalc);
+  };
+
+  const handleClearWeightChange = (rawVal: string) => {
+    const val = rawVal.replace(/[^0-9.]/g, '');
+    setClearWeight(val);
+    calcClearWeights(val, clearRatioPreset, isClearAutoCalc);
+  };
 
   const [targetColorCode, setTargetColorCode] = useState(''); 
   const [vehicleNumber, setVehicleNumber] = useState(''); 
@@ -452,8 +492,27 @@ export default function App() {
             const savedBase = localStorage.getItem('hitec_base'); const savedPearl = localStorage.getItem('hitec_pearl'); const savedCode = localStorage.getItem('hitec_code'); const savedMode = localStorage.getItem('hitec_mode'); const savedVehicle = localStorage.getItem('hitec_vehicle'); const savedCarModel = localStorage.getItem('hitec_carmodel'); const savedJob = localStorage.getItem('hitec_job'); const savedNotes = localStorage.getItem('hitec_notes'); const savedBoard = localStorage.getItem('hitec_board_mock'); const savedSnapshots = localStorage.getItem('hitec_snapshots');
             const savedClear = localStorage.getItem('hitec_clear'); const savedCandy = localStorage.getItem('hitec_candy');
             if (savedBase) setToners(JSON.parse(savedBase)); if (savedPearl) setPearlToners(JSON.parse(savedPearl)); if (savedCode) setTargetColorCode(savedCode); if (savedMode) setIsThreeCoatMode(JSON.parse(savedMode)); if (savedVehicle) setVehicleNumber(savedVehicle); if (savedCarModel) setCarModel(savedCarModel); if (savedJob) setJobDescription(savedJob); if (savedNotes) setSpecialNotes(savedNotes); if (savedBoard) setBoardPosts(JSON.parse(savedBoard)); if (savedSnapshots) setSnapshots(JSON.parse(savedSnapshots));
-            if (savedClear) { const c = JSON.parse(savedClear); setIsClearCoatMode(c.isClearCoatMode); setClearCode(c.clearCode); setClearWeight(c.clearWeight); setHardenerCode(c.hardenerCode); setHardenerWeight(c.hardenerWeight); setThinnerCode(c.thinnerCode); setThinnerWeight(c.thinnerWeight); }
-            if (savedCandy) { const c = JSON.parse(savedCandy); setIsCandyCoatMode(c.isCandyCoatMode); setCandyCode(c.candyCode); setCandyAdditive(c.candyAdditive); setCandyClear(c.candyClear); setCandyHardener(c.candyHardener); setCandyThinner(c.candyThinner); }
+            if (savedClear) {
+                const c = JSON.parse(savedClear);
+                setIsClearCoatMode(c.isClearCoatMode ?? false);
+                setIsClearAutoCalc(c.isClearAutoCalc ?? true);
+                setClearCode(c.clearCode || "8055");
+                setClearWeight(c.clearWeight || "100.0");
+                setHardenerCode(c.hardenerCode || "3225");
+                setHardenerWeight(c.hardenerWeight || "33.3");
+                setThinnerCode(c.thinnerCode || "9034");
+                setThinnerWeight(c.thinnerWeight || "13.3");
+                setClearRatioPreset(c.clearRatioPreset || "3:1+10%");
+            }
+            if (savedCandy) {
+                const c = JSON.parse(savedCandy);
+                setIsCandyCoatMode(c.isCandyCoatMode ?? false);
+                setCandyCode(c.candyCode || "");
+                setCandyAdditive(c.candyAdditive || "2.0");
+                setCandyClear(c.candyClear || "100.0");
+                setCandyHardener(c.candyHardener || "36.0");
+                setCandyThinner(c.candyThinner || "6.0");
+            }
         }
         setIsLoaded(true); 
     }
@@ -464,13 +523,13 @@ export default function App() {
       if (isLoaded && typeof window !== 'undefined') {
           try {
               localStorage.setItem('hitec_base', JSON.stringify(toners)); localStorage.setItem('hitec_pearl', JSON.stringify(pearlToners)); localStorage.setItem('hitec_code', targetColorCode); localStorage.setItem('hitec_mode', JSON.stringify(isThreeCoatMode)); localStorage.setItem('hitec_vehicle', vehicleNumber); localStorage.setItem('hitec_carmodel', carModel); localStorage.setItem('hitec_job', jobDescription); localStorage.setItem('hitec_notes', specialNotes); localStorage.setItem('hitec_board_mock', JSON.stringify(boardPosts)); localStorage.setItem('hitec_snapshots', JSON.stringify(snapshots));
-              localStorage.setItem('hitec_clear', JSON.stringify({ isClearCoatMode, clearCode, clearWeight, hardenerCode, hardenerWeight, thinnerCode, thinnerWeight }));
+              localStorage.setItem('hitec_clear', JSON.stringify({ isClearCoatMode, isClearAutoCalc, clearCode, clearWeight, hardenerCode, hardenerWeight, thinnerCode, thinnerWeight, clearRatioPreset }));
               localStorage.setItem('hitec_candy', JSON.stringify({ isCandyCoatMode, candyCode, candyAdditive, candyClear, candyHardener, candyThinner }));
           } catch (e: any) {
               if (e.name === 'QuotaExceededError' || e.message?.includes('Quota')) alert("⚠️ [경고] 기기의 저장 용량이 꽉 찼습니다!\n기존 데이터가 날아가는 것을 방지하기 위해 불필요한 데이터를 삭제해주세요.");
           }
       }
-  }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, boardPosts, snapshots, isClearCoatMode, clearCode, clearWeight, hardenerCode, hardenerWeight, thinnerCode, thinnerWeight, isCandyCoatMode, candyCode, candyAdditive, candyClear, candyHardener, candyThinner, isLoaded]);
+  }, [toners, pearlToners, targetColorCode, isThreeCoatMode, vehicleNumber, carModel, jobDescription, specialNotes, boardPosts, snapshots, isClearCoatMode, isClearAutoCalc, clearCode, clearWeight, hardenerCode, hardenerWeight, thinnerCode, thinnerWeight, clearRatioPreset, isCandyCoatMode, candyCode, candyAdditive, candyClear, candyHardener, candyThinner, isLoaded]);
 
   useEffect(() => {
     const baseTotal = toners.reduce((sum, t) => sum + safeNum(parseFloat(t.adjustedWeight)), 0); 
@@ -602,15 +661,8 @@ export default function App() {
     }
     if (isCandyCoatMode) { resultText += `[▼ 캔디 코트]\n  - ${candyCode || '첨가제'}: ${candyAdditive}g\n  - 클리어(7500): ${candyClear}g\n  - 경화제(7205): ${candyHardener}g\n  - 신너: ${candyThinner}g\n\n`; }
     if (isClearCoatMode) {
-        const bW = parseFloat(clearWeight) || 0;
-        const bR = parseFloat(clearBaseValue) || 2;
-        const hR = parseFloat(clearHardenerValue) || 1;
-        const tP = parseFloat(clearThinnerValue) || 0;
-        const hW = bW * (hR / bR);
-        const sumBH = bW + hW;
-        const tW = sumBH * (tP / 100);
-        const totC = sumBH + tW;
-        resultText += `[▼ 투명(Clear) 코트]\n  - 주제(8055): ${bW.toFixed(1)}g\n  - 경화제: ${hW.toFixed(1)}g\n  - 신너/첨가제(${tP}%): ${tW.toFixed(1)}g\n  - 총 혼합량: ${totC.toFixed(1)}g\n\n`;
+        const totClear = (parseFloat(clearWeight) || 0) + (parseFloat(hardenerWeight) || 0) + (parseFloat(thinnerWeight) || 0);
+        resultText += `[▼ 투명(Clear) 코트 (${clearRatioPreset})]\n  - 주제(${clearCode}): ${clearWeight}g\n  - 경화제(${hardenerCode}): ${hardenerWeight}g\n  - 신너(${thinnerCode}): ${thinnerWeight}g\n  - 클리어 총 혼합량: ${totClear.toFixed(1)}g\n\n`;
     }
     resultText += "================================\n✨ 베이스+펄 최종 혼합량: " + totalFinalWeight + "g\n\n👉 링크:\n" + generateSyncUrl();
     return resultText;
@@ -654,7 +706,7 @@ export default function App() {
       } else if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(plainText).then(() => { alert("✅ 일반 텍스트로 복사되었습니다."); }); }
       setIsExcelModalOpen(false);
   };
-  const handleCopyExcelTemplate = () => { const headerRow = ['등록 날짜', '차량 번호', '브랜드/차종', '컬러코드', '작업내용', '특이사항', '배합보기'].join('\t'); if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(headerRow); alert("엑셀 헤더가 복사되었습니다."); } }
+  const handleCopyExcelTemplate = () => { const headerRow = ['등록 날짜', '차량 번호', '브랜드/차종', '컬러코드', '작업내용', '특이사항', '배합보기'].join('\t'); if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(headerRow); alert("엑셀 헤더가 복사되었습니다."); } };
   
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -709,8 +761,8 @@ export default function App() {
 
   const deleteBoardPost = (id: number, e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("이 시편 데이터를 완전히 삭제하시겠습니까?")) setBoardPosts(prev => prev.filter(post => post.id !== id)); };
   
-  const handleSaveSnapshot = () => { const newSnapshot = { id: Date.now(), timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }), dateStr: new Date().toLocaleDateString('ko-KR'), base: JSON.parse(JSON.stringify(toners)), pearl: JSON.parse(JSON.stringify(pearlToners)), isThreeCoat: isThreeCoatMode, totalFinal: totalFinalWeight, isCandyCoat: isCandyCoatMode, candyCode, candyAdditive, candyClear, candyHardener, candyThinner, isClearCoat: isClearCoatMode, clearCode, clearWeight, hardenerCode, hardenerWeight, thinnerCode, thinnerWeight }; setSnapshots(prev => [newSnapshot, ...prev]); alert(`[${newSnapshot.timestamp}] 데이터가 확정 저장되었습니다.`); };
-  const restoreSnapshot = (snapshot: any) => { if (window.confirm("복원하시겠습니까?")) { setToners(JSON.parse(JSON.stringify(snapshot.base))); setPearlToners(JSON.parse(JSON.stringify(snapshot.pearl))); setIsThreeCoatMode(snapshot.isThreeCoat || false); setIsCandyCoatMode(snapshot.isCandyCoat || false); setCandyCode(snapshot.candyCode || ""); setCandyAdditive(snapshot.candyAdditive || "2.0"); setCandyClear(snapshot.candyClear || "100.0"); setCandyHardener(snapshot.candyHardener || "36.0"); setCandyThinner(snapshot.candyThinner || "6.0"); setIsClearCoatMode(snapshot.isClearCoat || false); setClearCode(snapshot.clearCode || "8055"); setClearWeight(snapshot.clearWeight || "100.0"); setHardenerCode(snapshot.hardenerCode || "3225"); setHardenerWeight(snapshot.hardenerWeight || "33.3"); setThinnerCode(snapshot.thinnerCode || "9034"); setThinnerWeight(snapshot.thinnerWeight || "10.0"); setSelectedSnapshot(null); setIsSnapshotModalOpen(false); } };
+  const handleSaveSnapshot = () => { const newSnapshot = { id: Date.now(), timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }), dateStr: new Date().toLocaleDateString('ko-KR'), base: JSON.parse(JSON.stringify(toners)), pearl: JSON.parse(JSON.stringify(pearlToners)), isThreeCoat: isThreeCoatMode, totalFinal: totalFinalWeight, isCandyCoat: isCandyCoatMode, candyCode, candyAdditive, candyClear, candyHardener, candyThinner, isClearCoat: isClearCoatMode, clearCode, clearWeight, hardenerCode, hardenerWeight, thinnerCode, thinnerWeight, isClearAutoCalc, clearRatioPreset }; setSnapshots(prev => [newSnapshot, ...prev]); alert(`[${newSnapshot.timestamp}] 데이터가 확정 저장되었습니다.`); };
+  const restoreSnapshot = (snapshot: any) => { if (window.confirm("복원하시겠습니까?")) { setToners(JSON.parse(JSON.stringify(snapshot.base))); setPearlToners(JSON.parse(JSON.stringify(snapshot.pearl))); setIsThreeCoatMode(snapshot.isThreeCoat || false); setIsCandyCoatMode(snapshot.isCandyCoat || false); setCandyCode(snapshot.candyCode || ""); setCandyAdditive(snapshot.candyAdditive || "2.0"); setCandyClear(snapshot.candyClear || "100.0"); setCandyHardener(snapshot.candyHardener || "36.0"); setCandyThinner(snapshot.candyThinner || "6.0"); setIsClearCoatMode(snapshot.isClearCoat || false); setClearCode(snapshot.clearCode || "8055"); setClearWeight(snapshot.clearWeight || "100.0"); setHardenerCode(snapshot.hardenerCode || "3225"); setHardenerWeight(snapshot.hardenerWeight || "33.3"); setThinnerCode(snapshot.thinnerCode || "9034"); setThinnerWeight(snapshot.thinnerWeight || "13.3"); setIsClearAutoCalc(snapshot.isClearAutoCalc !== undefined ? snapshot.isClearAutoCalc : true); setClearRatioPreset(snapshot.clearRatioPreset || "3:1+10%"); setSelectedSnapshot(null); setIsSnapshotModalOpen(false); } };
   
   const handleSavePostEdit = () => { setBoardPosts(prev => prev.map(p => p.id === viewingPost.id ? { ...p, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec } : p)); setViewingPost({ ...viewingPost, brand: editPostForm.brand, code: editPostForm.code, spec: editPostForm.spec }); setIsEditingPost(false); };
   const handleOpenPost = (post: any) => { setViewingPost(post); setEditPostForm({ brand: post.brand, code: post.code, spec: post.spec }); setIsEditingPost(false); };
@@ -719,7 +771,7 @@ export default function App() {
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
   if (!isAuthorized) {
-  return (
+    return (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 notranslate" translate="no">
             <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95">
                 {!showApprovalSuccess ? (
@@ -787,7 +839,6 @@ export default function App() {
         </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
       
@@ -922,15 +973,15 @@ export default function App() {
                       <div className="flex-1"></div>
 
                       <div className="flex items-center bg-white border rounded-md px-1 h-[36px] shrink-0 shadow-sm">
-                           <button onClick={() => quickEditWeight(toner.id, -0.1, false)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
-                           <input 
-                               ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} 
-                               onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} onBlur={e => handleWeightBlur(toner.id, e.target.value, false)} onKeyDown={e => handleWeightKeyDown(e, toner.id, false)} 
-                               className="w-14 text-right text-[15px] font-black text-blue-600 focus:outline-none clean-number-input" placeholder="0.0" 
-                           />
-                           <button onClick={() => quickEditWeight(toner.id, 0.1, false)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
-                           <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
-                           <button onClick={() => removeToner(toner.id, false)} className="ml-1 px-1"><Trash2 size={16} className="text-slate-300 hover:text-red-500 transition-colors"/></button>
+                         <button onClick={() => quickEditWeight(toner.id, -0.1, false)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
+                         <input 
+                             ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} 
+                             onChange={e => handleWeightInputChange(toner.id, e.target.value, false)} onBlur={e => handleWeightBlur(toner.id, e.target.value, false)} onKeyDown={e => handleWeightKeyDown(e, toner.id, false)} 
+                             className="w-14 text-right text-[15px] font-black text-blue-600 focus:outline-none clean-number-input" placeholder="0.0" 
+                         />
+                         <button onClick={() => quickEditWeight(toner.id, 0.1, false)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
+                         <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
+                         <button onClick={() => removeToner(toner.id, false)} className="ml-1 px-1"><Trash2 size={16} className="text-slate-300 hover:text-red-500 transition-colors"/></button>
                       </div>
                     </div>
 
@@ -981,6 +1032,7 @@ export default function App() {
               </div>
             </div>
             
+            {/* 3대 코트 스위치 (3Coat / Candy / Clear) */}
             <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
                 <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-purple-50 transition-colors">
                     <span className="text-xs font-black text-purple-700">3Coat (펄 추가) 켜기</span>
@@ -999,7 +1051,7 @@ export default function App() {
                     </div>
                 </label>
                 <label className="flex-1 flex items-center justify-between cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-cyan-50 transition-colors">
-                    <span className="text-xs font-black text-cyan-700">Clear (클리어 추가) 켜기</span>
+                    <span className="text-xs font-black text-cyan-700">Clear (투명 추가) 켜기</span>
                     <div className="relative">
                         <input type="checkbox" className="sr-only" checked={isClearCoatMode} onChange={() => setIsClearCoatMode(!isClearCoatMode)} />
                         <div className={`w-10 h-5 rounded-full shadow-inner transition-colors ${isClearCoatMode ? 'bg-cyan-500' : 'bg-slate-300'}`}></div>
@@ -1008,129 +1060,117 @@ export default function App() {
                 </label>
             </div>
 
+            {/* 캔디 코트 (1줄 압축 다이어트 + 숫자 키패드 통일 + 엔터 자동 포커스) */}
             {isCandyCoatMode && (
-              <div className="pt-4 mt-4 border-t border-rose-200 space-y-3 pb-4">
-                 <div className="text-xs font-black text-rose-700 flex justify-between border-b pb-1"><span>▼ 캔디 코트 (Candy Coat)</span></div>
+              <div className="pt-4 mt-4 border-t border-rose-200 space-y-2 pb-2">
+                 <div className="text-xs font-black text-rose-700 flex justify-between border-b pb-1">
+                     <span>▼ 캔디 코트 (Candy Coat 100:36:6 슬림 배합기)</span>
+                 </div>
                  <div className="bg-white rounded-xl overflow-hidden border border-rose-200 shadow-sm flex flex-col">
-                     <div className="bg-gradient-to-r from-[#5a1827] to-[#8b253f] p-3 text-white flex items-center gap-2">
-                         <input type="text" inputMode="decimal" pattern="[0-9]*" value={candyCode} onChange={e => setCandyCode(e.target.value.toUpperCase())} className="bg-white/20 text-white border border-white/30 rounded px-2 py-1.5 w-20 text-center font-black focus:outline-none placeholder-rose-300" placeholder="입력" />
-                         <span className="font-bold text-sm tracking-wide shrink-0">{candyCode && TONER_DB[candyCode] ? TONER_DB[candyCode].role : '캔디 코드 입력'}</span>
+                     <div className="bg-gradient-to-r from-[#5a1827] to-[#8b253f] px-3 py-2 text-white flex items-center gap-2">
+                         <input 
+                             type="text" 
+                             inputMode="decimal" 
+                             pattern="[0-9]*" 
+                             value={candyCode} 
+                             onChange={e => setCandyCode(e.target.value.toUpperCase())} 
+                             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); candyAdditiveRef.current?.focus(); } }}
+                             className="bg-white/20 text-white border border-white/30 rounded px-2 py-1 w-20 text-center text-sm font-black focus:outline-none placeholder-rose-200" 
+                             placeholder="번호" 
+                         />
+                         <span className="font-bold text-xs sm:text-sm tracking-wide truncate">{candyCode && TONER_DB[candyCode] ? TONER_DB[candyCode].role : '캔디 코드 입력 후 엔터(Enter)'}</span>
                      </div>
-                     <div className="bg-rose-50 p-3 flex flex-row flex-wrap sm:flex-nowrap gap-2 items-center justify-between">
-                         <div className="flex-1 bg-white p-2 rounded-lg border border-slate-200 shadow-inner min-w-[80px]">
-                             <span className="text-[10px] font-bold text-slate-500 block">7500 클리어</span>
-                             <div className="flex items-end gap-1"><input type="text" inputMode="decimal" pattern="[0-9]*" value={candyClear} onChange={e => { let val = e.target.value.replace(/[^0-9.]/g, ''); setCandyClear(val); if(val) { setCandyHardener((parseFloat(val) * 0.36).toFixed(1)); setCandyThinner((parseFloat(val) * 0.06).toFixed(1)); } else { setCandyHardener(""); setCandyThinner(""); } }} className="w-full text-xl font-black text-slate-800 bg-transparent focus:outline-none" /><span className="font-bold text-slate-400 text-xs">g</span></div>
+                     <div className="bg-rose-50 p-2 grid grid-cols-4 gap-1.5 items-center">
+                         <div className="bg-white p-1.5 rounded-lg border border-slate-200 shadow-inner">
+                             <span className="text-[9px] font-bold text-slate-500 block truncate">7500클리어(100)</span>
+                             <div className="flex items-end gap-0.5"><input type="text" inputMode="decimal" pattern="[0-9]*" value={candyClear} onChange={e => { let val = e.target.value.replace(/[^0-9.]/g, ''); setCandyClear(val); if(val) { setCandyHardener((parseFloat(val) * 0.36).toFixed(1)); setCandyThinner((parseFloat(val) * 0.06).toFixed(1)); } else { setCandyHardener(""); setCandyThinner(""); } }} className="w-full text-sm sm:text-base font-black text-slate-800 bg-transparent focus:outline-none" /><span className="font-bold text-slate-400 text-[10px]">g</span></div>
                          </div>
-                         <div className="flex-1 bg-white p-2 rounded-lg border border-slate-200 shadow-inner min-w-[80px]">
-                             <span className="text-[10px] font-bold text-slate-500 block">경화제 (36)</span>
-                             <div className="flex items-end gap-1"><input type="text" inputMode="decimal" pattern="[0-9]*" value={candyHardener} onChange={e => setCandyHardener(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-xl font-black text-slate-800 bg-transparent focus:outline-none" /><span className="font-bold text-slate-400 text-xs">g</span></div>
+                         <div className="bg-white p-1.5 rounded-lg border border-slate-200 shadow-inner">
+                             <span className="text-[9px] font-bold text-slate-500 block truncate">경화제(36)</span>
+                             <div className="flex items-end gap-0.5"><input type="text" inputMode="decimal" pattern="[0-9]*" value={candyHardener} onChange={e => setCandyHardener(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-sm sm:text-base font-black text-slate-800 bg-transparent focus:outline-none" /><span className="font-bold text-slate-400 text-[10px]">g</span></div>
                          </div>
-                         <div className="flex-1 bg-white p-2 rounded-lg border border-slate-200 shadow-inner min-w-[80px]">
-                             <span className="text-[10px] font-bold text-slate-500 block">신너 (6)</span>
-                             <div className="flex items-end gap-1"><input type="text" inputMode="decimal" pattern="[0-9]*" value={candyThinner} onChange={e => setCandyThinner(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-xl font-black text-slate-800 bg-transparent focus:outline-none" /><span className="font-bold text-slate-400 text-xs">g</span></div>
+                         <div className="bg-white p-1.5 rounded-lg border border-slate-200 shadow-inner">
+                             <span className="text-[9px] font-bold text-slate-500 block truncate">신너(6)</span>
+                             <div className="flex items-end gap-0.5"><input type="text" inputMode="decimal" pattern="[0-9]*" value={candyThinner} onChange={e => setCandyThinner(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-sm sm:text-base font-black text-slate-800 bg-transparent focus:outline-none" /><span className="font-bold text-slate-400 text-[10px]">g</span></div>
                          </div>
-                         <div className="flex-1 bg-rose-100 p-2 rounded-lg border border-rose-300 shadow-inner min-w-[80px]">
-                             <span className="text-[10px] font-black text-rose-700 block">첨가제 용량</span>
-                             <div className="flex items-end gap-1"><input type="text" inputMode="decimal" pattern="[0-9]*" value={candyAdditive} onChange={e => setCandyAdditive(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-xl font-black text-rose-700 bg-transparent focus:outline-none" /><span className="font-bold text-rose-500 text-xs">g</span></div>
+                         <div className="bg-rose-100 p-1.5 rounded-lg border border-rose-300 shadow-inner">
+                             <span className="text-[9px] font-black text-rose-700 block truncate">첨가제 용량</span>
+                             <div className="flex items-end gap-0.5"><input ref={candyAdditiveRef} type="text" inputMode="decimal" pattern="[0-9]*" value={candyAdditive} onChange={e => setCandyAdditive(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full text-sm sm:text-base font-black text-rose-700 bg-transparent focus:outline-none" /><span className="font-bold text-rose-500 text-[10px]">g</span></div>
                          </div>
                      </div>
                  </div>
               </div>
             )}
 
+            {/* 투명(Clear) 스마트 배합기 (품번 저장 + 프리셋 + 수동/자동 하이브리드 모드) */}
             {isClearCoatMode && (
-              <div className="pt-4 mt-4 border-t border-cyan-200 space-y-3 pb-4">
-                 <div className="text-xs font-black text-cyan-700 flex justify-between border-b pb-1">
-                     <span>▼ 클리어 코트 (Clear Coat) 스마트 배합기</span>
+              <div className="pt-4 mt-4 border-t border-cyan-200 space-y-2 pb-2">
+                 <div className="text-xs font-black text-cyan-700 flex justify-between items-center border-b pb-1">
+                     <span>▼ 투명 코트 (Clear Coat) 스마트 배합기</span>
+                     <label className="flex items-center gap-1.5 cursor-pointer">
+                         <span className="text-[10px] font-bold text-slate-500">{isClearAutoCalc ? '자동 계산 ON' : '수동 입력 모드'}</span>
+                         <div className="relative">
+                             <input type="checkbox" className="sr-only" checked={isClearAutoCalc} onChange={() => { const next = !isClearAutoCalc; setIsClearAutoCalc(next); if (next) calcClearWeights(clearWeight, clearRatioPreset, true); }} />
+                             <div className={`w-8 h-4 rounded-full transition-colors ${isClearAutoCalc ? 'bg-cyan-500' : 'bg-slate-300'}`}></div>
+                             <div className={`absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-transform ${isClearAutoCalc ? 'transform translate-x-4' : ''}`}></div>
+                         </div>
+                     </label>
                  </div>
-                 <div className="bg-cyan-50 rounded-xl overflow-hidden border border-cyan-200 shadow-sm flex flex-col p-4 gap-4">
+                 
+                 <div className="bg-cyan-50 rounded-xl overflow-hidden border border-cyan-200 shadow-sm flex flex-col p-3 gap-2.5">
+                     <div className="flex flex-wrap gap-1.5 items-center">
+                         {['2:1', '3:1', '2:1+10%', '3:1+5%', '3:1+10%'].map(ratio => (
+                             <button key={ratio} onClick={() => handleRatioClick(ratio)} className={`px-2.5 py-1 text-[10px] font-black rounded-full border transition-all ${clearRatioPreset === ratio ? 'bg-cyan-600 text-white border-cyan-700 shadow-sm' : 'bg-white text-cyan-700 border-cyan-200 hover:bg-cyan-100'}`}>
+                                 {ratio}
+                             </button>
+                         ))}
+                         <span className="text-[10px] font-bold text-slate-400 ml-auto flex items-center">
+                            {isClearAutoCalc ? <><Calculator size={12} className="mr-1 text-cyan-500"/>자동 계산</> : '수동 직접입력'}
+                         </span>
+                     </div>
                      
-                     <div className="flex justify-between items-center bg-white p-3 rounded-lg border border-slate-300 shadow-sm">
-                         <span className="text-sm font-black text-slate-700">주제(Clear 8055) 기준 용량 입력:</span>
-                         <div className="flex items-end gap-1">
-                             <input type="text" inputMode="decimal" value={clearWeight} onChange={e => setClearWeight(e.target.value.replace(/[^0-9.]/g, ''))} className="w-24 text-right text-2xl font-black text-cyan-600 focus:outline-none bg-cyan-50 rounded px-2" placeholder="0" />
-                             <span className="font-bold text-slate-400 text-sm mb-1">g</span>
+                     <div className="grid grid-cols-3 gap-2 items-center">
+                         <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-inner">
+                             <div className="flex items-center justify-between gap-1 mb-1">
+                                 <span className="text-[9px] font-bold text-slate-400">주제</span>
+                                 <input type="text" value={clearCode} onChange={e => setClearCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-cyan-700 bg-cyan-50 px-1 rounded w-12 text-center focus:outline-none" placeholder="품번" />
+                             </div>
+                             <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5">
+                                 <input type="text" inputMode="decimal" pattern="[0-9]*" value={clearWeight} onChange={e => handleClearWeightChange(e.target.value)} className="w-full text-base sm:text-xl font-black text-slate-800 bg-transparent focus:outline-none" />
+                                 <span className="font-bold text-slate-400 text-[10px]">g</span>
+                             </div>
                          </div>
-                     </div>
-
-                     <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-                         <span className="text-[11px] font-black text-slate-600 block mb-2">주제 (Clear 8055) 비율 고정:</span>
-                         <div className="flex gap-2">
-                             {['2', '3', '4', '5'].map(val => (
-                                 <button key={val} onClick={() => setClearBaseValue(val)} className={`flex-1 py-2.5 rounded-lg font-black text-lg transition-all border ${clearBaseValue === val ? 'bg-cyan-600 text-white border-cyan-700 shadow-md transform scale-105' : 'bg-slate-50 text-slate-500 border-slate-300 hover:bg-cyan-100'}`}>{val}</button>
-                             ))}
+                         <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-inner">
+                             <div className="flex items-center justify-between gap-1 mb-1">
+                                 <span className="text-[9px] font-bold text-slate-400">경화제</span>
+                                 <input type="text" value={hardenerCode} onChange={e => setHardenerCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-slate-600 bg-slate-100 px-1 rounded w-12 text-center focus:outline-none" placeholder="품번" />
+                             </div>
+                             <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5">
+                                 <input type="text" inputMode="decimal" pattern="[0-9]*" value={hardenerWeight} onChange={e => setHardenerWeight(e.target.value.replace(/[^0-9.]/g, ''))} readOnly={isClearAutoCalc} className={`w-full text-base sm:text-xl font-black ${isClearAutoCalc ? 'text-slate-500' : 'text-slate-800'} bg-transparent focus:outline-none`} />
+                                 <span className="font-bold text-slate-400 text-[10px]">g</span>
+                             </div>
                          </div>
-                     </div>
-
-                     <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-                         <span className="text-[11px] font-black text-slate-600 block mb-2">경화제 (VHS Hardener) 비율 고정:</span>
-                         <div className="flex gap-2">
-                             {['1', '2', '3'].map(val => (
-                                 <button key={val} onClick={() => setClearHardenerValue(val)} className={`flex-1 py-2.5 rounded-lg font-black text-lg transition-all border ${clearHardenerValue === val ? 'bg-indigo-500 text-white border-indigo-600 shadow-md transform scale-105' : 'bg-slate-50 text-slate-500 border-slate-300 hover:bg-indigo-100'}`}>{val}</button>
-                             ))}
-                         </div>
-                     </div>
-
-                     <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-                         <span className="text-[11px] font-black text-slate-600 block mb-2">전용 첨가제 / 신너 (%) 퀵 선택:</span>
-                         <div className="flex gap-2 mb-3">
-                             {['3', '5', '7', '10', '20'].map(val => (
-                                 <button key={val} onClick={() => setClearThinnerValue(val)} className={`flex-1 py-2 rounded-lg font-black text-sm transition-all border ${clearThinnerValue === val ? 'bg-amber-500 text-white border-amber-600 shadow-md transform scale-105' : 'bg-slate-50 text-slate-500 border-slate-300 hover:bg-amber-100'}`}>{val}%</button>
-                             ))}
-                         </div>
-                         <div className="flex items-center justify-between gap-3 bg-slate-50 p-2 rounded-lg border border-slate-200">
-                             <span className="text-[11px] font-bold text-slate-500">미세 조정 (+ / -)</span>
-                             <div className="flex items-center gap-4">
-                                 <button onClick={() => setClearThinnerValue(prev => String(Math.max(0, parseInt(prev || '0') - 1)))} className="w-10 h-10 flex items-center justify-center bg-white border border-slate-300 hover:bg-red-50 hover:text-red-500 hover:border-red-300 text-slate-700 rounded-lg font-black text-xl shadow-sm transition-colors">-</button>
-                                 <div className="w-16 text-center font-black text-2xl text-slate-800 select-none">{clearThinnerValue}<span className="text-sm text-slate-500 ml-1">%</span></div>
-                                 <button onClick={() => setClearThinnerValue(prev => String(parseInt(prev || '0') + 1))} className="w-10 h-10 flex items-center justify-center bg-white border border-slate-300 hover:bg-blue-50 hover:text-blue-500 hover:border-blue-300 text-slate-700 rounded-lg font-black text-xl shadow-sm transition-colors">+</button>
+                         <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-inner">
+                             <div className="flex items-center justify-between gap-1 mb-1">
+                                 <span className="text-[9px] font-bold text-slate-400">신너/첨가</span>
+                                 <input type="text" value={thinnerCode} onChange={e => setThinnerCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-slate-600 bg-slate-100 px-1 rounded w-12 text-center focus:outline-none" placeholder="품번" />
+                             </div>
+                             <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5">
+                                 <input type="text" inputMode="decimal" pattern="[0-9]*" value={thinnerWeight} onChange={e => setThinnerWeight(e.target.value.replace(/[^0-9.]/g, ''))} readOnly={isClearAutoCalc} className={`w-full text-base sm:text-xl font-black ${isClearAutoCalc ? 'text-slate-500' : 'text-slate-800'} bg-transparent focus:outline-none`} />
+                                 <span className="font-bold text-slate-400 text-[10px]">g</span>
                              </div>
                          </div>
                      </div>
 
-                     {(() => {
-                         const bWeight = parseFloat(clearWeight) || 0;
-                         const bRatio = parseFloat(clearBaseValue) || 2;
-                         const hRatio = parseFloat(clearHardenerValue) || 1;
-                         const tPercent = parseFloat(clearThinnerValue) || 0;
-                         
-                         const hWeight = bWeight * (hRatio / bRatio);
-                         const sumBH = bWeight + hWeight;
-                         const tWeight = sumBH * (tPercent / 100);
-                         const totalClear = sumBH + tWeight;
-
-                         return (
-                             <div className="bg-slate-800 p-4 rounded-xl shadow-inner flex flex-col gap-3">
-                                 <div className="flex justify-between items-center border-b border-slate-600 pb-2">
-                                     <span className="text-xs font-bold text-slate-400">설정 비율</span>
-                                     <span className="text-sm font-black text-emerald-400">{clearBaseValue} : {clearHardenerValue} + {clearThinnerValue}%</span>
-                                 </div>
-                                 <div className="grid grid-cols-3 gap-2 text-center">
-                                     <div className="bg-slate-900 rounded p-2 border border-slate-700">
-                                         <span className="block text-[10px] text-slate-500 mb-1">주제</span>
-                                         <span className="text-sm font-black text-white">{bWeight.toFixed(1)}g</span>
-                                     </div>
-                                     <div className="bg-slate-900 rounded p-2 border border-slate-700">
-                                         <span className="block text-[10px] text-slate-500 mb-1">경화제</span>
-                                         <span className="text-sm font-black text-white">{hWeight.toFixed(1)}g</span>
-                                     </div>
-                                     <div className="bg-slate-900 rounded p-2 border border-slate-700">
-                                         <span className="block text-[10px] text-amber-500 mb-1">신너/첨가제</span>
-                                         <span className="text-sm font-black text-amber-400">{tWeight.toFixed(1)}g</span>
-                                     </div>
-                                 </div>
-                                 <div className="bg-emerald-900/50 border border-emerald-500/30 rounded p-3 flex justify-between items-center mt-1">
-                                     <span className="text-xs font-bold text-emerald-300">클리어 총 혼합량</span>
-                                     <span className="text-xl font-black text-emerald-400">{totalClear.toFixed(1)}g</span>
-                                 </div>
-                             </div>
-                         );
-                     })()}
+                     <div className="bg-slate-800 px-3 py-2 rounded-lg flex justify-between items-center text-white">
+                         <span className="text-[11px] font-bold text-cyan-300">투명(Clear) 총 혼합량 ({clearRatioPreset})</span>
+                         <span className="text-sm sm:text-base font-black text-emerald-400">{((parseFloat(clearWeight) || 0) + (parseFloat(hardenerWeight) || 0) + (parseFloat(thinnerWeight) || 0)).toFixed(1)}g</span>
+                     </div>
                  </div>
               </div>
             )}
 
-           {isThreeCoatMode && (
+            {isThreeCoatMode && (
               <div className="pt-4 mt-4 border-t border-purple-200 space-y-2 pb-8">
                 <div className="text-xs font-black text-purple-700 flex justify-between border-b pb-1"><span>▼ 펄 코트 (Mid Coat)</span></div>
                 {pearlToners.map((toner) => {
@@ -1165,25 +1205,25 @@ export default function App() {
                         <div className="flex-1"></div>
 
                         <div className="flex items-center bg-white border border-purple-100 rounded-md px-1 h-[36px] shrink-0 shadow-sm">
-                             <button onClick={() => quickEditWeight(toner.id, -0.1, true)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
-                             <input 
-                                  ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} 
-                                  onChange={e => handleWeightInputChange(toner.id, e.target.value, true)} onBlur={e => handleWeightBlur(toner.id, e.target.value, true)} onKeyDown={e => handleWeightKeyDown(e, toner.id, true)} 
-                                  className="w-14 text-right text-[15px] font-black text-purple-600 focus:outline-none clean-number-input" placeholder="0.0" 
-                             />
-                             <button onClick={() => quickEditWeight(toner.id, 0.1, true)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
-                             <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
-                             <button onClick={() => removeToner(toner.id, true)} className="ml-1 px-1"><Trash2 size={16} className="text-purple-300 hover:text-red-500 transition-colors"/></button>
+                           <button onClick={() => quickEditWeight(toner.id, -0.1, true)} className="px-2 py-1 text-red-500 font-bold hover:bg-red-50 rounded">-</button>
+                           <input 
+                               ref={el => { weightRefs.current[toner.id] = el; }} inputMode="decimal" pattern="[0-9]*" value={toner.adjustedWeight} 
+                               onChange={e => handleWeightInputChange(toner.id, e.target.value, true)} onBlur={e => handleWeightBlur(toner.id, e.target.value, true)} onKeyDown={e => handleWeightKeyDown(e, toner.id, true)} 
+                               className="w-14 text-right text-[15px] font-black text-purple-600 focus:outline-none clean-number-input" placeholder="0.0" 
+                           />
+                           <button onClick={() => quickEditWeight(toner.id, 0.1, true)} className="px-2 py-1 text-blue-500 font-bold hover:bg-blue-50 rounded">+</button>
+                           <span className="text-[10px] font-bold text-slate-400 ml-1">g</span>
+                           <button onClick={() => removeToner(toner.id, true)} className="ml-1 px-1"><Trash2 size={16} className="text-purple-300 hover:text-red-500 transition-colors"/></button>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, true)}>
-                            <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
-                                {toner.code ? (info.role || '등록된 펄 정보 없음') : '펄 번호를 입력하세요 (예: PP201...)'}
-                                {toner.code && info.type && <span className="ml-2 bg-purple-900 text-purple-200 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-700 shadow-sm whitespace-nowrap">{info.type}</span>}
-                                {!toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
-                                {toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
-                            </span>
+                          <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
+                              {toner.code ? (info.role || '등록된 펄 정보 없음') : '펄 번호를 입력하세요 (예: PP201...)'}
+                              {toner.code && info.type && <span className="ml-2 bg-purple-900 text-purple-200 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-700 shadow-sm whitespace-nowrap">{info.type}</span>}
+                              {!toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
+                              {toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
+                          </span>
                       </div>
 
                       {toner.isExpanded && (
@@ -1214,15 +1254,16 @@ export default function App() {
                     <Plus size={18} /><span>펄 조색제 추가</span>
                 </button>
               </div>
-           )}
+            )}
           </div>
         </div>
 
+        {/* 우측 마스터 기술자료실 및 카탈로그 영역 */}
         <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
             <div className="p-3 shrink-0 bg-slate-50 border-b border-slate-200">
               <h3 className="text-xs font-black mb-2 flex justify-between items-center text-slate-800">
-                <span className="flex items-center"><Target size= {14} className="mr-1 text-blue-600"/> 📘 마스터 기술자료실 (Visual Guide)</span>
+                <span className="flex items-center"><Target size={14} className="mr-1 text-blue-600"/> 📘 마스터 기술자료실 (Visual Guide)</span>
                 <button onClick={() => setIsConfiguratorOpen(true)} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"><Maximize size={10} className="mr-1"/>먼셀 믹싱 랩</button>
               </h3>
               
@@ -1250,7 +1291,7 @@ export default function App() {
                               <ul className="space-y-2 text-xs font-bold">
                                   <li className="flex items-center gap-1.5"><span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">봄/가을</span> 8055 + 경화제 3225(표준) + 첨가제 9034(표준)</li>
                                   <li className="flex items-center gap-1.5"><span className="bg-red-100 text-red-700 px-2 py-0.5 rounded">여름(다판)</span> 8055 + 경화제 3240(극지) + 첨가제 9035(지연)</li>
-                                  <li className="flex items-center gap-1.5"><span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">겨울(부분)</span> 8055 + 경화제 3220(속건) + 디류서 3364(속건)</li>
+                                  <li className="flex items-center gap-1.5"><span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">겨울(부분)</span> 8055 + 경화제 3220(속건) + 리듀서 3364(속건)</li>
                               </ul>
                           </div>
                           <div className="bg-white p-3 rounded-xl border border-slate-300 shadow-sm">
@@ -1289,7 +1330,6 @@ export default function App() {
                       </div>
                   )}
               </div>
-          </div>  
 
               <div className="flex gap-2 mt-3 relative z-50">
                   <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-sm cursor-pointer">
@@ -1324,10 +1364,10 @@ export default function App() {
                         <div className="mb-4 bg-yellow-50 border border-yellow-300 p-4 rounded-xl shadow-sm">
                            <h4 className="text-sm font-black text-yellow-800 mb-2">⚠️ 퍼마솔리드 캔디 6단계 시공 및 3대 철칙</h4>
                            <ul className="text-xs text-yellow-700 space-y-1.5 font-bold">
-                              <li>1. 이소시아네이트 포함. 방독 마스크 및 환기 필수</li>
-                              <li>2. 반사층 도장 후 완벽한 플래시 오프 필수</li>
-                              <li>3. 블렌딩 불가(전체 도장), 건조 타임 준수</li>
-                              <li>4. 2액형 클리어 조색비 엄수 및 Clear over Clear 필수</li>
+                             <li>1. 이소시아네이트 포함. 방독 마스크 및 환기 필수</li>
+                             <li>2. 반사층 도장 후 완벽한 플래시 오프 필수</li>
+                             <li>3. 블렌딩 불가(전체 도장), 건조 타임 준수</li>
+                             <li>4. 2액형 클리어 조색비 엄수 및 Clear over Clear 필수</li>
                            </ul>
                         </div>
                     )}
@@ -1354,7 +1394,6 @@ export default function App() {
                     )}
 
                     {sortedCatalog.map((item) => {
-                        const isMetallic = item.type !== 'solid' && item.type !== 'binder' && item.type !== 'candy';
                         const isCurrentlyUsed = activeCodes.includes(item.code);
                         return (
                             <div key={item.code} className={`flex flex-col bg-white rounded-xl shadow-sm border overflow-hidden transition-all duration-300 ${isCurrentlyUsed ? 'border-2 border-blue-500 shadow-md transform scale-[1.01]' : 'border-slate-200 hover:border-blue-300 cursor-pointer'}`} onClick={() => setSelectedTonerForView(item.code)}>
@@ -1382,6 +1421,9 @@ export default function App() {
                         );
                     })}
                 </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {showBottomBar && (
@@ -1541,8 +1583,7 @@ export default function App() {
             </div>
         </div>
       )}
-
-      {zoomedImage && (
+{zoomedImage && (
         <div className="fixed inset-0 bg-black/95 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setZoomedImage(null)}>
             <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[4010] shadow-lg"><X size={24}/></button>
             
@@ -1762,8 +1803,7 @@ export default function App() {
                             </div>
                         </div>
                     </div>
-                ) :
-                  zoomedImage.id === 8 ? (
+                ) : zoomedImage.id === 8 ? (
                     <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-200 mt-8">
                         <div className="border-b-4 border-slate-600 pb-2 mb-6 flex justify-between items-end">
                             <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
@@ -1875,8 +1915,7 @@ export default function App() {
                             </ul>
                         </div>
                     </div>
-                ) :
-                zoomedImage.id === 12 ? (
+                ) : zoomedImage.id === 12 ? (
                     <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-slate-100 mt-8">
                         <div className="border-b-4 border-red-600 pb-2 mb-6 flex justify-between items-end">
                             <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center flex-wrap gap-2">
@@ -1896,6 +1935,26 @@ export default function App() {
                                         빛 반사 유사각도<span className="text-red-600 bg-red-100 px-1.5 py-0.5 mx-1 rounded">정면(15도)은 어두워지고</span> 
                                         나머지 각도<span className="text-blue-600 bg-blue-100 px-1.5 py-0.5 mx-1 rounded">측면(45도/110도)은 밝아집니다.</span>
                                     </p>
+                                </div>
+                            </div>
+                            <div className="w-full md:w-1/3 flex flex-row md:flex-col gap-3">
+                                <div className="bg-white border border-slate-300 rounded p-3 text-center shadow-inner flex-1">
+                                    <span className="text-[11px] font-bold text-slate-500 mb-2 block">&lt;사용 안 함&gt;</span>
+                                    <div className="h-6 bg-slate-300 w-full rounded flex items-center justify-around px-2">
+                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                                        <div className="w-8 h-1.5 bg-slate-500 rounded-full"></div>
+                                    </div>
+                                </div>
+                                <div className="bg-white border border-slate-300 rounded p-3 text-center shadow-inner flex-1">
+                                    <span className="text-[11px] font-bold text-blue-600 mb-2 block">&lt;사용 함&gt;</span>
+                                    <div className="h-12 bg-slate-200 w-full rounded relative overflow-hidden flex items-center justify-center">
+                                        <div className="w-6 h-6 bg-blue-300/60 rounded-full absolute left-4 top-1 blur-[1px]"></div>
+                                        <div className="w-7 h-7 bg-blue-300/60 rounded-full absolute right-6 bottom-1 blur-[1px]"></div>
+                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-45 absolute top-2 left-6"></div>
+                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full -rotate-12 absolute bottom-3 left-14"></div>
+                                        <div className="w-8 h-1.5 bg-slate-600 rounded-full rotate-90 absolute top-4 right-10"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1926,6 +1985,36 @@ export default function App() {
                                         <td className="border-r border-slate-200 font-bold text-slate-600 p-3">색상</td>
                                         <td className="border-r border-slate-200 font-bold text-blue-600 p-3">약하게 청색이 짙어짐</td>
                                         <td className="font-bold text-yellow-600 p-3">약하게 황색이 짙어짐</td>
+                                    </tr>
+                                    <tr className="bg-slate-50 border-b border-slate-200">
+                                        <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-100" rowSpan={2}>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-xl">WT352</span>
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">명암</td>
+                                        <td className="border-r border-slate-200 font-black text-white bg-slate-700/80 p-3">어두워짐</td>
+                                        <td className="font-black text-slate-800 bg-yellow-50 p-3">밝아짐</td>
+                                    </tr>
+                                    <tr className="bg-slate-50 border-b-4 border-slate-300">
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">색상</td>
+                                        <td className="border-r border-slate-200 font-black text-blue-700 p-3">강하게 청색이 짙어짐</td>
+                                        <td className="font-bold text-red-500 p-3">약하게 적색이 짙어짐</td>
+                                    </tr>
+                                    <tr className="bg-white border-b border-slate-200">
+                                        <td className="border-r border-slate-200 font-black text-slate-900 bg-slate-50" rowSpan={2}>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-xl">WT322</span>
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">명암</td>
+                                        <td className="border-r border-slate-200 font-black text-white bg-slate-700/80 p-3">어두워짐</td>
+                                        <td className="font-black text-slate-800 bg-yellow-50 p-3">밝아짐</td>
+                                    </tr>
+                                    <tr className="bg-white">
+                                        <td className="border-r border-slate-200 font-bold text-slate-600 p-3">색상</td>
+                                        <td className="border-r border-slate-200 font-black text-yellow-600 p-3">강하게 황색이 짙어짐</td>
+                                        <td className="font-black text-red-600 p-3">강하게 적색이 짙어짐</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1979,6 +2068,17 @@ export default function App() {
                                         <button onClick={(e) => { e.stopPropagation(); setImgScale(1); }} className="text-[10px] text-blue-400 font-bold hover:text-white mt-0.5">RESET</button>
                                     </div>
                                     <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.min(5, s + 0.2)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">+</button>
+                                    
+                                    {currentImgIndex >= 0 && (
+                                        <>
+                                            <div className="w-px h-6 bg-slate-600 mx-1"></div>
+                                            <div className="text-white font-black text-sm whitespace-nowrap min-w-[50px] text-center tracking-widest text-emerald-400">
+                                                {!isMobile && currentImgIndex < ALL_GUIDE_IMAGES.length - 1 && zoomedImage.id !== 12 
+                                                  ? `${currentImgIndex + 1}-${currentImgIndex + 2} / ${ALL_GUIDE_IMAGES.length}` 
+                                                  : `${currentImgIndex + 1} / ${ALL_GUIDE_IMAGES.length}`}
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         ) : (
@@ -2046,7 +2146,7 @@ export default function App() {
             <div className="p-5 flex flex-col gap-4 bg-slate-50">
               <div className="text-sm text-slate-700 leading-relaxed bg-green-50 p-4 rounded-xl border border-green-200">
                   <p className="font-black text-green-800 mb-2">✅ 초간단 엑셀 복사 사용 방법 (매크로 불필요!)</p>
-                  <p><b>Step 1.</b> 처음 사용하실 때만 아래 <b>'엑셀 기본 양식 복사'</b>를 눌러 엑셀 A1 셀에 붙여넣기 해 <b>제목 틀</b>을 만드세요.</p>
+                  <p><b>Step 1.</b> 처음 사용하실 때만 아래 <b>'엑셀 기본 양식 복사'</b>를 눌러 엑셀 A1 셀에 붙여넣어 <b>제목 틀</b>을 만드세요.</p>
                   <p className="mt-1"><b>Step 2.</b> 데이터 입력 후 <b>초록색 [엑셀 복사] 버튼을 누른 다음, 엑셀의 빈 줄 첫 칸(A열)에 바로 붙여넣기(Ctrl+V)</b> 하시면 자동으로 팝업 복원 링크가 생성됩니다.</p>
               </div>
               <div className="flex flex-col gap-2 mt-2">
@@ -2066,7 +2166,7 @@ export default function App() {
               <button onClick={() => setIsShareModalOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             <div className="p-6 flex flex-col gap-3 bg-slate-50">
-                <button onClick={handleCopyAllText} className="w-full bg-slate-800 text-white py-3.5 rounded-xl font-black shadow-lg hover:bg-slate-700 transition-all flex items-center justify-center gap-2 text-sm mb-2 border border-slate-600"><Copy size={18}/> 전체 텍스트 직접 복사하기</button>
+                <button onClick={handleCopyAllText} className="w-full bg-slate-800 text-white py-4 rounded-xl font-black shadow-lg hover:bg-slate-700 transition-all flex items-center justify-center gap-2 text-base mb-2 border-2 border-slate-600"><Copy size={20}/> 전체 텍스트 직접 복사하기</button>
                 <button onClick={handleShareKakao} className="w-full bg-[#FEE500] text-slate-900 py-3.5 rounded-xl font-black shadow-sm hover:bg-[#E5C100] transition-colors flex items-center justify-center gap-2"><MessageSquare size={18}/> 카카오톡 바로 전송하기</button>
                 <button onClick={handleShareSMS} className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-black shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"><Send size={18}/> 문자(SMS) 앱 다이렉트 열기</button>
                 
@@ -2105,7 +2205,7 @@ export default function App() {
           </div>
         </div>
       )}
-     {isSnapshotModalOpen && (
+{isSnapshotModalOpen && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-700">
             <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-slate-900 shrink-0">
@@ -2397,7 +2497,8 @@ export default function App() {
            </div>
         </div>
       )}
-{isGlossaryModalOpen && (
+
+      {isGlossaryModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[750px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-200">
             <div className="p-4 bg-emerald-600 flex justify-between items-center text-white shrink-0">
@@ -2479,7 +2580,6 @@ export default function App() {
           </div>
         </div>
       )}
-
       {isPearlGuideOpen && (
         <div className="fixed inset-0 bg-slate-900/95 z-[3000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="bg-slate-100 rounded-2xl w-[900px] max-w-full h-[90vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300 my-8 relative">
@@ -2714,8 +2814,6 @@ export default function App() {
           </main>
         </div>
       )}
-        </div>
-      </div>
     </div>
   );
 }
