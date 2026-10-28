@@ -763,7 +763,6 @@ export default function App() {
   const handleGoogleGlossarySearch = () => { const inputEl = document.getElementById('glossarySearchInput') as HTMLInputElement; const val = inputEl?.value?.trim(); if(!val) { alert("사전 검색창에 뜻이 궁금한 용어를 직접 입력하세요!"); return; } window.open(`https://www.google.com/search?q=스피스헥커+${val}+뜻`, '_blank'); };
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
-  const showBottomBar = !(isMobile && isKeyboardOpen);
     
     if (!isAuthorized) {
         return (
