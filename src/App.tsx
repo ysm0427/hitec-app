@@ -788,13 +788,14 @@ export default function App() {
                       </div>
                       <div>
                           <label className="text-xs font-bold text-slate-600 mb-1 block">현 직책</label>
-                          <select value={authForm.role} onChange={e => setAuthForm({...authForm, role: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold focus:outline-none focus:border-blue-500">
-                              <option value="대표/원장">대표 / 원장</option>
-                              <option value="기술부장/실장">기술부장 / 실장</option>
-                              <option value="수석조색사">수석 조색사</option>
-                              <option value="테크니션">테크니션</option>
-                              <option value="사원">사원</option>
-                          </select>
+                          <select value={authForm.role} onChange={e => setAuthForm({...authForm, role: e.target.value})} className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+    <option value="사원/주임">사원 / 주임</option>
+    <option value="대리">대리</option>
+    <option value="과장">과장</option>
+    <option value="차장">차장</option>
+    <option value="부장">부장</option>
+    <option value="팀장">팀장</option>
+</select>
                       </div>
                       {isApproving && (
                           <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex flex-col items-center justify-center gap-2">
@@ -805,7 +806,7 @@ export default function App() {
                       {showApprovalSuccess && (
                           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex flex-col items-center justify-center gap-3">
                               <ShieldCheck className="text-emerald-600" size={32}/>
-                              <span className="text-xs font-bold text-emerald-800 text-center">마스터 승인이 완료되었습니다!<br/>시스템에 접속합니다.</span>
+                              <span className="text-xs font-bold text-emerald-800 text-center">마스터 윤성만 님 승인이 완료되었습니다!<br/>시스템에 접속합니다.</span>
                               <button type="button" onClick={handleApprovalConfirm} className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-sm shadow-md transition-all">조색 Pro 시작하기</button>
                           </div>
                       )}
