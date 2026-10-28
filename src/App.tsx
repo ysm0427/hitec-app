@@ -12,8 +12,7 @@ import {
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS } from './tonerDB';
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
-import ClearMixer from './ClearMixer';
-
+import ClearMixer from './components/ClearMixer';
 // Firebase 설정 및 초기화
 const firebaseConfig = {
   apiKey: "AIzaSyAaVn1BUqEhBNFLDuCMu9zy2VQpOdGHMvI",
