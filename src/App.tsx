@@ -224,18 +224,6 @@ export default function App() {
     // sessionStorage 대신 localStorage에 24시간 계산용 타임스탬프와 함께 저장
     localStorage.setItem('hitec_auth_data', JSON.stringify({ passed: true, timestamp: Date.now() }));
   };
-    setAuthorizedUsers(prev => {
-        const isExist = prev.some(u => u.name === newUser.name && u.branch === newUser.branch);
-        if (isExist) return prev;
-        const updated = [...prev, newUser];
-        localStorage.setItem('hitec_auth_users', JSON.stringify(updated));
-        return updated;
-    });
-
-    setShowApprovalSuccess(false);
-    setIsAuthorized(true);
-    sessionStorage.setItem('hitec_auth_passed', 'true');
-  };
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [toners, setToners] = useState<any[]>([{ id: `b_init`, code: '', adjustedWeight: "", history: [], memo: "", isExpanded: false }]);
