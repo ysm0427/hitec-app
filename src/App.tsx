@@ -290,7 +290,11 @@ export default function App() {
   const [snapshots, setSnapshots] = useState<any[]>([]);
   const [isSnapshotModalOpen, setIsSnapshotModalOpen] = useState(false);
   const [selectedSnapshot, setSelectedSnapshot] = useState<any>(null);
-
+// 투명 수동 배합 바 토글 상태
+  const [isClearManualOpen, setIsClearManualOpen] = useState(false);
+  // 클리어 가이드 브랜드 및 제품 선택 상태
+  const [selectedClearBrand, setSelectedClearBrand] = useState<string | null>(null);
+  const [selectedClearProduct, setSelectedClearProduct] = useState<string | null>(null);
   const [activeGuideTab, setActiveGuideTab] = useState<'theory'|'spectrum'|'effect'|'special'|'clear'>('spectrum');
   
   const [zoomedImage, setZoomedImage] = useState<any>(null);
