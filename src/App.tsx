@@ -769,7 +769,7 @@ export default function App() {
                       <div className="grid grid-cols-2 gap-3">
                           <div>
                               <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
-                              <input type="text" value={authForm.company} onChange={e => setAuthForm({...authForm, company: e.target.value})} placeholder="예: 큭토피아" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold focus:outline-none focus:border-blue-500"/>
+                              <input type="text" value={authForm.company} onChange={e => setAuthForm({...authForm, company: e.target.value})} placeholder="예: Maserati" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold focus:outline-none focus:border-blue-500"/>
                           </div>
                           <div>
                               <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
