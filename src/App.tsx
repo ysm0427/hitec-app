@@ -763,75 +763,75 @@ export default function App() {
   const handleGoogleGlossarySearch = () => { const inputEl = document.getElementById('glossarySearchInput') as HTMLInputElement; const val = inputEl?.value?.trim(); if(!val) { alert("사전 검색창에 뜻이 궁금한 용어를 직접 입력하세요!"); return; } window.open(`https://www.google.com/search?q=스피스헥커+${val}+뜻`, '_blank'); };
 
   const showBottomBar = !(isMobile && isKeyboardOpen);
-  if (!isAuthorized) {
-    return (
-        <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 notranslate" translate="no">
-            <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95">
-                {!showApprovalSuccess ? (
-                    <>
-                        <div className="p-4 flex flex-col items-center justify-center mt-6 relative">
-                            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-4">
-                                <Lock size={32} className="text-white"/>
-                            </div>
-                            <h2 className="text-2xl font-black text-slate-800 mb-2">조색 Pro 접근 승인</h2>
-                            <p className="text-sm text-slate-500 text-center break-keep px-4">이 시스템은 승인된 작업자만 사용할 수 있습니다. 관리자 확인을 위해 정확한 정보를 입력해주세요.</p>
-                        </div>
-                        <form onSubmit={handleFakeApproval} className="p-6 bg-white flex flex-col gap-4">
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
-                                    <input type="text" value={authForm.company} onChange={e => setAuthForm({...authForm, company: e.target.value})} placeholder="예: 도이치 모터스 BMW" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
-                                    <input type="text" value={authForm.location} onChange={e => setAuthForm({...authForm, location: e.target.value})} placeholder="예: 성수동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><UserCheck size={12}/> 작업자 이름</label>
-                                    <input type="text" value={authForm.name} onChange={e => setAuthForm({...authForm, name: e.target.value})} placeholder="홍길동" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Hash size={12}/> 연령(나이)</label>
-                                    <input type="number" value={authForm.age} onChange={e => setAuthForm({...authForm, age: e.target.value})} placeholder="50" className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50" />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="text-xs font-bold text-slate-600 mb-1 block">현 직책</label>
-                                <select value={authForm.role} onChange={e => setAuthForm({...authForm, role: e.target.value})} className="w-full border border-slate-300 p-2.5 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-                                    <option>사원</option><option>주임 / 대리</option><option>과장 / 차장</option><option>팀장 / 실장</option><option>대표 / 관리자</option>
-                                </select>
-                            </div>
-                            
-                            {isApproving && (
-                                <div className="flex flex-col items-center justify-center py-4 mt-2 animate-in fade-in bg-blue-50/50 border border-blue-100 rounded-xl shadow-inner">
-                                    <Loader2 size={28} className="text-blue-600 animate-spin mb-3" />
-                                    <span className="text-xs font-black text-blue-800 text-center break-keep px-4 leading-relaxed">{approvalMessage}</span>
-                                </div>
-                            )}
-
-                            <button type="submit" disabled={!isAuthFormValid || isApproving} className={`w-full font-black py-4 rounded-xl mt-2 transition-colors shadow-md flex justify-center items-center gap-2 text-sm ${!isAuthFormValid ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-[#1e293b] hover:bg-slate-800 text-white'}`}>
-                                {isApproving ? "시스템 검증 중..." : <><ShieldCheck size={18}/> 관리자에게 승인 요청하기</>}
-                            </button>
-                        </form>
-                    </>
-                ) : (
-                    <div className="p-10 bg-white flex flex-col items-center justify-center gap-4 text-center animate-in zoom-in duration-300 min-h-[450px]">
-                        <CheckCircle size={64} className="text-emerald-500 mb-4 drop-shadow-md" />
-                        <h3 className="text-xl font-black text-slate-800 break-keep leading-relaxed">
-                            마스터키 윤성만 님에 의해<br/>정상적으로 승인되었습니다.
-                        </h3>
-                        <p className="text-base font-bold text-slate-500 mb-8">즐거운 하루 되세요.</p>
-                        <button onClick={handleApprovalConfirm} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl transition-colors shadow-md text-base">
-                            확인 (메인 화면으로 이동)
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-  }
+  const showBottomBar = !(isMobile && isKeyboardOpen);
+    
+    if (!isAuthorized) {
+        return (
+          <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 notranslate" translate="no">
+              <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95">
+                  {!showApprovalSuccess ? (
+                      <div className="p-4 flex flex-col items-center justify-center mt-6 relative">
+                          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+                              <Lock size={32} className="text-white"/>
+                          </div>
+                          <h2 className="text-2xl font-black text-slate-800 mb-2">조색 Pro 접근 승인</h2>
+                          <p className="text-sm text-slate-500 text-center break-keep px-4">이 시스템은 승인된 작업자만 사용할 수 있습니다. 관리자 확인을 위해 정확한 정보를 입력해주세요.</p>
+                      </div>
+                  ) : null}
+                  <form onSubmit={handleFakeApproval} className="p-6 bg-white flex flex-col gap-4">
+                      <div className="grid grid-cols-2 gap-3">
+                          <div>
+                              <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Briefcase size={12}/> 소속 그룹 (상호명)</label>
+                              <input type="text" value={authForm.company} onChange={e => setAuthForm({...authForm, company: e.target.value})} placeholder="예: 큭토피아" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold focus:outline-none focus:border-blue-500"/>
+                          </div>
+                          <div>
+                              <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><MapPin size={12}/> 지점 위치</label>
+                              <input type="text" value={authForm.location} onChange={e => setAuthForm({...authForm, location: e.target.value})} placeholder="예: 서울 강남점" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold focus:outline-none focus:border-blue-500"/>
+                          </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                          <div>
+                              <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><UserCheck size={12}/> 작업자 이름</label>
+                              <input type="text" value={authForm.name} onChange={e => setAuthForm({...authForm, name: e.target.value})} placeholder="예: 홍길동" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold focus:outline-none focus:border-blue-500"/>
+                          </div>
+                          <div>
+                              <label className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1"><Users size={12}/> 연령(나이)</label>
+                              <input type="text" inputMode="numeric" pattern="[0-9]*" value={authForm.age} onChange={e => setAuthForm({...authForm, age: e.target.value.replace(/[^0-9]/g, '')})} placeholder="예: 35" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold focus:outline-none focus:border-blue-500"/>
+                          </div>
+                      </div>
+                      <div>
+                          <label className="text-xs font-bold text-slate-600 mb-1 block">현 직책</label>
+                          <select value={authForm.role} onChange={e => setAuthForm({...authForm, role: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold focus:outline-none focus:border-blue-500">
+                              <option value="대표/원장">대표 / 원장</option>
+                              <option value="기술부장/실장">기술부장 / 실장</option>
+                              <option value="수석조색사">수석 조색사</option>
+                              <option value="테크니션">테크니션</option>
+                              <option value="사원">사원</option>
+                          </select>
+                      </div>
+                      {isApproving && (
+                          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex flex-col items-center justify-center gap-2">
+                              <Loader2 className="animate-spin text-blue-600" size={24}/>
+                              <span className="text-xs font-bold text-blue-700">{approvalMessage}</span>
+                          </div>
+                      )}
+                      {showApprovalSuccess && (
+                          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex flex-col items-center justify-center gap-3">
+                              <ShieldCheck className="text-emerald-600" size={32}/>
+                              <span className="text-xs font-bold text-emerald-800 text-center">마스터 승인이 완료되었습니다!<br/>시스템에 접속합니다.</span>
+                              <button type="button" onClick={handleApprovalConfirm} className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-sm shadow-md transition-all">조색 Pro 시작하기</button>
+                          </div>
+                      )}
+                      {!isApproving && !showApprovalSuccess && (
+                          <button type="submit" disabled={!isAuthFormValid} className={`w-full py-3.5 rounded-xl font-black text-sm shadow-lg transition-all ${isAuthFormValid ? 'bg-slate-900 hover:bg-slate-800 text-white cursor-pointer' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>
+                              시스템 검증 중...
+                          </button>
+                      )}
+                  </form>
+              </div>
+          </div>
+        );
+    }
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
       
