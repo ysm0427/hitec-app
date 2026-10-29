@@ -1453,6 +1453,8 @@ export default function App() {
 
                 <button onClick={() => addToner(true)} className="w-full py-3 border border-dashed border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/50 rounded-lg text-purple-600 font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm"><Plus size={18} /><span>펄 조색제 추가</span></button>
 </div>
+  )}                
+</div>
         {/* 우측 마스터 기술자료실 및 카탈로그 영역 */}
         <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[500px]">
