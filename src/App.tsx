@@ -1211,64 +1211,159 @@ export default function App() {
       
       {/* 화면 하단 고정 요약바 */}
       {showBottomBar && (
-          <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
-              <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-4xl mx-auto p-3 md:p-4 h-full items-stretch justify-center">
-                  <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4 shadow-inner">
-                     <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase mb-2"><Layers size={11} className="mr-1 text-blue-400"/> A. 베이스 코트 요약</span>
-                     <div className="flex items-center justify-between text-xs md:text-sm">
-                         <div className="flex flex-col items-start"><span className="text-[9px] text-slate-500 font-bold mb-0.5">순수 안료</span><span className="font-black text-white">{totalBaseWeight}g</span></div>
-                         <span className="text-slate-600 font-black">+</span>
-                         <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold mb-0.5">필수 수지(20%)</span><span className="font-black text-blue-400">{formatWeight(parseFloat(totalBaseWeight) * 0.2)}g</span></div>
-                         <span className="text-slate-600 font-black">=</span>
-                         <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{formatWeight(parseFloat(totalBaseWeight) * 1.2)}g</span></div>
-                     </div>
-                  </div>
-                  {isThreeCoatMode && (
-                  <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4 shadow-inner">
-                     <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase mb-2"><Zap size={11} className="mr-1 text-purple-400"/> B. 펄 코트 요약</span>
-                     <div className="flex items-center justify-between text-xs md:text-sm">
-                         <div className="flex flex-col items-start"><span className="text-[9px] text-slate-500 font-bold mb-0.5">순수 펄</span><span className="font-black text-white">{totalPearlWeight}g</span></div>
-                         <span className="text-slate-600 font-black">+</span>
-                         <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold mb-0.5">펄 수지(30%)</span><span className="font-black text-purple-400">{formatWeight(parseFloat(totalPearlWeight) * 0.3)}g</span></div>
-                         <span className="text-slate-600 font-black">=</span>
-                         <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{formatWeight(parseFloat(totalPearlWeight) * 1.3)}g</span></div>
-                     </div>
-                  </div>
-                  )}
-              </div>
-          </div>
-      )}
-
-      {/* Pro 제작 과정 모달 (법적 면책 조항 포함) */}
-      {isProcessOpen && (
-          <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[85vh]">
-              <div className="p-4 bg-slate-800 flex justify-between items-center text-white shrink-0">
-                <h3 className="font-bold flex items-center gap-2"><Code size={18} /> Glasurit & Spies Hecker Pro 제작 과정</h3>
-                <button onClick={() => setIsProcessOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
-              </div>
-              
-              <div className="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4 bg-slate-50">
-                 {/* 🚨 제작 배경 및 법적 면책 고지 */}
-                 <div className="bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm mb-4">
-                     <h4 className="font-black text-red-700 text-sm mb-2">⚠️ 시스템 제작 배경 및 면책 고지</h4>
-                     <p className="text-xs text-red-800 leading-relaxed font-bold break-keep">
-                         본 웹 어플리케이션(Pro)은 <strong>현장 도장 작업자들의 조색(Color Matching) 편의성과 데이터 관리에 도움을 주기 위한 순수 목적</strong>으로 개발되었습니다. <br/><br/>
-                         안료 특성 및 배합 데이터는 현장 실무와 제조사 가이드를 기반으로 작성되었으나, 실제 적용 시 환경에 따라 차이가 발생할 수 있습니다. <span className="underline">작업 전 반드시 공식 홈페이지 또는 기술지원팀에 문의하여 재확인</span>하시기 바라며, 본 시스템의 정보를 맹목적으로 활용하여 발생한 어떠한 결과 및 피해에 대해서도 <strong>개발자는 법적인 책임을 지지 않음</strong>을 명시합니다.
-                     </p>
-                 </div>
-                 
-                 <div className="overflow-y-auto space-y-6 text-slate-300 font-sans text-xs sm:text-[13px] leading-relaxed break-keep pr-2 custom-scrollbar">
-                    <h4 className="text-slate-800 font-bold">1. Spies Hecker DB Architecture (진행 상황)</h4>
-                    <p className="text-slate-600">현재 조색 관련 주요 알고리즘 및 데이터베이스 연동 작업이 순조롭게 진행 중입니다. 지속적인 업데이트를 통해 정확도를 높여가고 있습니다.</p>
+      <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
+          <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-4xl mx-auto p-3 md:p-4 h-full items-stretch justify-center">
+              <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4 shadow-inner">
+                 <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase mb-2"><Layers size={11} className="mr-1 text-blue-400"/> A. 베이스 코트 요약</span>
+                 <div className="flex items-center justify-between text-xs md:text-sm">
+                     <div className="flex flex-col items-start"><span className="text-[9px] text-slate-500 font-bold mb-0.5">순수 안료</span><span className="font-black text-white">{totalBaseWeight}g</span></div>
+                     <span className="text-slate-600 font-black">+</span>
+                     <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold mb-0.5">필수 수지(20%)</span><span className="font-black text-blue-400">{formatWeight(parseFloat(totalBaseWeight) * 0.2)}g</span></div>
+                     <span className="text-slate-600 font-black">=</span>
+                     <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{formatWeight(parseFloat(totalBaseWeight) * 1.2)}g</span></div>
                  </div>
               </div>
-            </div>
+              {isThreeCoatMode && (
+              <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4 shadow-inner">
+                 <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase mb-2"><Zap size={11} className="mr-1 text-purple-400"/> B. 펄 코트 요약</span>
+                 <div className="flex items-center justify-between text-xs md:text-sm">
+                     <div className="flex flex-col items-start"><span className="text-[9px] text-slate-500 font-bold mb-0.5">순수 펄</span><span className="font-black text-white">{totalPearlWeight}g</span></div>
+                     <span className="text-slate-600 font-black">+</span>
+                     <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold mb-0.5">펄 수지(30%)</span><span className="font-black text-purple-400">{formatWeight(parseFloat(totalPearlWeight) * 0.3)}g</span></div>
+                     <span className="text-slate-600 font-black">=</span>
+                     <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{formatWeight(parseFloat(totalPearlWeight) * 1.3)}g</span></div>
+                 </div>
+              </div>
+              )}
           </div>
-      )}
+      </div>
+  )}
 
+  {isUsersModalOpen && (
+    <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+      <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[80vh]">
+        <div className="p-4 bg-indigo-600 flex justify-between items-center text-white shrink-0">
+          <h3 className="font-bold flex items-center gap-2"><Users size={18} /> 접속 승인된 작업자 현황</h3>
+          <button onClick={() => setIsUsersModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
+        </div>
+        <div className="p-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar">
+            {!selectedUserInfo ? (
+                <>
+                    <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl mb-6">
+                        <p className="text-xs text-indigo-800 font-bold mb-1">🔐 실시간 접속 보안 패널 (Admin Only)</p>
+                        <p className="text-[11px] text-indigo-600 leading-relaxed break-keep">이 시스템은 승인된 사용자의 기기 목록을 보여줍니다. 실제 배포 시 Firebase DB와 연동되어 원격 차단 등 실시간 통계가 제공될 예정입니다.</p>
+                    </div>
+
+                    <div className="space-y-3">
+                        {authorizedUsers.length === 0 ? (
+                            <div className="text-center py-8 text-slate-400 text-sm font-bold">승인된 사용자가 없습니다.</div>
+                        ) : (
+                            authorizedUsers.map((user, idx) => (
+                                <button key={idx} onClick={() => setSelectedUserInfo(user)} className="w-full bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex justify-between items-center hover:border-indigo-300 hover:shadow-md transition-all text-left group">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                            {user.device === 'Mobile' ? <Smartphone size={16}/> : <Monitor size={16}/>}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="font-black text-slate-800 text-sm">[{user.branch}] {user.name}</span>
+                                            <span className="text-[10px] text-slate-400 font-bold mt-0.5">{user.brand}</span>
+                                        </div>
+                                    </div>
+                                    <span className="bg-slate-100 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-700 text-[10px] font-black px-2 py-1 rounded transition-colors">상세 보기</span>
+                                </button>
+                            ))
+                        )}
+                    </div>
+                </>
+            ) : (
+                <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4">
+                    <button onClick={() => setSelectedUserInfo(null)} className="flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-slate-800 mb-2 w-max">
+                        <ChevronDown className="rotate-90"/> 목록으로 돌아가기
+                    </button>
+                    <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm flex flex-col items-center text-center">
+                        <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4 border-2 border-indigo-200 shadow-sm">
+                           <Users size={32}/>
+                        </div>
+                        <h4 className="text-xl font-black text-slate-800 mb-1">[{selectedUserInfo.branch}] {selectedUserInfo.name}</h4>
+                        <span className="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full mb-6 shadow-sm">{selectedUserInfo.role}</span>
+                        
+                        <div className="w-full flex flex-col gap-3 text-left">
+                            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <span className="text-xs font-bold text-slate-500">소속 브랜드</span>
+                                <span className="text-sm font-black text-slate-800">{selectedUserInfo.brand}</span>
+                            </div>
+                            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <span className="text-xs font-bold text-slate-500">연령 (나이)</span>
+                                <span className="text-sm font-black text-slate-800">{selectedUserInfo.age}세</span>
+                            </div>
+                            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <span className="text-xs font-bold text-slate-500">접속 기기</span>
+                                <span className="text-sm font-black text-slate-800 flex items-center gap-1">
+                                    {selectedUserInfo.device === 'Mobile' ? <Smartphone size={14}/> : <Monitor size={14}/>} {selectedUserInfo.device}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <span className="text-xs font-bold text-slate-500">최초 등록일시</span>
+                                <span className="text-xs font-black text-slate-800">{selectedUserInfo.date}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+      </div>
     </div>
-  );
+  )}
+
+  {isCloudModalOpen && (
+    <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+      <div className="bg-white rounded-2xl w-[450px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 h-auto max-h-[85vh]">
+        <div className="p-4 bg-blue-600 flex justify-between items-center text-white shrink-0">
+          <h3 className="font-bold flex items-center gap-2"><Cloud size={18} /> 기기 간 초고속 다이렉트 연동 (오류 0%)</h3>
+          <button onClick={() => setIsCloudModalOpen(false)} className="hover:text-red-200 transition-colors bg-blue-700 p-1.5 rounded-full"><X size={16} /></button>
+        </div>
+        
+        <div className="p-6 flex flex-col gap-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar pb-12 sm:pb-6">
+          <div className="bg-white p-5 rounded-xl border border-blue-200 shadow-sm flex flex-col items-center text-center shrink-0">
+              <span className="bg-blue-100 text-blue-800 text-[11px] font-black px-3 py-1 rounded-full mb-3 flex items-center gap-1.5"><Monitor size={14}/> PC ➔ 모바일 연결</span>
+              <h4 className="text-base font-black text-slate-800 mb-1 flex items-center gap-1.5"><QrCode size={18} className="text-blue-600"/> 스마트폰 카메라로 QR 스캔</h4>
+              <p className="text-xs text-slate-500 mb-4">현재 PC 화면의 배합을 모바일로 즉시 넘기려면<br/>스마트폰 기본 카메라로 아래 QR 코드를 비추세요.</p>
+              <div className="bg-white p-3 border-2 border-dashed border-blue-300 rounded-2xl">
+                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(generateSyncUrl())}`} alt="배합 동기화 QR코드" className="w-[140px] h-[140px]" />
+              </div>
+          </div>
+
+          <div className="bg-white p-5 rounded-xl border border-yellow-200 shadow-sm flex flex-col items-center text-center relative overflow-hidden shrink-0">
+              <div className="absolute top-0 left-0 w-full h-1 bg-[#FEE500]"></div>
+              <span className="bg-yellow-100 text-yellow-800 text-[11px] font-black px-3 py-1 rounded-full mb-3 flex items-center gap-1.5 mt-2"><Smartphone size={14}/> 모바일 ➔ PC 연결</span>
+              <h4 className="text-base font-black text-slate-800 mb-1 flex items-center gap-1.5"><MessageSquare size={18} className="text-yellow-500"/> PC 카카오톡으로 전송하기</h4>
+              <p className="text-xs text-slate-500 mb-4 break-keep">모바일에서 작업한 내역을 PC로 보낼 때는<br/><b>카카오톡 PC버전</b>으로 보내는 것이 가장 빠르고 확실합니다.</p>
+              
+              <div className="flex flex-col gap-2.5 w-full">
+                  <button onClick={handleSendToPcKakao} className="w-full bg-[#FEE500] hover:bg-[#E5C100] text-slate-900 py-3.5 rounded-xl font-black text-sm shadow-sm transition-colors flex items-center justify-center gap-2">
+                      <MessageSquare size={18} /> 카카오톡 (나에게 쓰기) 로 보내기
+                  </button>
+                  <button onClick={handleCopyLinkForPc} className={`w-full py-3.5 rounded-xl font-black text-sm shadow-sm transition-colors flex items-center justify-center gap-2 ${copied ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' : 'bg-slate-800 text-white hover:bg-slate-700'}`}>
+                      {copied ? <><Check size={18}/> 링크가 복사되었습니다!</> : <><Link size={18}/> 다이렉트 링크 주소 복사하기</>}
+                  </button>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {previewModalImage && (
+    <div className="fixed inset-0 bg-black/95 z-[5000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setPreviewModalImage(null)}>
+        <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[5010] shadow-lg"><X size={24}/></button>
+        <div className="max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl border border-slate-700 shadow-2xl bg-slate-900 p-2" onClick={e => e.stopPropagation()}>
+            <img src={previewModalImage} alt="시편 확대 사진" className="w-full h-full object-contain max-h-[80vh]" />
+        </div>
+    </div>
+  )}
+
+</div>
+);
 }
             
             {isThreeCoatMode && (
