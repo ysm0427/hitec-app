@@ -1194,13 +1194,82 @@ export default function App() {
                        </div>
 
                        <div className="bg-slate-900 px-2 py-2 rounded flex justify-between items-center text-white mt-0.5">
-                           <span className="text-[10px] font-bold text-slate-300 truncate">합계 ({rClear}:{rHard}{rThin > 0 ? `:${rThin}%` : ''})</span>
-                           <span className="text-sm font-black text-emerald-400 ml-2">{((parseFloat(clearWeight) || 0) + (parseFloat(hardenerWeight) || 0) + (parseFloat(thinnerWeight) || 0)).toFixed(1)}g</span>
+                           <span className="text-[10px] font-bold text-slate-300 truncate">
+                               합계 ({rClear}:{rHard}{rThin > 0 ? `:${rThin}%` : ''})
+                           </span>
+                           <span className="text-sm font-black text-emerald-400 ml-2">
+                               {((parseFloat(clearWeight) || 0) + (parseFloat(hardenerWeight) || 0) + (parseFloat(thinnerWeight) || 0)).toFixed(1)}g
+                           </span>
                        </div>
                    </div>
                 </div>
               );
             })()}
+          </div>
+        </div>
+      </div>
+      
+      {/* 화면 하단 고정 요약바 */}
+      {showBottomBar && (
+          <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
+              <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-4xl mx-auto p-3 md:p-4 h-full items-stretch justify-center">
+                  <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4 shadow-inner">
+                     <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase mb-2"><Layers size={11} className="mr-1 text-blue-400"/> A. 베이스 코트 요약</span>
+                     <div className="flex items-center justify-between text-xs md:text-sm">
+                         <div className="flex flex-col items-start"><span className="text-[9px] text-slate-500 font-bold mb-0.5">순수 안료</span><span className="font-black text-white">{totalBaseWeight}g</span></div>
+                         <span className="text-slate-600 font-black">+</span>
+                         <div className="flex flex-col items-center"><span className="text-[9px] text-blue-400 font-bold mb-0.5">필수 수지(20%)</span><span className="font-black text-blue-400">{formatWeight(parseFloat(totalBaseWeight) * 0.2)}g</span></div>
+                         <span className="text-slate-600 font-black">=</span>
+                         <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{formatWeight(parseFloat(totalBaseWeight) * 1.2)}g</span></div>
+                     </div>
+                  </div>
+                  {isThreeCoatMode && (
+                  <div className="flex-1 flex flex-col justify-center bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-4 shadow-inner">
+                     <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center uppercase mb-2"><Zap size={11} className="mr-1 text-purple-400"/> B. 펄 코트 요약</span>
+                     <div className="flex items-center justify-between text-xs md:text-sm">
+                         <div className="flex flex-col items-start"><span className="text-[9px] text-slate-500 font-bold mb-0.5">순수 펄</span><span className="font-black text-white">{totalPearlWeight}g</span></div>
+                         <span className="text-slate-600 font-black">+</span>
+                         <div className="flex flex-col items-center"><span className="text-[9px] text-purple-400 font-bold mb-0.5">펄 수지(30%)</span><span className="font-black text-purple-400">{formatWeight(parseFloat(totalPearlWeight) * 0.3)}g</span></div>
+                         <span className="text-slate-600 font-black">=</span>
+                         <div className="flex flex-col items-end"><span className="text-[9px] text-emerald-500 font-bold mb-0.5">총 중량</span><span className="font-black text-emerald-400 text-sm md:text-base">{formatWeight(parseFloat(totalPearlWeight) * 1.3)}g</span></div>
+                     </div>
+                  </div>
+                  )}
+              </div>
+          </div>
+      )}
+
+      {/* Pro 제작 과정 모달 (법적 면책 조항 포함) */}
+      {isProcessOpen && (
+          <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+            <div className="bg-white rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[85vh]">
+              <div className="p-4 bg-slate-800 flex justify-between items-center text-white shrink-0">
+                <h3 className="font-bold flex items-center gap-2"><Code size={18} /> Glasurit & Spies Hecker Pro 제작 과정</h3>
+                <button onClick={() => setIsProcessOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
+              </div>
+              
+              <div className="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4 bg-slate-50">
+                 {/* 🚨 제작 배경 및 법적 면책 고지 */}
+                 <div className="bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm mb-4">
+                     <h4 className="font-black text-red-700 text-sm mb-2">⚠️ 시스템 제작 배경 및 면책 고지</h4>
+                     <p className="text-xs text-red-800 leading-relaxed font-bold break-keep">
+                         본 웹 어플리케이션(Pro)은 <strong>현장 도장 작업자들의 조색(Color Matching) 편의성과 데이터 관리에 도움을 주기 위한 순수 목적</strong>으로 개발되었습니다. <br/><br/>
+                         안료 특성 및 배합 데이터는 현장 실무와 제조사 가이드를 기반으로 작성되었으나, 실제 적용 시 환경에 따라 차이가 발생할 수 있습니다. <span className="underline">작업 전 반드시 공식 홈페이지 또는 기술지원팀에 문의하여 재확인</span>하시기 바라며, 본 시스템의 정보를 맹목적으로 활용하여 발생한 어떠한 결과 및 피해에 대해서도 <strong>개발자는 법적인 책임을 지지 않음</strong>을 명시합니다.
+                     </p>
+                 </div>
+                 
+                 <div className="overflow-y-auto space-y-6 text-slate-300 font-sans text-xs sm:text-[13px] leading-relaxed break-keep pr-2 custom-scrollbar">
+                    <h4 className="text-slate-800 font-bold">1. Spies Hecker DB Architecture (진행 상황)</h4>
+                    <p className="text-slate-600">현재 조색 관련 주요 알고리즘 및 데이터베이스 연동 작업이 순조롭게 진행 중입니다. 지속적인 업데이트를 통해 정확도를 높여가고 있습니다.</p>
+                 </div>
+              </div>
+            </div>
+          </div>
+      )}
+
+    </div>
+  );
+}
             
             {isThreeCoatMode && (
               <div className="pt-4 mt-4 border-t border-purple-200 space-y-2 pb-8">
