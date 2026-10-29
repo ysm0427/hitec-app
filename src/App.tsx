@@ -2302,27 +2302,31 @@ export default function App() {
       )}
 
       {isProcessOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[3000] p-4 backdrop-blur-sm transition-opacity">
-          <div className="bg-slate-800 p-6 rounded-xl border border-slate-600 shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden relative">
-            <button onClick={() => setIsProcessOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 p-1.5 rounded-full transition-colors z-10"><X size={20} /></button>
-            <div className="border-b border-emerald-500/50 pb-4 mb-5 shrink-0">
-                <h4 className="text-2xl sm:text-3xl font-black text-white tracking-wide mb-1">
-                    Spies Hecker DB Architecture
-                </h4>
-                <p className="text-emerald-400 font-bold text-sm sm:text-base">
-                    Total 110 Items Perfectly Built & Engineered
-                </p>
-                <div className="mt-4 inline-flex bg-slate-900 px-3 py-1.5 rounded border border-slate-700 items-center">
-                    <span className="text-slate-400 text-[11px] sm:text-xs mr-2">Lead Color & Data Engineer:</span>
-                    <span className="text-white font-black text-sm sm:text-base">윤성만 팀장</span>
-                </div>
-            </div>
-            <div className="overflow-y-auto space-y-6 text-slate-300 font-sans text-xs sm:text-[13px] leading-relaxed break-keep pr-2 custom-scrollbar">
-                <p>DB 완벽 분리 및 모바일 최적화, 화이트톤 갤러리 탭 적용 완료. 에러 Zero 패치 탑재.</p>
-            </div>
-          </div>
+    <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+      <div className="bg-white rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[85vh]">
+        <div className="p-4 bg-slate-800 flex justify-between items-center text-white shrink-0">
+          <h3 className="font-bold flex items-center gap-2"><Code size={18} /> Glasurit & Spies Hecker Pro 제작 과정</h3>
+          <button onClick={() => setIsProcessOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
         </div>
-      )}
+        
+        <div className="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4 bg-slate-50">
+           {/* 🚨 제작 배경 및 법적 면책 고지 */}
+           <div className="bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm mb-4">
+               <h4 className="font-black text-red-700 text-sm mb-2">⚠️ 시스템 제작 배경 및 면책 고지</h4>
+               <p className="text-xs text-red-800 leading-relaxed font-bold break-keep">
+                   본 웹 어플리케이션(Pro)은 <strong>현장 도장 작업자들의 조색(Color Matching) 편의성과 데이터 관리에 도움을 주기 위한 순수 목적</strong>으로 개발되었습니다. <br/><br/>
+                   안료 특성 및 배합 데이터는 현장 실무와 제조사 가이드를 기반으로 작성되었으나, 실제 적용 시 환경에 따라 차이가 발생할 수 있습니다. <span className="underline">작업 전 반드시 공식 홈페이지 또는 기술지원팀에 문의하여 재확인</span>하시기 바라며, 본 시스템의 정보를 맹목적으로 활용하여 발생한 어떠한 결과 및 피해에 대해서도 <strong>개발자는 법적인 책임을 지지 않음</strong>을 명시합니다.
+               </p>
+           </div>
+           
+           <div className="overflow-y-auto space-y-6 text-slate-300 font-sans text-xs sm:text-[13px] leading-relaxed break-keep pr-2 custom-scrollbar">
+              <h4 className="text-slate-800 font-bold">1. Spies Hecker DB Architecture (진행 상황)</h4>
+              <p className="text-slate-600">현재 조색 관련 주요 알고리즘 및 데이터베이스 연동 작업이 순조롭게 진행 중입니다. 지속적인 업데이트를 통해 정확도를 높여가고 있습니다.</p>
+           </div>
+        </div>
+      </div>
+    </div>
+  )}
 {isSnapshotModalOpen && (
         <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#1e293b] rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-700">
