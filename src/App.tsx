@@ -1448,19 +1448,35 @@ export default function App() {
                               )}
                           </div>
                       </div>
-
-              <div className="flex gap-2 mt-3 relative z-50">
-                  <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-sm cursor-pointer">
-                      <BookOpen size={16} className="mr-1.5" /> <span className="pointer-events-none">PP(분말) 가이드 열기</span>
-                  </button>
-                  <button onClick={() => setIsProcessOpen(true)} className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white transition-colors shadow-sm cursor-pointer">
-                      <Code size={16} className="mr-1.5 text-slate-400 pointer-events-none" /> <span className="pointer-events-none">Pro 제작 과정 보기</span>
-                  </button>
+                  ) : (
+                      <div className="grid grid-cols-2 gap-2">
+                          {(GUIDE_IMAGES[activeGuideTab] || []).map((item: any) => (
+                              <div key={item.id} onClick={() => setZoomedImage(item)} className="bg-white p-2.5 rounded-xl border border-slate-200 hover:border-blue-500 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group">
+                                  <div className="flex items-center justify-between mb-1">
+                                      <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">PAGE {item.id}</span>
+                                      <Maximize size={12} className="text-slate-400 group-hover:text-blue-600" />
+                                  </div>
+                                  <div className="font-black text-xs text-slate-800 group-hover:text-blue-700 break-keep">{item.title}</div>
+                                  <div className="text-[10px] text-slate-500 font-bold mt-0.5 break-keep">{item.desc}</div>
+                              </div>
+                          ))}
+                      </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div className="flex flex-col h-full bg-slate-100">
-                <div className="flex bg-slate-900 shrink-0 border-b border-slate-700">
+            <div className="flex gap-2 mt-3 relative z-50">
+              <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-sm cursor-pointer">
+                <BookOpen size={16} className="mr-1.5" /> <span className="pointer-events-none">PP(분말) 가이드 열기</span>
+              </button>
+              <button onClick={() => setIsProcessOpen(true)} className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white transition-colors shadow-sm cursor-pointer">
+                <Code size={16} className="mr-1.5 text-slate-400 pointer-events-none" /> <span className="pointer-events-none">Pro 제작 과정 보기</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col h-full bg-slate-100">
+            <div className="flex bg-slate-900 shrink-0 border-b border-slate-700">
                     <button onClick={()=>{setActiveTab('WT'); setCatalogSearch('');}} className={`flex-1 py-3 text-sm font-black transition-colors ${activeTab === 'WT' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>💧 WT (액상)</button>
                     <button onClick={()=>{setActiveTab('PP'); setCatalogSearch('');}} className={`flex-1 py-3 text-sm font-black transition-colors ${activeTab === 'PP' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>🌬️ PP (분말)</button>
                     <button onClick={()=>{setActiveTab('CANDY'); setCatalogSearch('');}} className={`flex-1 py-3 text-sm font-black transition-colors ${activeTab === 'CANDY' ? 'bg-yellow-500 text-slate-900' : 'text-slate-400 hover:text-slate-200'}`}>🍬 CANDY</button>
