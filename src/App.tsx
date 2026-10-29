@@ -970,14 +970,20 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, false)}>
-                        <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
-                            {toner.code ? (info.role || '등록된 안료 정보 없음') : '안료 번호를 입력하세요 (예: 321, 385...)'}
+                    {/* 🔽 화살표를 우측 끝으로 밀어서 직관적으로 만든 모바일 최적화 UI (베이스) */}
+                <div className="flex items-center gap-1 cursor-pointer hover:bg-blue-100/50 py-1.5 px-2 mt-1 rounded transition-colors w-full border border-transparent hover:border-blue-200" onClick={() => toggleExpand(toner.id, false)}>
+                    <span className="font-bold text-blue-800 text-[13px] leading-tight flex-1 text-left break-keep flex items-center justify-between w-full">
+                        <span className="flex items-center">
+                            {toner.code ? (info.role || '등록된 안료 정보 없음') : '안료 번호를 입력하세요'}
                             {toner.code && info.type && <span className="ml-2 bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px] font-bold border border-slate-600 shadow-sm whitespace-nowrap">{info.type}</span>}
-                            {!toner.isExpanded && <span className="ml-2 text-[10px] text-blue-500 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
-                            {toner.isExpanded && <span className="ml-2 text-[10px] text-blue-500 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
                         </span>
-                    </div>
+                        {toner.code && (
+                            <span className="ml-2 text-[10px] text-blue-600 bg-white border border-blue-200 px-2 py-1 rounded-full flex items-center shadow-sm shrink-0">
+                                {toner.isExpanded ? <>접기 <ChevronUp size={14} className="ml-0.5"/></> : <>상세보기 <ChevronDown size={14} className="ml-0.5"/></>}
+                            </span>
+                        )}
+                    </span>
+                </div>
 
                     {toner.isExpanded && (
                         <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-1 pt-2 border-t border-slate-200">
@@ -1094,134 +1100,107 @@ export default function App() {
           </div>
           );
         })()}
-{/* 투명(Clear) 스마트 배합기 (다이어트 압축 버전) */}
-        {isClearCoatMode && (() => {
-          const ratioMatch = (clearRatioPreset || '3:1').match(/^(\d+(?:\.\d+)?):(\d+(?:\.\d+)?)(?:\+(\d+(?:\.\d+)?)%)?$/);
-          const rClear = ratioMatch ? parseFloat(ratioMatch[1]) : 3;
-          const rHard = ratioMatch ? parseFloat(ratioMatch[2]) : 1;
-          const rThin = ratioMatch && ratioMatch[3] ? parseFloat(ratioMatch[3]) : 0;
+{/* 투명(Clear) 스마트 배합기 다이어트 압축 버전 */}
+            {isClearCoatMode && (() => {
+              const ratioMatch = (clearRatioPreset || '3:1').match(/^(\d+(?:\.\d+)?):(\d+(?:\.\d+)?)(?:\+(\d+(?:\.\d+)?)%)?$/);
+              const rClear = ratioMatch ? parseFloat(ratioMatch[1]) : 3;
+              const rHard = ratioMatch ? parseFloat(ratioMatch[2]) : 1;
+              const rThin = ratioMatch && ratioMatch[3] ? parseFloat(ratioMatch[3]) : 0;
 
-          const updateClearMix = (nextC: number, nextH: number, nextT: number, weightVal = clearWeight, autoMode = isClearAutoCalc) => {
-            const safeC = Math.max(1, Math.min(20, nextC));
-            const safeH = Math.max(1, Math.min(20, nextH));
-            const safeT = Math.max(0, Math.min(50, nextT));
-            const nextPreset = safeT > 0 ? `${safeC}:${safeH}+${safeT}%` : `${safeC}:${safeH}`;
-            setClearRatioPreset(nextPreset);
+              const updateClearMix = (nextC: number, nextH: number, nextT: number, weightVal = clearWeight, autoMode = isClearAutoCalc) => {
+                const safeC = Math.max(1, Math.min(20, nextC));
+                const safeH = Math.max(1, Math.min(20, nextH));
+                const safeT = Math.max(0, Math.min(50, nextT));
+                const nextPreset = safeT > 0 ? `${safeC}:${safeH}+${safeT}%` : `${safeC}:${safeH}`;
+                setClearRatioPreset(nextPreset);
 
-            if (autoMode) {
-              const cw = parseFloat(weightVal) || 0;
-              const hw = cw * (safeH / safeC);
-              const tw = (cw + hw) * (safeT / 100);
-              setHardenerWeight(hw.toFixed(1));
-              setThinnerWeight(tw.toFixed(1));
-            }
-          };
+                if (autoMode) {
+                  const cw = parseFloat(weightVal) || 0;
+                  const hw = cw * (safeH / safeC);
+                  const tw = (cw + hw) * (safeT / 100);
+                  setHardenerWeight(hw.toFixed(1));
+                  setThinnerWeight(tw.toFixed(1));
+                }
+              };
 
-          return (
-            <div className="pt-4 mt-4 border-t border-cyan-200 space-y-2 pb-2">
-               <div className="text-xs font-black text-cyan-700 flex justify-between items-center border-b pb-1">
-                   <span>▼ 투명 코트 (Clear Coat) 배합기</span>
-                   <label className="flex items-center gap-1.5 cursor-pointer">
-                       <span className="text-[10px] font-bold text-slate-500">{isClearAutoCalc ? '자동 계산' : '수동 모드'}</span>
-                       <div className="relative">
-                           <input
-                             type="checkbox"
-                             className="sr-only"
-                             checked={isClearAutoCalc}
-                             onChange={() => {
-                               const next = !isClearAutoCalc;
-                               setIsClearAutoCalc(next);
-                               if (next) updateClearMix(rClear, rHard, rThin, clearWeight, true);
-                             }}
-                           />
-                           <div className={`w-8 h-4 rounded-full transition-colors ${isClearAutoCalc ? 'bg-cyan-500' : 'bg-slate-300'}`}></div>
-                           <div className={`absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-transform ${isClearAutoCalc ? 'transform translate-x-4' : ''}`}></div>
-                       </div>
-                   </label>
-               </div>
-               
-               <div className="bg-cyan-50 rounded-xl overflow-hidden border border-cyan-200 shadow-sm flex flex-col p-2.5 gap-2">
-                   <div className="flex flex-wrap gap-1 items-center">
-                       <button type="button" onClick={() => { setClearCode('355S'); setHardenerCode('7205'); setThinnerCode('-'); updateClearMix(3, 1, 0, clearWeight, true); setIsClearAutoCalc(true); }} className={`px-2 py-1 text-[10px] font-black rounded border transition-all ${clearCode === '355S' ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-blue-700 border-blue-200'}`}>크로맥스 (355S = 3:1)</button>
-                       <button type="button" onClick={() => { setClearCode('8055'); setHardenerCode('3225'); setThinnerCode('9034'); updateClearMix(3, 1, 5, clearWeight, true); setIsClearAutoCalc(true); }} className={`px-2 py-1 text-[10px] font-black rounded border transition-all ${clearCode === '8055' ? 'bg-cyan-600 text-white border-cyan-700' : 'bg-white text-cyan-700 border-cyan-200'}`}>헥커 1번 (8055 = 3:1:5%)</button>
-                       <button type="button" onClick={() => { setClearCode('8700'); setHardenerCode('3470'); setThinnerCode('9070'); updateClearMix(2, 1, 10, clearWeight, true); setIsClearAutoCalc(true); }} className={`px-2 py-1 text-[10px] font-black rounded border transition-all ${clearCode === '8700' ? 'bg-indigo-600 text-white border-indigo-700' : 'bg-white text-indigo-700 border-indigo-200'}`}>헥커 2번 (8700 = 2:1:10%)</button>
-                   </div>
-
-                   <div className="bg-white p-2 rounded border border-cyan-200 flex flex-col gap-2">
-                       <div className="flex justify-between items-center text-[10px] font-black text-slate-600">
-                           <span className="flex items-center gap-1"><Sliders size={11} className="text-cyan-600" /> 수동 비율 ( {rClear} : {rHard} : {rThin}% )</span>
-                       </div>
-                       
-                       <div className="grid grid-cols-[1fr_auto_1fr_auto_2fr] gap-1 items-center bg-slate-50 p-1.5 rounded border border-slate-100">
-                           <div className="flex flex-col items-center">
-                               <span className="text-[9px] font-bold text-slate-400 mb-0.5">주제 비율</span>
-                               <select value={rClear} onChange={e => updateClearMix(parseFloat(e.target.value), rHard, rThin)} className="bg-white border border-slate-200 rounded text-sm font-black text-cyan-700 text-center w-full focus:outline-none h-6">
-                                   {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n}</option>)}
-                               </select>
+              return (
+                <div className="pt-4 mt-4 border-t border-cyan-200 space-y-2 pb-2">
+                   <div className="text-xs font-black text-cyan-700 flex justify-between items-center border-b pb-1">
+                       <span>▼ 투명 코트 (Clear Coat) 배합기</span>
+                       <label className="flex items-center gap-1.5 cursor-pointer">
+                           <span className="text-[10px] font-bold text-slate-500">{isClearAutoCalc ? '자동 계산' : '수동 모드'}</span>
+                           <div className="relative">
+                               <input type="checkbox" className="sr-only" checked={isClearAutoCalc} onChange={() => { const next = !isClearAutoCalc; setIsClearAutoCalc(next); if (next) updateClearMix(rClear, rHard, rThin, clearWeight, true); }} />
+                               <div className={`w-8 h-4 rounded-full transition-colors ${isClearAutoCalc ? 'bg-cyan-500' : 'bg-slate-300'}`}></div>
+                               <div className={`absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-transform ${isClearAutoCalc ? 'transform translate-x-4' : ''}`}></div>
                            </div>
-                           <span className="font-bold text-slate-300 mt-3">:</span>
-                           <div className="flex flex-col items-center">
-                               <span className="text-[9px] font-bold text-slate-400 mb-0.5">경화제 비율</span>
-                               <select value={rHard} onChange={e => updateClearMix(rClear, parseFloat(e.target.value), rThin)} className="bg-white border border-slate-200 rounded text-sm font-black text-slate-700 text-center w-full focus:outline-none h-6">
-                                   {[1, 2, 3].map(n => <option key={n} value={n}>{n}</option>)}
-                               </select>
-                           </div>
-                           <span className="font-bold text-slate-300 mt-3">:</span>
-                           <div className="flex flex-col">
-                               <div className="flex justify-between items-center mb-0.5">
-                                   <span className="text-[9px] font-bold text-slate-400">신너(%)</span>
-                                   <span className="text-[10px] font-black text-emerald-600">{rThin}%</span>
-                               </div>
-                               <input type="range" min="0" max="50" step="1" value={rThin} onChange={e => updateClearMix(rClear, rHard, parseInt(e.target.value, 10) || 0)} className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-cyan-600 my-1.5" />
-                           </div>
-                       </div>
+                       </label>
                    </div>
                    
-                   <div className="grid grid-cols-3 gap-1.5 items-center">
-                       <div className="bg-white p-1.5 rounded border border-slate-200 shadow-inner">
-                           <div className="flex items-center justify-between gap-1 mb-1">
-                               <span className="text-[9px] font-bold text-slate-400">주제</span>
-                               <input type="text" value={clearCode} onChange={e => setClearCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-cyan-700 bg-cyan-50 px-1 rounded w-11 text-center focus:outline-none" placeholder="품번" />
-                           </div>
-                           <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5">
-                               <input type="text" inputMode="decimal" pattern="[0-9]*" value={clearWeight} onChange={e => { const val = e.target.value.replace(/[^0-9.]/g, ''); setClearWeight(val); updateClearMix(rClear, rHard, rThin, val, isClearAutoCalc); }} className="w-full text-sm sm:text-base font-black text-slate-800 bg-transparent focus:outline-none" />
-                               <span className="font-bold text-slate-400 text-[9px]">g</span>
-                           </div>
+                   <div className="bg-cyan-50 rounded-xl overflow-hidden border border-cyan-200 shadow-sm flex flex-col p-2.5 gap-2">
+                       <div className="flex flex-wrap gap-1 items-center">
+                           <button type="button" onClick={() => { setClearCode('355S'); setHardenerCode('7205'); setThinnerCode('-'); updateClearMix(3, 1, 0, clearWeight, true); setIsClearAutoCalc(true); }} className={`px-2 py-1 text-[10px] font-black rounded border transition-all ${clearCode === '355S' ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-blue-700 border-blue-200'}`}>크로맥스 (355S)</button>
+                           <button type="button" onClick={() => { setClearCode('8055'); setHardenerCode('3225'); setThinnerCode('9034'); updateClearMix(3, 1, 5, clearWeight, true); setIsClearAutoCalc(true); }} className={`px-2 py-1 text-[10px] font-black rounded border transition-all ${clearCode === '8055' ? 'bg-cyan-600 text-white border-cyan-700' : 'bg-white text-cyan-700 border-cyan-200'}`}>헥커 8055</button>
+                           <button type="button" onClick={() => { setClearCode('8700'); setHardenerCode('3470'); setThinnerCode('9070'); updateClearMix(2, 1, 10, clearWeight, true); setIsClearAutoCalc(true); }} className={`px-2 py-1 text-[10px] font-black rounded border transition-all ${clearCode === '8700' ? 'bg-indigo-600 text-white border-indigo-700' : 'bg-white text-indigo-700 border-indigo-200'}`}>헥커 8700</button>
                        </div>
-                       <div className="bg-white p-1.5 rounded border border-slate-200 shadow-inner">
-                           <div className="flex items-center justify-between gap-1 mb-1">
-                               <span className="text-[9px] font-bold text-slate-400">경화제</span>
-                               <input type="text" value={hardenerCode} onChange={e => setHardenerCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-slate-600 bg-slate-100 px-1 rounded w-11 text-center focus:outline-none" placeholder="품번" />
-                           </div>
-                           <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5">
-                               <input type="text" inputMode="decimal" pattern="[0-9]*" value={hardenerWeight} onChange={e => setHardenerWeight(e.target.value.replace(/[^0-9.]/g, ''))} readOnly={isClearAutoCalc} className={`w-full text-sm sm:text-base font-black ${isClearAutoCalc ? 'text-slate-500' : 'text-slate-800'} bg-transparent focus:outline-none`} />
-                               <span className="font-bold text-slate-400 text-[9px]">g</span>
-                           </div>
-                       </div>
-                       <div className="bg-white p-1.5 rounded border border-slate-200 shadow-inner">
-                           <div className="flex items-center justify-between gap-1 mb-1">
-                               <span className="text-[9px] font-bold text-slate-400">신너</span>
-                               <input type="text" value={thinnerCode} onChange={e => setThinnerCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-slate-600 bg-slate-100 px-1 rounded w-11 text-center focus:outline-none" placeholder="품번" />
-                           </div>
-                           <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5">
-                               <input type="text" inputMode="decimal" pattern="[0-9]*" value={thinnerWeight} onChange={e => thinnerWeight && setThinnerWeight(e.target.value.replace(/[^0-9.]/g, ''))} readOnly={isClearAutoCalc} className={`w-full text-sm sm:text-base font-black ${isClearAutoCalc ? 'text-slate-500' : 'text-slate-800'} bg-transparent focus:outline-none`} />
-                               <span className="font-bold text-slate-400 text-[9px]">g</span>
-                           </div>
-                       </div>
-                   </div>
 
-                   <div className="bg-slate-900 px-2 py-2 rounded flex justify-between items-center text-white mt-0.5">
-                       <span className="text-[10px] font-bold text-slate-300 truncate">
-                           합계 ({rClear}:{rHard}{rThin > 0 ? `:${rThin}%` : ''})
-                       </span>
-                       <span className="text-sm font-black text-emerald-400 ml-2">
-                           {((parseFloat(clearWeight) || 0) + (parseFloat(hardenerWeight) || 0) + (parseFloat(thinnerWeight) || 0)).toFixed(1)}g
-                       </span>
+                       {/* 🔽 수동 배합 패널 열기/닫기 토글 버튼 */}
+                       <button onClick={() => setIsClearManualOpen(!isClearManualOpen)} className="w-full bg-white border border-cyan-300 text-cyan-700 py-1.5 rounded-lg text-[11px] font-black flex items-center justify-center hover:bg-cyan-100 transition-colors shadow-sm">
+                           {isClearManualOpen ? <><ChevronUp size={14} className="mr-1"/> 비율 수동 조정 패널 닫기</> : <><ChevronDown size={14} className="mr-1"/> 상세 비율 수동 조정 (주제/경화제/신너) 열기</>}
+                       </button>
+
+                       {/* 🔽 숨겨진 수동 조정 바 영역 */}
+                       {isClearManualOpen && (
+                           <div className="bg-white p-2 rounded border border-cyan-200 flex flex-col gap-2 animate-in fade-in slide-in-from-top-2">
+                               <div className="flex justify-between items-center text-[10px] font-black text-slate-600">
+                                   <span className="flex items-center gap-1"><Sliders size={11} className="text-cyan-600" /> 수동 비율 ( {rClear} : {rHard} : {rThin}% )</span>
+                               </div>
+                               <div className="grid grid-cols-[1fr_auto_1fr_auto_2fr] gap-1 items-center bg-slate-50 p-1.5 rounded border border-slate-100">
+                                   <div className="flex flex-col items-center">
+                                       <span className="text-[9px] font-bold text-slate-400 mb-0.5">주제 비율</span>
+                                       <select value={rClear} onChange={e => updateClearMix(parseFloat(e.target.value), rHard, rThin)} className="bg-white border border-slate-200 rounded text-sm font-black text-cyan-700 text-center w-full focus:outline-none h-6">
+                                           {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n}</option>)}
+                                       </select>
+                                   </div>
+                                   <span className="font-bold text-slate-300 mt-3">:</span>
+                                   <div className="flex flex-col items-center">
+                                       <span className="text-[9px] font-bold text-slate-400 mb-0.5">경화제 비율</span>
+                                       <select value={rHard} onChange={e => updateClearMix(rClear, parseFloat(e.target.value), rThin)} className="bg-white border border-slate-200 rounded text-sm font-black text-slate-700 text-center w-full focus:outline-none h-6">
+                                           {[1, 2, 3].map(n => <option key={n} value={n}>{n}</option>)}
+                                       </select>
+                                   </div>
+                                   <span className="font-bold text-slate-300 mt-3">:</span>
+                                   <div className="flex flex-col">
+                                       <div className="flex justify-between items-center mb-0.5"><span className="text-[9px] font-bold text-slate-400">신너(%)</span><span className="text-[10px] font-black text-emerald-600">{rThin}%</span></div>
+                                       <input type="range" min="0" max="50" step="1" value={rThin} onChange={e => updateClearMix(rClear, rHard, parseInt(e.target.value, 10) || 0)} className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-cyan-600 my-1.5" />
+                                   </div>
+                               </div>
+                           </div>
+                       )}
+                       
+                       <div className="grid grid-cols-3 gap-1.5 items-center">
+                           <div className="bg-white p-1.5 rounded border border-slate-200 shadow-inner">
+                               <div className="flex items-center justify-between gap-1 mb-1"><span className="text-[9px] font-bold text-slate-400">주제</span><input type="text" value={clearCode} onChange={e => setClearCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-cyan-700 bg-cyan-50 px-1 rounded w-11 text-center focus:outline-none" placeholder="품번" /></div>
+                               <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5"><input type="text" inputMode="decimal" pattern="[0-9]*" value={clearWeight} onChange={e => { const val = e.target.value.replace(/[^0-9.]/g, ''); setClearWeight(val); updateClearMix(rClear, rHard, rThin, val, isClearAutoCalc); }} className="w-full text-sm sm:text-base font-black text-slate-800 bg-transparent focus:outline-none" /><span className="font-bold text-slate-400 text-[9px]">g</span></div>
+                           </div>
+                           <div className="bg-white p-1.5 rounded border border-slate-200 shadow-inner">
+                               <div className="flex items-center justify-between gap-1 mb-1"><span className="text-[9px] font-bold text-slate-400">경화제</span><input type="text" value={hardenerCode} onChange={e => setHardenerCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-slate-600 bg-slate-100 px-1 rounded w-11 text-center focus:outline-none" placeholder="품번" /></div>
+                               <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5"><input type="text" inputMode="decimal" pattern="[0-9]*" value={hardenerWeight} onChange={e => setHardenerWeight(e.target.value.replace(/[^0-9.]/g, ''))} readOnly={isClearAutoCalc} className={`w-full text-sm sm:text-base font-black ${isClearAutoCalc ? 'text-slate-500' : 'text-slate-800'} bg-transparent focus:outline-none`} /><span className="font-bold text-slate-400 text-[9px]">g</span></div>
+                           </div>
+                           <div className="bg-white p-1.5 rounded border border-slate-200 shadow-inner">
+                               <div className="flex items-center justify-between gap-1 mb-1"><span className="text-[9px] font-bold text-slate-400">신너</span><input type="text" value={thinnerCode} onChange={e => setThinnerCode(e.target.value.toUpperCase())} className="text-[10px] font-black text-slate-600 bg-slate-100 px-1 rounded w-11 text-center focus:outline-none" placeholder="품번" /></div>
+                               <div className="flex items-end gap-0.5 border-b border-slate-100 pb-0.5"><input type="text" inputMode="decimal" pattern="[0-9]*" value={thinnerWeight} onChange={e => thinnerWeight && setThinnerWeight(e.target.value.replace(/[^0-9.]/g, ''))} readOnly={isClearAutoCalc} className={`w-full text-sm sm:text-base font-black ${isClearAutoCalc ? 'text-slate-500' : 'text-slate-800'} bg-transparent focus:outline-none`} /><span className="font-bold text-slate-400 text-[9px]">g</span></div>
+                           </div>
+                       </div>
+
+                       <div className="bg-slate-900 px-2 py-2 rounded flex justify-between items-center text-white mt-0.5">
+                           <span className="text-[10px] font-bold text-slate-300 truncate">합계 ({rClear}:{rHard}{rThin > 0 ? `:${rThin}%` : ''})</span>
+                           <span className="text-sm font-black text-emerald-400 ml-2">{((parseFloat(clearWeight) || 0) + (parseFloat(hardenerWeight) || 0) + (parseFloat(thinnerWeight) || 0)).toFixed(1)}g</span>
+                       </div>
                    </div>
-               </div>
-            </div>
-          );
-        })()}
+                </div>
+              );
+            })()}
             
             {isThreeCoatMode && (
               <div className="pt-4 mt-4 border-t border-purple-200 space-y-2 pb-8">
@@ -1270,14 +1249,20 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1.5 px-1 mt-1 rounded transition-colors w-full" onClick={() => toggleExpand(toner.id, true)}>
-                          <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 pl-1 text-left break-keep flex items-center">
-                              {toner.code ? (info.role || '등록된 펄 정보 없음') : '펄 번호를 입력하세요 (예: PP201...)'}
-                              {toner.code && info.type && <span className="ml-2 bg-purple-900 text-purple-200 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-700 shadow-sm whitespace-nowrap">{info.type}</span>}
-                              {!toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">상세보기 <ChevronDown size={12} className="ml-0.5"/></span>}
-                              {toner.isExpanded && <span className="ml-2 text-[10px] text-purple-500 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded-full flex items-center shadow-sm">접기 <ChevronUp size={12} className="ml-0.5"/></span>}
-                          </span>
-                      </div>
+                      {/* 🔽 화살표를 우측 끝으로 밀어서 직관적으로 만든 모바일 최적화 UI (펄) */}
+                <div className="flex items-center gap-1 cursor-pointer hover:bg-purple-100/50 py-1.5 px-2 mt-1 rounded transition-colors w-full border border-transparent hover:border-purple-200" onClick={() => toggleExpand(toner.id, true)}>
+                    <span className="font-bold text-purple-800 text-[13px] leading-tight flex-1 text-left break-keep flex items-center justify-between w-full">
+                        <span className="flex items-center">
+                            {toner.code ? (info.role || '등록된 안료 정보 없음') : '안료 번호를 입력하세요'}
+                            {toner.code && info.type && <span className="ml-2 bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px] font-bold border border-slate-600 shadow-sm whitespace-nowrap">{info.type}</span>}
+                        </span>
+                        {toner.code && (
+                            <span className="ml-2 text-[10px] text-purple-600 bg-white border border-purple-200 px-2 py-1 rounded-full flex items-center shadow-sm shrink-0">
+                                {toner.isExpanded ? <>접기 <ChevronUp size={14} className="ml-0.5"/></> : <>상세보기 <ChevronDown size={14} className="ml-0.5"/></>}
+                            </span>
+                        )}
+                    </span>
+                </div>
 
                       {toner.isExpanded && (
                           <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-1 pt-2 border-t border-purple-200">
@@ -1329,60 +1314,140 @@ export default function App() {
               </div>
               <div className="p-3 h-52 overflow-y-auto custom-scrollbar bg-slate-50/50">
                   {activeGuideTab === 'clear' ? (
-                      <div className="flex flex-col gap-3 text-sm text-slate-700 animate-in fade-in">
-                          <div className="bg-white p-3 rounded-xl border border-blue-200 shadow-sm">
-                              <h4 className="font-black text-blue-800 text-base mb-2">1. 8055 공식 스펙 및 세팅</h4>
-                              <p className="font-bold mb-1">다목적 프리미엄 2K 하이솔리드(High Solids) 클리어</p>
-                              <ul className="list-disc pl-4 space-y-1 text-xs font-medium">
-                                  <li><span className="font-bold">건 권장:</span> 노즐 1.3~1.4mm, 압력 1.8~2.2 bar</li>
-                                  <li><span className="font-bold">도막 두께:</span> 1.5회(50~60µm), 2회(50~70µm) 두툼한 살오름성</li>
-                                  <li><span className="font-bold">1.5회 패스 도장법:</span> 0.5코트(스킨) 후 대기 없이 곧바로 풀 코트 도장 시 오렌지 필 없이 레벨링 극대화</li>
-                              </ul>
+                      <div className="flex flex-col gap-3 text-sm text-slate-700 animate-in fade-in h-full">
+                          {/* 🚨 법적 면책 조항 (필수) */}
+                          <div className="bg-red-50 p-2.5 rounded-xl border border-red-200 shadow-sm shrink-0">
+                              <h4 className="font-black text-red-700 text-[11px] mb-1">⚠️ [주의] Clear 가이드 활용 전 필독</h4>
+                              <p className="text-[10px] text-red-800 leading-tight font-bold break-keep">
+                                  본 가이드는 도장 조색을 돕기 위해 제작된 참고용 데이터입니다. 현장 환경(온도, 습도)에 따라 결과가 다를 수 있으며, <span className="underline">자세한 내용은 반드시 각 브랜드 홈페이지 또는 기술지원팀에 문의하시길 바랍니다.</span> 본 정보를 맹목적으로 따라 발생한 문제에 대해서는 법적 책임을 지지 않습니다.
+                              </p>
                           </div>
-                          <div className="bg-white p-3 rounded-xl border border-indigo-200 shadow-sm">
-                              <h4 className="font-black text-indigo-800 text-base mb-2">2. 계절별 추천 세팅 가이드</h4>
-                              <ul className="space-y-2 text-xs font-bold">
-                                  <li className="flex items-center gap-1.5"><span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">봄/가을</span> 8055 + 경화제 3225(표준) + 첨가제 9034(표준)</li>
-                                  <li className="flex items-center gap-1.5"><span className="bg-red-100 text-red-700 px-2 py-0.5 rounded">여름(다판)</span> 8055 + 경화제 3240(극지) + 첨가제 9035(지연)</li>
-                                  <li className="flex items-center gap-1.5"><span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">겨울(부분)</span> 8055 + 경화제 3220(속건) + 리듀서 3364(속건)</li>
-                              </ul>
+    
+                          {/* 브랜드 선택 버튼 */}
+                          <div className="flex gap-2 shrink-0">
+                              {['스피스헥커', '글라수이트', '시켄스'].map(brand => (
+                                  <button key={brand} onClick={() => { setSelectedClearBrand(brand); setSelectedClearProduct(null); }} className={`flex-1 py-2 rounded-lg text-xs font-black transition-all shadow-sm border ${selectedClearBrand === brand ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-slate-600 border-slate-300 hover:bg-blue-50'}`}>
+                                      {brand}
+                                  </button>
+                              ))}
                           </div>
-                          <div className="bg-white p-3 rounded-xl border border-slate-300 shadow-sm">
-                              <h4 className="font-black text-slate-800 text-base mb-2">3. 경화제 (VHS Hardener) 4종</h4>
-                              <ul className="space-y-1 text-xs font-medium">
-                                  <li><span className="font-bold text-slate-900">3220 (속건):</span> 15°C 이하 겨울철, 1~2판 스팟 보수용</li>
-                                  <li><span className="font-bold text-slate-900">3225 (표준):</span> 20~25°C 밸런스. 메인 경화제</li>
-                                  <li><span className="font-bold text-slate-900">3230 (지연):</span> 25~30°C 본넷/루프 등 수평면 넓은 부위</li>
-                                  <li><span className="font-bold text-slate-900">3240 (극지연):</span> 30°C 이상 한여름 전체 도장. 더스트 100% 방지</li>
-                              </ul>
-                          </div>
-                          <div className="bg-white p-3 rounded-xl border border-amber-200 shadow-sm">
-                              <h4 className="font-black text-amber-800 text-base mb-2">4. 전용 첨가제 (Additive) 2종</h4>
-                              <p className="text-xs font-medium mb-1">일반 신너 대비 광택 하락 방지 및 레벨링 극대화 (5~10% 배합)</p>
-                              <ul className="space-y-1 text-xs font-medium">
-                                  <li><span className="font-bold text-amber-900">9034 (표준):</span> 15~25°C. 오렌지 필 없는 거울 조도 형성</li>
-                                  <li><span className="font-bold text-amber-900">9035 (지연):</span> 25°C 이상. 끓음 억제 및 날린 칠 부드럽게 용해(Melt-in)</li>
-                              </ul>
-                          </div>
-                      </div>
-                  ) : (
-                      <div className="grid grid-cols-2 gap-3">
-                          {GUIDE_IMAGES[activeGuideTab].map(img => (
-                              <div key={img.id} onClick={() => openImageModal(img)} className="bg-white rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 hover:shadow-xl transition-all shadow-sm border border-slate-200 group flex flex-col justify-center items-center text-center p-4 min-h-[90px] relative">
-                                  {img.url && (
-                                      <div className="absolute inset-0 z-0">
-                                          <img src={img.url} alt={img.title} className="w-full h-full object-cover opacity-10 group-hover:opacity-100 transition-opacity duration-300" />
-                                      </div>
-                                  )}
-                                  <div className="relative z-10 flex flex-col items-center justify-center w-full h-full p-1 transition-colors duration-300">
-                                      <h4 className="text-[13px] font-black text-blue-800 group-hover:text-blue-600 mb-1.5 leading-tight drop-shadow-sm">{img.title}</h4>
-                                      <p className="text-[11px] font-bold text-slate-500 group-hover:text-slate-700 break-keep leading-tight">{img.desc}</p>
+    
+                          {/* 내용 출력 영역 */}
+                          <div className="flex-1 overflow-y-auto custom-scrollbar bg-white p-3 rounded-xl border border-slate-200 shadow-inner">
+                              {!selectedClearBrand && (
+                                  <div className="h-full flex flex-col items-center justify-center text-slate-400 text-xs font-bold text-center">
+                                      <p>상단의 브랜드를 클릭하면<br/>제품별 상세 스펙과 리뷰가 나타납니다.</p>
                                   </div>
-                              </div>
-                          ))}
+                              )}
+    
+                              {selectedClearBrand === '스피스헥커' && (
+                                  <div className="space-y-4 animate-in fade-in">
+                                      {!selectedClearProduct ? (
+                                          <div className="grid grid-cols-1 gap-2">
+                                              {['8055 (하이엔드/고광택)', '8700 (HS 레이스/초속건)', '8034 (범용/국밥 클리어)', '8810 (에코/저온)', '8450 (세라믹/내스크래치)'].map(prod => (
+                                                  <button key={prod} onClick={() => setSelectedClearProduct(prod)} className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-left hover:border-blue-400 hover:bg-blue-50 transition-colors shadow-sm">
+                                                      <span className="text-xs font-black text-slate-800">{prod}</span>
+                                                  </button>
+                                              ))}
+                                          </div>
+                                      ) : (
+                                          <div>
+                                              <button onClick={() => setSelectedClearProduct(null)} className="text-[10px] bg-slate-200 px-2 py-1 rounded mb-3 font-bold hover:bg-slate-300">◀ 뒤로가기</button>
+                                              {selectedClearProduct.includes('8055') && (
+                                                  <div className="space-y-3">
+                                                      <h4 className="font-black text-blue-800 text-sm border-b pb-1">퍼마솔리드 8055 (High Gloss)</h4>
+                                                      <p className="text-[11px] font-bold">배합비: 3:1 또는 2:1 (VHS 겸용)</p>
+                                                      <p className="text-[11px] leading-relaxed text-slate-600 bg-slate-50 p-2 rounded">현장에서 "묵직한 광택과 깊은 투명감"을 원할 때 찾는 프리미엄 클리어. 수입차/고급차 전체 도장에 최적이며 수직면 흐름 저항성이 매우 우수합니다.</p>
+                                                      <h5 className="font-black text-xs mt-2 text-indigo-700">📌 계절별 경화제(VHS 2:1) 추천</h5>
+                                                      <ul className="text-[11px] space-y-1 list-disc pl-4 font-medium">
+                                                          <li><span className="font-bold">3220 (속건):</span> 15~20°C. 겨울철 1~2판 보수용</li>
+                                                          <li><span className="font-bold">3225 (표준):</span> 20~25°C. 봄/가을 메인 밸런스</li>
+                                                          <li><span className="font-bold">3230 (지연):</span> 25~30°C. 여름철 넓은 면적</li>
+                                                          <li><span className="font-bold">9034/9035 (첨가제):</span> 지연 경화제 사용 시 5~7% 혼합(핀홀 예방)</li>
+                                                      </ul>
+                                                  </div>
+                                              )}
+                                              {selectedClearProduct.includes('8700') && (
+                                                  <div className="space-y-3">
+                                                      <h4 className="font-black text-blue-800 text-sm border-b pb-1">퍼마솔리드 8700 (HS Race)</h4>
+                                                      <p className="text-[11px] font-bold">배합비: 2:1 (전용 첨가제 10%)</p>
+                                                      <p className="text-[11px] leading-relaxed text-slate-600 bg-slate-50 p-2 rounded">15분(60°C) 초속건성. 부스 회전율이 곧 매출인 현장에 최적화. 에너지 절감과 스피드 리페어 특화.</p>
+                                                      <h5 className="font-black text-xs mt-2 text-indigo-700">📌 전용 경화제 (Race Hardener)</h5>
+                                                      <ul className="text-[11px] space-y-1 list-disc pl-4 font-medium">
+                                                          <li><span className="font-bold">3470 (표준):</span> 15~25°C. 극강의 건조 속도용</li>
+                                                          <li><span className="font-bold">3472 (지연):</span> 25~35°C. 대형 면적 더스트 방지</li>
+                                                      </ul>
+                                                  </div>
+                                              )}
+                                              {selectedClearProduct.includes('8034') && (
+                                                  <div className="space-y-3">
+                                                      <h4 className="font-black text-blue-800 text-sm border-b pb-1">퍼마솔리드 8034 (HS Versatile)</h4>
+                                                      <p className="text-[11px] font-bold">배합비: 3:1 또는 2:1</p>
+                                                      <p className="text-[11px] leading-relaxed text-slate-600 bg-slate-50 p-2 rounded">현장의 '국밥'. 대중성과 작업 안정성의 완벽한 조화. 부분 보수를 리스크 없이 쳐낼 때 최적.</p>
+                                                  </div>
+                                              )}
+                                              {(selectedClearProduct.includes('8810') || selectedClearProduct.includes('8450')) && (
+                                                  <p className="text-[11px] p-2 bg-slate-50 rounded">특수 목적 클리어 라인업입니다. 자세한 기술 문서는 스피스헥커 공식 자료를 참조하세요.</p>
+                                              )}
+                                          </div>
+                                      )}
+                                  </div>
+                              )}
+    
+                              {selectedClearBrand === '글라수이트' && (
+                                  <div className="space-y-4 animate-in fade-in">
+                                      {!selectedClearProduct ? (
+                                          <div className="grid grid-cols-1 gap-2">
+                                              {['바스락 40-10 (가성비)', '923-230 (스탠다드)', '923-365 (고생산성/속건)', 'AraClass A-C-10 (최신/초속건)', '923-55/58 (무광)'].map(prod => (
+                                                  <button key={prod} onClick={() => setSelectedClearProduct(prod)} className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-left hover:border-emerald-400 hover:bg-emerald-50 transition-colors shadow-sm">
+                                                      <span className="text-xs font-black text-slate-800">{prod}</span>
+                                                  </button>
+                                              ))}
+                                          </div>
+                                      ) : (
+                                          <div>
+                                              <button onClick={() => setSelectedClearProduct(null)} className="text-[10px] bg-slate-200 px-2 py-1 rounded mb-3 font-bold hover:bg-slate-300">◀ 뒤로가기</button>
+                                              <h4 className="font-black text-emerald-800 text-sm border-b pb-1">{selectedClearProduct}</h4>
+                                              <div className="text-[11px] mt-2 space-y-2">
+                                                  <p className="font-black text-slate-800 bg-emerald-50 p-2 rounded">글라수이트 특성: 클래식한 중후함, 압도적인 도막 두께, 수직면 처짐 저항성 극강.</p>
+                                                  {selectedClearProduct.includes('40-10') && <p>바스프의 가성비 보급형. 리스크 적고 무난한 현장용.</p>}
+                                                  {selectedClearProduct.includes('230') && <p>오렌지 필 없는 부드러운 레벨링. 전세계 공업사 검증된 범용.</p>}
+                                                  {selectedClearProduct.includes('365') && <p>생산성과 럭셔리 광택(Glamour) 동시 확보. 다판넬 작업시 연결 부위 주의.</p>}
+                                                  {selectedClearProduct.includes('AraClass') && <p>단가는 높으나 열처리 가스비/전기료 절감이 체감되는 최신형 초속건.</p>}
+                                                  {selectedClearProduct.includes('무광') && <p>얼룩 없이 균일한 무광 질감 연출. 벤츠/포르쉐 무광 차량 필수재.</p>}
+                                              </div>
+                                          </div>
+                                      )}
+                                  </div>
+                              )}
+    
+                              {selectedClearBrand === '시켄스' && (
+                                  <div className="space-y-4 animate-in fade-in">
+                                      {!selectedClearProduct ? (
+                                          <div className="grid grid-cols-1 gap-2">
+                                              {['오토크리어 LV Max', '오토크리어 LV Superior', '오토크리어 Expert HS', '오토크리어 LV Fast', 'Sikkens Matt'].map(prod => (
+                                                  <button key={prod} onClick={() => setSelectedClearProduct(prod)} className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-left hover:border-orange-400 hover:bg-orange-50 transition-colors shadow-sm">
+                                                      <span className="text-xs font-black text-slate-800">{prod}</span>
+                                                  </button>
+                                              ))}
+                                          </div>
+                                      ) : (
+                                          <div>
+                                              <button onClick={() => setSelectedClearProduct(null)} className="text-[10px] bg-slate-200 px-2 py-1 rounded mb-3 font-bold hover:bg-slate-300">◀ 뒤로가기</button>
+                                              <h4 className="font-black text-orange-800 text-sm border-b pb-1">{selectedClearProduct}</h4>
+                                              <div className="text-[11px] mt-2 space-y-2">
+                                                  {selectedClearProduct.includes('Max') && <p>배합비 2:1:10%. 고생산성/친환경(Low VOC). 탁월한 퍼짐성과 장기 광택 유지력.</p>}
+                                                  {selectedClearProduct.includes('Superior') && <p>플래그십 초고광택. 수입차 전체 도장, 두툼한 살오름성의 최고급 마감용.</p>}
+                                                  {selectedClearProduct.includes('Expert') && <p>작업성과 경제성을 잡은 베스트셀러. 현장 피로도를 낮추는 국밥 클리어.</p>}
+                                                  {selectedClearProduct.includes('Fast') && <p>속건형. 상온 건조 및 스피드 리페어, 파츠 도장에 최적화.</p>}
+                                                  {selectedClearProduct.includes('Matt') && <p>트렌디한 무광/반무광 연출. 까다로운 무광 표면 얼룩 방지에 탁월.</p>}
+                                              </div>
+                                          </div>
+                                      )}
+                                  </div>
+                              )}
+                          </div>
                       </div>
-                  )}
-              </div>
 
               <div className="flex gap-2 mt-3 relative z-50">
                   <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-sm cursor-pointer">
