@@ -2242,7 +2242,7 @@ export default function App() {
             </div>
         </div>
       )}
-00 px-5 py-2 rounded-full shadow-sm border border-slate-500">실버달러 (Silver Dollar)</h3>
+<h3 className="font-black text-white mb-4 bg-slate-700 px-5 py-2 rounded-full shadow-sm border border-slate-500">실버달러 (Silver Dollar)</h3>
                                 <div className="w-32 h-20 bg-gradient-to-br from-slate-200 to-slate-400 rounded-full mb-5 flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.3)] border-2 border-slate-400 text-xs font-black text-slate-800">매끄러운 동전 모양</div>
                                 <p className="text-sm font-bold text-slate-300 break-keep">동전처럼 둥글고 납작한 형태입니다. 빛을 한 방향으로 거울처럼 튕겨내어 정면(15도)이 매우 눈부시고 측면(Flop)이 깊게 어두워집니다.</p>
                             </div>
