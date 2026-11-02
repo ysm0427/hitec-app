@@ -84,7 +84,150 @@ const GUIDE_IMAGES: Record<string, any[]> = {
 };
 
 const ALL_GUIDE_IMAGES = [...GUIDE_IMAGES.theory, ...GUIDE_IMAGES.spectrum, ...GUIDE_IMAGES.effect, ...GUIDE_IMAGES.special];
+// 스크롤 먹통(잠금) 버그 영구 해결: isAnyModalOpen 관련 useEffect 완전히 삭제 (이 자리에 있던 useEffect 코드를 날렸습니다)
 
+// 국기 표시 헬퍼 컴포넌트 추가
+const FlagIcon = ({ country, className = "" }: { country: string, className?: string }) => {
+    if (country === 'DE') return <span className={`inline-block ${className}`} title="독일">🇩🇪</span>;
+    if (country === 'US') return <span className={`inline-block ${className}`} title="미국">🇺🇸</span>;
+    if (country === 'NL') return <span className={`inline-block ${className}`} title="네덜란드">🇳🇱</span>;
+    return null;
+};
+
+// ==========================================
+// 📚 4대 브랜드 교육용 마스터 데이터베이스 (8대 카테고리 비교 차트)
+// ==========================================
+const EIGHT_CATEGORY_CHART = [
+    { cat: "1️⃣ 표준 범용형 (사계절 전천후 메인)", 
+      gl: "P-C-20 (Universal)\n• 사계절 안정적인 밸런스\n• 흐름성과 건조 속도 최적화", 
+      sp: "HS 8030 / HS 8055\n• 국내 정비공장 부동의 메인\n• 압도적인 두께감과 깊은 광택", 
+      sk: "Autoclear Plus HS\n• 시켄스의 상징적 베스트셀러\n• 황변 없는 유리알 극상 투명도", 
+      pp: "D8173 (Premium UHS) / D8131\n• PPG 정석 사계절 범용 유광\n• 날씨·온도 구애 없는 유연한 레벨링" },
+    { cat: "2️⃣ 저온/자연건조형 (⚠️2026 핵심 트렌드)", 
+      gl: "P-C-15 (Air Drying)\n• 20°C 대기 온도 자연 건조 특화\n• 열처리 부스 연료비 극적 절감", 
+      sp: "Speed-TEC 8810\n• 60°C 5~10분 / 20°C 30~40분\n• 하이테크 초속건의 대명사", 
+      sk: "Aero PC (Aerodry PC)\n• 20°C에서 30~45분 완전 건조\n• 열처리 부스 가스비 최대 70% 절감", 
+      pp: "D8177 / D8178 (Low Energy)\n• 20°C 20분대 지촉 / 상온 40분 경화\n• 도막 살오름성과 속도의 밸런스 최적화" },
+    { cat: "3️⃣ 프리미엄 초속건형 (작업성+살오름성 보강)", 
+      gl: "P-C-22 (Performance)\n• 60°C에서 10~15분 건조\n• 저온 건조 공정 고성능 최적화", 
+      sp: "Speed-TEC Ultra 8840 ✨\n• 2026 최신 프리미엄 신제품\n• 초속건+초기 광택 저하 완 완벽 보완", 
+      sk: "Aero HD ✨\n• 2026 최신 고성능 초속건\n• 에어로 속도에 묵직한 살오름성 결합", 
+      pp: "D8130 (UHS Rapid Clear)\n• 2026 PPG 최신형 속건\n• 열처리 10분 내 완결 및 레벨링 향상" },
+    { cat: "4️⃣ 하이엔드 고광택형 (최상위 복원/쇼카 전용)", 
+      gl: "P-C-30 (High Gloss)\n• 살오름성 우수, 신차급 외관\n• 수용성 90·100라인과 최고의 궁합", 
+      sp: "HS Race 8700\n• 8030의 깊은 광택과 속건의 하이브리드\n• 대형 하이테크 서비스센터 선호", 
+      sk: "Autoclear Supreme\n• 최고 등급의 플래그십 UHS\n• 압도적인 웻 룩(Wet-look) 거울광", 
+      pp: "D8135 (Deltron UHS)\n• PPG의 전설적인 플래그십\n• 압도적으로 묵직한 살오름성 및 영구 광택" },
+    { cat: "5️⃣ 스크래치 방지형 (고경도/수입차 OEM)", 
+      gl: "P-C-40 (Scratch Resistant)\n• 자동세차 기스에 강한 고경도 도막\n• 벤츠·BMW 매뉴얼 장기 외관 보존", 
+      sp: "SuperCoat 8040 / 8450\n• 유럽 프리미엄 수입차 공식 승인\n• 치밀한 가교 결합의 단단한 도막", 
+      sk: "Scratch Resistant\n• 자가 복원력(Reflow) 성분 포함\n• 미세 생활 기스는 열을 받으면 자가 치유", 
+      pp: "D8105 (CeramiClear)\n• 세계 최초 나노-세라믹 테크놀로지\n• 벤츠 나노클리어 스펙 공식 대응 (경도 3배)" },
+    { cat: "6️⃣ 부분 도장 전용 (스팟 리페어/단품 급건)", 
+      gl: "P-C-10 (Fast Drying)\n• 범퍼, 문 1~2판 부분 도장 최적\n• 먼지 타기 전 빠른 지촉 건조", 
+      sp: "HS Speed 8650\n• 부분 도장 및 당일 출고 특화\n• 야외·열악한 부스 환경에서도 고효율", 
+      sk: "Autoclear Rapid\n• 극단적으로 초기 지촉 건조를 앞당김\n• 도장 후 즉시 조립 및 폴리싱 가능", 
+      pp: "D8112 (Express Clear)\n• 범퍼 및 사이드미러 당일 출고 전용\n• 10분 내 지촉 도달로 먼지 하자 최소화" },
+    { cat: "7️⃣ 친환경 특화 라인 (탄소 저감 원료/규제)", 
+      gl: "P-C-50 (Pioneer) / AraClass\n• 100% 지속 가능 재생 원료 사용\n• 글로벌 탄소 배출 저감 기술 결정체", 
+      sp: "EcoB / Biomass 인증제\n• 주요 레진 원료를 바이오 유래\n재생 가능 원료로 점진적 전환 적용", 
+      sk: "지속 가능한 솔루션 선언\n• 악조노벨 글로벌 친환경 가이드 준수\n• 휘발성 유기화합물(VOC) 최소화", 
+      pp: "Envirobase 연동 로우 VOC\n• 친환경 수용성 베이스 EHP와\n최적 결합하는 저휘발성 기술" },
+    { cat: "8️⃣ 무광/반광 시스템 (매트 스타일 순정 대응)", 
+      gl: "P-C-92 (완전무광) / P-C-94 (반광)\n• 구형 923-55/58 완벽 대체\n• 이색과 얼룩 없는 균일한 매트 제어", 
+      sp: "Matt System 8022 / 8024\n• 두 제품의 믹싱 비율에 따라\n• 순정 무광 광도를 소수점 단위 재현", 
+      sk: "Mat / Silk Matt System 2.0\n• 얼룩이나 레진 뭉침(희끗함) 없는 복원\n• 가죽 같은 고급스러운 순정 무광 질감", 
+      pp: "D8115 (Matt) / D8117 (Semi)\n• 람보르기니·현대 순정 무광 스펙\n• 백화 현상 없는 0~60% 광도 정밀 재현" }
+];
+const CLEAR_BRANDS_DATA = [
+  {
+    id: 'glasurit', name: '🇩🇪 바스프 글라슈리트', short: '글라슈리트', color: 'emerald',
+    history: '1888년 시작, 앵무새 마크 / "법과 원칙의 엘리트 공학자"',
+    philosophy: '타협 없는 표준화와 친환경 정밀함. 철저한 데이터 공학과 법적 환경 규제 준수를 최우선으로 여기는 엘리트 공학자 사상.',
+    oem: '포르쉐 클래식 공식 독점 파트너, 독일 3사(벤츠·BMW) 매뉴얼 복원',
+    spec: '수용성 90/100 Line & ProClass 2:1 표준화 시스템 (고농축 마이크로 안료)',
+    method: '주제 2 : 경화제 1 + 희석제 10% / 1.5회 연속 도장 (1차 클로즈 코트 후 대기 없이 2차 본칠). 1.3~1.4mm 노즐.',
+    strategy: '독일 신차의 얇고 치밀한 오리지널 오렌지 필 텍스처 복원. 재료 소모량을 극한으로 줄여야 하는 정석 매뉴얼 작업.',
+    masterTip: '여름철 P-H-410(급건) 사용 시 광 죽음 주의. P-C 시리즈는 고형분이 높아 1.5회 만으로도 충분한 두께(40~60µm)가 나옵니다. 무리하게 두껍게 올리면 오렌지 필 변형이나 흐름 하자가 발생하므로 반드시 박막 유지를 지킬 것.',
+    products: [
+      { name: 'P-C-30 (High Gloss)', desc: '살오름성 우수, 신차급 외관 / 수용성 90·100라인과 최상의 궁합. 고급 세단, 쇼카 등 최상의 외관 품질.' },
+      { name: 'P-C-40 (Scratch Resistant)', desc: '세차 기스 및 외부 오염에 강한 고경도 도막 / 장기 외관 보존. 벤츠, BMW 등 수입차 매뉴얼 대응.' },
+      { name: 'P-C-20 (Universal)', desc: '사계절 안정적인 밸런스 / 흐름성 및 건조 속도 최적화. 부분 도장부터 전체 도장까지 사계절 메인 클리어.' },
+      { name: 'P-C-15 (Air Drying)', desc: '20°C 대기 온도 자연 건조 특화 / 열처리 부스 연료비 극적 절감. 바이오매스 친환경 원료 적용.' },
+      { name: 'P-C-10 (Fast Drying)', desc: '범퍼, 문 1~2판 부분 도장 최적 / 먼지 타기 전 빠른 지촉 건조. 60°C 15~20분 내 완결.' },
+      { name: 'P-C-92 (Extra Matt) & P-C-94 (Silk Matt)', desc: '구형 923-55/58 매트 시리즈 완벽 대체. 얼룩 뭉침 제어하여 완성차 무광 스펙 매칭.' },
+      { name: 'AraClass A-C-14 (Eco Balance 자연건조)', desc: '지속가능 솔루션(Eco Balance) 자연건조 클리어.' },
+      { name: 'AraClass A-C-24 (얼티밋 드라잉)', desc: '수명이 다한 타이어 원료로 화석 원료를 대체해 CO₂ 최대 40% 저감. 아우디 F1 R26 도장 보호용.' },
+      { name: '923-255 (HS Multi Clear)', desc: '높은 고형분, 빠른 건조, 폴리싱 내성. 대한민국 대표 HS급 (2:1+10%).' },
+      { name: '923-631 (Superior Gloss)', desc: '완벽한 흐름, 프리미엄 광택 (3:1:1 배합).' },
+      { name: 'baslac 40-40 (HS 유니버설)', desc: 'BASF의 가성비 리피니시 브랜드. 2:1+10% 배합, 높은 고형분.' }
+    ]
+  },
+  {
+    id: 'spieshecker', name: '🇺🇸 엑솔타 스피스헥커', short: '스피스헥커', color: 'blue',
+    history: '1882년 독일 쾰른 창립(마차용 바니시) ➔ 1900년 자동차 보수 ➔ 1999년 듀폰 ➔ 2013년 엑솔타. (글로벌 본사: 미국 펜실베이니아)',
+    philosophy: '[공식 팩트 기반] 스피스헥커는 시간과 에너지 절약을 내세우는 Speed-TEC 시스템(8810 등) 및 1.5회 도장 시스템을 적극 운용하는 엑솔타의 프리미엄 브랜드입니다. (* 미국식 마진 극대화 등은 공식 확인되지 않은 비유입니다.)',
+    oem: '2015년 메르세데스-AMG 페트로나스 F1 팀 공식 팀 서플라이어. (* 제네시스 공식 도료 등은 제조사 공식 확인되지 않음.)',
+    spec: '[TDS 기준 공식 배합비]\n• 8055 / 8034 : 3:1 (VHS 경화제)\n• 8030 (북미) : 2:1 (HS 경화제)\n• 8700 : 2:1+10% (레이스 3470 경화제)\n• 8810 : 2:1 (별도 신너 없음)\n• 8450 다이아몬드 : 3:1 (ASAP 공정만 2:1)',
+    method: '⚠️ VHS 경화제 표기가 지역마다 다름에 극히 주의하십시오.\n- 유럽: 3220 fast, 3225, 3230 slow, 3240 extra slow\n- 미국: 3220 Express, 3230 Medium, 3240 Slow, 3245 Extra Slow\n* 반드시 해당 지역판 TDS 규격을 확인해야 합니다.',
+    strategy: 'Speed-TEC 시스템(8810 등)을 활용해 베이스에 경화제를 넣지 않고, 저온(40~45°C) 및 상온(20°C) 건조를 통해 가스비 에너지를 대폭 절약합니다. 무광은 매트 시스템(8185 무광 + 8170 반광)의 혼합 비율로 정밀 제어합니다.',
+    masterTip: '⚠️ [마스터 팩트 체크 (오류 바로잡기)]\n1. 8810 클리어는 60°C 5분이 아니라, 공식 TDS 기준 40~45°C 10~15분 또는 20°C 30~55분 건조입니다.\n2. 8450의 공식 명칭은 세라믹이 아니라 다이아몬드(내스크래치)입니다.\n3. "웻온웻 가교, 자동 플롭 제어"는 공식 근거가 없습니다. Speed-TEC에서 Hi-TEC 480에 경화제가 필요 없는 것이 팩트입니다.',
+    products: [
+      { name: '8810 (퍼마솔리드 HS 스피드 클리어)', desc: '1.5회 또는 2회 도장. 높은 고형분, 낮은 점도로 뛰어난 살오름성. 별도 신너 없이 2:1 배합.' },
+      { name: '8700 (퍼마솔리드 HS 레이스 클리어)', desc: 'VHS 레이스 경화제 3470과 2:1+10% 배합. 60°C 15분 또는 40°C 30분 건조. 짧은 시간 뒤 폴리싱 및 재조립 가능.' },
+      { name: '8030 (퍼마솔리드 HS 클리어)', desc: 'VOC 준수 하이솔리드, HS/VHS 경화제 모두 사용 가능. 우수한 광택 및 퍼짐성.' },
+      { name: '8034 (퍼마솔리드 HS 클리어)', desc: '2K 아크릴 VOC 준수 고광택. 2회 권장(1.5회 가능). 탁월한 탑코트 내구성과 살오름성.' },
+      { name: '8055 (퍼마솔리드 HS 클리어)', desc: '하이-텍 퍼포먼스 시스템용 프리미엄 HS (3:1 배합). 기존 프리미엄 대비 건조 성능 탁월.' },
+      { name: '8021 (퍼마솔리드 HS 클리어)', desc: '단판넬~전체 수리용 고광택 2액형. 신규 HS 경화제 3006/7/8/9 사용.' },
+      { name: '8450 (퍼마솔리드 HS 다이아몬드 클리어)', desc: '공식 스크래치 방지 클리어(다이아몬드). 반영구적 광택 유지 및 우수한 내후성.' },
+      { name: '8045 (퍼마크론 MS 옵티플렉스 클리어)', desc: '2:1 타입 신규 미디엄 솔리드. 매우 빠른 건조, 핀홀·다이백 방지.' },
+      { name: '8011 (퍼마크론 MS 클리어)', desc: '2K Hi-TEC 베이스 고객용 표준 MS 클리어.' },
+      { name: '8185(무광) / 8170(반광) 매트 시스템', desc: '두 제품을 섞어 광택도 조절. 일반 투명 미사용. 모든 OEM 무광 컬러 매칭 범위 대응.' },
+      { name: '8560 (퍼마크론 1K 미드코트)', desc: '메탈릭·펄 블렌딩 시 미드코트로 사용하여 정렬 개선.' }
+    ]
+  },
+  {
+    id: 'sikkens', name: '🇳🇱 악조노벨 시켄스', short: '시켄스', color: 'orange',
+    history: '1792년 네덜란드 흐로닝언에서 Wiert Willem Sikkens가 창립. 1969년 KZO와 AKU 합병으로 Akzo 설립, 1994년 Nobel Industries와 합병하여 현재의 AkzoNobel(악조노벨)이 됨.',
+    philosophy: '[공식 팩트 기반] 230년이 넘는 역사를 지닌 정밀 화학 브랜드. 1928년 속건성 Nitro Rubbol, 1970년 최초 2액형 Autocryl 출시 등 혁신을 이어왔습니다.',
+    oem: '2008년부터 맥라렌(McLaren) 공식 페인트 파트너. 2020년 BMW·MINI 승인 취득. (국내: 노루페인트 독점 판매권)',
+    spec: '[TDS 기준 공식 배합비]\n• LV : 100:50:10 (2:1:10%)\n• LV Superior : 100:60:20\n• Plus HS : 100:50:10 (APAC은 10~20)\n• Aerodry : 100:100\n• 2121 LV : 4:1:1',
+    method: 'LV Superior 기준 60°C Fast 15분, Medium 25분, Slow 35분 건조. Aerodry는 60°C 5분 또는 20°C 45분. 도막 두께는 Plus HS 기준 60~80µm.',
+    strategy: '수리 크기와 환경에 맞춘 다양한 클리어와 전용 경화제/희석제를 사용하여 최적의 도장 특성(광택, 속건, 스크래치 방지, 매트)을 구현합니다.',
+    masterTip: '⚠️ [마스터 팩트 체크 (오류 바로잡기)]\n1. LV Superior의 공식 배합비는 100:60:20 입니다. (2:1:10% 아님)\n2. Aero PC/HD, Supreme 명칭은 공식 자료에 없으며, Aerodry, LV Superior, HSR Antiscratch가 정확합니다.\n3. 매트 2.0 시스템이 아닌 Mix & Matt 시스템이 공식 명칭입니다.',
+    products: [
+      { name: 'Autoclear Aerodry (오토클리어 에어로드라이)', desc: '2액형 VOC 준수 상온건조 클리어. 오븐 건조에 맞먹는 물성. 100:100 배합 (60°C 5분, 20°C 45분).' },
+      { name: 'Autoclear LV Superior (LV 슈페리어)', desc: '모든 상황에서 가장 높은 광택을 내는 클리어 (100:60:20 배합). 일부 지역 자가 복원(self-healing) 기재.' },
+      { name: 'Autoclear Plus HS (플러스 HS)', desc: '하이솔리드 아크릴 2액형. 뛰어난 광택·흐름·살오름성. 100:50:10 배합.' },
+      { name: 'Autoclear LV', desc: '30°C까지 모든 수리 크기에 쓰는 표준 클리어. 100:50:10 배합.' },
+      { name: 'Autoclear Mix & Matt (믹스 앤 매트)', desc: '2액형 매트 클리어. 저광택 성분과 반광 성분을 섞어 광택도 정밀 조절.' },
+      { name: 'Autoclear HSR Antiscratch', desc: '하이빌드 2K 클리어. 스크래치 방지 물성, 최적의 흐름, 고광택.' },
+      { name: 'Autoclear LV Exclusive', desc: '자가 복원(self-healing) 스크래치 저항 클리어.' },
+      { name: 'Autoclear Optima', desc: '고성능 2액형 VOC 준수 클리어, 여러 가지 속건 옵션 제공.' },
+      { name: 'Autoclear Rapid Air AS', desc: '빠른 2K 상온건조 스크래치 방지 클리어. 베이킹 필요를 줄인 소규모 수리용.' }
+    ]
+  },
+  {
+    id: 'ppg', name: '🇺🇸 피피지(PPG)', short: 'PPG', color: 'purple',
+    history: '1883년 미국 피츠버그에서 존 뱁티스트 포드와 존 피트케언이 "피츠버그 플레이트 글라스(Pittsburgh Plate Glass)"로 창립. 이후 글로벌 코팅 기업으로 성장.',
+    philosophy: '신차 OEM 라인과의 연속성 및 압도적인 살오름성 지향. 마이크로 젤 테크놀로지를 적용한 아메리칸 하이솔리드 시스템.',
+    oem: '스쿠데리아 페라리(Scuderia Ferrari) 공식 파트너. 미국 빅3 및 현대·기아 남양연구소 메인 스펙 연동.',
+    spec: '[표준 배합비]\n• UHS 유광 라인(D8135/D8173 등) : 2:1+10~20% (주제 2 : 경화제 1 : 희석제 0.5~1)\n• 매트 무광 라인(D8115/D8117) : 4:1:2 배합',
+    method: '1차 미디엄 코트 ➔ 5~10분 플래시 오프(지촉 확인) ➔ 2차 풀 웻(Full Wet) 코트로 묵직한 살오름성 구현.',
+    strategy: '단단한 아크릴-폴리우레탄 가교 결합을 통해 소묵(광 죽음) 현상을 차단하고 두꺼운 도막감과 반영구적 거울광을 유지합니다.',
+    masterTip: '고형분이 매우 높아 날림 도장(Dry Spray)을 하면 표면이 거칠어집니다. 완벽한 패턴 겹침(70% Overlapping)으로 풀 웻(Full Wet)하게 밀어붙여야 PPG 특유의 거울광 레벨링이 연출됩니다.',
+    products: [
+      { name: 'D8135 (Deltron UHS Rapid Clear)', desc: '하이엔드 플래그십 베스트셀러. 묵직한 살오름성과 반영구적 거울광. 60°C 15분 경화.' },
+      { name: 'D8173 (Premium UHS Clear)', desc: '사계절 메인 표준 클리어. 흐름성이 유연해 뭉침/눈물 하자가 적음.' },
+      { name: 'D8131 (2:1 UHS Clearcoat)', desc: '계량이 편리한 2:1 전용 하이솔리드. 안정적 도막 두께와 부드러운 폴리싱.' },
+      { name: 'D8177 (Rapid Performance)', desc: '20°C 20~25분 지촉 건조, 60°C 5분 완전 경화. 살오름성 저하를 극복한 초속건.' },
+      { name: 'D8178 (Rapid Low Energy)', desc: '극단적 에너지 절감. 열처리 없이 상온 40분 이내 경화 완료.' },
+      { name: 'D8105 (CeramiClear)', desc: '나노-세라믹 테크놀로지 고경도 클리어. 일반 클리어 대비 자동세차 스크래치 저항력 3배 이상.' },
+      { name: 'D8112 / D8130 (Express / Spot Clear)', desc: '당일 긴급 출고용. 10분 내 지촉 건조 도달로 열악한 환경에서도 먼지 하자 최소화.' },
+      { name: 'D8115(Matt) / D8117(Semi-Gloss)', desc: '순정 매트 복원 시스템. 완전 무광부터 실크 반광까지 부피 비율(4:1:2 베이스)로 광도 정밀 제어.' }
+    ]
+  }
+];
 export const catalogData = Object.entries(TONER_DB).map(([code, data]) => { return { code, ...data }; });
 export const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
 export const formatWeight = (val: any): string => { const num = Number(val); if (isNaN(num)) return "0"; return Number(num.toFixed(2)).toString(); };
@@ -345,14 +488,6 @@ export default function App() {
   const [paletteDrops, setPaletteDrops] = useState({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 });
 
   const isAnyModalOpen = isUsersModalOpen || isGlossaryModalOpen || isBoardOpen || isShareModalOpen || isExcelModalOpen || !!viewingPost || isCloudModalOpen || !!previewModalImage || !!zoomedImage || memoModal.isOpen || isSnapshotModalOpen || isProcessOpen || isConfiguratorOpen || isPearlGuideOpen;
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (isAnyModalOpen) { document.body.style.overflow = 'hidden'; } 
-      else { document.body.style.overflow = ''; }
-    }
-    return () => { if (typeof window !== 'undefined') document.body.style.overflow = ''; };
-  }, [isAnyModalOpen]);
 
   const handleWheelClick = (index: number) => { setSelectedWheelIndex(index); };
 
