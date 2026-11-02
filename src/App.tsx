@@ -1625,10 +1625,10 @@ export default function App() {
                 <BookOpen size={16} className="mr-1.5" /> <span className="pointer-events-none">PP(분말) 가이드 열기</span>
               </button>
               <button onClick={() => setIsProcessOpen(true)} className="flex-1 bg-slate-800 ...>
-                <Code size={16} className="..." /> <span className="pointer-events-none">Pro 제작 과정 보기</span>
+                <Code size={16} ... /> <span className="pointer-events-none">Pro 제작 과정 보기</span>
               </button>
             </div>
-          </div> {/* 👈 이 줄을 하나만 추가해주세요! */}
+          </div>
 
           <div className="flex flex-col h-full bg-slate-100">
             <div className="flex bg-slate-900 shrink-0 border-b border-slate-700">
