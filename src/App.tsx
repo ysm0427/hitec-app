@@ -1624,10 +1624,11 @@ export default function App() {
               <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-3 rounded-xl text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-md cursor-pointer">
                 <BookOpen size={16} className="mr-1.5" /> <span className="pointer-events-none">PP(분말) 가이드 열기</span>
               </button>
-              <button onClick={() => setIsProcessOpen(true)} className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-3 rounded-xl text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white transition-colors shadow-md cursor-pointer">
-                <Code size={16} className="mr-1.5 text-slate-400 pointer-events-none" /> <span className="pointer-events-none">Pro 제작 과정 보기</span>
+              <button onClick={() => setIsProcessOpen(true)} className="flex-1 bg-slate-800 ...>
+                <Code size={16} className="..." /> <span className="pointer-events-none">Pro 제작 과정 보기</span>
               </button>
             </div>
+          </div> {/* 👈 이 줄을 하나만 추가해주세요! */}
 
           <div className="flex flex-col h-full bg-slate-100">
             <div className="flex bg-slate-900 shrink-0 border-b border-slate-700">
