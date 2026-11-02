@@ -1479,7 +1479,7 @@ export default function App() {
     
                           {/* 브랜드 선택 버튼 */}
                           <div className="flex gap-2 shrink-0">
-                              {['스피스헥커', '글라수이트', '시켄스'].map(brand => (
+                              {['스피스헥커', '글라슈리트', '시켄스'].map(brand => (
                                   <button key={brand} onClick={() => { setSelectedClearBrand(brand); setSelectedClearProduct(null); }} className={`flex-1 py-2 rounded-lg text-xs font-black transition-all shadow-sm border ${selectedClearBrand === brand ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-slate-600 border-slate-300 hover:bg-blue-50'}`}>
                                       {brand}
                                   </button>
