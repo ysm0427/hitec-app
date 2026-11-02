@@ -1,175 +1,3 @@
-// src/App.tsx
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, 
-  Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
-  FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp, 
-  CheckCircle, Edit3, Target, MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud,
-  QrCode, Smartphone, Monitor, Link, Check, Users, Lock, ShieldCheck, Briefcase, MapPin, UserCheck, Hash,
-  ChevronLeft, ChevronRight, Loader2, Copy, Calculator
-} from 'lucide-react';
-
-import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS } from './tonerDB';
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
-import ClearMixer from './components/ClearMixer';
-
-// Firebase 설정 및 초기화
-const firebaseConfig = {
-  apiKey: "AIzaSyAaVn1BUqEhBNFLDuCMu9zy2VQpOdGHMvI",
-  authDomain: "josek-pro.firebaseapp.com",
-  projectId: "josek-pro",
-  storageBucket: "josek-pro.firebasestorage.app",
-  messagingSenderId: "704984614633",
-  appId: "1:704984614633:web:42f263f9ebfcaf68089278",
-  measurementId: "G-6T7TJRKH1J"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-if (typeof window !== 'undefined' && !document.querySelector('#tailwind-script')) {
-  const script = document.createElement('script');
-  script.id = 'tailwind-script';
-  script.src = 'https://cdn.tailwindcss.com';
-  document.head.appendChild(script);
-}
-
-if (!TONER_DB['WT 340']) TONER_DB['WT 340'] = { role: '옐로우 마젠타 레드', type: 'solid', face: '#E53935', flop: '#B71C1C', desc: '맑은 자주색 조색제. 338에 비해 밝고 청색이 적음. 주로 이펙트 컬러에 사용함. 알루미늄 입자에 혼합할 경우 맑은 분홍색을 냄', details: [['일반 특성', '맑은 자주색 조색제로 338에 비해 밝고 청색이 적습니다.'], ['혼합 특성', '주로 이펙트 컬러에 사용하며, 알루미늄 입자에 혼합할 경우 맑은 분홍색을 냅니다.'], ['외관 변화', '정면과 측면 모두 맑고 화사한 적자색(Pinkish Red)을 띱니다.'], ['타겟 컬러', '고채도 레드, 핑크 계열 이펙트 컬러 및 솔리드 레드'], ['배합 비율', '조색 데이터에 따라 베이스 및 펄 컬러에 다양하게 적용'], ['조색 한계점', '은폐력이 매우 낮아 단독 사용 시 바닥이 비칠 수 있습니다.'], ['비교 분석', 'WT 338(블루이쉬 마젠타)보다 청색조가 덜하고 따뜻한 핑크/레드빛을 강하게 띱니다.']] };
-if (!TONER_DB['9031']) TONER_DB['9031'] = { role: '애플 레드 (Apple Red)', type: 'candy', face: '#8b0000', flop: '#ff0000', desc: '은폐력 제로의 투명하고 깊은 정통 캔디 레드. 맑은 사과빛 심도를 냅니다.', details: [['🎯 캔디 도장 공정', '고휘도 실버(WT 361/303) 또는 거친 다이아몬드 하도를 완벽하게 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침 없이 일정한 두께로 코팅해야 얼룩을 막을 수 있습니다.'], ['💡 비교 분석', '[비교] 캔디 9031 vs 일반 투명 틴트 WT 311\nWT 311(루비레드)은 단독 보카시(블렌딩)가 가능하지만, 9031 캔디는 블렌딩이 절대 불가(전체 도장 필수)하며 일반 틴트가 흉내 낼 수 없는 극강의 3D 입체 투명 심도(유리알 텍스처)를 냅니다.']] };
-if (!TONER_DB['9032']) TONER_DB['9032'] = { role: '오션 블루 (Ocean Blue)', type: 'candy', face: '#004488', flop: '#0088ff', desc: '심연의 바다처럼 깊고 투명한 시안 커스텀 캔디 블루입니다.', details: [['🎯 캔디 도장 공정', '스프레이 건의 에어 압력을 높이고 토출량을 줄여 아주 곱고 균일하게 미스트를 쪼개어 도포해야 투명감을 살릴 수 있습니다.'], ['💡 비교 분석', '[비교] 캔디 9032 vs 일반 투명 틴트 WT 348\n일반 투명 틴트(348)도 맑은 편이나 한계가 있는 반면, 9032 캔디는 두껍게 올릴수록 심해가 깊어지듯 끝을 알 수 없는 딥 블루 3D 심도를 연출합니다.']] };
-if (!TONER_DB['9033']) TONER_DB['9033'] = { role: '선셋 골드 (Sunset Gold)', type: 'candy', face: '#886600', flop: '#ffcc00', desc: '노을빛 화려한 황금 스파클 캔디 필터를 제공합니다.', details: [['⚠️ 캔디 3대 철칙', '부분 도장(보카시/블렌딩)은 물리적으로 절대 불가하며, 반드시 패널 전체를 한 판 단위로 끊어서 도장해야 합니다.'], ['💡 비교 분석', '[비교] 캔디 9033 vs 일반 투명 틴트 WT 329\nWT 329는 얇은 황금빛 셀로판지라면, 9033 선셋 골드는 두꺼운 황금색 스테인드글라스처럼 압도적인 빛의 투과율과 공간감을 자랑합니다.']] };
-if (!TONER_DB['9048']) TONER_DB['9048'] = { role: '마룬 / 흑갈색 투명 첨가제', type: 'candy', face: '#5a1827', flop: '#8b253f', desc: '엑솔타(Axalta) 스피스헥커 프리미엄 첨가제. 은폐력 제로의 투명하고 깊은 마룬(Maroon) 빛 심도를 냅니다.', details: [['🎯 캔디 도장 공정', '마쯔다(Mazda) 소울 레드 크리스탈(46V) 등 고휘도 실버 하도를 건조한 뒤, 2액형 클리어와 정밀 혼합하여 겹침(Overlap) 없이 코팅해야 얼룩을 막을 수 있습니다.'], ['💡 비교 분석', '[비교] 캔디 9048 vs 일반 마룬 틴트\n일반 마룬 베이스는 메탈릭 입자를 탁하게 가리지만, 9048 캔디 첨가제는 100% 투명도를 유지하며 맑고 깊은 적갈색 필터 효과를 부여합니다.']] };
-const LAST_PATCH_DATE = "2026.10.31 (V3.0 4대 브랜드 클리어 마스터 가이드 통합)"; 
-
-const GUIDE_IMAGES: Record<string, any[]> = {
-  theory: [
-    { id: 1, title: '색의 인식과 3원색', desc: '빛의 혼합 / 안료 혼합 원리', url: '/image1.jpg' },
-    { id: 2, title: '단색안료 특성', desc: '유기안료와 무기안료의 차이점', url: '/image2.jpg' },
-    { id: 3, title: '빛과 안료 상호작용', desc: '솔리드 / 알루미늄 / 간섭펄 반사 원리', url: '/image3.jpg' },
-    { id: 15, title: '추가 이론 자료 1', desc: '상세 가이드 페이지 (15)', url: '/image15.jpg' },
-  ],
-  spectrum: [
-    { id: 4, title: '조색제 포스터의 이해', desc: '기호 읽는 법', url: '/image4.jpg' },
-    { id: 5, title: '솔리드 포지셔닝 맵', desc: '솔리드 컬러 별 위치도', url: '/image5.jpg' },
-    { id: 6, title: '황색/적색 계열도', desc: '명암 및 채도 방향성에 따른 비교', url: '/image6.jpg' },
-    { id: 7, title: '청색/녹색/흑색 계열도', desc: '각 계열별 측면/정면 이색 비교', url: '/image7.jpg' },
-  ],
-  effect: [
-    { id: 8, title: '이펙트 포지셔닝 맵', desc: '이펙트 컬러 조색제 별 위치도', url: '/image8.jpg' },
-    { id: 9, title: '알루미늄 입자 특성', desc: '콘플레이크 vs 실버달러 형상 비교', url: '/image9.jpg' },
-    { id: 10, title: '펄(Pearl) 입자 특성', desc: '천연 마이카 vs 시라릭 펄 현미경', url: '/image10.jpg' },
-    { id: 11, title: 'PP펄 (파우더) 특성', desc: 'PP201~PP901 입자 및 현미경 비교', url: '/image11.jpg' },
-  ],
-  special: [
-    { id: 12, title: 'WT386 특성', desc: '측면밝기조정제 명암 변화 원리', url: '/image12.jpg' },
-    { id: 13, title: '3코트 컬러 특성', desc: '3코트 도장 및 얼룩 발생 주의사항', url: '/image13.jpg' },
-    { id: 14, title: '틴티드 크리어 (Tinted Clear)', desc: '착색 클리어 시스템', url: '/image14.jpg' },
-  ]
-};
-
-const ALL_GUIDE_IMAGES = [...GUIDE_IMAGES.theory, ...GUIDE_IMAGES.spectrum, ...GUIDE_IMAGES.effect, ...GUIDE_IMAGES.special];
-
-// ==========================================
-// 📚 4대 브랜드 교육용 마스터 데이터베이스
-// ==========================================
-const TOP_COMPARISON = [
-  { title: "유광 플래그십 (광택 및 살오름성 끝판왕)", items: [
-      { b: "🇩🇪 글라슈리트", p: "P-C-30 (High Gloss)", d: "수용성 베이스와의 분자 결합력이 우수하며 신차 특유의 정형화된 오렌지 필을 과하지 않고 치밀하게 구현." },
-      { b: "🇺🇸 스피스헥커", p: "Speed-TEC Ultra 8840", d: "초속건 기능을 품었음에도 굳으면서 광이 죽는 ‘소묵 현상’ 완벽 차단, 묵직하고 두터운 도막감 형성." },
-      { b: "🇳🇱 시켄스", p: "Autoclear Supreme", d: "빛의 고굴절 바인더를 채택하여 도막을 뚫고 나오는 투명도가 압도적이며 유리알 같은 ‘웻 룩(Wet-look)’ 거울광 연출." },
-      { b: "🇺🇸 피피지(PPG)", p: "D8135 (Deltron UHS)", d: "PPG의 전설적인 플래그십. 굳으면서 살이 빠지지 않는 압도적으로 묵직한 살오름성 및 영구적 광택." }
-  ]},
-  { title: "에너지 세이빙 초속건 (가스비·부스 효율 최적화)", items: [
-      { b: "🇩🇪 글라슈리트", p: "P-C-15 (Air Drying)", d: "20°C 대기 온도 자연 건조 특화. 탄소 배출 저감 원료(Biomass)가 적용된 친환경 최신작." },
-      { b: "🇺🇸 스피스헥커", p: "Speed-TEC 8810", d: "60°C 열처리 단 5~10분 완결. 부스 가동 가스비를 최대 70% 절감하여 공장 회전율을 극대화." },
-      { b: "🇳🇱 시켄스", p: "Aero PC (Aerodry PC)", d: "20°C 대기 온도에서 30~45분 만에 지촉 건조를 끝내고 폴리싱이 가능하도록 설계된 고효율 시스템." },
-      { b: "🇺🇸 피피지(PPG)", p: "D8177 (Rapid Performance)", d: "20°C 자연 건조 시 20분대 지촉 건조. 도막 살오름성과 속도의 밸런스 최적화." }
-  ]},
-  { title: "스크래치 방지형 (수입차 OEM 고경도 도막 대응)", items: [
-      { b: "🇩🇪 글라슈리트", p: "P-C-40 (Scratch Resistant)", d: "세차 기스 및 외부 오염에 강한 고경도 도막. 장기 외관 보존." },
-      { b: "🇺🇸 스피스헥커", p: "SuperCoat 8040", d: "유럽 프리미엄 완성차 승인. 치밀한 가교 결합으로 단단한 도막 형성." },
-      { b: "🇳🇱 시켄스", p: "Scratch Resistant", d: "자가 복원력(Reflow) 성분 포함. 미세 기스는 태양열 받으면 자가 치유." },
-      { b: "🇺🇸 피피지(PPG)", p: "D8105 (Ceramiclear)", d: "나노-세라믹 테크놀로지. 도자기처럼 단단한 보호막. 벤츠 나노클리어 완벽 대응." }
-  ]},
-  { title: "무광 제어 시스템 (순정 매트 컬러 완벽 재현)", items: [
-      { b: "🇩🇪 글라슈리트", p: "P-C-92(완전무광) / P-C-94(반광)", d: "얼룩 뭉침 현상을 제어하여 독일 3사 완성차 무광 스펙에 기계적인 정확도로 매칭." },
-      { b: "🇺🇸 스피스헥커", p: "Matt System 8022 / 8024", d: "두 무광 클리어의 믹싱 비율에 따라 순정 무광 광도를 소수점 단위까지 정밀 제어." },
-      { b: "🇳🇱 시켄스", p: "Mat / Silk Matt 2.0", d: "건조 후 레진이 희끗하게 일어나는 현상 억제, 고급 가죽 질감의 실크 매트 표면 복원." },
-      { b: "🇺🇸 피피지(PPG)", p: "D8115(Matt) / D8117(Semi)", d: "람보르기니·현대 순정 무광 스펙. 백화 현상 없는 완벽한 매트 레이어." }
-  ]}
-];
-
-const CLEAR_BRANDS_DATA = [
-  {
-    id: 'glasurit', name: '🇩🇪 바스프 글라슈리트', short: '글라슈리트', color: 'emerald',
-    history: '1888년 시작, 앵무새 마크 / 타협 없는 표준화와 친환경 정밀함',
-    philosophy: '"법과 원칙의 정밀 공학" 철저한 데이터 공학과 법적 환경 규제 준수를 최우선으로 여기는 엘리트 공학자 사상.',
-    oem: '포르쉐 클래식 공식 독점 파트너, 독일 3사(벤츠·BMW) 매뉴얼 복원',
-    spec: '수용성 90/100 Line & ProClass 2:1 표준화 시스템',
-    method: '주제 2 : 경화제 1 + 희석제 10% / 1.5회 연속 도장 (1차 웻하게 적신 후 대기 없이 2차 본칠). 1.3~1.4mm 노즐 권장.',
-    strategy: '독일 신차의 얇고 치밀한 오리지널 오렌지 필 텍스처 복원. 재료 소모량을 극한으로 줄여야 하는 정석 작업.',
-    masterTip: '도막이 무리하게 두껍게 올라가면 오렌지 필 변형이나 흐름(눈물) 하자가 발생하므로, 반드시 정석 1.5회 박막 유지를 지킬 것.',
-    products: [
-      { name: 'P-C-30 (High Gloss)', desc: '살오름성 우수, 신차급 외관 / 수용성 90·100라인과 최상의 궁합. 고급 세단, 쇼카 등 최상의 외관 품질.' },
-      { name: 'P-C-40 (Scratch Resistant)', desc: '세차 기스 및 외부 오염에 강한 고경도 도막 / 장기 외관 보존. 벤츠, BMW 등 수입차 매뉴얼 대응.' },
-      { name: 'P-C-20 (Universal)', desc: '사계절 안정적인 밸런스 / 흐름성 및 건조 속도 최적화. 부분 도장부터 전체 도장까지 사계절 메인 클리어.' },
-      { name: 'P-C-15 (Air Drying)', desc: '20°C 대기 온도 자연 건조 특화 / 열처리 부스 연료비 극적 절감. 바이오매스 친환경 원료 적용.' },
-      { name: 'P-C-10 (Fast Drying)', desc: '범퍼, 문 1~2판 부분 도장 최적 / 먼지 타기 전 빠른 지촉 건조. 60°C 15~20분 내 완결.' }
-    ]
-  },
-  {
-    id: 'spieshecker', name: '🇺🇸 엑솔타 스피스헥커', short: '스피스헥커', color: 'blue',
-    history: '1882년 독일 쾰른 창립 후 미국 엑솔타 흡수 / 압도적인 생산성과 회전율의 경제학',
-    philosophy: '"속도와 마진의 비즈니스" 공장의 회전 속도가 곧 마진이라는 실용주의. 현장에서 하자가 안 나고 빠르게 출고하는 시스템.',
-    oem: '메르세데스-AMG F1 팀 공식 파트너, 현대 제네시스 및 국내 대형 양산차 선호도 1위',
-    spec: 'Permahyd Hi-TEC 480 & Speed-TEC Ultra 8840 초속건 시스템',
-    method: '웻온웻(Wet-on-Wet) 가교 공법 적용. 넓고 시원시원한 오버랩 스프레이 패턴.',
-    strategy: '대기 대수가 밀려 정체 현상이 빚어질 때 투입. 속건형 경화제 및 스피드텍 라인 조합으로 부스 회전율 극대화.',
-    masterTip: '웻온웻 공정 시 베이스 대기 시간(Flash-off)을 너무 길게 가져가면 오히려 이색 하자가 발생할 수 있으므로 규정 간격 엄수.',
-    products: [
-      { name: 'Speed-TEC Ultra 8840 ✨', desc: '2026 최신 프리미엄. 초속건 공정 후 광택이 죽는 소묵 현상을 완벽 차단. 묵직한 고광택 하이브리드.' },
-      { name: '퍼마솔리드 8055 (High Gloss)', desc: '현장에서 "묵직한 광택과 깊은 투명감"을 원할 때 찾는 프리미엄 클리어. 3:1 또는 2:1 겸용.' },
-      { name: '퍼마솔리드 8700 (HS Race)', desc: '15분(60°C) 초속건성. 부스 회전율이 곧 매출인 현장에 최적화. 스피드 리페어 특화.' },
-      { name: '퍼마솔리드 8034 (HS Versatile)', desc: '현장의 국밥. 대중성과 작업 안정성의 완벽한 조화. 부분 보수를 리스크 없이 쳐낼 때 최적.' },
-      { name: '퍼마솔리드 8040 (SuperCoat)', desc: '유럽 프리미엄 완성차 승인. 치밀한 가교 결합으로 단단한 내스크래치 도막 형성.' }
-    ]
-  },
-  {
-    id: 'sikkens', name: '🇳🇱 악조노벨 시켄스', short: '시켄스', color: 'orange',
-    history: '1792년 시작, 230년 전통의 삼각형 심볼 / 장인 정신과 색채 미학',
-    philosophy: '"빛과 색채의 예술 미학" 수리 후 흔적이 남지 않는 투명한 맑음과 완벽한 색채 복원을 최고 가치로 두는 네덜란드 장인 사상.',
-    oem: '영국 맥라렌(McLaren) 슈퍼카 공식 독점 파트너, 페라리·롤스로이스, 렉서스/제네시스 펄 매칭',
-    spec: 'Autowave 2.0 & Aero HD 프리미엄 시스템 (고굴절 투명 바인더 기술)',
-    method: '주제 2 : 경화제 1 + 희석제 10~20%. 규정된 플래시 오프 타임을 철저히 준수하는 정석 레이어링 공정.',
-    strategy: '빛의 각도에 따라 이색이 심한 화이트 펄(3코트), 고난도 유색 원색 차량 작업 시 블렌딩 흔적 지우기에 절대적 위력 발휘.',
-    masterTip: '화이트 펄 3코트 작업 시 고굴절 바인더를 활용해 보카시 폭을 충분히 주어 섀도우(얼룩) 현상을 원천 차단하고 거울광을 완성할 것.',
-    products: [
-      { name: 'Autoclear Supreme', desc: '최고 등급의 플래그십 UHS 클리어. 빛의 고굴절률을 이용해 압도적인 투명도와 웻 룩(Wet-look) 거울광 연출.' },
-      { name: 'Aero HD ✨', desc: '2026 최신 고성능 초속건. 에어로의 극단적 자연건조 속도에 시켄스 정통의 두터운 살오름성을 결합.' },
-      { name: 'Autoclear Plus HS', desc: '시켄스의 역사와 투명함을 증명하는 부동의 시그니처 표준형 베스트셀러 HS 클리어.' },
-      { name: 'Autoclear Aero PC', desc: '20°C 대기 온도에서 30~45분 만에 지촉 건조 완료. 가스비 70% 절감의 혁신.' },
-      { name: 'Mat / Silk Matt System', desc: '건조 후 레진 뭉침이나 희끗함 없는 복원. 가죽 같은 고급스러운 순정 무광 질감 정밀 제어.' }
-    ]
-  },
-  {
-    id: 'ppg', name: '🇺🇸 피피지 (PPG)', short: 'PPG', color: 'purple',
-    history: '1883년 피츠버그 유리 제조에서 출발 / 글로벌 도료 매출 1위의 거대 화학 공학 제국',
-    philosophy: '"묵직한 아메리칸 하이솔리드" 완성차 라인(OEM)과의 연속성을 통해 신차 출고 당시의 도막 스펙을 보수 현장에 그대로 연동시키는 도치 공학 지향.',
-    oem: '이탈리아 페라리(Ferrari) 독점 도료 공급, 미국 빅3(포드/GM) 및 현대·기아 직영센터 메인',
-    spec: 'Envirobase High Performance (마이크로 젤 테크놀로지) & Deltron GRS 클리어',
-    method: 'UHS 라인 기준 2:1+10%. 살오름성이 높아 1차 미디엄 코트 후 5~7분 대기, 2차 풀 웻(Full Wet)으로 묵직하게 도포.',
-    strategy: '수용성 안료의 안정성이 극대화되어 건조 중 은분 얼룩(Mottling)이 덜함. 대형 세단의 묵직한 두께감 복원에 최적화.',
-    masterTip: '살오름성이 높아 칠을 흩뿌리는 날림 도장(Dry Spray) 시 표면이 거칠어집니다. 정석적인 플래시 오프 후 웻하게 밀어붙여 거울광을 연출하세요.',
-    products: [
-      { name: 'D8135 (Deltron UHS)', desc: 'PPG의 전설적인 플래그십. 굳으면서 살이 빠지지 않는 압도적으로 묵직한 살오름성 및 영구적 광택.' },
-      { name: 'D8173 (Premium UHS)', desc: '국내외 대형 정비공장에서 사계절 메인으로 쓰는 표준 작업성 특화 클리어. 유연한 레벨링.' },
-      { name: 'D8177 (Rapid Performance)', desc: '20°C 자연 건조 시 20분대 지촉 건조. 도막 두께와 속도의 밸런스를 잡은 고성능 저온 클리어.' },
-      { name: 'D8105 (CeramiClear)', desc: '세계 최초 나노-세라믹 테크놀로지. 벤츠 나노클리어 공식 스펙 대응. 매우 단단한 표면 경도 보호막.' },
-      { name: 'D8115 / D8117 (Matt System)', desc: '람보르기니/현대 순정 무광 스펙. 부피비 조절을 통해 0~60% 광도 세팅.' }
-    ]
-  }
-];
-
 export const catalogData = Object.entries(TONER_DB).map(([code, data]) => { return { code, ...data }; });
 export const safeNum = (val: any): number => { const num = Number(val); return isNaN(num) ? 0 : num; };
 export const formatWeight = (val: any): string => { const num = Number(val); if (isNaN(num)) return "0"; return Number(num.toFixed(2)).toString(); };
@@ -417,7 +245,7 @@ export default function App() {
   const weightRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [focusTarget, setFocusTarget] = useState<{id: string, type: 'code'|'weight', tempInput?: HTMLInputElement} | null>(null); 
   const [catalogSearch, setCatalogSearch] = useState(''); 
-  const [oemSearch, setOemSearch] = useState('');         
+  const [oemSearch, setOemSearch] = useState('');          
   
   const [isBaseMetallic, setIsBaseMetallic] = useState(false); 
   const [isPearlMetallic, setIsPearlMetallic] = useState(false);
@@ -1402,7 +1230,6 @@ export default function App() {
               )}
             </div>
           </div>
-
         {/* 📚 우측 마스터 기술자료실 및 카탈로그 영역 */}
         <div className="lg:col-span-5 flex flex-col h-full relative z-40">
           <div className="flex-1 bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden flex flex-col min-h-[600px] mb-4">
@@ -1441,11 +1268,13 @@ export default function App() {
   
                           {/* 4대 브랜드 선택 버튼 (국기 삽입) */}
                           <div className="flex flex-wrap gap-2 shrink-0">
-                              {CLEAR_BRANDS_DATA.map(brand => (
-                                  <button key={brand.id} onClick={() => { setSelectedClearBrand(brand.id); setSelectedClearProduct(null); }} className={`flex-1 min-w-[120px] py-2.5 rounded-lg text-xs font-black transition-all shadow-sm border ${selectedClearBrand === brand.id ? `bg-${brand.color}-600 text-white border-${brand.color}-700` : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'}`}>
-                                      {brand.name}
+                              {CLEAR_BRANDS_DATA.map(brand => {
+                                  let fCountry = brand.id === 'glasurit' ? 'DE' : brand.id === 'spieshecker' || brand.id === 'ppg' ? 'US' : 'NL';
+                                  return (
+                                  <button key={brand.id} onClick={() => { setSelectedClearBrand(brand.id); setSelectedClearProduct(null); }} className={`flex-1 min-w-[120px] py-2.5 rounded-lg text-[11px] font-black transition-all shadow-sm border flex items-center justify-center gap-1.5 ${selectedClearBrand === brand.id ? `bg-${brand.color}-600 text-white border-${brand.color}-700` : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'}`}>
+                                      <FlagIcon country={fCountry} /> {brand.name}
                                   </button>
-                              ))}
+                              )})}
                           </div>
   
                           {/* 내용 출력 영역 */}
@@ -1453,47 +1282,57 @@ export default function App() {
                               {!selectedClearBrand && (
                                   <div className="h-full flex flex-col animate-in fade-in space-y-4">
                                       <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl text-center shadow-sm">
-                                          <h4 className="font-black text-blue-800 text-sm mb-2">💎 4대 브랜드 하이엔드 최고급 제품 한눈에 비교</h4>
-                                          <p className="text-xs text-blue-600 font-bold">상단의 브랜드를 클릭하면 상세 가이드를 볼 수 있습니다.</p>
+                                          <h4 className="font-black text-blue-800 text-sm mb-2">💎 2026 글로벌 4대 브랜드 8대 카테고리 통합 차트</h4>
+                                          <p className="text-[11px] text-blue-600 font-bold">상단의 브랜드를 클릭하면 5만 5천 자 분량의 무삭제 마스터 가이드를 볼 수 있습니다.</p>
                                       </div>
                                       
-                                      {TOP_COMPARISON.map((comp, idx) => (
-                                          <div key={idx} className="border border-slate-200 rounded-lg overflow-hidden">
-                                              <h5 className="bg-slate-800 text-white text-xs font-black p-2.5">{comp.title}</h5>
-                                              <div className="bg-white flex flex-col">
-                                                  {comp.items.map((item, i) => (
-                                                      <div key={i} className="flex flex-col sm:flex-row border-b border-slate-100 last:border-0 p-2.5 gap-2">
-                                                          <span className="font-black text-slate-800 text-[11px] w-24 shrink-0">{item.b}</span>
-                                                          <div className="flex flex-col flex-1">
-                                                              <span className="font-bold text-blue-600 text-xs mb-0.5">{item.p}</span>
-                                                              <span className="text-[10px] text-slate-600 leading-tight break-keep">{item.d}</span>
-                                                          </div>
+                                      <div className="border border-slate-300 rounded-xl overflow-hidden shadow-sm">
+                                          {EIGHT_CATEGORY_CHART.map((row, rIdx) => (
+                                              <div key={rIdx} className="p-3 space-y-2 border-b border-slate-200 last:border-0">
+                                                  <div className="font-black text-[11px] text-indigo-900 bg-indigo-50 px-2.5 py-1.5 rounded border border-indigo-100">{row.cat}</div>
+                                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                                                      <div className="bg-emerald-50/60 p-2 rounded-lg border border-emerald-200">
+                                                          <div className="font-black text-emerald-900 flex items-center gap-1.5 mb-1"><FlagIcon country="DE" className="w-4 h-3"/> 바스프 글라슈리트</div>
+                                                          <div className="text-slate-700 font-medium whitespace-pre-line leading-relaxed">{row.gl}</div>
                                                       </div>
-                                                  ))}
+                                                      <div className="bg-blue-50 p-2 rounded-lg border border-blue-200">
+                                                          <div className="font-black text-blue-900 flex items-center gap-1.5 mb-1"><FlagIcon country="US" className="w-4 h-3"/> 엑솔타 스피스헥커</div>
+                                                          <div className="text-slate-700 font-medium whitespace-pre-line leading-relaxed">{row.sp}</div>
+                                                      </div>
+                                                      <div className="bg-orange-50 p-2 rounded-lg border border-orange-200">
+                                                          <div className="font-black text-orange-900 flex items-center gap-1.5 mb-1"><FlagIcon country="NL" className="w-4 h-3"/> 악조노벨 시켄스</div>
+                                                          <div className="text-slate-700 font-medium whitespace-pre-line leading-relaxed">{row.sk}</div>
+                                                      </div>
+                                                      <div className="bg-purple-50 p-2 rounded-lg border border-purple-200">
+                                                          <div className="font-black text-purple-900 flex items-center gap-1.5 mb-1"><FlagIcon country="US" className="w-4 h-3"/> 피피지 (PPG)</div>
+                                                          <div className="text-slate-700 font-medium whitespace-pre-line leading-relaxed">{row.pp}</div>
+                                                      </div>
+                                                  </div>
                                               </div>
-                                          </div>
-                                      ))}
+                                          ))}
+                                      </div>
                                   </div>
                               )}
   
                               {selectedClearBrand && (() => {
                                   const brandData = CLEAR_BRANDS_DATA.find(b => b.id === selectedClearBrand);
                                   if(!brandData) return null;
+                                  let fCountry = brandData.id === 'glasurit' ? 'DE' : brandData.id === 'spieshecker' || brandData.id === 'ppg' ? 'US' : 'NL';
                                   
                                   return (
                                       <div className="space-y-4 animate-in fade-in">
                                           {!selectedClearProduct ? (
                                               <div className="flex flex-col gap-4">
                                                   <div className={`p-4 rounded-xl border border-${brandData.color}-200 bg-${brandData.color}-50 shadow-sm`}>
-                                                      <h3 className={`text-base font-black text-${brandData.color}-900 mb-2`}>{brandData.name}</h3>
+                                                      <h3 className={`text-base font-black text-${brandData.color}-900 mb-2 flex items-center gap-2`}><FlagIcon country={fCountry} className="w-5 h-4"/> {brandData.name}</h3>
                                                       <p className={`text-[11px] font-bold text-${brandData.color}-800 mb-3`}>{brandData.history}</p>
                                                       <div className="space-y-2">
-                                                          <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm"><span className="text-[10px] font-black text-slate-500 block mb-1">철학</span><span className="text-[11px] text-slate-700 font-bold">{brandData.philosophy}</span></div>
-                                                          <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm"><span className="text-[10px] font-black text-slate-500 block mb-1">OEM / 타겟</span><span className="text-[11px] text-slate-700 font-bold">{brandData.oem}</span></div>
-                                                          <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm"><span className="text-[10px] font-black text-slate-500 block mb-1">시스템 스펙</span><span className="text-[11px] text-slate-700 font-bold">{brandData.spec}</span></div>
-                                                          <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm"><span className="text-[10px] font-black text-slate-500 block mb-1">배합 및 공정</span><span className="text-[11px] text-slate-700 font-bold">{brandData.method}</span></div>
-                                                          <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm"><span className="text-[10px] font-black text-slate-500 block mb-1">운용 전략</span><span className="text-[11px] text-slate-700 font-bold">{brandData.strategy}</span></div>
-                                                          <div className="bg-red-50 p-2.5 rounded-lg border border-red-200 shadow-sm"><span className="text-[10px] font-black text-red-600 block mb-1">💡 실전 마스터 팁</span><span className="text-[11px] text-red-800 font-bold">{brandData.masterTip}</span></div>
+                                                          <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm"><span className="text-[10px] font-black text-slate-500 block mb-1">철학</span><span className="text-[11px] text-slate-700 font-bold whitespace-pre-line">{brandData.philosophy}</span></div>
+                                                          <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm"><span className="text-[10px] font-black text-slate-500 block mb-1">OEM / 타겟</span><span className="text-[11px] text-slate-700 font-bold whitespace-pre-line">{brandData.oem}</span></div>
+                                                          <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm"><span className="text-[10px] font-black text-slate-500 block mb-1">시스템 스펙</span><span className="text-[11px] text-slate-700 font-bold whitespace-pre-line">{brandData.spec}</span></div>
+                                                          <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm"><span className="text-[10px] font-black text-slate-500 block mb-1">배합 및 공정</span><span className="text-[11px] text-slate-700 font-bold whitespace-pre-line">{brandData.method}</span></div>
+                                                          <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm"><span className="text-[10px] font-black text-slate-500 block mb-1">운용 전략</span><span className="text-[11px] text-slate-700 font-bold whitespace-pre-line">{brandData.strategy}</span></div>
+                                                          <div className="bg-red-50 p-2.5 rounded-lg border border-red-200 shadow-sm"><span className="text-[10px] font-black text-red-600 block mb-1">💡 실전 마스터 팁</span><span className="text-[11px] text-red-800 font-bold whitespace-pre-line">{brandData.masterTip}</span></div>
                                                       </div>
                                                   </div>
                                                   <h4 className="font-black text-slate-800 text-sm border-b pb-2">👇 제품별 상세 정보 보기</h4>
@@ -1509,7 +1348,7 @@ export default function App() {
                                           ) : (
                                               <div className="animate-in slide-in-from-right-2">
                                                   <button onClick={() => setSelectedClearProduct(null)} className="text-[10px] bg-slate-200 px-3 py-1.5 rounded-lg mb-4 font-bold hover:bg-slate-300 transition-colors shadow-sm flex items-center"><ChevronLeft size={12} className="mr-1"/>목록으로 돌아가기</button>
-                                                  <h4 className={`font-black text-${brandData.color}-800 text-lg border-b-2 border-${brandData.color}-200 pb-2 mb-3`}>{selectedClearProduct}</h4>
+                                                  <h4 className={`font-black text-${brandData.color}-800 text-lg border-b-2 border-${brandData.color}-200 pb-2 mb-3 flex items-center gap-2`}><FlagIcon country={fCountry} className="w-5 h-4"/> {selectedClearProduct}</h4>
                                                   
                                                   <div className="space-y-3">
                                                       {brandData.products.filter(p => p.name === selectedClearProduct).map(p => (
@@ -1636,7 +1475,7 @@ export default function App() {
             </div>
           </div>
         </div>
- 
+      
       {showBottomBar && (
           <div className="fixed bottom-0 left-0 w-full z-[500] bg-slate-900/98 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] text-slate-100 pb-[env(safe-area-inset-bottom)]">
               <div className="flex flex-col md:flex-row w-full gap-3 md:gap-4 max-w-4xl mx-auto p-3 md:p-4 h-full items-stretch justify-center">
@@ -1785,8 +1624,7 @@ export default function App() {
           </div>
         </div>
       )}
-
-      {previewModalImage && (
+   {previewModalImage && (
         <div className="fixed inset-0 bg-black/95 z-[5000] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setPreviewModalImage(null)}>
             <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[5010] shadow-lg"><X size={24}/></button>
             <div className="max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl border border-slate-700 shadow-2xl bg-slate-900 p-2" onClick={e => e.stopPropagation()}>
@@ -1794,7 +1632,8 @@ export default function App() {
             </div>
         </div>
       )}
-{zoomedImage && (
+
+      {zoomedImage && (
         <div className="fixed inset-0 bg-black/95 z-[4000] flex flex-col items-center justify-center p-4 backdrop-blur-md animate-in fade-in" onClick={() => setZoomedImage(null)}>
             <button className="absolute top-6 right-6 text-slate-800 bg-white hover:bg-red-500 hover:text-white rounded-full p-2 transition-colors z-[4010] shadow-lg"><X size={24}/></button>
             
@@ -2052,8 +1891,7 @@ export default function App() {
                                 <p className="text-sm font-bold text-slate-700 break-keep">가장자리가 깨진 형태입니다. 서로 겹쳐지기 쉬워 은폐력이 우수하지만, 빛이 부서지며 난반사가 생겨 정면 광채가 부드럽고 측면이 비교적 밝습니다.</p>
                             </div>
                             <div className="bg-slate-800 p-6 rounded-xl shadow-lg flex flex-col items-center text-center border border-slate-600">
-                                
-<h3 className="font-black text-white mb-4 bg-slate-700 px-5 py-2 rounded-full shadow-sm border border-slate-500">실버달러 (Silver Dollar)</h3>
+                                <h3 className="font-black text-white mb-4 bg-slate-700 px-5 py-2 rounded-full shadow-sm border border-slate-500">실버달러 (Silver Dollar)</h3>
                                 <div className="w-32 h-20 bg-gradient-to-br from-slate-200 to-slate-400 rounded-full mb-5 flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.3)] border-2 border-slate-400 text-xs font-black text-slate-800">매끄러운 동전 모양</div>
                                 <p className="text-sm font-bold text-slate-300 break-keep">동전처럼 둥글고 납작한 형태입니다. 빛을 한 방향으로 거울처럼 튕겨내어 정면(15도)이 매우 눈부시고 측면(Flop)이 깊게 어두워집니다.</p>
                             </div>
@@ -2097,7 +1935,7 @@ export default function App() {
                         </div>
                     </div>
                 ) : zoomedImage.id === 13 ? (
-                    <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-emerald-100 mt-8 select-text">
+  <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl overflow-y-auto max-h-full custom-scrollbar text-left border-4 border-emerald-100 mt-8 select-text">
                         <div className="border-b-4 border-emerald-600 pb-2 mb-6 flex justify-between items-end">
                             <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                                 <Layers className="text-emerald-600" size={32}/> 3코트 (3-Coat) 컬러 특성
@@ -2233,72 +2071,10 @@ export default function App() {
                         </div>
                     </div>
                 ) : (
-                    <div className="w-full h-full flex flex-col justify-center relative">
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 w-full mb-3 text-center shadow-2xl shrink-0 z-10 hidden sm:block">
-                            <h3 className="text-slate-900 font-black text-xl mb-1">{zoomedImage.title}</h3>
-                            <p className="text-blue-700 text-xs font-bold">{zoomedImage.desc}</p>
-                        </div>
-                        {zoomedImage.url ? (
-                            <div className="relative w-full h-[65vh] flex flex-col bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
-                                <div 
-                                    ref={scrollContainerRef}
-                                    className={`w-full h-full overflow-auto custom-scrollbar touch-pan-x touch-pan-y relative ${isDragging ? 'cursor-grabbing' : (imgScale > 1 ? 'cursor-grab' : '')}`}
-                                    style={{
-display: imgScale === 1 ? 'flex' : 'block',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}
-                                    onMouseDown={handleMouseDown}
-                                    onMouseMove={handleMouseMove}
-                                    onMouseUp={handleMouseUp}
-                                    onMouseLeave={handleMouseUp}
-                                    onTouchStart={handleTouchStart}
-                                    onTouchMove={handleTouchMove}
-                                    onTouchEnd={handleTouchEnd}
-                                >
-                                    <img 
-                                        draggable={false}
-                                        src={zoomedImage.url} 
-                                        alt={zoomedImage.title} 
-                                        style={{ 
-                                            display: 'block',
-                                            margin: imgScale === 1 ? '0' : 'auto', 
-                                            width: imgScale === 1 ? 'auto' : `${imgScale * 100}%`, 
-                                            height: imgScale === 1 ? '100%' : 'auto',
-                                            maxWidth: imgScale === 1 ? '100%' : 'none',
-                                            maxHeight: imgScale === 1 ? '100%' : 'none',
-                                            objectFit: 'contain',
-                                            transition: pinchDist > 0 ? 'none' : 'width 0.1s ease-out' 
-                                        }}
-                                    />
-                                </div>
-<div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full px-5 py-2 flex items-center gap-6 z-[4020] shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-slate-600">
-                                    <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.max(1, s - 0.2)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">-</button>
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-white text-sm font-black min-w-[45px] text-center tracking-wider">{Math.round(imgScale * 100)}%</span>
-                                        <button onClick={(e) => { e.stopPropagation(); setImgScale(1); }} className="text-[10px] text-blue-400 font-bold hover:text-white mt-0.5">RESET</button>
-                                    </div>
-                                    <button onClick={(e) => { e.stopPropagation(); setImgScale(s => Math.min(5, s + 0.2)); }} className="text-white hover:text-blue-400 font-black text-2xl leading-none w-8 h-8 flex items-center justify-center">+</button>
-                                    
-                                    {currentImgIndex >= 0 && (
-                                        <>
-                                            <div className="w-px h-6 bg-slate-600 mx-1"></div>
-                                            <div className="text-white font-black text-sm whitespace-nowrap min-w-[50px] text-center tracking-widest text-emerald-400">
-                                                {!isMobile && currentImgIndex < ALL_GUIDE_IMAGES.length - 1 && zoomedImage.id !== 12 
-                                                  ? `${currentImgIndex + 1}-${currentImgIndex + 2} / ${ALL_GUIDE_IMAGES.length}` 
-                                                  : `${currentImgIndex + 1} / ${ALL_GUIDE_IMAGES.length}`}
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-) : (
-                            <div className="w-full h-[65vh] flex flex-col items-center justify-center bg-slate-800/80 rounded-3xl shadow-2xl border border-slate-700">
-                                <Camera size={56} className="text-slate-500 mb-4" />
-                                <p className="text-slate-300 font-black text-lg mb-1">상세 이미지가 준비 중입니다.</p>
-                                <p className="text-slate-500 text-sm font-bold">추후 원본 데이터가 업데이트될 예정입니다.</p>
-                            </div>
-                        )}
+                    <div className="w-full h-[65vh] flex flex-col items-center justify-center bg-slate-800/80 rounded-3xl shadow-2xl border border-slate-700">
+                        <Camera size={56} className="text-slate-500 mb-4" />
+                        <p className="text-slate-300 font-black text-lg mb-1">상세 이미지가 준비 중입니다.</p>
+                        <p className="text-slate-500 text-sm font-bold">추후 원본 데이터가 업데이트될 예정입니다.</p>
                     </div>
                 )}
             </div>
@@ -2306,4 +2082,4 @@ display: imgScale === 1 ? 'flex' : 'block',
       )}
     </div>
   );
-}
+}        
