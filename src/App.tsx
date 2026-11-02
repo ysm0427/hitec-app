@@ -1548,7 +1548,7 @@ export default function App() {
                                   </div>
                               )}
     
-                              {selectedClearBrand === '글라수이트' && (
+                              {selectedClearBrand === '글라슈리트' && (
                                   <div className="space-y-4 animate-in fade-in">
                                       {!selectedClearProduct ? (
                                           <div className="grid grid-cols-1 gap-2">
@@ -1563,7 +1563,7 @@ export default function App() {
                                               <button onClick={() => setSelectedClearProduct(null)} className="text-[10px] bg-slate-200 px-2 py-1 rounded mb-3 font-bold hover:bg-slate-300">◀ 뒤로가기</button>
                                               <h4 className="font-black text-emerald-800 text-sm border-b pb-1">{selectedClearProduct}</h4>
                                               <div className="text-[11px] mt-2 space-y-2">
-                                                  <p className="font-black text-slate-800 bg-emerald-50 p-2 rounded">글라수이트 특성: 클래식한 중후함, 압도적인 도막 두께, 수직면 처짐 저항성 극강.</p>
+                                                  <p className="font-black text-slate-800 bg-emerald-50 p-2 rounded">글라슈리트 특성: 클래식한 중후함, 압도적인 도막 두께, 수직면 처짐 저항성 극강.</p>
                                                   {selectedClearProduct.includes('40-10') && <p>바스프의 가성비 보급형. 리스크 적고 무난한 현장용.</p>}
                                                   {selectedClearProduct.includes('230') && <p>오렌지 필 없는 부드러운 레벨링. 전세계 공업사 검증된 범용.</p>}
                                                   {selectedClearProduct.includes('365') && <p>생산성과 럭셔리 광택(Glamour) 동시 확보. 다판넬 작업시 연결 부위 주의.</p>}
