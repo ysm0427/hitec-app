@@ -453,8 +453,6 @@ export default function App() {
 // 투명 수동 배합 바 토글 상태
   const [isClearManualOpen, setIsClearManualOpen] = useState(false);
   // 클리어 가이드 브랜드 및 제품 선택 상태
-  const [selectedClearBrand, setSelectedClearBrand] = useState<string | null>(null);
-  const [selectedClearProduct, setSelectedClearProduct] = useState<string | null>(null);
   const [activeGuideTab, setActiveGuideTab] = useState<'theory'|'spectrum'|'effect'|'special'|'clear'>('spectrum');
   
   const [zoomedImage, setZoomedImage] = useState<any>(null);
@@ -1466,161 +1464,32 @@ export default function App() {
                       </button>
                   ))}
               </div>
-              <div className="p-3 h-52 overflow-y-auto custom-scrollbar bg-slate-50/50">
-                  {activeGuideTab === 'clear' ? (
-                      <div className="flex flex-col gap-3 text-sm text-slate-700 animate-in fade-in flex-1 overflow-y-auto">
-                          {/* 🚨 법적 면책 조항 (필수) */}
-                          <div className="bg-red-50 p-2.5 rounded-xl border border-red-200 shadow-sm shrink-0">
-                              <h4 className="font-black text-red-700 text-[11px] mb-1">⚠️ [주의] Clear 가이드 활용 전 필독</h4>
-                              <p className="text-[10px] text-red-800 leading-tight font-bold break-keep">
-                                  본 가이드는 도장 조색을 돕기 위해 제작된 참고용 데이터입니다. 현장 환경(온도, 습도)에 따라 결과가 다를 수 있으며, <span className="underline">자세한 내용은 반드시 각 브랜드 홈페이지 또는 기술지원팀에 문의하시길 바랍니다.</span> 본 정보를 맹목적으로 따라 발생한 문제에 대해서는 법적 책임을 지지 않습니다.
-                              </p>
-                          </div>
-    
-                          {/* 브랜드 선택 버튼 */}
-                          <div className="flex gap-2 shrink-0">
-                              {['스피스헥커', '글라슈리트', '시켄스'].map(brand => (
-                                  <button key={brand} onClick={() => { setSelectedClearBrand(brand); setSelectedClearProduct(null); }} className={`flex-1 py-2 rounded-lg text-xs font-black transition-all shadow-sm border ${selectedClearBrand === brand ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-slate-600 border-slate-300 hover:bg-blue-50'}`}>
-                                      {brand}
-                                  </button>
-                              ))}
-                          </div>
-    
-                          {/* 내용 출력 영역 */}
-                          <div className="flex-1 overflow-y-auto custom-scrollbar bg-white p-3 rounded-xl border border-slate-200 shadow-inner">
-                              {!selectedClearBrand && (
-                                  <div className="h-full flex flex-col items-center justify-center text-slate-400 text-xs font-bold text-center">
-                                      <p>상단의 브랜드를 클릭하면<br/>제품별 상세 스펙과 리뷰가 나타납니다.</p>
-                                  </div>
-                              )}
-    
-                              {selectedClearBrand === '스피스헥커' && (
-                                  <div className="space-y-4 animate-in fade-in">
-                                      {!selectedClearProduct ? (
-                                          <div className="grid grid-cols-1 gap-2">
-                                              {['8055 (하이엔드/고광택)', '8700 (HS 레이스/초속건)', '8034 (범용/국밥 클리어)', '8810 (에코/저온)', '8450 (세라믹/내스크래치)'].map(prod => (
-                                                  <button key={prod} onClick={() => setSelectedClearProduct(prod)} className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-left hover:border-blue-400 hover:bg-blue-50 transition-colors shadow-sm">
-                                                      <span className="text-xs font-black text-slate-800">{prod}</span>
-                                                  </button>
-                                              ))}
-                                          </div>
-                                      ) : (
-                                          <div>
-                                              <button onClick={() => setSelectedClearProduct(null)} className="text-[10px] bg-slate-200 px-2 py-1 rounded mb-3 font-bold hover:bg-slate-300">◀ 뒤로가기</button>
-                                              {selectedClearProduct.includes('8055') && (
-                                                  <div className="space-y-3">
-                                                      <h4 className="font-black text-blue-800 text-sm border-b pb-1">퍼마솔리드 8055 (High Gloss)</h4>
-                                                      <p className="text-[11px] font-bold">배합비: 3:1 또는 2:1 (VHS 겸용)</p>
-                                                      <p className="text-[11px] leading-relaxed text-slate-600 bg-slate-50 p-2 rounded">현장에서 "묵직한 광택과 깊은 투명감"을 원할 때 찾는 프리미엄 클리어. 수입차/고급차 전체 도장에 최적이며 수직면 흐름 저항성이 매우 우수합니다.</p>
-                                                      <h5 className="font-black text-xs mt-2 text-indigo-700">📌 계절별 경화제(VHS 2:1) 추천</h5>
-                                                      <ul className="text-[11px] space-y-1 list-disc pl-4 font-medium">
-                                                          <li><span className="font-bold">3220 (속건):</span> 15~20°C. 겨울철 1~2판 보수용</li>
-                                                          <li><span className="font-bold">3225 (표준):</span> 20~25°C. 봄/가을 메인 밸런스</li>
-                                                          <li><span className="font-bold">3230 (지연):</span> 25~30°C. 여름철 넓은 면적</li>
-                                                          <li><span className="font-bold">9034/9035 (첨가제):</span> 지연 경화제 사용 시 5~7% 혼합(핀홀 예방)</li>
-                                                      </ul>
-                                                  </div>
-                                              )}
-                                              {selectedClearProduct.includes('8700') && (
-                                                  <div className="space-y-3">
-                                                      <h4 className="font-black text-blue-800 text-sm border-b pb-1">퍼마솔리드 8700 (HS Race)</h4>
-                                                      <p className="text-[11px] font-bold">배합비: 2:1 (전용 첨가제 10%)</p>
-                                                      <p className="text-[11px] leading-relaxed text-slate-600 bg-slate-50 p-2 rounded">15분(60°C) 초속건성. 부스 회전율이 곧 매출인 현장에 최적화. 에너지 절감과 스피드 리페어 특화.</p>
-                                                      <h5 className="font-black text-xs mt-2 text-indigo-700">📌 전용 경화제 (Race Hardener)</h5>
-                                                      <ul className="text-[11px] space-y-1 list-disc pl-4 font-medium">
-                                                          <li><span className="font-bold">3470 (표준):</span> 15~25°C. 극강의 건조 속도용</li>
-                                                          <li><span className="font-bold">3472 (지연):</span> 25~35°C. 대형 면적 더스트 방지</li>
-                                                      </ul>
-                                                  </div>
-                                              )}
-                                              {selectedClearProduct.includes('8034') && (
-                                                  <div className="space-y-3">
-                                                      <h4 className="font-black text-blue-800 text-sm border-b pb-1">퍼마솔리드 8034 (HS Versatile)</h4>
-                                                      <p className="text-[11px] font-bold">배합비: 3:1 또는 2:1</p>
-                                                      <p className="text-[11px] leading-relaxed text-slate-600 bg-slate-50 p-2 rounded">현장의 '국밥'. 대중성과 작업 안정성의 완벽한 조화. 부분 보수를 리스크 없이 쳐낼 때 최적.</p>
-                                                  </div>
-                                              )}
-                                              {(selectedClearProduct.includes('8810') || selectedClearProduct.includes('8450')) && (
-                                                  <p className="text-[11px] p-2 bg-slate-50 rounded">특수 목적 클리어 라인업입니다. 자세한 기술 문서는 스피스헥커 공식 자료를 참조하세요.</p>
-                                              )}
-                                          </div>
-                                      )}
-                                  </div>
-                              )}
-    
-                              {selectedClearBrand === '글라슈리트' && (
-                                  <div className="space-y-4 animate-in fade-in">
-                                      {!selectedClearProduct ? (
-                                          <div className="grid grid-cols-1 gap-2">
-                                              {['바스락 40-10 (가성비)', '923-230 (스탠다드)', '923-365 (고생산성/속건)', 'AraClass A-C-10 (최신/초속건)', '923-55/58 (무광)'].map(prod => (
-                                                  <button key={prod} onClick={() => setSelectedClearProduct(prod)} className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-left hover:border-emerald-400 hover:bg-emerald-50 transition-colors shadow-sm">
-                                                      <span className="text-xs font-black text-slate-800">{prod}</span>
-                                                  </button>
-                                              ))}
-                                          </div>
-                                      ) : (
-                                          <div>
-                                              <button onClick={() => setSelectedClearProduct(null)} className="text-[10px] bg-slate-200 px-2 py-1 rounded mb-3 font-bold hover:bg-slate-300">◀ 뒤로가기</button>
-                                              <h4 className="font-black text-emerald-800 text-sm border-b pb-1">{selectedClearProduct}</h4>
-                                              <div className="text-[11px] mt-2 space-y-2">
-                                                  <p className="font-black text-slate-800 bg-emerald-50 p-2 rounded">글라슈리트 특성: 클래식한 중후함, 압도적인 도막 두께, 수직면 처짐 저항성 극강.</p>
-                                                  {selectedClearProduct.includes('40-10') && <p>바스프의 가성비 보급형. 리스크 적고 무난한 현장용.</p>}
-                                                  {selectedClearProduct.includes('230') && <p>오렌지 필 없는 부드러운 레벨링. 전세계 공업사 검증된 범용.</p>}
-                                                  {selectedClearProduct.includes('365') && <p>생산성과 럭셔리 광택(Glamour) 동시 확보. 다판넬 작업시 연결 부위 주의.</p>}
-                                                  {selectedClearProduct.includes('AraClass') && <p>단가는 높으나 열처리 가스비/전기료 절감이 체감되는 최신형 초속건.</p>}
-                                                  {selectedClearProduct.includes('무광') && <p>얼룩 없이 균일한 무광 질감 연출. 벤츠/포르쉐 무광 차량 필수재.</p>}
-                                              </div>
-                                          </div>
-                                      )}
-                                  </div>
-                              )}
-    
-                              {selectedClearBrand === '시켄스' && (
-                                  <div className="space-y-4 animate-in fade-in">
-                                      {!selectedClearProduct ? (
-                                          <div className="grid grid-cols-1 gap-2">
-                                              {['오토크리어 LV Max', '오토크리어 LV Superior', '오토크리어 Expert HS', '오토크리어 LV Fast', 'Sikkens Matt'].map(prod => (
-                                                  <button key={prod} onClick={() => setSelectedClearProduct(prod)} className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-left hover:border-orange-400 hover:bg-orange-50 transition-colors shadow-sm">
-                                                      <span className="text-xs font-black text-slate-800">{prod}</span>
-                                                  </button>
-                                              ))}
-                                          </div>
-                                      ) : (
-                                          <div>
-                                              <button onClick={() => setSelectedClearProduct(null)} className="text-[10px] bg-slate-200 px-2 py-1 rounded mb-3 font-bold hover:bg-slate-300">◀ 뒤로가기</button>
-                                              <h4 className="font-black text-orange-800 text-sm border-b pb-1">{selectedClearProduct}</h4>
-                                              <div className="text-[11px] mt-2 space-y-2">
-                                                  {selectedClearProduct.includes('Max') && <p>배합비 2:1:10%. 고생산성/친환경(Low VOC). 탁월한 퍼짐성과 장기 광택 유지력.</p>}
-                                                  {selectedClearProduct.includes('Superior') && <p>플래그십 초고광택. 수입차 전체 도장, 두툼한 살오름성의 최고급 마감용.</p>}
-                                                  {selectedClearProduct.includes('Expert') && <p>작업성과 경제성을 잡은 베스트셀러. 현장 피로도를 낮추는 국밥 클리어.</p>}
-                                                  {selectedClearProduct.includes('Fast') && <p>속건형. 상온 건조 및 스피드 리페어, 파츠 도장에 최적화.</p>}
-                                                  {selectedClearProduct.includes('Matt') && <p>트렌디한 무광/반무광 연출. 까다로운 무광 표면 얼룩 방지에 탁월.</p>}
-                                              </div>
-                                          </div>
-                                      )}
-                                  </div>
-                              )}
-                          </div>
-                      </div>
-                  ) : (
-                      <div className="grid grid-cols-2 gap-2">
-                          {(GUIDE_IMAGES[activeGuideTab] || []).map((item: any) => (
-                              <div key={item.id} onClick={() => setZoomedImage(item)} className="bg-white p-2.5 rounded-xl border border-slate-200 hover:border-blue-500 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group">
-                                  <div className="flex items-center justify-between mb-1">
-                                      <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">PAGE {item.id}</span>
-                                      <Maximize size={12} className="text-slate-400 group-hover:text-blue-600" />
-                                  </div>
-                                  <div className="font-black text-xs text-slate-800 group-hover:text-blue-700 break-keep">{item.title}</div>
-                                  <div className="text-[10px] text-slate-500 font-bold mt-0.5 break-keep">{item.desc}</div>
-                              </div>
-                          ))}
-                      </div>
-                  )}
-                </div>
+{/* 우측 마스터 기술자료실 및 카탈로그 영역 (높이 고정 원흉 h-52 제거, flex-1 적용) */}
+          <div className="p-3 flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50 flex flex-col">
+            {activeGuideTab === 'clear' ? (
+              
+              <div className="flex flex-col flex-1 animate-in fade-in overflow-hidden h-full">
+                {/* 우리가 방금 만든 무삭제 5만자 데이터 컴포넌트가 여기서 시원하게 스크롤 됩니다 */}
+                <ClearGuide />
               </div>
 
-           {/* 하단 여백 및 스크롤 영역 완벽 확보 (mb-8, pb-4, shrink-0 추가) */}
-            <div className="flex flex-col sm:flex-row gap-2 mt-6 mb-8 pb-4 relative z-50 px-2 shrink-0">
+            ) : (
+              <div className="grid grid-cols-2 gap-2 flex-1 overflow-y-auto custom-scrollbar">
+                {(GUIDE_IMAGES[activeGuideTab] || []).map((item: any) => (
+                  <div key={item.id} onClick={() => setZoomedImage(item)} className="bg-white p-2.5 rounded-xl border border-slate-200 hover:border-blue-500 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">PAGE {item.id}</span>
+                      <Maximize size={12} className="text-slate-400 group-hover:text-blue-600" />
+                    </div>
+                    <div className="font-black text-xs text-slate-800 group-hover:text-blue-700 break-keep">{item.title}</div>
+                    <div className="text-[10px] text-slate-500 font-bold mt-0.5 break-keep">{item.desc}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* 대표님 요청: 하단 버튼 완벽한 여백 확보 및 시인성 고정 (mt-auto, shrink-0, mb-8) */}
+            <div className="flex flex-col sm:flex-row gap-2 mt-auto pt-4 mb-8 pb-4 relative z-50 px-1 shrink-0 border-t border-slate-200">
               <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-3 rounded-xl text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-md cursor-pointer">
                 <BookOpen size={16} className="mr-1.5" /> <span className="pointer-events-none">PP(분말) 가이드 열기</span>
               </button>
@@ -1628,7 +1497,7 @@ export default function App() {
                 <Code size={16} className="mr-1.5 text-slate-400 pointer-events-none" /> <span className="pointer-events-none">Pro 제작 과정 보기</span>
               </button>
             </div>
-          </div>
+          </div>              
 
           <div className="flex flex-col h-full bg-slate-100">
             <div className="flex bg-slate-900 shrink-0 border-b border-slate-700">
