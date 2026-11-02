@@ -1468,7 +1468,7 @@ export default function App() {
               </div>
               <div className="p-3 h-52 overflow-y-auto custom-scrollbar bg-slate-50/50">
                   {activeGuideTab === 'clear' ? (
-                      <div className="flex flex-col gap-3 text-sm text-slate-700 animate-in fade-in h-full">
+                      <div className="flex flex-col gap-3 text-sm text-slate-700 animate-in fade-in flex-1 overflow-y-auto">
                           {/* 🚨 법적 면책 조항 (필수) */}
                           <div className="bg-red-50 p-2.5 rounded-xl border border-red-200 shadow-sm shrink-0">
                               <h4 className="font-black text-red-700 text-[11px] mb-1">⚠️ [주의] Clear 가이드 활용 전 필독</h4>
