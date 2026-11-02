@@ -1619,15 +1619,15 @@ export default function App() {
                 </div>
               </div>
 
-            <div className="flex gap-2 mt-3 relative z-50">
-              <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-sm cursor-pointer">
+            {/* 하단 여백 및 스크롤 영역 완벽 확보 (mb-8, pb-4, shrink-0 추가) */}
+            <div className="flex flex-col sm:flex-row gap-2 mt-6 mb-8 pb-4 relative z-50 px-2 shrink-0">
+              <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-3 rounded-xl text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-md cursor-pointer">
                 <BookOpen size={16} className="mr-1.5" /> <span className="pointer-events-none">PP(분말) 가이드 열기</span>
               </button>
-              <button onClick={() => setIsProcessOpen(true)} className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white transition-colors shadow-sm cursor-pointer">
+              <button onClick={() => setIsProcessOpen(true)} className="flex-1 bg-slate-800 border border-slate-700 text-slate-300 py-3 rounded-xl text-sm font-black flex items-center justify-center hover:bg-slate-700 hover:text-white transition-colors shadow-md cursor-pointer">
                 <Code size={16} className="mr-1.5 text-slate-400 pointer-events-none" /> <span className="pointer-events-none">Pro 제작 과정 보기</span>
               </button>
             </div>
-          </div>
 
           <div className="flex flex-col h-full bg-slate-100">
             <div className="flex bg-slate-900 shrink-0 border-b border-slate-700">
