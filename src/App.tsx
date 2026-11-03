@@ -1677,42 +1677,42 @@ export default function App() {
               <h3 className="font-bold flex items-center gap-2"><Users size={18} /> 접속 승인된 작업자 현황</h3>
               <div className="flex items-center gap-1.5">
                 <button
-  <button
-  onClick={async () => {
-    const masterKey = prompt("마스터 관리자 비밀번호를 입력하세요:\n(※ 비밀번호를 잊으셨다면 'help'를 입력하세요)");
+  <button 
+                      onClick={async () => {
+                        const masterKey = prompt("마스터 관리자 비밀번호를 입력하세요:\n(※ 비밀번호를 잊으셨다면 'help'를 입력하세요)");
+                        
+                        if (masterKey === "7777") {
+                          if (window.confirm("정말 모든 작업자 명단을 서버에서 영구 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+                            try {
+                              // 파이어베이스(active_users)에 저장된 모든 작업자 데이터를 서버에서 통째로 삭제
+                              const snapshot = await getDocs(collection(db, "active_users"));
+                              const deletePromises = snapshot.docs.map((docItem) => deleteDoc(doc(db, "active_users", docItem.id)));
+                              await Promise.all(deletePromises);
 
-    if (masterKey === "0806") {
-      if (window.confirm("정말 모든 작업자 명단을 서버에서 영구 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
-        try {
-          // 파이어베이스(active_users)에 저장된 모든 작업자 데이터를 서버에서 통째로 삭제
-          const snapshot = await getDocs(collection(db, "active_users"));
-          const deletePromises = snapshot.docs.map((docItem) => deleteDoc(doc(db, "active_users", docItem.id)));
-          await Promise.all(deletePromises);
-
-          // 내 기기의 로컬 저장소도 깨끗이 비우기
-          localStorage.removeItem('hitec_auth_users');
-          setAuthorizedUsers([]);
-
-          alert("파이어베이스 서버와 모든 기기의 작업자 명단이 완벽하게 리셋되었습니다!");
-        } catch (error) {
-          console.error("서버 리셋 중 오류 발생:", error);
-          alert("리셋 중 오류가 발생했습니다. 다시 시도해 주세요.");
-        }
-      }
-    }
-    else if (masterKey === "help") {
-      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com&su=[조색Pro] 마스터 비밀번호 찾기 요청&body=마스터 비밀번호를 분실하여 임시 키 발송을 요청합니다. 접속 기기 및 관리자 확인을 부탁드립니다.`;
-      window.open(gmailUrl, '_blank');
-      alert("구글 지메일(Gmail) 복구 요청 창이 새 탭으로 열렸습니다. 메일을 전송해 주세요!");
-    }
-    else if (masterKey !== null) {
-      alert("비밀번호가 틀렸습니다! 마스터만 리셋할 수 있습니다.\n(비밀번호가 기억 안 나시면 'help'를 입력해 보세요)");
-    }
-  }}
-  className="bg-red-500 hover:bg-red-600 text-white text-[11px] font-black px-2.5 py-1 rounded-lg transition-colors shadow-sm cursor-pointer"
->
-  전체 명단 리셋
-</button>
+                              // 내 기기의 로컬 저장소도 깨끗이 비우기
+                              localStorage.removeItem('hitec_auth_users');
+                              setAuthorizedUsers([]);
+                              
+                              alert("파이어베이스 서버와 모든 기기의 작업자 명단이 완벽하게 리셋되었습니다!");
+                            } catch (error) {
+                              console.error("서버 리셋 중 오류 발생:", error);
+                              alert("리셋 중 오류가 발생했습니다. 다시 시도해 주세요.");
+                            }
+                          }
+                        } 
+                        else if (masterKey === "help") {
+                          const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com&su=[조색Pro] 마스터 비밀번호 찾기 요청&body=마스터 비밀번호를 분실하여 임시 키 발송을 요청합니다. 접속 기기 및 관리자 확인을 부탁드립니다.`;
+                          window.open(gmailUrl, '_blank');
+                          alert("구글 지메일(Gmail) 복구 요청 창이 새 탭으로 열렸습니다. 메일을 전송해 주세요!");
+                        } 
+                        else if (masterKey !== null) {
+                          alert("비밀번호가 틀렸습니다! 마스터만 리셋할 수 있습니다.\n(비밀번호가 기억 안 나시면 'help'를 입력해 보세요)");
+                        }
+                      }}
+                      className="bg-red-500 hover:bg-red-600 text-white text-[11px] font-black px-2.5 py-1 rounded-lg transition-colors shadow-sm cursor-pointer"
+                    >
+                      전체 명단 리셋
+                    </button>
                 <button onClick={() => setIsUsersModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
               </div>
             </div>
