@@ -1670,120 +1670,96 @@ export default function App() {
           </div>
       )}
 
-      {isUsersModalOpen && (
+            {isUsersModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[80vh]">
             <div className="p-4 bg-indigo-600 flex justify-between items-center text-white shrink-0">
               <h3 className="font-bold flex items-center gap-2"><Users size={18} /> 접속 승인된 작업자 현황</h3>
-              <button 
-    onClick={() => {
-      const masterKey = prompt("마스터 관리자 비밀번호를 입력하세요:");
-      if (masterKey === "7777") { // 예시 비밀번호: 7777 (나중에 원하는 번호로 바꾸시면 됩니다!)
-        localStorage.removeItem('hitec_auth_users');
-        setAuthorizedUsers([]);
-        alert("승인된 작업자 명단이 깨끗하게 리셋되었습니다!");
-      } else if (masterKey !== null) {
-        alert("비밀번호가 틀렸습니다! 마스터만 리셋할 수 있습니다.");
-      }
-    }}
-    className="bg-red-500 hover:bg-red-600 text-white text-[11px] font-black px-2.5 py-1 rounded-lg transition-colors shadow-sm"
-  >
-    전체 명단 리셋
-  </button>
-</div>
-              <button onClick={() => setIsUsersModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => {
+                    const masterKey = prompt("마스터 관리자 비밀번호를 입력하세요:\n(※ 비밀번호를 잊으셨다면 'help'를 입력하세요)");
+                    if (masterKey === "7777") {
+                      localStorage.removeItem('hitec_auth_users');
+                      setAuthorizedUsers([]);
+                      alert("승인된 작업자 명단이 깨끗하게 리셋되었습니다!");
+                    } else if (masterKey === "help") {
+                      const mailtoLink = `mailto:ysm0427@gmail.com?subject=[조색Pro] 마스터 비밀번호 찾기 요청&body=마스터 비밀번호를 분실하여 일시 키 발송을 요청합니다. 접속 기기 및 관리자 확인을 부탁드립니다.`;
+                      window.location.href = mailtoLink;
+                      alert("관리자 구글 메일(ysm0427@gmail.com)로 비상 복구 요청 메일 창이 열렸습니다. 메일을 전송해 주세요!");
+                    } else if (masterKey !== null) {
+                      alert("비밀번호가 틀렸습니다! 마스터만 리셋할 수 있습니다.\n(비밀번호가 기억 안 나시면 'help'를 입력해 보세요)");
+                    }
+                  }}
+                  className="bg-red-500 hover:bg-red-600 text-white text-[11px] font-black px-2.5 py-1 rounded-lg transition-colors shadow-sm cursor-pointer"
+                >
+                  전체 명단 리셋
+                </button>
+                <button onClick={() => setIsUsersModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
+              </div>
             </div>
             <div className="p-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar">
-                {!selectedUserInfo ? (
-                    <>
-                        <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl mb-6">
-                            <p className="text-xs text-indigo-800 font-bold mb-1">🔐 실시간 접속 보안 패널 (Admin Only)</p>
-                            <p className="text-[11px] text-indigo-600 leading-relaxed break-keep">이 시스템은 승인된 사용자의 기기 목록을 보여줍니다. 실제 배포 시 Firebase DB와 연동되어 원격 차단 등 실시간 통계가 제공될 예정입니다.</p>
-                        </div>
-
-                        <div className="space-y-3">
-                            {authorizedUsers.length === 0 ? (
-                                <div className="text-center py-8 text-slate-400 text-sm font-bold">승인된 사용자가 없습니다.</div>
-                            ) : (
-                                authorizedUsers.map((user, idx) => (
-                                    <button key={idx} onClick={() => setSelectedUserInfo(user)} className="w-full bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex justify-between items-center hover:border-indigo-300 hover:shadow-md transition-all text-left group">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                                {user.device === 'Mobile' ? <Smartphone size={16} className={user.device === 'Mobile' ? 'text-indigo-500 group-hover:text-white' : ''}/> : <Monitor size={16} className={user.device !== 'Mobile' ? 'text-indigo-500 group-hover:text-white' : ''}/>}
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="font-black text-slate-800 text-sm">[{user.branch}] {user.name}</span>
-                                                <span className="text-[10px] text-slate-400 font-bold mt-0.5">{user.brand}</span>
-                                            </div>
-                                        </div>
-                                        <span className="bg-slate-100 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-700 text-[10px] font-black px-2 py-1 rounded transition-colors">상세 보기</span>
-                                    </button>
-                      <div className="flex items-center justify-between p-4 bg-indigo-600 text-white shrink-0">
-    <h3 className="font-bold flex items-center gap-2"><Users size={18} /> 접속 승인된 작업자 현황</h3>
-    
-    <div className="flex items-center gap-1.5">
-      <button 
-        onClick={() => {
-          const masterKey = prompt("마스터 관리자 비밀번호를 입력하세요:\n(※ 비밀번호를 잊으셨다면 'help'를 입력하세요)");
-          
-          if (masterKey === "7777") { // 대표님 마스터 비밀번호
-            localStorage.removeItem('hitec_auth_users');
-            setAuthorizedUsers([]);
-            alert("승인된 작업자 명단이 깨끗하게 리셋되었습니다!");
-          } 
-          else if (masterKey === "help") {
-            const mailtoLink = `mailto:ysm0427@gmail.com?subject=[조색Pro] 마스터 비밀번호 찾기 요청&body=마스터 비밀번호를 분실하여 임시 키 발송을 요청합니다. 접속 기기 및 관리자 확인을 부탁드립니다.`;
-            window.location.href = mailtoLink;
-            alert("관리자 구글 메일(ysm0427@gmail.com)로 비상 복구 요청 메일 창이 열렸습니다. 메일을 전송해 주세요!");
-          } 
-          else if (masterKey !== null) {
-            alert("비밀번호가 틀렸습니다! 마스터만 리셋할 수 있습니다.\n(비밀번호가 기억 안 나시면 'help'를 입력해 보세요)");
-          }
-        }}
-        className="bg-red-500 hover:bg-red-600 text-white text-[11px] font-black px-2.5 py-1 rounded-lg transition-colors shadow-sm cursor-pointer"
-      >
-        전체 명단 리셋
-      </button>
-
-      <button onClick={() => setIsUsersModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full cursor-pointer">
-        <X size={16} />
-      </button>
-    </div>
-  </div>          
-                    <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4">
-                        <button onClick={() => setSelectedUserInfo(null)} className="flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-slate-800 mb-2 w-max">
-                            <ChevronDown className="rotate-90"/> 목록으로 돌아가기
+              {!selectedUserInfo ? (
+                <>
+                  <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl mb-6">
+                    <p className="text-xs text-indigo-800 font-bold mb-1">🔐 실시간 접속 보안 패널 (Admin Only)</p>
+                    <p className="text-[11px] text-indigo-600 leading-relaxed break-keep">이 시스템은 승인된 사용자의 기기 목록을 보여줍니다. 실제 배포 시 Firebase DB와 연동되어 원격 차단 등 실시간 통계가 제공될 예정입니다.</p>
+                  </div>
+                  <div className="space-y-3">
+                    {authorizedUsers.length === 0 ? (
+                      <div className="text-center py-8 text-slate-400 text-sm font-bold">승인된 사용자가 없습니다.</div>
+                    ) : (
+                      authorizedUsers.map((user, idx) => (
+                        <button key={idx} onClick={() => setSelectedUserInfo(user)} className="w-full bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex justify-between items-center hover:border-indigo-300 hover:shadow-md transition-all text-left group">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                              {user.device === 'Mobile' ? <Smartphone size={16}/> : <Monitor size={16}/>}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="font-black text-slate-800 text-sm">[{user.branch}] {user.name}</span>
+                              <span className="text-[10px] text-slate-400 font-bold mt-0.5">{user.brand}</span>
+                            </div>
+                          </div>
+                          <span className="bg-slate-100 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-700 text-[10px] font-black px-2 py-1 rounded transition-colors">상세 보기</span>
                         </button>
-                        <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm flex flex-col items-center text-center">
-                            <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4 border-2 border-indigo-200 shadow-sm">
-                               <Users size={32}/>
-                            </div>
-                            <h4 className="text-xl font-black text-slate-800 mb-1">[{selectedUserInfo.branch}] {selectedUserInfo.name}</h4>
-                            <span className="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full mb-6 shadow-sm">{selectedUserInfo.role}</span>
-                            
-                            <div className="w-full flex flex-col gap-3 text-left">
-                                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <span className="text-xs font-bold text-slate-500">소속 브랜드</span>
-                                    <span className="text-sm font-black text-slate-800">{selectedUserInfo.brand}</span>
-                                </div>
-                                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <span className="text-xs font-bold text-slate-500">연령 (나이)</span>
-                                    <span className="text-sm font-black text-slate-800">{selectedUserInfo.age}세</span>
-                                </div>
-                                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <span className="text-xs font-bold text-slate-500">접속 기기</span>
-                                    <span className="text-sm font-black text-slate-800 flex items-center gap-1">
-                                        {selectedUserInfo.device === 'Mobile' ? <Smartphone size={14}/> : <Monitor size={14}/>} {selectedUserInfo.device}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <span className="text-xs font-bold text-slate-500">최초 등록일시</span>
-                                    <span className="text-xs font-black text-slate-800">{selectedUserInfo.date}</span>
-                                </div>
-                            </div>
-                        </div>
+                      ))
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4">
+                  <button onClick={() => setSelectedUserInfo(null)} className="flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-slate-800 mb-2 w-max">
+                    <ChevronDown className="rotate-90"/> 목록으로 돌아가기
+                  </button>
+                  <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4 border-2 border-indigo-200 shadow-sm">
+                      <Users size={32}/>
                     </div>
-                )}
+                    <h4 className="text-xl font-black text-slate-800 mb-1">[{selectedUserInfo.branch}] {selectedUserInfo.name}</h4>
+                    <span className="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full mb-6 shadow-sm">{selectedUserInfo.role}</span>
+                    <div className="w-full flex flex-col gap-3 text-left">
+                      <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span className="text-xs font-bold text-slate-500">소속 브랜드</span>
+                        <span className="text-sm font-black text-slate-800">{selectedUserInfo.brand}</span>
+                      </div>
+                      <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span className="text-xs font-bold text-slate-500">연령 (나이)</span>
+                        <span className="text-sm font-black text-slate-800">{selectedUserInfo.age}세</span>
+                      </div>
+                      <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span className="text-xs font-bold text-slate-500">접속 기기</span>
+                        <span className="text-sm font-black text-slate-800 flex items-center gap-1">
+                          {selectedUserInfo.device === 'Mobile' ? <Smartphone size={14}/> : <Monitor size={14}/>} {selectedUserInfo.device}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span className="text-xs font-bold text-slate-500">최초 등록일시</span>
+                        <span className="text-xs font-black text-slate-800">{selectedUserInfo.date}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
