@@ -1675,6 +1675,22 @@ export default function App() {
           <div className="bg-white rounded-2xl w-[500px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[80vh]">
             <div className="p-4 bg-indigo-600 flex justify-between items-center text-white shrink-0">
               <h3 className="font-bold flex items-center gap-2"><Users size={18} /> 접속 승인된 작업자 현황</h3>
+              <button 
+    onClick={() => {
+      const masterKey = prompt("마스터 관리자 비밀번호를 입력하세요:");
+      if (masterKey === "7777") { // 예시 비밀번호: 7777 (나중에 원하는 번호로 바꾸시면 됩니다!)
+        localStorage.removeItem('hitec_auth_users');
+        setAuthorizedUsers([]);
+        alert("승인된 작업자 명단이 깨끗하게 리셋되었습니다!");
+      } else if (masterKey !== null) {
+        alert("비밀번호가 틀렸습니다! 마스터만 리셋할 수 있습니다.");
+      }
+    }}
+    className="bg-red-500 hover:bg-red-600 text-white text-[11px] font-black px-2.5 py-1 rounded-lg transition-colors shadow-sm"
+  >
+    전체 명단 리셋
+  </button>
+</div>
               <button onClick={() => setIsUsersModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
             <div className="p-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar">
