@@ -334,20 +334,88 @@ export default function App() {
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
   const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);
 
+  // 🌟 파이어베이스(active_users)에서 전국 접속자 명단을 실시간으로 불러오는 코드
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
+      const liveUsers = snapshot.docs.map((doc) => {
+        const d = doc.data();
+        return {
+          id: doc.id,
+          brand: d.brand || d.company || '미입력',
+          branch: d.branch || d.location || '미입력',
+          name: d.name || '이름없음',
+          age: d.age || '미입력',
+          role: d.role || '사원',
+          date: d.date || (d.connectedAt ? new Date(d.connectedAt).toLocaleString('ko-KR') : '기록없음'),
+          device: d.device || 'PC',
+          connectedAt: d.connectedAt || ''
+        };
+      });
+      // 가장 최근에 접속한 작업자가 맨 위에 오도록 시간순 정렬
+      liveUsers.sort((a, b) => (b.connectedAt || '').localeCompare(a.connectedAt || ''));
+      if (liveUsers.length > 0) {
+        setAuthorizedUsers(liveUsers);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleFakeApproval = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAuthFormValid) return; 
+    if (!isAuthFormValid) return;
     setIsApproving(true);
     setApprovalMessage("마스터(윤성만) 기기로 승인 요청 알림 전송 완료...");
+    const deviceType = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC';
+    const nowKor = new Date().toLocaleString('ko-KR');
     try {
       await addDoc(collection(db, "active_users"), {
-        company: authForm.company,
-        location: authForm.location,
-        name: authForm.name,
-        age: authForm.age,
+        company: authForm.company.trim(),
+        location: authForm.location.trim(),
+        brand: authForm.company.trim(),
+        branch: authForm.location.trim(),
+        name: authForm.name.trim(),
+        age: authForm.age.trim() || '미입력',
         role: authForm.role,
+        date: nowKor,
+        device: deviceType,
         connectedAt: new Date().toISOString()
       });
+    } catch (err) {
+      console.error("전송 오류:", err);
+    }
+    await new Promise(r => setTimeout(r, 1000));
+    setApprovalMessage("관리자가 입력된 소속 및 직책 정보를 확인하고 있습니다...");
+    const phase2Delay = Math.floor(Math.random() * 2000) + 2500;
+    await new Promise(r => setTimeout(r, phase2Delay));
+    setApprovalMessage("보안 접근 권한 부여 및 시스템 개방 중...");
+    const phase3Delay = Math.floor(Math.random() * 1000) + 500;
+    await new Promise(r => setTimeout(r, phase3Delay));
+    setIsApproving(false);
+    setShowApprovalSuccess(true);
+  };
+
+  const handleApprovalConfirm = () => {
+    const newUser = {
+      brand: authForm.company.trim(),
+      branch: authForm.location.trim(),
+      name: authForm.name.trim(),
+      age: authForm.age.trim() || '미입력',
+      role: authForm.role,
+      date: new Date().toLocaleString('ko-KR'),
+      device: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC'
+    };
+    setAuthorizedUsers(prev => {
+      const isExist = prev.some(u => u.name === newUser.name && u.branch === newUser.branch && u.date === newUser.date);
+      if (isExist) return prev;
+      const updated = [newUser, ...prev];
+      localStorage.setItem('hitec_auth_users', JSON.stringify(updated));
+      return updated;
+    });
+
+    setShowApprovalSuccess(false);
+    setIsAuthorized(true);
+    localStorage.setItem('hitec_auth_data', JSON.stringify({ passed: true, timestamp: Date.now() }));
+  };
     } catch (err) {
       console.error("전송 오류:", err);
     }
