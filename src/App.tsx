@@ -360,13 +360,13 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // 🌟 실시간 접속자 명단 수신 및 관리 함수 통일
+  // ⚡ [실시간 감시] 서버의 작업자 명단이 리셋되었는지 감지하고 모바일에 안내 팝업 띄우기
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
-      const liveUsers = snapshot.docs.map((doc) => {
-        const d = doc.data();
+      const liveUsers = snapshot.docs.map((docItem) => {
+        const d = docItem.data();
         return {
-          id: doc.id,
+          id: docItem.id,
           brand: d.brand || d.company || '미입력',
           branch: d.branch || d.location || '미입력',
           name: d.name || '이름없음',
@@ -377,13 +377,22 @@ export default function App() {
           connectedAt: d.connectedAt || ''
         };
       });
+
+      // 가장 최근에 접속한 작업자가 맨 위에 오도록 시간순 정렬
       liveUsers.sort((a, b) => (b.connectedAt || '').localeCompare(a.connectedAt || ''));
-      if (liveUsers.length > 0) {
-        setAuthorizedUsers(liveUsers);
+
+      // 🚨 만약 내 기기는 로그인되어 있는데 서버의 전체 명단이 비워졌다면(관리자가 리셋한 경우)
+      if (liveUsers.length === 0 && currentUser) {
+        alert("🚨 [시스템 안내] 관리자에 의해 전체 작업자 명단이 리셋되었습니다!\n작업 중이신 내용이 있다면 안전하게 저장 후 다시 접속해 주세요.");
+        setCurrentUser(null);
+        localStorage.removeItem('hitec_auth_user');
       }
+
+      setAuthorizedUsers(liveUsers);
     });
+
     return () => unsubscribe();
-  }, []);
+  }, [currentUser]);
 
   const handleFakeApproval = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1681,14 +1690,14 @@ export default function App() {
                         const masterKey = prompt("마스터 관리자 비밀번호를 입력하세요:\n(※ 비밀번호를 잊으셨다면 'help'를 입력하세요)");
                         
                         if (masterKey === "7777") {
-                          if (window.confirm("정말 서버의 모든 작업자 명단을 영구 삭제하시겠습니까?\n(※ 접속 중인 모든 모바일/PC 기기의 명단이 즉시 초기화되며, 조색 데이터는 안전하게 보존됩니다.)")) {
+                          if (window.confirm("🚨 [주의] 정말 서버의 모든 작업자 명단을 영구 삭제하시겠습니까?\n\n- 접속 중인 모든 모바일/PC 기기에 리셋 안내가 전송됩니다.\n- 기존 조색 데이터는 안전하게 보존됩니다.")) {
                             try {
                               // 1. 파이어베이스 서버(active_users)에 등록된 작업자 명단을 통째로 삭제
                               const snapshot = await getDocs(collection(db, "active_users"));
                               const deletePromises = snapshot.docs.map((docItem) => deleteDoc(doc(db, "active_users", docItem.id)));
                               await Promise.all(deletePromises);
 
-                              // 2. 내 기기의 로컬 저장소도 비우기
+                              // 2. 내 기기의 로컬 저장소 및 상태 비우기
                               localStorage.removeItem('hitec_auth_users');
                               setAuthorizedUsers([]);
                               
