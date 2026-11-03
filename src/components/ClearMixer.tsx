@@ -1,3 +1,6 @@
+import React, { useState } from 'react';
+import { AlertTriangle, Search, X, History, Zap, CheckCircle, Link } from 'lucide-react';
+
 // ====== [4대 브랜드 클리어코트 통합 마스터 가이드 데이터 & 컴포넌트] ======
 interface ClearProductItem {
   code: string;
@@ -371,7 +374,7 @@ const CLEAR_BRANDS_FULL_DATA: ClearBrandData[] = [
   },
 ];
 
-function ClearGuide() {
+export default function ClearGuide() {
   const [viewMode, setViewMode] = useState<'brand' | 'compare' | 'summary'>('brand');
   const [selectedBrandId, setSelectedBrandId] = useState<string>('glasurit');
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -470,7 +473,7 @@ function ClearGuide() {
 
           {/* 브랜드 상세 본문 스크롤 영역 */}
           <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 space-y-4">
-            {/* 브랜드 타이틀 헤더 (요청 이미지 스타일 완벽 반영) */}
+            {/* 브랜드 타이틀 헤더 */}
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
               <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3 mb-3">
                 <span className="text-2xl">{activeBrand.flag}</span>
@@ -597,7 +600,7 @@ function ClearGuide() {
         </div>
       )}
 
-      {/* 2. 4대 브랜드 용도별 비교 모드 (요청하신 국기 + 영문/품번 비교 스타일) */}
+      {/* 2. 4대 브랜드 용도별 비교 모드 */}
       {viewMode === 'compare' && (
         <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 space-y-3">
           {CLEAR_4BRANDS_COMPARISON.map((block, bIdx) => (
