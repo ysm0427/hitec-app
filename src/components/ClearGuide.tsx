@@ -1,6 +1,50 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Search, X, History, Zap, CheckCircle, Link } from 'lucide-react';
 
+// ====== [윈도우 PC에서도 100% 선명하게 나오는 컬러 국기 SVG 이미지 컴포넌트] ======
+function FlagImage({ code, size = 20 }: { code: 'DE' | 'US' | 'NL'; size?: number }) {
+  const height = Math.round(size * 0.68);
+  if (code === 'DE') {
+    // 독일 국기 (검정 - 빨강 - 노랑)
+    return (
+      <svg width={size} height={height} viewBox="0 0 30 20" className="inline-block shrink-0 rounded-[2px] shadow-sm border border-black/15">
+        <rect width="30" height="6.67" y="0" fill="#111111" />
+        <rect width="30" height="6.67" y="6.67" fill="#DD0000" />
+        <rect width="30" height="6.67" y="13.33" fill="#FFCE00" />
+      </svg>
+    );
+  }
+  if (code === 'NL') {
+    // 네덜란드 국기 (빨강 - 흰색 - 파랑)
+    return (
+      <svg width={size} height={height} viewBox="0 0 30 20" className="inline-block shrink-0 rounded-[2px] shadow-sm border border-black/15">
+        <rect width="30" height="6.67" y="0" fill="#AE1C28" />
+        <rect width="30" height="6.67" y="6.67" fill="#FFFFFF" />
+        <rect width="30" height="6.67" y="13.33" fill="#21468B" />
+      </svg>
+    );
+  }
+  // 미국 국기 (성조기)
+  return (
+    <svg width={size} height={height} viewBox="0 0 30 20" className="inline-block shrink-0 rounded-[2px] shadow-sm border border-black/15">
+      <rect width="30" height="20" fill="#FFFFFF" />
+      <rect width="30" height="2.85" y="0" fill="#B22234" />
+      <rect width="30" height="2.85" y="5.7" fill="#B22234" />
+      <rect width="30" height="2.85" y="11.4" fill="#B22234" />
+      <rect width="30" height="2.85" y="17.15" fill="#B22234" />
+      <rect width="14" height="11.4" x="0" y="0" fill="#3C3B6E" />
+      <circle cx="3" cy="2.8" r="0.9" fill="#FFFFFF" />
+      <circle cx="7" cy="2.8" r="0.9" fill="#FFFFFF" />
+      <circle cx="11" cy="2.8" r="0.9" fill="#FFFFFF" />
+      <circle cx="5" cy="5.7" r="0.9" fill="#FFFFFF" />
+      <circle cx="9" cy="5.7" r="0.9" fill="#FFFFFF" />
+      <circle cx="3" cy="8.6" r="0.9" fill="#FFFFFF" />
+      <circle cx="7" cy="8.6" r="0.9" fill="#FFFFFF" />
+      <circle cx="11" cy="8.6" r="0.9" fill="#FFFFFF" />
+    </svg>
+  );
+}
+
 // ====== [4대 브랜드 클리어코트 통합 마스터 가이드 데이터 & 컴포넌트] ======
 interface ClearProductItem {
   code: string;
@@ -25,7 +69,7 @@ interface ClearBrandSection {
 
 interface ClearBrandData {
   id: string;
-  flag: string;
+  flagCode: 'DE' | 'US' | 'NL';
   brandNum: string;
   koName: string;
   enName: string;
@@ -48,68 +92,71 @@ interface ClearBrandData {
 const CLEAR_MASTER_DISCLAIMER =
   '글라슈리트(BASF) · 스피스헥커(Axalta) · 시켄스(AkzoNobel) · 피피지(PPG) | 제조사 공식 홈페이지, 기술자료(TDS), 공식 보도로 검증한 내용 수록. 제품 구성, 경화제 이름, 배합비는 국가(유럽·영국·아시아태평양·북미)별 TDS가 다릅니다. 국내 취급 여부와 최신 규격은 총판 또는 제조사 기술지원에 확인하세요.';
 
-const CLEAR_4BRANDS_COMPARISON = [
+const CLEAR_4BRANDS_COMPARISON: {
+  category: string;
+  rows: { flagCode: 'DE' | 'US' | 'NL'; brand: string; text: string }[];
+}[] = [
   {
     category: '① 표준 범용 (사계절 메인 클리어)',
     rows: [
-      { flag: '🇩🇪', brand: '글라슈리트 P-C-20 / 923-255:', text: '2:1+10% 표준 배합. 90 Line 연동 사계절 범용(P-C-20) 및 고고형분·내황변 멀티 클리어(923-255).' },
-      { flag: '🇺🇸', brand: '스피스헥커 Permasolid HS 8030 / 8034 / 8055:', text: 'HS·VHS 경화제 호환 범용(8030), 2K 고광택 표준(8034, 3:1), Hi-TEC 퍼포먼스 시스템용 프리미엄 HS(8055, 3:1).' },
-      { flag: '🇳🇱', brand: '시켄스 Autoclear Plus HS / Autoclear LV:', text: '100:50:10(APAC 10~20) 배합. 뛰어난 광택·흐름·살오름성 및 전 베이스코트 대응 표준 클리어.' },
-      { flag: '🇺🇸', brand: 'PPG D8135 (UHS) / D800 (Deltron):', text: '전천후 작업 안정성과 두터운 도막감을 제공하는 글로벌 표준 하이솔리드 클리어.' },
+      { flagCode: 'DE', brand: '글라슈리트 P-C-20 / 923-255:', text: '2:1+10% 표준 배합. 90 Line 연동 사계절 범용(P-C-20) 및 고고형분·내황변 멀티 클리어(923-255).' },
+      { flagCode: 'US', brand: '스피스헥커 Permasolid HS 8030 / 8034 / 8055:', text: 'HS·VHS 경화제 호환 범용(8030), 2K 고광택 표준(8034, 3:1), Hi-TEC 퍼포먼스 시스템용 프리미엄 HS(8055, 3:1).' },
+      { flagCode: 'NL', brand: '시켄스 Autoclear Plus HS / Autoclear LV:', text: '100:50:10(APAC 10~20) 배합. 뛰어난 광택·흐름·살오름성 및 전 베이스코트 대응 표준 클리어.' },
+      { flagCode: 'US', brand: 'PPG D8135 (UHS) / D800 (Deltron):', text: '전천후 작업 안정성과 두터운 도막감을 제공하는 글로벌 표준 하이솔리드 클리어.' },
     ],
   },
   {
     category: '② 무광 제어 시스템 (순정 매트 컬러 완벽 재현)',
     rows: [
-      { flag: '🇩🇪', brand: '글라슈리트 P-C-92 / P-C-94 (및 A-C-90/92, 923-55/58):', text: '얼룩 뭉침을 제어하여 독일 3사 완성차 무광 스펙에 정밀 매칭. 극무광(P-C-92)과 반광(P-C-94) 혼합으로 광택도 조절.' },
-      { flag: '🇺🇸', brand: '스피스헥커 Matt System 8022 / 8024 (공식 8185 무광 / 8170 반광, 8085):', text: '믹싱 비율에 따라 순정 무광 광도를 정밀 제어. 일반 투명 혼합 없이 모든 OEM 무광 컬러 매칭 및 얼룩 없는 외관 구현.' },
-      { flag: '🇳🇱', brand: '시켄스 Mix & Matt (Mat / Silk Matt 2.0):', text: '저광택 성분과 반광 성분을 혼합해 레진 뭉침을 방지하고 가죽 질감의 실크 매트 표면을 부드럽게 복원.' },
-      { flag: '🇺🇸', brand: 'PPG D8115(Matt) / D8117(Semi-Gloss):', text: '람보르기니·현대 매트 컬러 공식 매뉴얼에 등재된 2:1 조색 기반의 무광 클리어 시스템.' },
+      { flagCode: 'DE', brand: '글라슈리트 P-C-92 / P-C-94 (및 A-C-90/92, 923-55/58):', text: '얼룩 뭉침을 제어하여 독일 3사 완성차 무광 스펙에 정밀 매칭. 극무광(P-C-92)과 반광(P-C-94) 혼합으로 광택도 조절.' },
+      { flagCode: 'US', brand: '스피스헥커 Matt System 8022 / 8024 (공식 8185 무광 / 8170 반광, 8085):', text: '믹싱 비율에 따라 순정 무광 광도를소수점 단위로 정밀 제어. 일반 투명 혼합 없이 모든 OEM 무광 컬러 매칭 및 얼룩 없는 외관 구현.' },
+      { flagCode: 'NL', brand: '시켄스 Mix & Matt (Mat / Silk Matt 2.0):', text: '저광택 성분과 반광 성분을 혼합해 레진 뭉침을 방지하고 가죽 질감의 실크 매트 표면을 부드럽게 복원.' },
+      { flagCode: 'US', brand: 'PPG D8115(Matt) / D8117(Semi-Gloss):', text: '람보르기니·현대 매트 컬러 공식 매뉴얼에 등재된 2:1 조색 기반의 무광 클리어 시스템.' },
     ],
   },
   {
     category: '③ ⚡ 에너지 세이빙 저온 건조 (가스비·부스 효율 비교)',
     rows: [
-      { flag: '🇩🇪', brand: '글라슈리트 P-C-15 / AraClass A-C-14:', text: '20°C 자연 건조(Air Drying) 특화 고효율 클리어 및 Eco Balance 친환경 저에너지 건조 라인.' },
-      { flag: '🇺🇸', brand: '스피스헥커 Speed-TEC 8810 / 8820:', text: '공식 40~45°C 10~15분 또는 20°C 30~55분 건조(현장 세팅 60°C 단시간 열처리 운용). 별도 신너 없이 2:1 배합으로 부스 에너지 대폭 절감.' },
-      { flag: '🇳🇱', brand: '시켄스 Autoclear Aerodry (Aero PC):', text: '100:100 배합. 60°C 5분 또는 20°C 대기 온도에서 45분(현장 30~45분) 만에 건조되어 오븐 건조 클리어에 맞먹는 물성 구현.' },
-      { flag: '🇺🇸', brand: 'PPG D8177 (Rapid Performance Clear):', text: '60°C 5분 또는 20°C 20분 건조. 가스비 절감과 경화 속도의 균형을 맞춘 초고속 라인.' },
+      { flagCode: 'DE', brand: '글라슈리트 P-C-15 / AraClass A-C-14:', text: '20°C 자연 건조(Air Drying) 특화 고효율 클리어 및 Eco Balance 친환경 저에너지 건조 라인.' },
+      { flagCode: 'US', brand: '스피스헥커 Speed-TEC 8810 / 8820:', text: '공식 40~45°C 10~15분 또는 20°C 30~55분 건조(현장 세팅 60°C 단시간 열처리 운용). 별도 신너 없이 2:1 배합으로 부스 에너지 대폭 절감.' },
+      { flagCode: 'NL', brand: '시켄스 Autoclear Aerodry (Aero PC):', text: '100:100 배합. 60°C 5분 또는 20°C 대기 온도에서 45분(현장 30~45분) 만에 건조되어 오븐 건조 클리어에 맞먹는 물성 구현.' },
+      { flagCode: 'US', brand: 'PPG D8177 (Rapid Performance Clear):', text: '60°C 5분 또는 20°C 20분 건조. 가스비 절감과 경화 속도의 균형을 맞춘 초고속 라인.' },
     ],
   },
   {
     category: '④ 속건·고생산성 (스피드 리페어)',
     rows: [
-      { flag: '🇩🇪', brand: '글라슈리트 P-C-22 / P-C-10 / A-C-24 / 923-365:', text: '짧은 건조 시간과 낮은 경화 에너지(P-C-22), 스팟~차량 측면 전체 속건(P-C-10), 15분 베이크(923-365).' },
-      { flag: '🇺🇸', brand: '스피스헥커 Permasolid HS Race 8700:', text: '2:1+10%(경화제 3470 + 첨가제 9070). 60°C 15분 또는 40°C 30분 건조 후 짧은 냉각 뒤 즉시 폴리싱·재조립.' },
-      { flag: '🇳🇱', brand: '시켄스 Autoclear Optima / LV Superior Fast / Rapid Air AS:', text: '60°C 15분(Accelerator 병용 시 12분) 속건 및 소규모 수리용 상온 속건.' },
-      { flag: '🇺🇸', brand: 'PPG D8188 / D8177:', text: '1.5코트 원스톱 도장 및 부스 회전율을 극대화하는 고생산성 속건 클리어.' },
+      { flagCode: 'DE', brand: '글라슈리트 P-C-22 / P-C-10 / A-C-24 / 923-365:', text: '짧은 건조 시간과 낮은 경화 에너지(P-C-22), 스팟~차량 측면 전체 속건(P-C-10), 15분 베이크(923-365).' },
+      { flagCode: 'US', brand: '스피스헥커 Permasolid HS Race 8700:', text: '2:1+10%(경화제 3470 + 첨가제 9070). 60°C 15분 또는 40°C 30분 건조 후 짧은 냉각 뒤 즉시 폴리싱·재조립.' },
+      { flagCode: 'NL', brand: '시켄스 Autoclear Optima / LV Superior Fast / Rapid Air AS:', text: '60°C 15분(Accelerator 병용 시 12분) 속건 및 소규모 수리용 상온 속건.' },
+      { flagCode: 'US', brand: 'PPG D8188 / D8177:', text: '1.5코트 원스톱 도장 및 부스 회전율을 극대화하는 고생산성 속건 클리어.' },
     ],
   },
   {
     category: '⑤ 하이엔드 고광택 (쇼카·플래그십 마감)',
     rows: [
-      { flag: '🇩🇪', brand: '글라슈리트 P-C-30 / A-C-30 / 923-631:', text: 'High Gloss / Superior Gloss. 하이엔드 외관과 완벽한 광택·레벨링 구현.' },
-      { flag: '🇺🇸', brand: '스피스헥커 Permasolid HS 8055 / 8021 / 8034:', text: '뛰어난 광택과 살오름성, 우수한 수직 안정성 및 폴리싱 작업성.' },
-      { flag: '🇳🇱', brand: '시켄스 Autoclear LV Superior / Expert HS:', text: '100:60:20 배합(LV Superior). 모든 수리 조건에서 가장 높은 수준의 광택 발현.' },
-      { flag: '🇺🇸', brand: 'PPG D8135 / Deltron GRS:', text: '수입 플래그십 세단 및 슈퍼카 보수에 대응하는 깊고 선명한 외관 광택.' },
+      { flagCode: 'DE', brand: '글라슈리트 P-C-30 / A-C-30 / 923-631:', text: 'High Gloss / Superior Gloss. 하이엔드 외관과 완벽한 광택·레벨링 구현.' },
+      { flagCode: 'US', brand: '스피스헥커 Permasolid HS 8055 / 8021 / 8034:', text: '뛰어난 광택과 살오름성, 우수한 수직 안정성 및 폴리싱 작업성.' },
+      { flagCode: 'NL', brand: '시켄스 Autoclear LV Superior / Expert HS:', text: '100:60:20 배합(LV Superior). 모든 수리 조건에서 가장 높은 수준의 광택 발현.' },
+      { flagCode: 'US', brand: 'PPG D8135 / Deltron GRS:', text: '수입 플래그십 세단 및 슈퍼카 보수에 대응하는 깊고 선명한 외관 광택.' },
     ],
   },
   {
     category: '⑥ 내스크래치·자가복원 (고경도·열복원)',
     rows: [
-      { flag: '🇩🇪', brand: '글라슈리트 P-C-40 / A-C-40 / 923-645 / 923-447 / 923-35:', text: 'Scratch Resistant VOC 클리어 라인업. 세차 및 외부 마찰에 대한 높은 저항성과 지속 광택.' },
-      { flag: '🇺🇸', brand: '스피스헥커 Permasolid HS Diamond 8450:', text: '3:1(VHS 3240). 스크래치 방지 기능, 반영구적 광택 유지력 및 우수한 내후·내자외선성.' },
-      { flag: '🇳🇱', brand: '시켄스 Autoclear LV Exclusive / HSR Antiscratch:', text: '태양열에 노출되면 미세 스크래치가 스스로 복원되는 재유동(Self-healing) 기술(LV Exclusive) 및 하이빌드 내스크래치(HSR).' },
-      { flag: '🇺🇸', brand: 'PPG D8140 (Ceramiclear):', text: '나노 실리카 결합 구조로 OEM 세라믹 클리어 도막의 긁힘 저항성을 재현.' },
+      { flagCode: 'DE', brand: '글라슈리트 P-C-40 / A-C-40 / 923-645 / 923-447 / 923-35:', text: 'Scratch Resistant VOC 클리어 라인업. 세차 및 외부 마찰에 대한 높은 저항성과 지속 광택.' },
+      { flagCode: 'US', brand: '스피스헥커 Permasolid HS Diamond 8450:', text: '3:1(VHS 3240). 스크래치 방지 기능, 반영구적 광택 유지력 및 우수한 내후·내자외선성.' },
+      { flagCode: 'NL', brand: '시켄스 Autoclear LV Exclusive / HSR Antiscratch:', text: '태양열에 노출되면 미세 스크래치가 스스로 복원되는 재유동(Self-healing) 기술(LV Exclusive) 및 하이빌드 내스크래치(HSR).' },
+      { flagCode: 'US', brand: 'PPG D8140 (Ceramiclear):', text: '나노 실리카 결합 구조로 OEM 세라믹 클리어 도막의 긁힘 저항성을 재현.' },
     ],
   },
   {
     category: '⑦ 친환경 · 바이오매스 · 수용성 체계',
     rows: [
-      { flag: '🇩🇪', brand: '글라슈리트 AraClass (A-C 전 시리즈):', text: 'Eco Balance 인증. A-C-24는 폐타이어 재활용(cycling®) 원료로 CO₂ 최대 40% 저감(2026 아우디 F1 R26 적용). A-C-80 UV 경화.' },
-      { flag: '🇺🇸', brand: '스피스헥커 Speed-TEC 시스템 (8810 / 8820):', text: '공정 시간 및 부스 열처리 에너지 소비를 획기적으로 줄이는 저탄소 공정 지향.' },
-      { flag: '🇳🇱', brand: '시켄스 Autoclear WB 2.0 / Expert HS (ECO 경화제):', text: '수용성 클리어코트(WB 2.0) 및 친환경 ECO 경화제 옵션 운영.' },
-      { flag: '🇺🇸', brand: 'PPG Envirobase 연동 Low-VOC 클리어:', text: '글로벌 환경 규제(VOC)를 충족하는 친환경 리피니시 클리어 시스템.' },
+      { flagCode: 'DE', brand: '글라슈리트 AraClass (A-C 전 시리즈):', text: 'Eco Balance 인증. A-C-24는 폐타이어 재활용(cycling®) 원료로 CO₂ 최대 40% 저감(2026 아우디 F1 R26 적용). A-C-80 UV 경화.' },
+      { flagCode: 'US', brand: '스피스헥커 Speed-TEC 시스템 (8810 / 8820):', text: '공정 시간 및 부스 열처리 에너지 소비를 획기적으로 줄이는 저탄소 공정 지향.' },
+      { flagCode: 'NL', brand: '시켄스 Autoclear WB 2.0 / Expert HS (ECO 경화제):', text: '수용성 클리어코트(WB 2.0) 및 친환경 ECO 경화제 옵션 운영.' },
+      { flagCode: 'US', brand: 'PPG Envirobase 연동 Low-VOC 클리어:', text: '글로벌 환경 규제(VOC)를 충족하는 친환경 리피니시 클리어 시스템.' },
     ],
   },
 ];
@@ -117,7 +164,7 @@ const CLEAR_4BRANDS_COMPARISON = [
 const CLEAR_BRANDS_FULL_DATA: ClearBrandData[] = [
   {
     id: 'glasurit',
-    flag: '🇩🇪',
+    flagCode: 'DE',
     brandNum: 'Brand 01',
     koName: '바스프 글라슈리트',
     enName: 'BASF Glasurit',
@@ -202,7 +249,7 @@ const CLEAR_BRANDS_FULL_DATA: ClearBrandData[] = [
   },
   {
     id: 'spieshecker',
-    flag: '🇺🇸',
+    flagCode: 'US',
     brandNum: 'Brand 02',
     koName: '엑솔타 스피스헥커',
     enName: 'Axalta Spies Hecker',
@@ -273,7 +320,7 @@ const CLEAR_BRANDS_FULL_DATA: ClearBrandData[] = [
   },
   {
     id: 'sikkens',
-    flag: '🇳🇱',
+    flagCode: 'NL',
     brandNum: 'Brand 03',
     koName: '악조노벨 시켄스',
     enName: 'AkzoNobel Sikkens',
@@ -334,7 +381,7 @@ const CLEAR_BRANDS_FULL_DATA: ClearBrandData[] = [
   },
   {
     id: 'ppg',
-    flag: '🇺🇸',
+    flagCode: 'US',
     brandNum: 'Brand 04',
     koName: '피피지 인더스트리',
     enName: 'PPG Industries',
@@ -382,107 +429,114 @@ export default function ClearGuide() {
   const activeBrand = CLEAR_BRANDS_FULL_DATA.find((b) => b.id === selectedBrandId) || CLEAR_BRANDS_FULL_DATA[0];
 
   return (
-    <div className="flex flex-col gap-3 text-slate-800 h-full select-text">
-      {/* 상단 주의 및 검증 기준 배너 */}
-      <div className="bg-red-50 p-3 rounded-xl border border-red-200 shadow-sm shrink-0">
-        <div className="font-black text-red-700 text-xs flex items-center gap-1.5 mb-1">
-          <AlertTriangle size={14} className="shrink-0 text-red-600" />
-          <span>자동차 보수 도장 클리어코트 4사 통합 마스터 자료 (검증 표시: ✅ 확인 / 🔶 부분 확인)</span>
-        </div>
-        <p className="text-[11px] text-red-800 leading-relaxed font-bold break-keep">
-          {CLEAR_MASTER_DISCLAIMER}
-        </p>
-      </div>
-
-      {/* 상단 뷰 모드 전환 탭 */}
-      <div className="flex gap-1.5 bg-slate-200/80 p-1 rounded-xl shrink-0">
+    /* 높이를 320px로 고정하여 내부 상하 스크롤이 작동하고 하단 PP/PRO 버튼이 화면에 즉시 나타나도록 설정 */
+    <div
+      className="flex flex-col gap-2 text-slate-800 select-text overflow-hidden"
+      style={{ height: '320px', maxHeight: '320px' }}
+    >
+      {/* 상단 뷰 모드 전환 탭 (고정) */}
+      <div className="flex gap-1.5 bg-slate-200/90 p-1 rounded-xl shrink-0">
         <button
           onClick={() => setViewMode('brand')}
-          className={`flex-1 py-2 px-2 rounded-lg text-xs font-black transition-all ${
+          className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-black transition-all cursor-pointer ${
             viewMode === 'brand' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-white/60'
           }`}
         >
-          🏛️ 브랜드별 역사·전 품번 상세 (4사)
+          🏛️ 브랜드별 역사·전 품번 (4사)
         </button>
         <button
           onClick={() => setViewMode('compare')}
-          className={`flex-1 py-2 px-2 rounded-lg text-xs font-black transition-all ${
+          className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-black transition-all cursor-pointer ${
             viewMode === 'compare' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-white/60'
           }`}
         >
-          ⚡ 4대 브랜드 핵심 비교 (무광·저온 등)
+          ⚡ 4대 브랜드 핵심 비교
         </button>
         <button
           onClick={() => setViewMode('summary')}
-          className={`flex-1 py-2 px-2 rounded-lg text-xs font-black transition-all ${
+          className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-black transition-all cursor-pointer ${
             viewMode === 'summary' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-white/60'
           }`}
         >
-          📊 한눈에 보기 & 배합비 총괄표
+          📊 한눈에 보기 & 배합비 표
         </button>
       </div>
 
-      {/* 1. 브랜드별 상세 보기 모드 */}
-      {viewMode === 'brand' && (
-        <div className="flex flex-col gap-3 flex-1 min-h-0">
-          {/* 4대 브랜드 선택 버튼 (국기 + 한글명 + 영문명 표기) */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 shrink-0">
-            {CLEAR_BRANDS_FULL_DATA.map((brand) => {
-              const isSelected = brand.id === selectedBrandId;
-              return (
-                <button
-                  key={brand.id}
-                  onClick={() => setSelectedBrandId(brand.id)}
-                  className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between shadow-sm cursor-pointer ${
-                    isSelected
-                      ? `${brand.accentBg} text-white border-transparent ring-2 ring-offset-1 ring-slate-400`
-                      : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400 hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full mb-1">
-                    <span className="text-lg leading-none">{brand.flag}</span>
-                    <span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${isSelected ? 'bg-black/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                      {brand.brandNum}
-                    </span>
-                  </div>
-                  <div className="font-black text-xs sm:text-sm leading-tight break-keep">{brand.koName}</div>
-                  <div className={`text-[10px] font-bold truncate mt-0.5 ${isSelected ? 'text-white/85' : 'text-slate-400'}`}>
-                    ({brand.enName})
-                  </div>
+      {/* ====== 전체 상하 스크롤 영역 (마우스 휠로 위아래 시원하게 스크롤) ====== */}
+      <div
+        className="flex-1 min-h-0 overflow-y-auto pr-1.5 space-y-3"
+        style={{ overflowY: 'scroll' }}
+      >
+        {/* 상단 주의 및 검증 기준 배너 */}
+        <div className="bg-red-50 p-2.5 rounded-xl border border-red-200 shadow-sm">
+          <div className="font-black text-red-700 text-[11px] flex items-center gap-1.5 mb-0.5">
+            <AlertTriangle size={13} className="shrink-0 text-red-600" />
+            <span>자동차 보수 도장 클리어코트 4사 통합 마스터 자료 (검증 표시: ✅ 확인 / 🔶 부분 확인)</span>
+          </div>
+          <p className="text-[10px] text-red-800 leading-snug font-bold break-keep">
+            {CLEAR_MASTER_DISCLAIMER}
+          </p>
+        </div>
+
+        {/* 1. 브랜드별 상세 보기 모드 */}
+        {viewMode === 'brand' && (
+          <div className="space-y-3">
+            {/* 4대 브랜드 선택 버튼 (컬러 국기 이미지 + 한글명 + 영문명 표기) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {CLEAR_BRANDS_FULL_DATA.map((brand) => {
+                const isSelected = brand.id === selectedBrandId;
+                return (
+                  <button
+                    key={brand.id}
+                    onClick={() => setSelectedBrandId(brand.id)}
+                    className={`p-2 rounded-xl border text-left transition-all flex flex-col justify-between shadow-sm cursor-pointer ${
+                      isSelected
+                        ? `${brand.accentBg} text-white border-transparent ring-2 ring-offset-1 ring-slate-400`
+                        : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <FlagImage code={brand.flagCode} size={22} />
+                      <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${isSelected ? 'bg-black/25 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                        {brand.brandNum}
+                      </span>
+                    </div>
+                    <div className="font-black text-xs leading-tight break-keep">{brand.koName}</div>
+                    <div className={`text-[10px] font-bold truncate mt-0.5 ${isSelected ? 'text-white/90' : 'text-slate-400'}`}>
+                      ({brand.enName})
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* 품번/키워드 빠른 검색 */}
+            <div className="relative">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder={`${activeBrand.koName} 내 품번·특징 검색 (예: P-C-20, 8810, 무광, 3:1, 아우디...)`}
+                className="w-full bg-white border border-slate-300 rounded-lg pl-8 pr-8 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
+              {searchTerm && (
+                <button onClick={() => setSearchTerm('')} className="absolute right-2.5 top-1.5 text-slate-400 hover:text-slate-600">
+                  <X size={14} />
                 </button>
-              );
-            })}
-          </div>
+              )}
+            </div>
 
-          {/* 품번/키워드 빠른 검색 */}
-          <div className="relative shrink-0">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={`${activeBrand.koName} 내 품번·특징 검색 (예: P-C-20, 8810, 무광, 3:1, 아우디...)`}
-              className="w-full bg-white border border-slate-300 rounded-lg pl-8 pr-8 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
-            {searchTerm && (
-              <button onClick={() => setSearchTerm('')} className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600">
-                <X size={14} />
-              </button>
-            )}
-          </div>
-
-          {/* 브랜드 상세 본문 스크롤 영역 */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 space-y-4">
-            {/* 브랜드 타이틀 헤더 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3 mb-3">
-                <span className="text-2xl">{activeBrand.flag}</span>
-                <h3 className="text-base sm:text-lg font-black text-slate-900">
+            {/* 브랜드 타이틀 헤더 (컬러 국기 이미지 + 영문 공식명 병기) */}
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+              <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2.5 mb-2.5">
+                <FlagImage code={activeBrand.flagCode} size={28} />
+                <h3 className="text-sm sm:text-base font-black text-slate-900">
                   [{activeBrand.brandNum}] {activeBrand.koName} ({activeBrand.enName})
                 </h3>
               </div>
-              <p className="text-xs font-bold text-slate-600 leading-relaxed mb-3 break-keep">{activeBrand.intro}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-lg border border-slate-200">
+              <p className="text-xs font-bold text-slate-600 leading-relaxed mb-2.5 break-keep">{activeBrand.intro}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200">
                 <div><span className="font-black text-slate-500">· 소속·국가: </span><span className="font-bold text-slate-800">{activeBrand.hq}</span></div>
                 <div><span className="font-black text-slate-500">· 시작 연도: </span><span className="font-bold text-slate-800">{activeBrand.founded}</span></div>
                 <div><span className="font-black text-slate-500">· 국내 유통: </span><span className="font-bold text-blue-700">{activeBrand.krDistributor}</span></div>
@@ -491,15 +545,16 @@ export default function ClearGuide() {
             </div>
 
             {/* 브랜드 연혁 (무삭제 연표) */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-              <h4 className="text-xs sm:text-sm font-black text-slate-900 mb-3 flex items-center gap-1.5">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+              <h4 className="text-xs sm:text-sm font-black text-slate-900 mb-2.5 flex items-center gap-1.5">
                 <History size={15} className="text-blue-600" />
-                <span>{activeBrand.flag} {activeBrand.koName} 공식 역사 및 연표</span>
+                <FlagImage code={activeBrand.flagCode} size={18} />
+                <span>{activeBrand.koName} ({activeBrand.enName}) 공식 역사 및 연표</span>
               </h4>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {activeBrand.history.map((h, i) => (
-                  <div key={i} className="flex items-start gap-2 text-xs border-b border-slate-100 pb-2 last:border-b-0 last:pb-0">
-                    <span className="font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 shrink-0 min-w-[68px] text-center">
+                  <div key={i} className="flex items-start gap-2 text-xs border-b border-slate-100 pb-1.5 last:border-b-0 last:pb-0">
+                    <span className="font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 shrink-0 min-w-[64px] text-center">
                       {h.year}
                     </span>
                     <span className="font-bold text-slate-700 flex-1 leading-relaxed break-keep">{h.event}</span>
@@ -510,7 +565,7 @@ export default function ClearGuide() {
             </div>
 
             {/* 핵심 기술 규격 및 전환 정보 */}
-            <div className="bg-slate-800 text-white p-4 rounded-xl shadow-sm space-y-2">
+            <div className="bg-slate-800 text-white p-3.5 rounded-xl shadow-sm space-y-2">
               <h4 className="text-xs font-black text-yellow-400 flex items-center gap-1.5">
                 <Zap size={14} />
                 <span>TDS 표준 작업 규격 및 필수 확인 사항</span>
@@ -541,17 +596,17 @@ export default function ClearGuide() {
               if (filteredItems.length === 0) return null;
 
               return (
-                <div key={sIdx} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                <div key={sIdx} className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm space-y-2.5">
                   <div className="border-b border-slate-200 pb-2">
-                    <h4 className="text-sm font-black text-slate-900">{sec.title}</h4>
+                    <h4 className="text-xs sm:text-sm font-black text-slate-900">{sec.title}</h4>
                     <p className="text-[11px] font-bold text-slate-500 mt-0.5">{sec.subtitle}</p>
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {filteredItems.map((prod, pIdx) => (
                       <div key={pIdx} className={`border ${activeBrand.accentBorder} rounded-xl overflow-hidden shadow-sm`}>
                         <div className="bg-slate-50 px-3 py-2 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm">{activeBrand.flag}</span>
+                            <FlagImage code={activeBrand.flagCode} size={18} />
                             <span className="font-black text-slate-900 text-xs sm:text-sm">{prod.code}</span>
                             <span className="font-bold text-slate-600 text-xs">— {prod.name}</span>
                           </div>
@@ -597,93 +652,115 @@ export default function ClearGuide() {
               </ul>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* 2. 4대 브랜드 용도별 비교 모드 */}
-      {viewMode === 'compare' && (
-        <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 space-y-3">
-          {CLEAR_4BRANDS_COMPARISON.map((block, bIdx) => (
-            <div key={bIdx} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-              <h4 className="text-sm sm:text-base font-black text-slate-900 border-b border-slate-200 pb-2 mb-3">
-                {block.category}
-              </h4>
-              <ul className="space-y-2.5">
-                {block.rows.map((row, rIdx) => (
-                  <li key={rIdx} className="text-xs sm:text-sm leading-relaxed flex items-start gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                    <span className="text-base leading-none shrink-0 mt-0.5">{row.flag}</span>
-                    <div className="break-keep">
-                      <span className="font-black text-slate-900 mr-1.5">{row.brand}</span>
-                      <span className="font-bold text-slate-700">{row.text}</span>
-                    </div>
-                  </li>
-                ))}
+        {/* 2. 4대 브랜드 용도별 비교 모드 (컬러 국기 이미지 + 영문/품번 비교) */}
+        {viewMode === 'compare' && (
+          <div className="space-y-3">
+            {CLEAR_4BRANDS_COMPARISON.map((block, bIdx) => (
+              <div key={bIdx} className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+                <h4 className="text-xs sm:text-sm font-black text-slate-900 border-b border-slate-200 pb-2 mb-2.5">
+                  {block.category}
+                </h4>
+                <ul className="space-y-2">
+                  {block.rows.map((row, rIdx) => (
+                    <li key={rIdx} className="text-xs leading-relaxed flex items-start gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                      <span className="mt-0.5 shrink-0">
+                        <FlagImage code={row.flagCode} size={20} />
+                      </span>
+                      <div className="break-keep">
+                        <span className="font-black text-slate-900 mr-1.5">{row.brand}</span>
+                        <span className="font-bold text-slate-700">{row.text}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* 3. 한눈에 보기 & 배합비 총괄표 모드 */}
+        {viewMode === 'summary' && (
+          <div className="space-y-3">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+              <h4 className="text-xs sm:text-sm font-black text-slate-900 mb-2.5">📋 1. 4대 브랜드 한눈에 보기</h4>
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-800 text-white">
+                    <th className="p-2 border border-slate-700 text-left">구분</th>
+                    <th className="p-2 border border-slate-700 text-left">
+                      <div className="flex items-center gap-1.5">
+                        <FlagImage code="DE" size={18} />
+                        <span>글라슈리트 (Glasurit)</span>
+                      </div>
+                    </th>
+                    <th className="p-2 border border-slate-700 text-left">
+                      <div className="flex items-center gap-1.5">
+                        <FlagImage code="US" size={18} />
+                        <span>스피스헥커 (Spies Hecker)</span>
+                      </div>
+                    </th>
+                    <th className="p-2 border border-slate-700 text-left">
+                      <div className="flex items-center gap-1.5">
+                        <FlagImage code="NL" size={18} />
+                        <span>시켄스 (Sikkens)</span>
+                      </div>
+                    </th>
+                    <th className="p-2 border border-slate-700 text-left">
+                      <div className="flex items-center gap-1.5">
+                        <FlagImage code="US" size={18} />
+                        <span>피피지 (PPG)</span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="font-bold text-slate-700">
+                  <tr className="bg-slate-50">
+                    <td className="p-2 border border-slate-200 font-black">소속·국가</td>
+                    <td className="p-2 border border-slate-200">BASF 소속, 독일</td>
+                    <td className="p-2 border border-slate-200">엑솔타 소속 (독일 쾰른 시작, 본사 미국 필라델피아)</td>
+                    <td className="p-2 border border-slate-200">악조노벨 소속, 네덜란드 암스테르담</td>
+                    <td className="p-2 border border-slate-200">PPG Industries, 미국 피츠버그</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 border border-slate-200 font-black">시작 연도</td>
+                    <td className="p-2 border border-slate-200">1888 함부르크</td>
+                    <td className="p-2 border border-slate-200">1882 쾰른</td>
+                    <td className="p-2 border border-slate-200">1792 흐로닝언</td>
+                    <td className="p-2 border border-slate-200">1883 피츠버그</td>
+                  </tr>
+                  <tr className="bg-slate-50">
+                    <td className="p-2 border border-slate-200 font-black">국내 유통</td>
+                    <td className="p-2 border border-slate-200">조광페인트 (1994 기술제휴)</td>
+                    <td className="p-2 border border-slate-200">스피스헥커 코리아 (12종 등재)</td>
+                    <td className="p-2 border border-slate-200">노루페인트 국내 독점 판매권 (2020)</td>
+                    <td className="p-2 border border-slate-200">피피지코리아 및 공식 대리점</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 border border-slate-200 font-black">대표 배합비</td>
+                    <td className="p-2 border border-slate-200 text-blue-700">P-C 전 품번 2:1+10% / 923-631·645 3:1:1</td>
+                    <td className="p-2 border border-slate-200 text-blue-700">8055·8034·8450 3:1(VHS) / 8700 2:1+10% / 8810 2:1</td>
+                    <td className="p-2 border border-slate-200 text-blue-700">LV·Plus HS 100:50:10 / LV Superior 100:60:20 / Aerodry 100:100</td>
+                    <td className="p-2 border border-slate-200 text-blue-700">D8115/D8117 2:1 / D8177·D8135 전용 배합</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="bg-amber-50 p-3.5 rounded-xl border border-amber-300 shadow-sm space-y-1.5 text-xs">
+              <h4 className="font-black text-amber-900 text-xs sm:text-sm">⚠️ 교육 및 현장 적용 전 핵심 정정 요약 (TDS 검증)</h4>
+              <ul className="space-y-1 font-bold text-amber-900 list-disc pl-4">
+                <li><span className="font-black">시켄스 LV Superior 배합비:</span> 2:1:10%가 아니라 공식 TDS(S1.05.01) 기준 <span className="underline">100 : 60 : 20</span>입니다.</li>
+                <li><span className="font-black">시켄스 Aerodry 배합비:</span> 클리어와 경화제를 <span className="underline">100 : 100 (1:1)</span>으로 혼합하며 60°C 5분, 20°C 45분 건조입니다.</li>
+                <li><span className="font-black">스피스헥커 8055·8034·8450:</span> VHS 경화제 기준 <span className="underline">3 : 1</span> 배합입니다 (2:1은 8700 레이스 및 8810 스피드에 해당).</li>
+                <li><span className="font-black">글라슈리트 구형 923 배합비 주의:</span> 923-610·625·631·645는 <span className="underline">3 : 1 : 1</span>이지만, 923-255·447·526F는 <span className="underline">2 : 1 + 10%</span>이므로 품번별 확인이 필수입니다.</li>
+                <li><span className="font-black">바스락(baslac) 40-10 구분:</span> 글라슈리트와 별개인 BASF 브랜드이며, 40-10은 2K 패널 클리어이고 HS 범용 클리어는 <span className="underline">40-40</span>입니다.</li>
               </ul>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* 3. 한눈에 보기 & 배합비 총괄표 모드 */}
-      {viewMode === 'summary' && (
-        <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 space-y-4">
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
-            <h4 className="text-sm font-black text-slate-900 mb-3">📋 1. 4대 브랜드 한눈에 보기</h4>
-            <table className="w-full text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-800 text-white">
-                  <th className="p-2 border border-slate-700 text-left">구분</th>
-                  <th className="p-2 border border-slate-700 text-left">🇩🇪 글라슈리트 (Glasurit)</th>
-                  <th className="p-2 border border-slate-700 text-left">🇺🇸 스피스헥커 (Spies Hecker)</th>
-                  <th className="p-2 border border-slate-700 text-left">🇳🇱 시켄스 (Sikkens)</th>
-                  <th className="p-2 border border-slate-700 text-left">🇺🇸 피피지 (PPG)</th>
-                </tr>
-              </thead>
-              <tbody className="font-bold text-slate-700">
-                <tr className="bg-slate-50">
-                  <td className="p-2 border border-slate-200 font-black">소속·국가</td>
-                  <td className="p-2 border border-slate-200">BASF 소속, 독일</td>
-                  <td className="p-2 border border-slate-200">엑솔타 소속 (독일 쾰른 시작, 본사 미국 필라델피아)</td>
-                  <td className="p-2 border border-slate-200">악조노벨 소속, 네덜란드 암스테르담</td>
-                  <td className="p-2 border border-slate-200">PPG Industries, 미국 피츠버그</td>
-                </tr>
-                <tr>
-                  <td className="p-2 border border-slate-200 font-black">시작 연도</td>
-                  <td className="p-2 border border-slate-200">1888 함부르크</td>
-                  <td className="p-2 border border-slate-200">1882 쾰른</td>
-                  <td className="p-2 border border-slate-200">1792 흐로닝언</td>
-                  <td className="p-2 border border-slate-200">1883 피츠버그</td>
-                </tr>
-                <tr className="bg-slate-50">
-                  <td className="p-2 border border-slate-200 font-black">국내 유통</td>
-                  <td className="p-2 border border-slate-200">조광페인트 (1994 기술제휴)</td>
-                  <td className="p-2 border border-slate-200">스피스헥커 코리아 (12종 등재)</td>
-                  <td className="p-2 border border-slate-200">노루페인트 국내 독점 판매권 (2020)</td>
-                  <td className="p-2 border border-slate-200">피피지코리아 및 공식 대리점</td>
-                </tr>
-                <tr>
-                  <td className="p-2 border border-slate-200 font-black">대표 배합비</td>
-                  <td className="p-2 border border-slate-200 text-blue-700">P-C 전 품번 2:1+10% / 923-631·645 3:1:1</td>
-                  <td className="p-2 border border-slate-200 text-blue-700">8055·8034·8450 3:1(VHS) / 8700 2:1+10% / 8810 2:1</td>
-                  <td className="p-2 border border-slate-200 text-blue-700">LV·Plus HS 100:50:10 / LV Superior 100:60:20 / Aerodry 100:100</td>
-                  <td className="p-2 border border-slate-200 text-blue-700">D8115/D8117 2:1 / D8177·D8135 전용 배합</td>
-                </tr>
-              </tbody>
-            </table>
           </div>
-
-          <div className="bg-amber-50 p-4 rounded-xl border border-amber-300 shadow-sm space-y-2 text-xs">
-            <h4 className="font-black text-amber-900 text-sm">⚠️ 교육 및 현장 적용 전 핵심 정정 요약 (TDS 검증)</h4>
-            <ul className="space-y-1.5 font-bold text-amber-900 list-disc pl-4">
-              <li><span className="font-black">시켄스 LV Superior 배합비:</span> 2:1:10%가 아니라 공식 TDS(S1.05.01) 기준 <span className="underline">100 : 60 : 20</span>입니다.</li>
-              <li><span className="font-black">시켄스 Aerodry 배합비:</span> 클리어와 경화제를 <span className="underline">100 : 100 (1:1)</span>으로 혼합하며 60°C 5분, 20°C 45분 건조입니다.</li>
-              <li><span className="font-black">스피스헥커 8055·8034·8450:</span> VHS 경화제 기준 <span className="underline">3 : 1</span> 배합입니다 (2:1은 8700 레이스 및 8810 스피드에 해당).</li>
-              <li><span className="font-black">글라슈리트 구형 923 배합비 주의:</span> 923-610·625·631·645는 <span className="underline">3 : 1 : 1</span>이지만, 923-255·447·526F는 <span className="underline">2 : 1 + 10%</span>이므로 품번별 확인이 필수입니다.</li>
-              <li><span className="font-black">바스락(baslac) 40-10 구분:</span> 글라슈리트와 별개인 BASF 브랜드이며, 40-10은 2K 패널 클리어이고 HS 범용 클리어는 <span className="underline">40-40</span>입니다.</li>
-            </ul>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
