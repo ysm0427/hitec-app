@@ -11,7 +11,7 @@ import {
 
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS } from './tonerDB';
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, onSnapshot } from "firebase/firestore";
 import ClearMixer from './components/ClearMixer';
 import ClearGuide from './components/ClearGuide';
 // Firebase 설정 및 초기화
