@@ -316,7 +316,36 @@ export default function App() {
     }
     return false;
   });
+// ⏱️ 남은 리셋 시간을 실시간으로 계산하는 타이머 상태
+  const [timeLeft, setTimeLeft] = useState("");
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const authData = localStorage.getItem('hitec_auth_data');
+      if (authData) {
+        try {
+          const parsed = JSON.parse(authData);
+          const limitTime = 12 * 60 * 60 * 1000; // 12시간 (밀리초)
+          const elapsedTime = Date.now() - parsed.timestamp; // 지난 시간
+          const remainingTime = limitTime - elapsedTime; // 남은 시간
+
+          if (remainingTime <= 0) {
+            setTimeLeft("세션이 만료되었습니다.");
+          } else {
+            const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+            const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+            
+            setTimeLeft(`${hours}시간 ${minutes}분 ${seconds}초 후 리셋됩니다. 그전에 내용을 저장하세요.`);
+          }
+        } catch (e) {
+          setTimeLeft("");
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
   const [authForm, setAuthForm] = useState({ company: '', location: '', name: '', age: '', role: '사원' });
   const isAuthFormValid = authForm.company.trim() !== '' && authForm.location.trim() !== '' && authForm.name.trim() !== '' && String(authForm.age).trim() !== '';
   
@@ -331,6 +360,12 @@ export default function App() {
       }
       return [];
   });
+  {timeLeft && (
+  <div className="bg-amber-100 border border-amber-300 text-amber-800 text-xs px-3 py-2 rounded-lg font-bold shadow-sm flex items-center justify-center gap-2 mb-3">
+    <span>⚠️</span>
+    <span>{timeLeft}</span>
+  </div>
+)}
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
   const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);
 
