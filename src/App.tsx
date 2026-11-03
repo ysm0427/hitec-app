@@ -360,7 +360,7 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // ⚡ [실시간 감시] 서버의 작업자 명단이 리셋되었는지 감지하고 모바일에 안내 팝업 띄우기
+ // ⚡ [실시간 감시] 서버의 작업자 명단 실시간 동기화
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
       const liveUsers = snapshot.docs.map((docItem) => {
@@ -381,18 +381,11 @@ export default function App() {
       // 가장 최근에 접속한 작업자가 맨 위에 오도록 시간순 정렬
       liveUsers.sort((a, b) => (b.connectedAt || '').localeCompare(a.connectedAt || ''));
 
-      // 🚨 만약 내 기기는 로그인되어 있는데 서버의 전체 명단이 비워졌다면(관리자가 리셋한 경우)
-      if (liveUsers.length === 0 && currentUser) {
-        alert("🚨 [시스템 안내] 관리자에 의해 전체 작업자 명단이 리셋되었습니다!\n작업 중이신 내용이 있다면 안전하게 저장 후 다시 접속해 주세요.");
-        setCurrentUser(null);
-        localStorage.removeItem('hitec_auth_user');
-      }
-
       setAuthorizedUsers(liveUsers);
     });
 
     return () => unsubscribe();
-  }, [currentUser]);
+  }, []);
 
   const handleFakeApproval = async (e: React.FormEvent) => {
     e.preventDefault();
