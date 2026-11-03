@@ -1679,20 +1679,20 @@ export default function App() {
                 <button
                   onClick={() => {
                     const masterKey = prompt("마스터 관리자 비밀번호를 입력하세요:\n(※ 비밀번호를 잊으셨다면 'help'를 입력하세요)");
-                    if (masterKey === "0806") {
+                    
+                    if (masterKey === "7777") {
                       localStorage.removeItem('hitec_auth_users');
                       setAuthorizedUsers([]);
                       alert("승인된 작업자 명단이 깨끗하게 리셋되었습니다!");
-                    } else if (masterKey === "help") {
-      // 웹 브라우저에서 구글 지메일 쓰기 창이 바로 열리도록 설정
-      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com&su=[조색Pro] 마스터 비밀번호 찾기 요청&body=마스터 비밀번호를 분실하여 임시 키 발송을 요청합니다. 접속 기기 및 관리자 확인을 부탁드립니다.`;
-      window.open(gmailUrl, '_blank');
-      alert("구글 지메일(Gmail) 복구 요청 창이 새 탭으로 열렸습니다. 메일을 전송해 주세요!");
-    }
-                    } else if (masterKey !== null) {
+                    } 
+                    else if (masterKey === "help") {
+                      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com&su=[조색Pro] 마스터 비밀번호 찾기 요청&body=마스터 비밀번호를 분실하여 임시 키 발송을 요청합니다. 접속 기기 및 관리자 확인을 부탁드립니다.`;
+                      window.open(gmailUrl, '_blank');
+                      alert("구글 지메일(Gmail) 복구 요청 창이 새 탭으로 열렸습니다. 메일을 전송해 주세요!");
+                    } 
+                    else if (masterKey !== null) {
                       alert("비밀번호가 틀렸습니다! 마스터만 리셋할 수 있습니다.\n(비밀번호가 기억 안 나시면 'help'를 입력해 보세요)");
                     }
-                  }}
                   className="bg-red-500 hover:bg-red-600 text-white text-[11px] font-black px-2.5 py-1 rounded-lg transition-colors shadow-sm cursor-pointer"
                 >
                   전체 명단 리셋
