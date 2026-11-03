@@ -307,9 +307,9 @@ export default function App() {
       if (authData) {
         try {
           const parsed = JSON.parse(authData);
-          const ONE_DAY = 24 * 60 * 60 * 1000;
+          const ONE_DAY = 12 * 60 * 60 * 1000;
           if (Date.now() - parsed.timestamp < ONE_DAY) {
-            return true; // 24시간 지나지 않았으면 로그인 상태 유지
+            return true; // 12시간 지나지 않았으면 로그인 상태 유지
           }
         } catch (e) {}
       }
