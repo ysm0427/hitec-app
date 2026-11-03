@@ -1465,6 +1465,7 @@ export default function App() {
                   ))}
               </div>
 {/* 우측 마스터 기술자료실 및 카탈로그 영역 (높이 고정 원흉 h-52 제거, flex-1 적용) */}
+          {/* 우측 마스터 기술자료실 및 카탈로그 영역 (높이 고정 원흉 h-52 제거, flex-1 적용) */}
           <div className="p-3 flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50 flex flex-col">
             {activeGuideTab === 'clear' ? (
               
@@ -1488,7 +1489,7 @@ export default function App() {
               </div>
             )}
             
-            {/* 대표님 요청: 하단 버튼 완벽한 여백 확보 및 시인성 고정 (mt-auto, shrink-0, mb-8) */}
+            {/* 하단 여백 및 스크롤 영역 완벽 확보 */}
             <div className="flex flex-col sm:flex-row gap-2 mt-auto pt-4 mb-8 pb-4 relative z-50 px-1 shrink-0 border-t border-slate-200">
               <button onClick={() => setIsPearlGuideOpen(true)} className="flex-1 bg-purple-100 border border-purple-300 text-purple-900 py-3 rounded-xl text-sm font-black flex items-center justify-center hover:bg-purple-200 transition-colors shadow-md cursor-pointer">
                 <BookOpen size={16} className="mr-1.5" /> <span className="pointer-events-none">PP(분말) 가이드 열기</span>
