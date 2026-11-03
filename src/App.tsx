@@ -1500,6 +1500,7 @@ export default function App() {
             </div>
           </div>
         </div>
+      </div>
           <div className="flex flex-col h-full bg-slate-100">
             <div className="flex bg-slate-900 shrink-0 border-b border-slate-700">
                     <button onClick={()=>{setActiveTab('WT'); setCatalogSearch('');}} className={`flex-1 py-3 text-sm font-black transition-colors ${activeTab === 'WT' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>💧 WT (액상)</button>
