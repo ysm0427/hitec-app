@@ -360,6 +360,31 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
+  // 🌟 실시간 접속자 명단 수신 및 관리 함수 통일
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
+      const liveUsers = snapshot.docs.map((doc) => {
+        const d = doc.data();
+        return {
+          id: doc.id,
+          brand: d.brand || d.company || '미입력',
+          branch: d.branch || d.location || '미입력',
+          name: d.name || '이름없음',
+          age: d.age || '미입력',
+          role: d.role || '사원',
+          date: d.date || (d.connectedAt ? new Date(d.connectedAt).toLocaleString('ko-KR') : '기록없음'),
+          device: d.device || 'PC',
+          connectedAt: d.connectedAt || ''
+        };
+      });
+      liveUsers.sort((a, b) => (b.connectedAt || '').localeCompare(a.connectedAt || ''));
+      if (liveUsers.length > 0) {
+        setAuthorizedUsers(liveUsers);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleFakeApproval = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthFormValid) return;
@@ -411,46 +436,8 @@ export default function App() {
       localStorage.setItem('hitec_auth_users', JSON.stringify(updated));
       return updated;
     });
-
     setShowApprovalSuccess(false);
     setIsAuthorized(true);
-    localStorage.setItem('hitec_auth_data', JSON.stringify({ passed: true, timestamp: Date.now() }));
-  };
-    } catch (err) {
-      console.error("전송 오류:", err);
-    }
-    await new Promise(r => setTimeout(r, 1000));
-    setApprovalMessage("관리자가 입력된 소속 및 직책 정보를 확인하고 있습니다...");
-    const phase2Delay = Math.floor(Math.random() * 2000) + 2500; 
-    await new Promise(r => setTimeout(r, phase2Delay));
-    setApprovalMessage("보안 접근 권한 부여 및 시스템 개방 중...");
-    const phase3Delay = Math.floor(Math.random() * 1000) + 500; 
-    await new Promise(r => setTimeout(r, phase3Delay));
-    setIsApproving(false);
-    setShowApprovalSuccess(true); 
-  };
-
-  const handleApprovalConfirm = () => {
-    const newUser = {
-        brand: authForm.company.trim(),
-        branch: authForm.location.trim(),
-        name: authForm.name.trim(),
-        age: authForm.age.trim() || '미입력',
-        role: authForm.role,
-        date: new Date().toLocaleString('ko-KR'),
-        device: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC'
-    };
-    setAuthorizedUsers(prev => {
-        const isExist = prev.some(u => u.name === newUser.name && u.branch === newUser.branch);
-        if (isExist) return prev;
-        const updated = [...prev, newUser];
-        localStorage.setItem('hitec_auth_users', JSON.stringify(updated));
-        return updated;
-    });
-
-    setShowApprovalSuccess(false);
-    setIsAuthorized(true);
-    // sessionStorage 대신 localStorage에 24시간 계산용 타임스탬프와 함께 저장
     localStorage.setItem('hitec_auth_data', JSON.stringify({ passed: true, timestamp: Date.now() }));
   };
 
