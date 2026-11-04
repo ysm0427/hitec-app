@@ -1887,7 +1887,7 @@ export default function App() {
                     >
                       전체 명단 리셋
                     </button>
-                <button onClick={() => setIsUsersModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 p-1.5 rounded-full"><X size={16} /></button>
+                <button onClick={() => setIsChatOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 px-2.5 py-1 rounded text-xs font-black text-white">[닫기]</button>
               </div>
             </div>
             <div className="p-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar">
