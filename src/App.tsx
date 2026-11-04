@@ -579,7 +579,7 @@ const handleCreatePost = async (e: React.FormEvent) => {
   try {
     const authorName = (typeof authForm !== 'undefined' && authForm?.name) ? authForm.name : '현장 작업자';
     const authorLocation = (typeof authForm !== 'undefined' && authForm?.location) ? authForm.location : '지점';
-    const colorCodeVal = (typeof targetColorCode !== 'undefined' && targetColorCode) ? targetColorCode : ((typeof selectedMemo !== 'undefined' && selectedMemo?.code) ? selectedMemo.code : '일반');
+    const colorCodeVal = '일반';
 
     await addDoc(collection(db, "community_posts"), {
       author: `${authorLocation} ${authorName}`,
