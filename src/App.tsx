@@ -2697,7 +2697,6 @@ export default function App() {
                                     </div>
                                 </div>
                             )}
-                            {/* 🌟 현장 조색 막힘 해결 (구글 스마트 검색) */}
     {/* 🌟 현장 조색 막힘 해결 (구글 스마트 검색) */}
     <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col gap-3">
         <div className="flex items-center gap-2">
