@@ -385,7 +385,7 @@ export default function App() {
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
   const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);
 
-  // 🌟 파이어베이스 실시간 명단 수신 및 기기 등록 통합 (에러 완벽 제거)
+  // ⚡ [실시간 감시] 서버의 작업자 명단이 비워졌는지(리셋되었는지) 실시간 감지하여 강제 초기화
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
       const liveUsers = snapshot.docs.map((docItem) => {
@@ -401,15 +401,22 @@ export default function App() {
           device: d.device || 'PC',
           connectedAt: String(d.connectedAt || '')
         };
-      }).filter(u => u.name !== '이름없음' && u.name.trim() !== '');
+      });
 
-      // 숫자/문자 관계없이 안전하게 최신순 정렬
+      // 🚨 관리자에 의해 서버 명단이 완전히 리셋(0명)되었고, 현재 로그인된 상태라면?
+      if (liveUsers.length === 0 && isAuthorized) {
+        alert("🚨 [시스템 안내] 관리자에 의해 전체 작업자 명단이 리셋되었습니다!\n다시 접속하여 정보를 입력해 주세요.");
+        setIsAuthorized(false);
+        localStorage.removeItem('hitec_auth_data');
+        localStorage.removeItem('hitec_device_id');
+      }
+
       liveUsers.sort((a, b) => String(b.connectedAt).localeCompare(String(a.connectedAt)));
       setAuthorizedUsers(liveUsers);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [isAuthorized]);
 
   const handleFakeApproval = async (e: React.FormEvent) => {
     e.preventDefault();
