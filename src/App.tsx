@@ -383,6 +383,16 @@ export default function App() {
 
   const [authorizedUsers, setAuthorizedUsers] = useState<any[]>([]);
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
+  // 💬 실시간 톡방 및 게시판 관련 상태
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const [communityPosts, setCommunityPosts] = useState<any[]>([]);
+  const [isCommunityOpen, setIsCommunityOpen] = useState(false);
+  const [newPostContent, setNewPostContent] = useState("");
+  const [newPostTitle, setNewPostTitle] = useState("");
   const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);
 
   // ⚡ [실시간 감시] 서버의 작업자 명단이 비워졌는지(리셋되었는지) 실시간 감지하여 강제 초기화
@@ -452,7 +462,66 @@ export default function App() {
     setIsApproving(false);
     setShowApprovalSuccess(true); 
   };
+// 💬 실시간 채팅 메시지 동기화 및 안 읽은 뱃지 계산
+  useEffect(() => {
+    const q = query(collection(db, "chat_messages"), orderBy("createdAt", "asc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setChatMessages(msgs);
+      
+      if (!isChatOpen && msgs.length > chatMessages.length) {
+        setUnreadChatCount(prev => prev + (msgs.length - chatMessages.length));
+      }
+    });
+    return () => unsubscribe();
+  }, [isChatOpen, chatMessages.length]);
 
+  // 📋 현장 공유 게시판 실시간 동기화
+  useEffect(() => {
+    const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setCommunityPosts(posts);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 메시지 전송 함수
+  const handleSendChatMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+    try {
+      await addDoc(collection(db, "chat_messages"), {
+        sender: `${authForm.location || '지점'} ${authForm.name || '작업자'}`,
+        role: authForm.role || '사원',
+        text: chatInput.trim(),
+        createdAt: Date.now()
+      });
+      setChatInput("");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // 게시글 등록 함수
+  const handleCreatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPostTitle.trim() || !newPostContent.trim()) return;
+    try {
+      await addDoc(collection(db, "community_posts"), {
+        author: `${authForm.location || '지점'} ${authForm.name || '작업자'}`,
+        title: newPostTitle.trim(),
+        content: newPostContent.trim(),
+        colorCode: targetColorCode || '일반',
+        createdAt: Date.now()
+      });
+      setNewPostTitle("");
+      setNewPostContent("");
+      alert("✅ 현장 노하우 및 시편 데이터가 공유 게시판에 등록되었습니다!");
+    } catch (err) {
+      console.error(err);
+    }
+  };
   const handleApprovalConfirm = () => {
     localStorage.setItem('hitec_saved_auth_profile', JSON.stringify(authForm));
     setShowApprovalSuccess(false);
