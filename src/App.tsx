@@ -395,7 +395,7 @@ export default function App() {
   try {
     const saved = localStorage.getItem('hitec_saved_auth_profile');
     if (saved) {
-      return JSON.parse(saved);
+      return JSON.parse(saved); // 이전에 저장된 정보가 있으면 자동 로드!
     }
   } catch (e) {}
   return { company: '', location: '', name: '', age: '', role: '사원' };
@@ -528,6 +528,7 @@ export default function App() {
   const handleFakeApproval = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthFormValid) return;
+    localStorage.setItem('hitec_saved_auth_profile', JSON.stringify(authForm));
     setIsApproving(true);
     setApprovalMessage("마스터(윤성만) 기기로 승인 요청 알림 전송 완료...");
     const deviceType = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC';
