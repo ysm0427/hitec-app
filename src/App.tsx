@@ -1067,14 +1067,9 @@ export default function App() {
           </div>
         );
     }
-  return (
+ return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
-      // (여기 위쪽은 로그인 화면 코드 끝나는 곳)
-  
-  return (
-    <div className="min-h-screen bg-[#f5f7fa] flex flex-col font-sans">
       
-      {/* ⚠️ 엔터를 치고 딱 여기에 붙여넣으세요! ⚠️ */}
       {timeLeft && (
         <div className="bg-amber-100 border border-amber-300 text-amber-800 text-xs px-3 py-2 font-bold flex items-center justify-center gap-2 m-2 rounded-lg shadow-sm">
           <span>⚠️</span>
