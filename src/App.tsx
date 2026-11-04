@@ -346,159 +346,46 @@ interface BoardPost {
 }
 
 export default function App() {
+  const [authForm, setAuthForm] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('hitec_saved_auth_profile');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return { company: '', location: '', name: '', age: '', role: '사원' };
+  });
+
   const [isAuthorized, setIsAuthorized] = useState(() => {
     if (typeof window !== 'undefined') {
       const authData = localStorage.getItem('hitec_auth_data');
-      if (authData) {
+      const savedProfile = localStorage.getItem('hitec_saved_auth_profile');
+      // 24시간 이내라도 저장된 작업자 이름 정보가 없으면 무조건 정보 입력 창 띄우기
+      if (authData && savedProfile) {
         try {
           const parsed = JSON.parse(authData);
-          const ONE_DAY = 12 * 60 * 60 * 1000;
-          if (Date.now() - parsed.timestamp < ONE_DAY) {
-            return true; // 12시간 지나지 않았으면 로그인 상태 유지
+          const profile = JSON.parse(savedProfile);
+          const ONE_DAY = 24 * 60 * 60 * 1000;
+          if (Date.now() - parsed.timestamp < ONE_DAY && profile.name?.trim()) {
+            return true;
           }
         } catch (e) {}
       }
     }
     return false;
   });
-// ⏱️ 남은 리셋 시간을 실시간으로 계산하는 타이머 상태
-  const [timeLeft, setTimeLeft] = useState("");
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const authData = localStorage.getItem('hitec_auth_data');
-      if (authData) {
-        try {
-          const parsed = JSON.parse(authData);
-          const limitTime = 12 * 60 * 60 * 1000; // 12시간 (밀리초)
-          const elapsedTime = Date.now() - parsed.timestamp; // 지난 시간
-          const remainingTime = limitTime - elapsedTime; // 남은 시간
-
-          if (remainingTime <= 0) {
-            setTimeLeft("세션이 만료되었습니다.");
-          } else {
-            const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-            const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-            
-            setTimeLeft(`${hours}시간 ${minutes}분 ${seconds}초 후 리셋됩니다. 그전에 내용을 저장하세요.`);
-          }
-        } catch (e) {
-          setTimeLeft("");
-        }
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-  const [authForm, setAuthForm] = useState(() => {
-  try {
-    const saved = localStorage.getItem('hitec_saved_auth_profile');
-    if (saved) {
-      return JSON.parse(saved); // 이전에 저장된 정보가 있으면 자동 로드!
-    }
-  } catch (e) {}
-  return { company: '', location: '', name: '', age: '', role: '사원' };
-});
   const isAuthFormValid = authForm.company.trim() !== '' && authForm.location.trim() !== '' && authForm.name.trim() !== '' && String(authForm.age).trim() !== '';
   
   const [isApproving, setIsApproving] = useState(false);
   const [approvalMessage, setApprovalMessage] = useState("");
   const [showApprovalSuccess, setShowApprovalSuccess] = useState(false);
 
-  const [authorizedUsers, setAuthorizedUsers] = useState<any[]>(() => {
-      if (typeof window !== 'undefined') {
-          const saved = localStorage.getItem('hitec_auth_users');
-          if (saved) return JSON.parse(saved);
-      }
-      return [];
-  });
-  {timeLeft && (
-  <div className="bg-amber-100 border border-amber-300 text-amber-800 text-xs px-3 py-2 rounded-lg font-bold shadow-sm flex items-center justify-center gap-2 mb-3">
-    <span>⚠️</span>
-    <span>{timeLeft}</span>
-  </div>
-)}
+  const [authorizedUsers, setAuthorizedUsers] = useState<any[]>([]);
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
   const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);
 
-  // 🌟 파이어베이스(active_users)에서 전국 접속자 명단을 실시간으로 불러오는 코드
-  useEffect(() => {
-    if (!isAuthorized) return;
-
-    // 1. 브라우저 고유 Device ID 생성 또는 불러오기 (새로고침 시 중복 방지)
-    let deviceId = localStorage.getItem('hitec_device_id');
-    if (!deviceId) {
-      deviceId = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
-      localStorage.setItem('hitec_device_id', deviceId);
-    }
-
-    const userDocRef = doc(db, 'active_users', deviceId);
-
-    // 2. 최초 로그인/접속 시 정보 등록 (덮어쓰기 setDoc)
-    const registerUser = async () => {
-      try {
-        await setDoc(userDocRef, {
-          ...authForm,
-          deviceId: deviceId,
-          connectedAt: Date.now(),
-          lastActive: Date.now(),
-          device: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC'
-        }, { merge: true });
-      } catch (e) {
-        console.error(e);
-      }
-    };
-
-    registerUser();
-
-    // 3. 파이어베이스 실시간 명단 동기화 (onSnapshot)
-    const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
-      const liveUsers = snapshot.docs.map((docItem) => {
-        const d = docItem.data();
-        return {
-          id: docItem.id,
-          brand: d.brand || d.company || '미입력',
-          branch: d.branch || d.location || '미입력',
-          name: d.name || '이름없음',
-          age: d.age || '미입력',
-          role: d.role || '사원',
-          date: d.date || (d.connectedAt ? new Date(d.connectedAt).toLocaleString('ko-KR') : '기록없음'),
-          device: d.device || 'PC',
-          connectedAt: d.connectedAt || ''
-        };
-      });
-      
-      // 가장 최근에 접속한 작업자가 맨 위에 오도록 시간순 정렬
-      liveUsers.sort((a, b) => (b.connectedAt || '').localeCompare(a.connectedAt || ''));
-      if (liveUsers.length > 0) {
-        setAuthorizedUsers(liveUsers);
-      }
-    });
-
-    // 4. 하트비트: 1분마다 생존 신호(lastActive) 갱신
-    const heartbeatInterval = setInterval(async () => {
-      try {
-        await setDoc(userDocRef, { lastActive: Date.now() }, { merge: true });
-      } catch (e) {}
-    }, 60000);
-
-    // 5. 창을 닫거나 떠날 때(beforeunload) 파이어베이스에서 즉시 삭제
-    const handleBeforeUnload = () => {
-      try {
-        deleteDoc(userDocRef);
-      } catch (e) {}
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      unsubscribe();
-      clearInterval(heartbeatInterval);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [isAuthorized, authForm]);
-
- // ⚡ [실시간 감시] 서버의 작업자 명단 실시간 동기화
+  // 🌟 파이어베이스 실시간 명단 수신 및 기기 등록 통합 (에러 완벽 제거)
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
       const liveUsers = snapshot.docs.map((docItem) => {
@@ -512,13 +399,12 @@ export default function App() {
           role: d.role || '사원',
           date: d.date || (d.connectedAt ? new Date(d.connectedAt).toLocaleString('ko-KR') : '기록없음'),
           device: d.device || 'PC',
-          connectedAt: d.connectedAt || ''
+          connectedAt: String(d.connectedAt || '')
         };
-      });
+      }).filter(u => u.name !== '이름없음' && u.name.trim() !== '');
 
-      // 가장 최근에 접속한 작업자가 맨 위에 오도록 시간순 정렬
-      liveUsers.sort((a, b) => (b.connectedAt || '').localeCompare(a.connectedAt || ''));
-
+      // 숫자/문자 관계없이 안전하게 최신순 정렬
+      liveUsers.sort((a, b) => String(b.connectedAt).localeCompare(String(a.connectedAt)));
       setAuthorizedUsers(liveUsers);
     });
 
@@ -527,20 +413,22 @@ export default function App() {
 
   const handleFakeApproval = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAuthFormValid) return;
-    localStorage.setItem('hitec_saved_auth_profile', JSON.stringify(authForm));
+    if (!isAuthFormValid) return; 
     setIsApproving(true);
     setApprovalMessage("마스터(윤성만) 기기로 승인 요청 알림 전송 완료...");
+    
     const deviceType = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC';
     const nowKor = new Date().toLocaleString('ko-KR');
+
     try {
+      localStorage.setItem('hitec_saved_auth_profile', JSON.stringify(authForm));
       await addDoc(collection(db, "active_users"), {
         company: authForm.company.trim(),
         location: authForm.location.trim(),
         brand: authForm.company.trim(),
         branch: authForm.location.trim(),
         name: authForm.name.trim(),
-        age: authForm.age.trim() || '미입력',
+        age: String(authForm.age).trim() || '미입력',
         role: authForm.role,
         date: nowKor,
         device: deviceType,
@@ -551,32 +439,15 @@ export default function App() {
     }
     await new Promise(r => setTimeout(r, 1000));
     setApprovalMessage("관리자가 입력된 소속 및 직책 정보를 확인하고 있습니다...");
-    const phase2Delay = Math.floor(Math.random() * 2000) + 2500;
-    await new Promise(r => setTimeout(r, phase2Delay));
+    await new Promise(r => setTimeout(r, 2000));
     setApprovalMessage("보안 접근 권한 부여 및 시스템 개방 중...");
-    const phase3Delay = Math.floor(Math.random() * 1000) + 500;
-    await new Promise(r => setTimeout(r, phase3Delay));
+    await new Promise(r => setTimeout(r, 800));
     setIsApproving(false);
-    setShowApprovalSuccess(true);
+    setShowApprovalSuccess(true); 
   };
 
   const handleApprovalConfirm = () => {
-    const newUser = {
-      brand: authForm.company.trim(),
-      branch: authForm.location.trim(),
-      name: authForm.name.trim(),
-      age: authForm.age.trim() || '미입력',
-      role: authForm.role,
-      date: new Date().toLocaleString('ko-KR'),
-      device: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC'
-    };
-    setAuthorizedUsers(prev => {
-      const isExist = prev.some(u => u.name === newUser.name && u.branch === newUser.branch && u.date === newUser.date);
-      if (isExist) return prev;
-      const updated = [newUser, ...prev];
-      localStorage.setItem('hitec_auth_users', JSON.stringify(updated));
-      return updated;
-    });
+    localStorage.setItem('hitec_saved_auth_profile', JSON.stringify(authForm));
     setShowApprovalSuccess(false);
     setIsAuthorized(true);
     localStorage.setItem('hitec_auth_data', JSON.stringify({ passed: true, timestamp: Date.now() }));
@@ -1000,8 +871,32 @@ export default function App() {
     return resultText;
   };
 
-  const handleShareKakao = async () => { const text = generateShareText(); if (navigator.share) { try { await navigator.share({ title: '조색 Pro 배합', text: text }); } catch (err) { window.location.href = `kakaotalk://send?text=${encodeURIComponent(text)}`; } } else { window.location.href = `kakaotalk://send?text=${encodeURIComponent(text)}`; } setIsShareModalOpen(false); };
-  const handleShareSMS = async () => { const text = generateShareText(); if (navigator.share) { try { await navigator.share({ title: '조색 Pro 배합', text: text }); } catch (err) { const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent); window.location.href = isIOS ? `sms:&body=${encodeURIComponent(text)}` : `sms:?body=${encodeURIComponent(text)}`; } } else { const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent); window.location.href = isIOS ? `sms:&body=${encodeURIComponent(text)}` : `sms:?body=${encodeURIComponent(text)}`; } setIsShareModalOpen(false); };
+ const handleShareKakao = async () => {
+    const text = generateShareText();
+    // 1. 무조건 클립보드에 먼저 자동 복사
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (e) {}
+    }
+    setIsShareModalOpen(false);
+    // 2. 앱 선택 창 없이 바로 카카오톡 실행하여 친구/채팅방 선택 화면으로 직행
+    window.location.href = `kakaotalk://send?text=${encodeURIComponent(text)}`;
+  };
+
+  const handleShareSMS = async () => {
+    const text = generateShareText();
+    // 1. 무조건 클립보드에 먼저 자동 복사
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (e) {}
+    }
+    setIsShareModalOpen(false);
+    // 2. 앱 선택 창 없이 바로 문자 메시지 작성 창으로 내용 채워서 직행
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    window.location.href = isIOS ? `sms:&body=${encodeURIComponent(text)}` : `sms:?body=${encodeURIComponent(text)}`;
+  };
   const handleCopyAllText = () => { navigator.clipboard.writeText(generateShareText()).then(() => { alert("✅ 전체 텍스트가 복사되었습니다!\n원하시는 곳에 붙여넣기 하세요."); setIsShareModalOpen(false); }); };
   const handleShareNaverMail = () => { window.open(`https://mail.naver.com/v2/new?body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
   const handleShareGoogleMail = () => { window.open(`https://mail.google.com/mail/?view=cm&fs=1&body=${encodeURIComponent(generateShareText())}`, '_blank'); setIsShareModalOpen(false); };
