@@ -1,7 +1,7 @@
 // src/App.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, Target,
+  Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, Target, Edit3,
   Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
   FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp,
   MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, 
