@@ -2732,8 +2732,7 @@ export default function App() {
         <History size={64} className="mb-4"/>
         <p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p>
     </div> 
-)
-      )}
+ )}
 
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
