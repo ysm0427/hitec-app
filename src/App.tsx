@@ -11,7 +11,7 @@ import {
 
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS } from './tonerDB';
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore";
 import ClearMixer from './components/ClearMixer';
 import ClearGuide from './components/ClearGuide';
 // Firebase 설정 및 초기화
@@ -424,6 +424,66 @@ export default function App() {
       liveUsers.sort((a, b) => String(b.connectedAt).localeCompare(String(a.connectedAt)));
       setAuthorizedUsers(liveUsers);
     });
+    // 💬 실시간 채팅 메시지 동기화 및 안 읽은 뱃지 계산
+  useEffect(() => {
+    const q = query(collection(db, "chat_messages"), orderBy("createdAt", "asc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setChatMessages(msgs);
+      
+      if (!isChatOpen && msgs.length > chatMessages.length) {
+        setUnreadChatCount(prev => prev + (msgs.length - chatMessages.length));
+      }
+    });
+    return () => unsubscribe();
+  }, [isChatOpen, chatMessages.length]);
+
+  // 📋 현장 공유 게시판 실시간 동기화
+  useEffect(() => {
+    const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setCommunityPosts(posts);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 메시지 전송 함수
+  const handleSendChatMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+    try {
+      await addDoc(collection(db, "chat_messages"), {
+        sender: `${authForm.location || '지점'} ${authForm.name || '작업자'}`,
+        role: authForm.role || '사원',
+        text: chatInput.trim(),
+        createdAt: Date.now()
+      });
+      setChatInput("");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // 게시글 등록 함수
+  const handleCreatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPostTitle.trim() || !newPostContent.trim()) return;
+    try {
+      await addDoc(collection(db, "community_posts"), {
+        author: `${authForm.location || '지점'} ${authForm.name || '작업자'}`,
+        title: newPostTitle.trim(),
+        content: newPostContent.trim(),
+        colorCode: targetColorCode || '일반',
+        createdAt: Date.now()
+      });
+      setNewPostTitle("");
+      setNewPostContent("");
+      alert("✅ 현장 노하우 및 시편 데이터가 공유 게시판에 등록되었습니다!");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
     return () => unsubscribe();
   }, [isAuthorized]);
