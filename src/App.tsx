@@ -1,13 +1,13 @@
 // src/App.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, Target, Edit3, CheckCircle,
+  Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, Target, Edit3, CheckCircle, 
+  MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, 
   Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
   FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp,
-  MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, 
   QrCode, Smartphone, Monitor, Link, Check, Users, Lock, ShieldCheck, Briefcase, MapPin, UserCheck, Hash, 
   ChevronLeft, ChevronRight, Loader2, Copy, Calculator 
-} from 'lucide-react';;
+} from 'lucide-react';
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS } from './tonerDB';
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore";
