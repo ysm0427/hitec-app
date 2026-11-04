@@ -1135,9 +1135,10 @@ export default function App() {
                 >
                     <span className="text-xl group-hover:scale-110 transition-transform origin-center">🦜</span>
                     <span className="font-bold text-xs tracking-wide">Glasurit</span>
-                </button>
-            </div>
-            <span onClick={() => alert("📋 [조색 Pro 개발 및 패치 히스토리]\n\n" + PATCH_HISTORY.map(p => `▪ ${p.version} (${p.date}) - ${p.title}\n   └ ${p.details}`).join("\n\n"))} className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2.5 py-1 rounded-full border border-slate-700 hidden md:inline-block shrink-0 cursor-pointer transition-colors" title="클릭하여 패치 내역 보기">Last Patch: {LAST_PATCH_DATE} 🔍</span> 🔍</span>
+                <span className="font-bold text-xs tracking-wide">Glasurit</span>
+            </button>
+          </div>
+          <span onClick={() => alert("📋 [조색 Pro 개발 및 패치 히스토리]\n\n" + PATCH_HISTORY.map(p => `▪ ${p.version} (${p.date}) - ${p.title}\n   └ ${p.details}`).join("\n\n"))} className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2.5 py-1 rounded-full border border-slate-700 hidden md:inline-block shrink-0 cursor-pointer transition-colors" title="클릭하여 패치 내역 보기">Last Patch: {LAST_PATCH_DATE} 🔍</span>
         </div>
 
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x items-center">
