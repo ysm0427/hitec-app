@@ -2698,6 +2698,7 @@ export default function App() {
                                 </div>
                             )}
                             {/* 🌟 현장 조색 막힘 해결 (구글 스마트 검색) */}
+    {/* 🌟 현장 조색 막힘 해결 (구글 스마트 검색) */}
     <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col gap-3">
         <div className="flex items-center gap-2">
             <span className="text-xs font-black text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg">
@@ -2732,8 +2733,7 @@ export default function App() {
         <History size={64} className="mb-4"/>
         <p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p>
     </div> 
- )}
-
+)}
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
