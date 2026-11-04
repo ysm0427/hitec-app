@@ -1077,9 +1077,6 @@ export default function App() {
         </div>
       )}
       
-      <header className="bg-slate-900 text-white p-3 md:px-5 flex flex-wrap items-center justify-between shadow-xl relative z-10 gap-3 border-b border-slate-800">
-        <div className="flex items-center gap-4">
-      
       <header className="bg-slate-900 flex flex-col md:flex-row justify-between items-center p-3 border-b border-slate-800 shadow-md shrink-0 gap-3 z-40">
         <div className="flex flex-col sm:flex-row items-center justify-between w-full md:w-auto gap-3">
             <div className="flex items-center bg-slate-800 p-1.5 rounded-xl border border-slate-700 shadow-inner w-full sm:w-auto justify-center">
