@@ -56,7 +56,52 @@ if (!TONER_DB['PP 501']) TONER_DB['PP 501'] = { role: '레디쉬 골드 펄', ty
 if (!TONER_DB['PP 502']) TONER_DB['PP 502'] = { role: '그리니쉬 골드 펄', type: 'powder', face: '#ccff99', flop: '#99cc00', desc: '차가운 녹황색 톤의 펄', details: [['🎨 광학적 특성', '차가운 녹색 빛이 살짝 감도는 옐로우 골드 반사광.'], ['🎯 타겟 컬러', '그린/옐로우 투톤 및 쿨톤 골드 이펙트 차량'], ['⚠️ 조색 주의', '액상 수지가 없는 100% 가루 형태입니다. 반드시 (각 브랜드 전용 수지) WT 310 또는 블렌드 수지에 선 계량한 후, 스틱으로 완벽하게 액상화(개어주기) 시켜서 본 도료에 투입해야 합니다. 계량 배합비 PP 1 : 수지 9 (1:9) 배합비 유지!'], ['⚗️ 배합 방법', '수지에 1:9로 완벽히 믹스 후 사용.'], ['💡 비교 분석', '순수 골드 펄 대비 이지적이고 차가운 느낌을 줌.']] };
 if (!TONER_DB['PP 701']) TONER_DB['PP 701'] = { role: '특수 브릴리언트 블루', type: 'powder', face: '#3399ff', flop: '#0066cc', desc: '광휘가 극대화된 블루 펄', details: [['🎨 광학적 특성', '일반 펄보다 채도와 반사율이 극도로 높은 블루 광채.'], ['🎯 타겟 컬러', '고채도 스포츠카 및 시안 블루 스페셜 차량'], ['⚠️ 조색 주의', '액상 수지가 없는 100% 가루 형태입니다. 반드시 (각 브랜드 전용 수지) WT 310 또는 블렌드 수지에 선 계량한 후, 스틱으로 완벽하게 액상화(개어주기) 시켜서 본 도료에 투입해야 합니다. 계량 배합비 PP 1 : 수지 9 (1:9) 배합비 유지!'], ['⚗️ 배합 방법', '수지에 1:9로 완벽히 믹스 후 사용.'], ['💡 비교 분석', '액상 브릴리언트 블루(WT318)보다 펄감(반짝임)이 크고 화려함.']] };
 if (!TONER_DB['PP 901']) TONER_DB['PP 901'] = { role: '미세 실버 펄', type: 'powder', face: '#e0e0e0', flop: '#b0b0b0', desc: '초미세 입자의 부드러운 실버 펄', details: [['🎨 광학적 특성', '거친 스파클 없이 비단처럼 곱고 은은하게 흐르는 실버 광택.'], ['🎯 타겟 컬러', '미세한 펄감이 요구되는 고급 실크 느낌 도장'], ['⚠️ 조색 주의', '액상 수지가 없는 100% 가루 형태입니다. 반드시 (각 브랜드 전용 수지) WT 310 또는 블렌드 수지에 선 계량한 후, 스틱으로 완벽하게 액상화(개어주기) 시켜서 본 도료에 투입해야 합니다. 계량 배합비 PP 1 : 수지 9 (1:9) 배합비 유지!'], ['⚗️ 배합 방법', '수지에 1:9로 완벽히 믹스 후 사용.'], ['💡 비교 분석', 'PP301, 304와 달리 반짝임(스파클)보다 면이 꽉 찬(솔리드한) 부드러움을 제공함.']] };
-const LAST_PATCH_DATE = "2026.10.23 (V2.6 투명 배합기 & 캔디 최적화 패치)"; 
+const LAST_PATCH_DATE = "2026.11.04 (V2.7 세션 타이머 & 패치 히스토리 패치)";
+
+const PATCH_HISTORY = [
+  {
+    version: "V2.7",
+    date: "2026.11.04",
+    title: "세션 리셋 타이머 & 패치 히스토리 시스템 도입",
+    details: "12시간 세션 자동 리셋, 상단 실시간 카운트다운 알림 배지 및 패치 내역 조회 기능 탑재"
+  },
+  {
+    version: "V2.6",
+    date: "2026.10.28",
+    title: "실시간 접속 작업자 현황 & 마스터 관리 기능 구축",
+    details: "파이어베이스 연동 전국 작업자 실시간 접속 명단 공유 및 관리자 전용 일괄 리셋 구현"
+  },
+  {
+    version: "V2.5",
+    date: "2026.10.23",
+    title: "4대 브랜드 투명(Clear) 가이드 & 캔디 최적화 패치",
+    details: "글라슈리트·스피스헥커·시켄스·피피지 4사 클리어코트 TDS 통합 자료실 및 캔디 배합 고도화"
+  },
+  {
+    version: "V2.2",
+    date: "2026.10.18",
+    title: "PP(분말) 안료 가이드 & 3Coat 펄 수지 계산 정밀화",
+    details: "WT·PP·OEM 컬러 통합 검색 DB 구축 및 베이스(20%)·펄(30%) 필수 수지량 자동 합산 적용"
+  },
+  {
+    version: "V2.0",
+    date: "2026.10.12",
+    title: "시편 공유 게시판 & 기기 간 초고속 클라우드 연동",
+    details: "조색 시편 사진 첨부·등록 게시판, 기기 간 실시간 연동 및 엑셀 복사·공유 전송 기능 탑재"
+  },
+  {
+    version: "V1.5",
+    date: "2026.10.04",
+    title: "마스터 기술자료실(Visual Guide) & 먼셀 믹싱 랩 탑재",
+    details: "도장 이론·컬러 맵·이펙트 가이드, 도장/조색 용어 사전 및 글라슈리트 90라인 연동 구축"
+  },
+  {
+    version: "V1.0",
+    date: "2026.09.25",
+    title: "조색 Pro 공식 배합 워크시트 핵심 엔진 런칭",
+    details: "현장 실시간 용량 배율 변환기(곱하기/나누기) 및 차량·컬러코드별 정밀 조색 시트 완성"
+  }
+];;
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -1092,7 +1137,7 @@ export default function App() {
                     <span className="font-bold text-xs tracking-wide">Glasurit</span>
                 </button>
             </div>
-            <span className="bg-slate-800 text-slate-400 text-[10px] px-2.5 py-1 rounded-full border border-slate-700 hidden md:inline-block shrink-0">Last Patch: {LAST_PATCH_DATE}</span>
+            <span onClick={() => alert("📋 [조색 Pro 개발 및 패치 히스토리]\n\n" + PATCH_HISTORY.map(p => `▪ ${p.version} (${p.date}) - ${p.title}\n   └ ${p.details}`).join("\n\n"))} className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2.5 py-1 rounded-full border border-slate-700 hidden md:inline-block shrink-0 cursor-pointer transition-colors" title="클릭하여 패치 내역 보기">Last Patch: {LAST_PATCH_DATE} 🔍</span> 🔍</span>
         </div>
 
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x items-center">
