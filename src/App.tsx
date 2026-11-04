@@ -526,8 +526,11 @@ const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);;
   useEffect(() => {
     const q = query(collection(db, "chat_messages"), orderBy("createdAt", "asc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setChatMessages(msgs);
+      const msgs = snapshot.docs.map(docItem => {
+      const data = docItem.data();
+      return { id: docItem.id, ...data };
+    });
+    setChatMessages(msgs);
       
       if (!isChatOpen && msgs.length > chatMessages.length) {
         setUnreadChatCount(prev => prev + (msgs.length - chatMessages.length));
