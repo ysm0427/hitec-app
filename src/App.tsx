@@ -383,16 +383,17 @@ export default function App() {
   const [authorizedUsers, setAuthorizedUsers] = useState<any[]>([]);
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
   // 💬 실시간 톡방 및 게시판 관련 상태
-  const [chatMessages, setChatMessages] = useState<any[]>([]);
-  const [chatInput, setChatInput] = useState("");
-  const [unreadChatCount, setUnreadChatCount] = useState(0);
-  const [isChatOpen, setIsChatOpen] = useState(false);
+// 💬 silistan tok-vang i rejim na obshtestvenite tablo
+const [chatMessages, setChatMessages] = useState<any[]>([]);
+const [chatInput, setChatInput] = useState("");
+const [unreadChatCount, setUnreadChatCount] = useState(0);
+const [isChatOpen, setIsChatOpen] = useState(false);
 
-  const [communityPosts, setCommunityPosts] = useState<any[]>([]);
-  const [isCommunityOpen, setIsCommunityOpen] = useState(false);
-  const [newPostContent, setNewPostContent] = useState("");
-  const [newPostTitle, setNewPostTitle] = useState("");
-  const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);
+const [communityPosts, setCommunityPosts] = useState<any[]>([]);
+const [isCommunityOpen, setIsCommunityOpen] = useState(false);
+const [newPostContent, setNewPostContent] = useState("");
+const [newPostTitle, setNewPostTitle] = useState("");
+const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);;
 
   // ⚡ [실시간 감시] 서버의 작업자 명단이 비워졌는지(리셋되었는지) 실시간 감지하여 강제 초기화
   useEffect(() => {
