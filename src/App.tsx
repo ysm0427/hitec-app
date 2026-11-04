@@ -2736,6 +2736,7 @@ export default function App() {
          </div>
     </div>
 </div>
+          </div>
 )}
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
