@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Sliders, Trash2, Plus, X, Maximize, Beaker, Sun, 
   Layers, ChevronDown, ChevronUp, BookOpen, Share2, Zap, Search, 
-  Filespreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp,
+  FileSpreadsheet, History, Mail, Code, Calendar, Eye, ThumbsUp,
   MessageSquare, Send, Save, RefreshCw, Camera, AlertTriangle, Image as ImageIcon, Cloud, 
   QrCode, Smartphone, Monitor, Link, Check, Users, Lock, ShieldCheck, Briefcase, MapPin, UserCheck, Hash, 
   ChevronLeft, ChevronRight, Loader2, Copy, Calculator 
