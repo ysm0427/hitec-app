@@ -2697,17 +2697,14 @@ export default function App() {
                                     </div>
                                 </div>
                             )}
-                            <button onClick={() => restoreSnapshot(selectedSnapshot)} className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl mt-4 hover:bg-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all flex justify-center items-center gap-2 text-base"><RefreshCw size={20}/> 이 상태로 완벽하게 덮어쓰기 (복원)</button>
-                        </div>
-          {/* 🌟 현재 배합 데이터 기반 구글 스마트 조색 검증 섹션 */}
-    <div className="mt-6 pt-4 border-t border-slate-200 flex flex-col gap-3">
+                            {/* 🌟 현장 조색 막힘 해결 (구글 스마트 검색) */}
+    <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col gap-3">
         <div className="flex items-center gap-2">
             <span className="text-xs font-black text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg">
                 🔍 현장 조색 막힘 해결 (구글 스마트 검색)
             </span>
         </div>
         
-        {/* 작업자가 입력하기 전에는 황금 예시 가이드(Placeholder)가 연한 회색으로 표시됨 */}
         <textarea
             id="smartSearchQuery"
             rows={2}
@@ -2729,11 +2726,13 @@ export default function App() {
             <span>📷 현재 배합 데이터 첨부하여 구글에 질문하기</span>
         </button>
     </div>
-                    ) : ( <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50"><History size={64} className="mb-4"/><p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p></div> )}
-                </div>
-            </div>
-          </div>
-        </div>
+</div>
+) : ( 
+    <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
+        <History size={64} className="mb-4"/>
+        <p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p>
+    </div> 
+)
       )}
 
       {isBoardOpen && (
