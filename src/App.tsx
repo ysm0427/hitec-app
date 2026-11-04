@@ -2699,6 +2699,36 @@ export default function App() {
                             )}
                             <button onClick={() => restoreSnapshot(selectedSnapshot)} className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl mt-4 hover:bg-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all flex justify-center items-center gap-2 text-base"><RefreshCw size={20}/> 이 상태로 완벽하게 덮어쓰기 (복원)</button>
                         </div>
+          {/* 🌟 현재 배합 데이터 기반 구글 스마트 조색 검증 섹션 */}
+    <div className="mt-6 pt-4 border-t border-slate-200 flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+            <span className="text-xs font-black text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg">
+                🔍 현장 조색 막힘 해결 (구글 스마트 검색)
+            </span>
+        </div>
+        
+        {/* 작업자가 입력하기 전에는 황금 예시 가이드(Placeholder)가 연한 회색으로 표시됨 */}
+        <textarea
+            id="smartSearchQuery"
+            rows={2}
+            placeholder="예: [현재 배합 데이터] 측면에서 바이올렛 톤을 줄이고 싶은데 정면 색감은 유지하고 싶어. 어떤 안료를 미세 조정해야 할까?"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 resize-none leading-relaxed"
+        />
+
+        <button
+            type="button"
+            onClick={() => {
+                const inputElem = document.getElementById('smartSearchQuery') as HTMLTextAreaElement;
+                const userQuery = inputElem?.value.trim() || "자동차 도장 조색 보정 방법 정측면 톤 조절";
+                const currentTonersSummary = toners.map(t => `${t.code} ${t.weight}g`).join(', ');
+                const finalSearchKeyword = `스피스헥커 조색 [${currentTonersSummary}] ${userQuery}`;
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(finalSearchKeyword)}`, '_blank');
+            }}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl transition-colors shadow-md text-xs flex items-center justify-center gap-2"
+        >
+            <span>📷 현재 배합 데이터 첨부하여 구글에 질문하기</span>
+        </button>
+    </div>
                     ) : ( <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50"><History size={64} className="mb-4"/><p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p></div> )}
                 </div>
             </div>
