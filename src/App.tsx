@@ -2697,6 +2697,10 @@ export default function App() {
                                     </div>
                                 </div>
                             )}
+    <button onClick={() => restoreSnapshot(selectedSnapshot)} className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl mt-4 hover:bg-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all flex justify-center items-center gap-2 text-sm">
+        이 상태로 완벽하게 덮어쓰기 (복원)
+    </button>
+
     {/* 🌟 현장 조색 막힘 해결 (구글 스마트 검색) */}
     <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col gap-3">
         <div className="flex items-center gap-2">
@@ -2733,11 +2737,11 @@ export default function App() {
         <p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p>
     </div> 
 )}
-         </div>
-    </div>
-</div>
           </div>
-)}
+        </div>
+      </div>
+    </div>
+  )}
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
