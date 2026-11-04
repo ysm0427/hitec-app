@@ -391,7 +391,15 @@ export default function App() {
 
     return () => clearInterval(timer);
   }, []);
-  const [authForm, setAuthForm] = useState({ company: '', location: '', name: '', age: '', role: '사원' });
+  const [authForm, setAuthForm] = useState(() => {
+  try {
+    const saved = localStorage.getItem('hitec_saved_auth_profile');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {}
+  return { company: '', location: '', name: '', age: '', role: '사원' };
+});
   const isAuthFormValid = authForm.company.trim() !== '' && authForm.location.trim() !== '' && authForm.name.trim() !== '' && String(authForm.age).trim() !== '';
   
   const [isApproving, setIsApproving] = useState(false);
@@ -416,11 +424,40 @@ export default function App() {
 
   // 🌟 파이어베이스(active_users)에서 전국 접속자 명단을 실시간으로 불러오는 코드
   useEffect(() => {
+    if (!isAuthorized) return;
+
+    // 1. 브라우저 고유 Device ID 생성 또는 불러오기 (새로고침 시 중복 방지)
+    let deviceId = localStorage.getItem('hitec_device_id');
+    if (!deviceId) {
+      deviceId = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+      localStorage.setItem('hitec_device_id', deviceId);
+    }
+
+    const userDocRef = doc(db, 'active_users', deviceId);
+
+    // 2. 최초 로그인/접속 시 정보 등록 (덮어쓰기 setDoc)
+    const registerUser = async () => {
+      try {
+        await setDoc(userDocRef, {
+          ...authForm,
+          deviceId: deviceId,
+          connectedAt: Date.now(),
+          lastActive: Date.now(),
+          device: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC'
+        }, { merge: true });
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    registerUser();
+
+    // 3. 파이어베이스 실시간 명단 동기화 (onSnapshot)
     const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
-      const liveUsers = snapshot.docs.map((doc) => {
-        const d = doc.data();
+      const liveUsers = snapshot.docs.map((docItem) => {
+        const d = docItem.data();
         return {
-          id: doc.id,
+          id: docItem.id,
           brand: d.brand || d.company || '미입력',
           branch: d.branch || d.location || '미입력',
           name: d.name || '이름없음',
@@ -431,14 +468,35 @@ export default function App() {
           connectedAt: d.connectedAt || ''
         };
       });
+      
       // 가장 최근에 접속한 작업자가 맨 위에 오도록 시간순 정렬
       liveUsers.sort((a, b) => (b.connectedAt || '').localeCompare(a.connectedAt || ''));
       if (liveUsers.length > 0) {
         setAuthorizedUsers(liveUsers);
       }
     });
-    return () => unsubscribe();
-  }, []);
+
+    // 4. 하트비트: 1분마다 생존 신호(lastActive) 갱신
+    const heartbeatInterval = setInterval(async () => {
+      try {
+        await setDoc(userDocRef, { lastActive: Date.now() }, { merge: true });
+      } catch (e) {}
+    }, 60000);
+
+    // 5. 창을 닫거나 떠날 때(beforeunload) 파이어베이스에서 즉시 삭제
+    const handleBeforeUnload = () => {
+      try {
+        deleteDoc(userDocRef);
+      } catch (e) {}
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      unsubscribe();
+      clearInterval(heartbeatInterval);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isAuthorized, authForm]);
 
  // ⚡ [실시간 감시] 서버의 작업자 명단 실시간 동기화
   useEffect(() => {
