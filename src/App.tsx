@@ -546,42 +546,56 @@ const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);;
     return () => unsubscribe();
   }, []);
 
-  // 메시지 전송 함수
-  const handleSendChatMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInput.trim()) return;
-    try {
-      await addDoc(collection(db, "chat_messages"), {
-        sender: `${authForm.location || '지점'} ${authForm.name || '작업자'}`,
-        role: authForm.role || '사원',
-        text: chatInput.trim(),
-        createdAt: Date.now()
-      });
-      setChatInput("");
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // 💬 메시지 전송 함수 (안전장치 적용)
+const handleSendChatMessage = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!chatInput || !chatInput.trim()) return;
 
-  // 게시글 등록 함수
-  const handleCreatePost = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPostTitle.trim() || !newPostContent.trim()) return;
-    try {
-      await addDoc(collection(db, "community_posts"), {
-        author: `${authForm.location || '지점'} ${authForm.name || '작업자'}`,
-        title: newPostTitle.trim(),
-        content: newPostContent.trim(),
-        colorCode: targetColorCode || '일반',
-        createdAt: Date.now()
-      });
-      setNewPostTitle("");
-      setNewPostContent("");
-      alert("✅ 현장 노하우 및 시편 데이터가 공유 게시판에 등록되었습니다!");
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  try {
+    const senderName = (typeof authForm !== 'undefined' && authForm?.name) ? authForm.name : '현장 작업자';
+    const senderRole = (typeof authForm !== 'undefined' && authForm?.role) ? authForm.role : '작업자';
+    const senderLocation = (typeof authForm !== 'undefined' && authForm?.location) ? authForm.location : '지점';
+
+    await addDoc(collection(db, "chat_messages"), {
+      sender: `${senderLocation} ${senderName}`,
+      role: senderRole,
+      text: chatInput.trim(),
+      createdAt: Date.now()
+    });
+    setChatInput("");
+  } catch (err) {
+    console.error("톡 전송 에러:", err);
+  }
+};
+
+// 📋 게시글 등록 함수 (안전장치 적용)
+const handleCreatePost = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!newPostTitle || !newPostTitle.trim() || !newPostContent || !newPostContent.trim()) {
+    alert("제목과 내용을 모두 입력해주세요.");
+    return;
+  }
+
+  try {
+    const authorName = (typeof authForm !== 'undefined' && authForm?.name) ? authForm.name : '현장 작업자';
+    const authorLocation = (typeof authForm !== 'undefined' && authForm?.location) ? authForm.location : '지점';
+    const colorCodeVal = (typeof targetColorCode !== 'undefined' && targetColorCode) ? targetColorCode : ((typeof selectedMemo !== 'undefined' && selectedMemo?.code) ? selectedMemo.code : '일반');
+
+    await addDoc(collection(db, "community_posts"), {
+      author: `${authorLocation} ${authorName}`,
+      title: newPostTitle.trim(),
+      content: newPostContent.trim(),
+      colorCode: colorCodeVal,
+      createdAt: Date.now()
+    });
+    
+    setNewPostTitle("");
+    setNewPostContent("");
+    alert("✅ 현장 노하우 및 시편 데이터가 공유 게시판에 등록되었습니다!");
+  } catch (err) {
+    console.error("게시판 등록 에러:", err);
+  }
+};
   const handleApprovalConfirm = () => {
     localStorage.setItem('hitec_saved_auth_profile', JSON.stringify(authForm));
     setShowApprovalSuccess(false);
