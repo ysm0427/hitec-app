@@ -430,28 +430,26 @@ export default function App() {
     setIsApproving(false);
     setShowApprovalSuccess(true); 
   };
-// 💬 실시간 채팅 메시지 동기화 및 안 읽은 뱃지 계산
+// 💬 실시간 채팅 메시지 동기화 (무한 루프 방지 최적화)
   useEffect(() => {
     const q = query(collection(db, "chat_messages"), orderBy("createdAt", "asc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const msgs = snapshot.docs.map(docItem => {
-      const data = docItem.data();
-      return { id: docItem.id, ...data };
-    });
-    setChatMessages(msgs);
-      
-      if (!isChatOpen && msgs.length > chatMessages.length) {
-        setUnreadChatCount(prev => prev + (msgs.length - chatMessages.length));
-      }
+      const msgs = snapshot.docs.map(docItem => ({ id: docItem.id, ...docItem.data() }));
+      setChatMessages(prev => {
+        if (!isChatOpen && msgs.length > prev.length) {
+          setUnreadChatCount(c => c + (msgs.length - prev.length));
+        }
+        return msgs;
+      });
     });
     return () => unsubscribe();
-  }, [isChatOpen, chatMessages.length]);
+  }, [isChatOpen]);
 
   // 📋 현장 공유 게시판 실시간 동기화
   useEffect(() => {
     const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const posts = snapshot.docs.map(docItem => ({ id: docItem.id, ...docItem.data() }));
       setCommunityPosts(posts);
     });
     return () => unsubscribe();
@@ -1816,7 +1814,7 @@ const handleCreatePost = async (e: React.FormEvent) => {
                     >
                       전체 명단 리셋
                     </button>
-                <button onClick={() => setIsChatOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 px-2.5 py-1 rounded text-xs font-black text-white">[닫기]</button>
+                <button onClick={() => setIsUsersModalOpen(false)} className="hover:text-red-200 transition-colors bg-indigo-700 px-2.5 py-1 rounded text-xs font-black text-white">[닫기]</button>
               </div>
             </div>
             <div className="p-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar">
