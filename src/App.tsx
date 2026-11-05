@@ -1438,51 +1438,73 @@ const handleCreatePost = async (e: React.FormEvent) => {
         );
     }
  return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate" translate="no">
-      
-      
-      
-<header className="bg-slate-900 border-b border-slate-800 px-4 py-3 shadow-md">
-  {/* 🌟 [1단 영역] 타이틀 변경 (yun sung man Guide) 및 헥커/글라슈리트 브랜드 전환 게이트 */}
-  <div className="flex flex-col md:flex-row justify-between items-center gap-3">
-    
-    {/* 좌측 로고 및 브랜드 타이틀 */}
-    <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
-      <div className="flex items-center gap-2">
-        <span className="text-white font-black text-base tracking-tight flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          yun sung man Guide
-        </span>
-      </div>
-      {/* 브랜드 간 전환 게이트 (모바일/PC 공용) */}
-      <div className="flex items-center gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700">
-        <button onClick={() => window.location.href = 'https://hitec-1nalfnooo-ysm0427-1929s-projects.vercel.app'} className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow transition-colors">🦅 헥커</button>
-<button onClick={() => window.location.href = 'https://glasurit-pro-v2-2va8x70wv-ysm0427-1929s-projects.vercel.app'} className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow transition-colors">🦜 글라슈리트</button>
-      </div>
-    </div>
+<div className={`min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col relative overflow-x-hidden pb-[240px] md:pb-[140px] notranslate transition-colors duration-300 ${!isLightOn ? 'night-eye-care-mode' : ''}`} translate="no">
+      {!isLightOn && (
+        <style>{`
+          .night-eye-care-mode {
+            filter: invert(1) hue-rotate(180deg);
+            background-color: #0f172a !important;
+          }
+          .night-eye-care-mode img,
+          .night-eye-care-mode video,
+          .night-eye-care-mode canvas,
+          .night-eye-care-mode .keep-original-color {
+            filter: invert(1) hue-rotate(180deg) !important;
+          }
+        `}</style>
+      )}
 
-    {/* 우측 유틸리티 버튼 그룹 (크기 및 배열 완벽 정렬) */}
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex items-center gap-2 w-full md:w-auto">
-      <button onClick={() => setIsChatOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow transition-colors">
-        💬 톡방 <span className="bg-white/20 px-1.5 py-0.5 rounded-full text-[10px]">7</span>
-      </button>
-      <button onClick={() => setIsUsersModalOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700 shadow transition-colors">
-        👥 작업자 <span className="bg-indigo-500 px-1.5 py-0.5 rounded-full text-[10px]">{authorizedUsers.length}</span>
-      </button>
-      <button onClick={() => setIsCloudModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow transition-colors">
-        ⚡ 기기연동
-      </button>
-      <button onClick={() => setIsBoardOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700 shadow transition-colors">
-        🗂️ 시편게시판
-      </button>
-      <button onClick={() => setIsGlossaryModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow transition-colors">
-        📖 용어사전
-      </button>
-      <button onClick={() => window.location.reload()} className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700 transition-colors">
-        🔄 업데이트
-      </button>
-    </div>
-  </div>
+      <header className="bg-slate-900 border-b border-slate-800 px-4 py-3 shadow-md">
+        {/* 🌟 [1단 영역] 타이틀 변경 (yun sung man Guide) 및 헥커/글라슈리트 브랜드 전환 게이트 */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-3">
+
+          {/* 좌측 로고 및 브랜드 타이틀 */}
+          <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-white font-black text-base tracking-tight flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                yun sung man Guide
+              </span>
+            </div>
+            {/* 브랜드 간 전환 게이트 및 나이트 모드 버튼 (모바일/PC 공용) */}
+            <div className="flex items-center gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700">
+              <button onClick={() => window.location.href = 'https://hitec-1nalfnooo-ysm0427-1929s-projects.vercel.app'} className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow transition-colors">🦅 헥커</button>
+              <button onClick={() => window.location.href = 'https://glasurit-pro-v2-2va8x70wv-ysm0427-1929s-projects.vercel.app'} className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow transition-colors">🦜 글라슈리트</button>
+              <button
+                onClick={toggleLightMode}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-black shadow transition-colors ${
+                  isLightOn
+                    ? 'bg-amber-500 hover:bg-amber-600 text-white'
+                    : 'bg-indigo-950 hover:bg-indigo-900 text-yellow-300 border border-yellow-400/50'
+                }`}
+              >
+                {isLightOn ? '☀️ 화면 ON' : '🌙 나이트 OFF'}
+              </button>
+            </div>
+          </div>
+
+          {/* 우측 유틸리티 버튼 그룹 (크기 및 배열 완벽 정렬) */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex items-center gap-2 w-full md:w-auto">
+            <button onClick={() => setIsChatOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow transition-colors">
+              💬 톡방 <span className="bg-white/20 px-1.5 py-0.5 rounded-full text-[10px]">7</span>
+            </button>
+            <button onClick={() => setIsUsersModalOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700 shadow transition-colors">
+              👥 작업자 <span className="bg-indigo-500 px-1.5 py-0.5 rounded-full text-[10px]">{authorizedUsers.length}</span>
+            </button>
+            <button onClick={() => setIsCloudModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow transition-colors">
+              ⚡ 기기연동
+            </button>
+            <button onClick={() => setIsBoardOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700 shadow transition-colors">
+              🗂️ 시편게시판
+            </button>
+            <button onClick={() => setIsGlossaryModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow transition-colors">
+              📖 용어사전
+            </button>
+            <button onClick={() => window.location.reload()} className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700 shadow transition-colors">
+              🔄 업데이트
+            </button>
+          </div>
+        </div>
 
   {/* 🌟 [2단 영역] 패치 히스토리 클릭 팝업 및 접속 유지 상태바 */}
   <div className="mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
