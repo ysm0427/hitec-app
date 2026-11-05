@@ -1353,8 +1353,14 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
       <button onClick={() => setIsUsersModalOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 shadow transition-colors">
         👥 승인된 작업자 <span className="bg-indigo-500 px-1.5 py-0.5 rounded-full text-[10px]">{authorizedUsers.length}명</span>
       </button>
- <button onClick={() => {}} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
+<button onClick={() => setIsCloudModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
   ⚡ 기기 간 초고속 연동
+</button>
+      <button onClick={() => window.open("https://phoenix.spieshecker.com", "_blank")} className="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors">
+  🌐 헥커 게이트
+</button>
+<button onClick={() => window.open("https://www.glasurit.com", "_blank")} className="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors">
+  🌐 글라슈리트 게이트
 </button>
       <button onClick={() => setIsGlossaryModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
         📖 도장/조색 용어 사전
@@ -2098,8 +2104,7 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
   <h4 className="text-xl font-black text-slate-800 mb-1">[{selectedUserInfo.branch}] {selectedUserInfo.name}</h4>
   <span className="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full mb-3 shadow-sm">{selectedUserInfo.role}</span>
 
-  {/* 🔒 [보안 완료] 비밀번호 노출 완전 차단된 강퇴 버튼 */}
-  <button
+ <button
     onClick={async () => {
       const pw = prompt(`[${selectedUserInfo.name}] 작업자를 강제 퇴장시키려면 마스터 관리자 비밀번호를 입력하세요:`);
       if (pw === "7777") {
@@ -2107,9 +2112,23 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
           if (selectedUserInfo.id) {
             await deleteDoc(doc(db, "active_users", selectedUserInfo.id));
           }
+          
+          // 🌟 [핵심 보안 추가] 만약 강퇴당한 사람이 '나 자신'이라면 로컬 인증 정보 전면 파기 후 로그인 화면으로 강제 퇴장
+          const savedProfile = localStorage.getItem('hitec_saved_auth_profile');
+          if (savedProfile) {
+            try {
+              const p = JSON.parse(savedProfile);
+              if (p.name?.trim() === selectedUserInfo.name?.trim() && p.location?.trim() === selectedUserInfo.branch?.trim()) {
+                localStorage.removeItem('hitec_auth_data');
+                localStorage.removeItem('hitec_saved_auth_profile');
+                setIsAuthorized(false);
+              }
+            } catch (e) {}
+          }
+
           setAuthorizedUsers(prev => prev.filter(u => u.id !== selectedUserInfo.id));
           setSelectedUserInfo(null);
-          alert("해당 작업자를 강제 퇴장(초기화) 처리했습니다.");
+          alert("해당 작업자를 강제 퇴장(재입력 요구) 처리했습니다.");
         } catch (err) {
           console.error("강퇴 오류:", err);
         }
