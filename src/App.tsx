@@ -3291,53 +3291,54 @@ const handleCreatePost = async (e: React.FormEvent) => {
                                     <button onClick={() => setPaletteDrops({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 })} className="mt-6 z-10 text-xs text-slate-500 hover:text-white border border-slate-600 px-4 py-2 rounded-full transition-colors"><RefreshCw size={14} className="inline mr-1"/> 방울 수 초기화</button>
                                 </div>
                             </div>
-                            );
+                           );
                })()}
         </div>
       </div>
     </main>
   </div>
+
+  {/* 🚨 실시간 현장 톡방 채팅 UI 모달 추가 🚨 */}
+  {isChatOpen && (
+      <div className="fixed inset-0 bg-slate-900/80 z-[4000] flex justify-end animate-in fade-in">
+          <div className="bg-white w-full sm:w-[400px] h-full shadow-2xl flex flex-col slide-in-from-right-full duration-300">
+              <div className="p-4 bg-blue-600 flex justify-between items-center text-white shrink-0">
+                  <h3 className="font-bold flex items-center gap-2"><MessageSquare size={18}/> 현장 실시간 톡방</h3>
+                  <button onClick={() => setIsChatOpen(false)} className="hover:bg-blue-700 p-1.5 rounded-full transition-colors"><X size={16}/></button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 bg-slate-50 flex flex-col gap-3 custom-scrollbar">
+                  {chatMessages.length === 0 && (
+                      <div className="flex items-center justify-center h-full text-slate-400 font-bold text-sm">
+                          아직 전송된 메시지가 없습니다.<br/>첫 메시지를 남겨보세요!
+                      </div>
+                  )}
+                  {chatMessages.map(msg => {
+                      const isMe = msg.sender.includes(authForm.name);
+                      return (
+                          <div key={msg.id} className={`flex flex-col max-w-[85%] ${isMe ? 'self-end items-end' : 'self-start items-start'}`}>
+                              <span className="text-[10px] text-slate-500 mb-1 font-bold">{msg.sender} ({msg.role})</span>
+                              <div className={`p-3 rounded-xl shadow-sm text-sm font-bold ${isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}>
+                                  {msg.text}
+                              </div>
+                          </div>
+                      );
+                  })}
+              </div>
+              <form onSubmit={handleSendChatMessage} className="p-3 bg-white border-t border-slate-200 flex gap-2 shrink-0 pb-[env(safe-area-inset-bottom)]">
+                  <input 
+                      type="text" 
+                      value={chatInput} 
+                      onChange={e => setChatInput(e.target.value)} 
+                      placeholder="메시지를 입력하세요..." 
+                      className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none focus:border-blue-500 shadow-sm" 
+                  />
+                  <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors shadow-sm"><Send size={18}/></button>
+              </form>
+          </div>
+      </div>
+  )}
+
   );
 }
-
-{/* 🚨 실시간 현장 톡방 채팅 UI 모달 추가 🚨 */}
-{isChatOpen && (
-    <div className="fixed inset-0 bg-slate-900/80 z-[4000] flex justify-end animate-in fade-in">
-        <div className="bg-white w-full sm:w-[400px] h-full shadow-2xl flex flex-col slide-in-from-right-full duration-300">
-            <div className="p-4 bg-blue-600 flex justify-between items-center text-white shrink-0">
-                <h3 className="font-bold flex items-center gap-2"><MessageSquare size={18}/> 현장 실시간 톡방</h3>
-                <button onClick={() => setIsChatOpen(false)} className="hover:bg-blue-700 p-1.5 rounded-full transition-colors"><X size={16}/></button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 bg-slate-50 flex flex-col gap-3 custom-scrollbar">
-                {chatMessages.length === 0 && (
-                    <div className="flex items-center justify-center h-full text-slate-400 font-bold text-sm">
-                        아직 전송된 메시지가 없습니다.<br/>첫 메시지를 남겨보세요!
-                    </div>
-                )}
-                {chatMessages.map(msg => {
-                    const isMe = msg.sender.includes(authForm.name);
-                    return (
-                        <div key={msg.id} className={`flex flex-col max-w-[85%] ${isMe ? 'self-end items-end' : 'self-start items-start'}`}>
-                            <span className="text-[10px] text-slate-500 mb-1 font-bold">{msg.sender} ({msg.role})</span>
-                            <div className={`p-3 rounded-xl shadow-sm text-sm font-bold ${isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}>
-                                {msg.text}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-            <form onSubmit={handleSendChatMessage} className="p-3 bg-white border-t border-slate-200 flex gap-2 shrink-0 pb-[env(safe-area-inset-bottom)]">
-                <input 
-                    type="text" 
-                    value={chatInput} 
-                    onChange={e => setChatInput(e.target.value)} 
-                    placeholder="메시지를 입력하세요..." 
-                    className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none focus:border-blue-500 shadow-sm" 
-                />
-                <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors shadow-sm"><Send size={18}/></button>
-            </form>
-        </div>
-    </div>
-)}
 
 export default App;
