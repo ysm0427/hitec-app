@@ -2084,7 +2084,7 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
                     <ChevronDown className="rotate-90"/> 목록으로 돌아가기
                   </button>
                   <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm flex flex-col items-center text-center">
-                    {/* 🌟 [추가/수정] 작업자 프로필 사진 표시 (사진이 있으면 사진, 없으면 기본 아이콘) */}
+{/* 🌟 [추가/수정] 작업자 프로필 사진 표시 */}
   {selectedUserInfo.photo ? (
     <img src={selectedUserInfo.photo} alt="프로필" className="w-20 h-20 rounded-full object-cover mb-4 border-2 border-indigo-500 shadow-md" />
   ) : (
@@ -2095,10 +2095,10 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
   <h4 className="text-xl font-black text-slate-800 mb-1">[{selectedUserInfo.branch}] {selectedUserInfo.name}</h4>
   <span className="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full mb-3 shadow-sm">{selectedUserInfo.role}</span>
 
-  {/* 🚨 [추가/수정] 관리자 비밀번호(7777) 입력 시 해당 작업자만 즉시 개별 강퇴하는 버튼 */}
+  {/* 🔒 [보안 완료] 비밀번호 노출 완전 차단된 강퇴 버튼 */}
   <button
     onClick={async () => {
-      const pw = prompt(`[${selectedUserInfo.name}] 작업자를 강제 퇴장시키려면 관리자 비밀번호(7777)를 입력하세요:`);
+      const pw = prompt(`[${selectedUserInfo.name}] 작업자를 강제 퇴장시키려면 마스터 관리자 비밀번호를 입력하세요:`);
       if (pw === "7777") {
         try {
           if (selectedUserInfo.id) {
