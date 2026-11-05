@@ -1332,71 +1332,69 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
       
       
 <header className="bg-slate-900 border-b border-slate-800 px-4 py-3 shadow-md">
-  {/* 🌟 [1단 영역] 로고 및 우측 주요 액션 버튼 그룹 */}
-  <div className="flex flex-col lg:flex-row justify-between items-center gap-3">
+  {/* 🌟 [1단 영역] 타이틀 변경 (yun sung man Guide) 및 헥커/글라슈리트 브랜드 전환 게이트 */}
+  <div className="flex flex-col md:flex-row justify-between items-center gap-3">
     
-    {/* 좌측 로고 및 브랜드 */}
-    <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
+    {/* 좌측 로고 및 브랜드 타이틀 */}
+    <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
       <div className="flex items-center gap-2">
         <span className="text-white font-black text-base tracking-tight flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          조색 Pro
+          yun sung man Guide
         </span>
+      </div>
+      {/* 브랜드 간 전환 게이트 (모바일/PC 공용) */}
+      <div className="flex items-center gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700">
+        <button onClick={() => window.location.href = '#spieshecker'} className="bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow">🦅 헥커</button>
+        <button onClick={() => window.location.href = '#glasurit'} className="bg-emerald-600 text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow">🦜 글라슈리트</button>
       </div>
     </div>
 
-    {/* 우측 주요 버튼들 (초고속 연동 함수명을 setIsSyncModalOpen으로 정상 반영) */}
-    <div className="flex items-center flex-wrap gap-2 w-full lg:w-auto justify-end">
-      <button onClick={() => setIsChatOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
-        💬 현장 톡방 <span className="bg-white/20 px-1.5 py-0.5 rounded-full text-[10px]">7</span>
+    {/* 우측 유틸리티 버튼 그룹 (크기 및 배열 완벽 정렬) */}
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex items-center gap-2 w-full md:w-auto">
+      <button onClick={() => setIsChatOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow transition-colors">
+        💬 톡방 <span className="bg-white/20 px-1.5 py-0.5 rounded-full text-[10px]">7</span>
       </button>
-      <button onClick={() => setIsUsersModalOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 shadow transition-colors">
-        👥 승인된 작업자 <span className="bg-indigo-500 px-1.5 py-0.5 rounded-full text-[10px]">{authorizedUsers.length}명</span>
+      <button onClick={() => setIsUsersModalOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700 shadow transition-colors">
+        👥 작업자 <span className="bg-indigo-500 px-1.5 py-0.5 rounded-full text-[10px]">{authorizedUsers.length}</span>
       </button>
-<button onClick={() => setIsCloudModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
-  ⚡ 기기 간 초고속 연동
-</button>
-      <button onClick={() => window.open("https://phoenix.spieshecker.com", "_blank")} className="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors">
-  🌐 헥커 게이트
-</button>
-<button onClick={() => window.open("https://www.glasurit.com", "_blank")} className="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors">
-  🌐 글라슈리트 게이트
-</button>
-      <button onClick={() => setIsGlossaryModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
-        📖 도장/조색 용어 사전
+      <button onClick={() => setIsCloudModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow transition-colors">
+        ⚡ 기기연동
       </button>
-<button onClick={() => setIsBoardOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors">
-  🗂️ 시편 게시판
-</button>      
-      <button onClick={() => window.location.reload()} className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors">
+      <button onClick={() => setIsBoardOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700 shadow transition-colors">
+        🗂️ 시편게시판
+      </button>
+      <button onClick={() => setIsGlossaryModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow transition-colors">
+        📖 용어사전
+      </button>
+      <button onClick={() => window.location.reload()} className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700 transition-colors">
         🔄 업데이트
       </button>
     </div>
   </div>
 
-  {/* 🌟 [2단 영역] 패치 버전 정보 및 접속 유지 상태바 상하 분리 배치 */}
+  {/* 🌟 [2단 영역] 패치 히스토리 클릭 팝업 및 접속 유지 상태바 */}
   <div className="mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
-    {/* Last Patch 정보 */}
+    {/* Last Patch 정보 (클릭 시 전체 히스토리 팝업) */}
     <div className="text-slate-400 font-medium flex items-center gap-2">
       <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono text-[10px]">Last Patch</span>
-     <span 
-  onClick={() => {
-    const historyText = PATCH_HISTORY.map(p => `[${p.version}] ${p.date}\n- ${p.title}\n: ${p.details}`).join('\n\n');
-    alert(`📜 [조색 Pro 패치 히스토리 전체 내역]\n\n${historyText}`);
-  }} 
-  className="cursor-pointer hover:text-white hover:underline transition-colors"
-  title="클릭하여 전체 패치 내역 보기"
->
-  2026.11.04 (V2.7 세션 타이머 & 패치 히스토리 패치)
-</span>
+      <span 
+        onClick={() => {
+          const historyText = PATCH_HISTORY.map(p => `[${p.version}] ${p.date}\n- ${p.title}\n: ${p.details}`).join('\n\n');
+          alert(`📜 [yun sung man Guide 패치 히스토리]\n\n${historyText}`);
+        }} 
+        className="cursor-pointer hover:text-white hover:underline transition-colors font-bold text-slate-300"
+        title="클릭하여 전체 패치 내역 보기"
+      >
+        2026.11.04 (V2.7 세션 타이머 & 패치 히스토리 패치)
+      </span>
     </div>
 
     {/* 접속 유지 상태 표시바 */}
     <div className="bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2 shadow-inner">
       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-      <span>[{authForm.location || '지점 미입력'}] {authForm.name || '사용자'}님 접속 유지 중</span>
+      <span>[{authForm.location || '지점'}] {authForm.name || '사용자'}님 접속 유지</span>
       <span className="text-emerald-400 font-mono">⏱️ {formatTimer(sessionSeconds)}</span>
-      <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded font-black">실시간 연동 완료</span>
     </div>
   </div>
 </header>
