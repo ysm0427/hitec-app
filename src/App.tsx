@@ -352,7 +352,7 @@ export default function App() {
         if (saved) return JSON.parse(saved);
       } catch (e) {}
     }
-    return { company: '', location: '', name: '', age: '', role: '사원' };
+    return { company: '', location: '', name: '', age: '', role: '사원', photo: '' };
   });
 
   const [isAuthorized, setIsAuthorized] = useState(() => {
@@ -438,6 +438,7 @@ export default function App() {
         name: authForm.name.trim(),
         age: String(authForm.age).trim() || '미입력',
         role: authForm.role,
+        photo: authForm.photo || '',
         date: nowKor,
         device: deviceType,
         connectedAt: new Date().toISOString()
@@ -499,17 +500,18 @@ export default function App() {
       const deviceType = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC';
       const nowKor = new Date().toLocaleString('ko-KR');
 
-      myDocRef = doc(db, "active_users", deviceId!);
-      await setDoc(myDocRef, {
-        company: authForm.company?.trim() || '미입력',
-        location: authForm.location?.trim() || '미입력',
-        name: authForm.name?.trim() || '현장작업자',
-        age: authForm.age || '미입력',
-        role: authForm.role || '사원',
-        date: nowKor,
-        device: deviceType,
-        connectedAt: Date.now()
-      });
+myDocRef = doc(db, "active_users", deviceId!);
+await setDoc(myDocRef, {
+  company: authForm.company?.trim() || '미입력',
+  location: authForm.location?.trim() || '미입력',
+  name: authForm.name?.trim() || '현장작업자',
+  age: authForm.age || '미입력',
+  role: authForm.role || '사원',
+  photo: authForm.photo || '', // 👈 [추가] 프로필 사진 데이터 전송
+  date: nowKor,
+  device: deviceType,
+  connectedAt: Date.now()
+});
       isRegistered = true;
     };
 
