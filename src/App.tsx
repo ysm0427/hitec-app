@@ -1331,25 +1331,7 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
       
       
       
-      <header className="bg-slate-900 flex flex-col md:flex-row justify-between items-center p-3 border-b border-slate-800 shadow-md shrink-0 gap-3 z-40">
-        <div className="flex flex-col sm:flex-row items-center justify-between w-full md:w-auto gap-3">
-            <div className="flex items-center bg-slate-800 p-1.5 rounded-xl border border-slate-700 shadow-inner w-full sm:w-auto justify-center">
-                <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200 cursor-default">
-                    <span className="text-red-600 font-black italic text-sm tracking-tighter">Spies Hecker</span>
-                </div>
-                <button 
-                    onClick={() => { window.location.replace("https://glasurit-pro-v2-2va8x70wv-ysm0427-1929s-projects.vercel.app"); }} 
-                    className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white transition-all group cursor-pointer"
-                    title="글라슈리트 90라인으로 이동"
-                >
-                    <span className="text-xl group-hover:scale-110 transition-transform origin-center">🦜</span>
-                    <span className="font-bold text-xs tracking-wide">Glasurit</span>
-                <span className="font-bold text-xs tracking-wide">Glasurit</span>
-            </button>
-          </div>
-          <span onClick={() => alert("📋 [조색 Pro 개발 및 패치 히스토리]\n\n" + PATCH_HISTORY.map(p => `▪ ${p.version} (${p.date}) - ${p.title}\n   └ ${p.details}`).join("\n\n"))} className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2.5 py-1 rounded-full border border-slate-700 hidden md:inline-block shrink-0 cursor-pointer transition-colors" title="클릭하여 패치 내역 보기">Last Patch: {LAST_PATCH_DATE} 🔍</span>
-        </div>
-<header className="bg-slate-900 border-b border-slate-800 px-4 py-3 shadow-md">
+  <header className="bg-slate-900 border-b border-slate-800 px-4 py-3 shadow-md">
   {/* 🌟 [1단 영역] 로고 및 우측 주요 액션 버튼 그룹 */}
   <div className="flex flex-col lg:flex-row justify-between items-center gap-3">
     
