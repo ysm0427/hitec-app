@@ -1313,15 +1313,12 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
         </div>
 {/* 🟢 실시간 접속 타이머 및 상태 바 */}
   {isAuthorized && (
-    <div className="bg-emerald-900/90 text-emerald-100 px-4 py-1.5 rounded-lg flex items-center justify-between text-xs font-bold shadow-md my-2 border border-emerald-600">
-      <div className="flex items-center gap-2">
-        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>[{authForm.location || '현장'} 지점] {authForm.name || '작업자'}님 접속 유지 중</span>
+    <div className="bg-emerald-900/90 text-emerald-100 px-4 py-2 rounded-lg flex items-center justify-between text-xs font-bold shadow-md my-2 border border-emerald-600 whitespace-nowrap">
+      <div className="flex items-center gap-2 overflow-hidden text-ellipsis">
+        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
+        <span>[{authForm.location || '지점명'} 지점] {authForm.name || '작업자'}님 접속 유지 중 · ⏱️ 접속 타이머: <strong className="text-yellow-300 font-mono text-sm ml-1">{formatTimer(sessionSeconds)}</strong></span>
       </div>
-      <div className="flex items-center gap-3">
-        <span>⏱️ 접속 타이머: <strong className="text-yellow-300 font-mono text-sm">{formatTimer(sessionSeconds)}</strong></span>
-        <span className="bg-emerald-800 px-2 py-0.5 rounded text-[11px] text-emerald-200">실시간 연동 완료</span>
-      </div>
+      <span className="bg-emerald-800 px-2.5 py-0.5 rounded text-[11px] text-emerald-200 flex-shrink-0 ml-3">실시간 연동 완료</span>
     </div>
   )}
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x items-center">
