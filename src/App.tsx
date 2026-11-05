@@ -1331,7 +1331,7 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
       
       
       
-  <header className="bg-slate-900 border-b border-slate-800 px-4 py-3 shadow-md">
+<header className="bg-slate-900 border-b border-slate-800 px-4 py-3 shadow-md">
   {/* 🌟 [1단 영역] 로고 및 우측 주요 액션 버튼 그룹 */}
   <div className="flex flex-col lg:flex-row justify-between items-center gap-3">
     
@@ -1345,18 +1345,18 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
       </div>
     </div>
 
-    {/* 우측 주요 버튼들 */}
+    {/* 우측 주요 버튼들 (기존 프로젝트 상태 함수명과 완벽 호환) */}
     <div className="flex items-center flex-wrap gap-2 w-full lg:w-auto justify-end">
       <button onClick={() => setIsChatOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
         💬 현장 톡방 <span className="bg-white/20 px-1.5 py-0.5 rounded-full text-[10px]">7</span>
       </button>
-      <button onClick={() => setIsApprovalModalOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 shadow transition-colors">
+      <button onClick={() => setIsUsersModalOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 shadow transition-colors">
         👥 승인된 작업자 <span className="bg-indigo-500 px-1.5 py-0.5 rounded-full text-[10px]">{authorizedUsers.length}명</span>
       </button>
-      <button onClick={() => setIsSyncModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
+      <button onClick={() => setIsSyncCloudOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
         ⚡ 기기 간 초고속 연동
       </button>
-      <button onClick={() => setIsDictionaryOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
+      <button onClick={() => setIsGlossaryModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
         📖 도장/조색 용어 사전
       </button>
       <button onClick={() => window.location.reload()} className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors">
