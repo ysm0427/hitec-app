@@ -1377,7 +1377,7 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
     <div className="bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2 shadow-inner">
       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
       <span>[{authForm.location || '지점 미입력'}] {authForm.name || '사용자'}님 접속 유지 중</span>
-      <span className="text-emerald-400 font-mono">⏱️ {formatTimer(connectionTimer)}</span>
+      <span className="text-emerald-400 font-mono">⏱️ {formatTimer(sessionSeconds)}</span>
       <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded font-black">실시간 연동 완료</span>
     </div>
   </div>
