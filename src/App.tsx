@@ -445,15 +445,15 @@ export default function App() {
     return () => unsubscribe();
   }, [isChatOpen]);
 
-// 📋 현장 공유 게시판 실시간 동기화 (기기 간 공유 연동)
-  useEffect(() => {
-    const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const posts = snapshot.docs.map(docItem => ({ id: docItem.id, ...docItem.data() }));
-      setBoardPosts(posts);
-    });
-    return () => unsubscribe();
-  }, []);
+// 📋 현장 공유 게시판 실시간 동기화 (타입 에러 방어 코드 적용)
+useEffect(() => {
+  const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const posts = snapshot.docs.map(docItem => ({ id: docItem.id, ...docItem.data() }));
+    setBoardPosts(posts as any);
+  });
+  return () => unsubscribe();
+}, []);
 
   // 💬 메시지 전송 함수 (안전장치 적용)
 const handleSendChatMessage = async (e: React.FormEvent) => {
