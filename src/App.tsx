@@ -3291,12 +3291,12 @@ const handleCreatePost = async (e: React.FormEvent) => {
                                 </div>
                             </div>
                             );
-                })()}
-              </div>
-            </div>
-          </main>
+               })()}
         </div>
-      )}
-    </div>
+      </div>
+    </main>
+  </div>
   );
 }
+
+export default App;
