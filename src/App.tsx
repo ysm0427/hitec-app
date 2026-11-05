@@ -482,7 +482,7 @@ export default function App() {
       }
     }
   }, []);
-// ⚡ [실시간 감시 및 세션/중복 방지 통합 로직 - 프로필 보존형]
+// ⚡ [실시간 감시 및 세션/중복 방지 통합 로직 - 지능형 중복 제거형]
   useEffect(() => {
     if (!isAuthorized) return;
 
@@ -526,8 +526,16 @@ export default function App() {
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
 
+    // 📱 모바일 화면 전환/복귀 시 실시간 동기화 강제 깨우기
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && myDocRef) {
+        registerAndListen();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
-      const liveUsers = snapshot.docs.map((docItem) => {
+      const rawUsers = snapshot.docs.map((docItem) => {
         const d = docItem.data();
         return {
           id: docItem.id,
@@ -542,18 +550,27 @@ export default function App() {
         };
       });
 
-      // 🚨 [방어선 1] 관리자가 전체 리셋을 눌러 서버 명단이 0명이 되었을 때
-      if (liveUsers.length === 0 && isAuthorized) {
+      // 💡 [지능형 중복 제거 핵심 로직] 같은 지점 + 같은 이름이면 가장 최신 접속 시간 기록 1개만 인정!
+      const userMap = new Map();
+      rawUsers.forEach(u => {
+        const key = `${u.branch}_${u.name}`;
+        if (!userMap.has(key) || userMap.get(key).connectedAt < u.connectedAt) {
+          userMap.set(key, u);
+        }
+      });
+      const liveUsers = Array.from(userMap.values());
+
+      // 🚨 전체 리셋 감지 시
+      if (rawUsers.length === 0 && isAuthorized) {
         alert("🚨 [시스템 안내] 관리자에 의해 전체 작업자 명단이 리셋되었습니다!\n소속 정보는 그대로 유지되니 간편하게 재입장해 주세요.");
         setIsAuthorized(false);
-        // 💡 중요: 'hitec_saved_auth_profile'(입력했던 소속 정보)은 지우지 않고 보존합니다!
         localStorage.removeItem('hitec_auth_data');
         localStorage.removeItem('hitec_device_id');
         window.location.reload();
         return;
       }
 
-      // 🚨 [방어선 2] 내 기기 문서(deviceId)가 서버에서 지워졌을 때
+      // 🚨 개별 튕김 감지 시
       const myExists = snapshot.docs.some(docItem => docItem.id === deviceId);
       if (!myExists && isAuthorized && isRegistered) {
         alert("🚨 [시스템 안내] 세션이 종료되었거나 관리자에 의해 퇴장되었습니다.");
@@ -570,9 +587,10 @@ export default function App() {
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       unsubscribe();
     };
-  }, [isAuthorized]);  
+  }, [isAuthorized]);
 // 📋 현장 공유 게시판 실시간 동기화 (타입 에러 방어 코드 적용)
 useEffect(() => {
   const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
