@@ -1349,40 +1349,57 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
           </div>
           <span onClick={() => alert("📋 [조색 Pro 개발 및 패치 히스토리]\n\n" + PATCH_HISTORY.map(p => `▪ ${p.version} (${p.date}) - ${p.title}\n   └ ${p.details}`).join("\n\n"))} className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2.5 py-1 rounded-full border border-slate-700 hidden md:inline-block shrink-0 cursor-pointer transition-colors" title="클릭하여 패치 내역 보기">Last Patch: {LAST_PATCH_DATE} 🔍</span>
         </div>
-{/* 🟢 실시간 접속 타이머 및 상태 바 */}
-  {isAuthorized && (
-    <div className="bg-emerald-900/90 text-emerald-100 px-4 py-2 rounded-lg flex items-center justify-between text-xs font-bold shadow-md my-2 border border-emerald-600 whitespace-nowrap">
-      <div className="flex items-center gap-2 overflow-hidden text-ellipsis">
-        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
-        <span>[{authForm.location || '지점명'} 지점] {authForm.name || '작업자'}님 접속 유지 중 · ⏱️ 접속 타이머: <strong className="text-yellow-300 font-mono text-sm ml-1">{formatTimer(sessionSeconds)}</strong></span>
+<header className="bg-slate-900 border-b border-slate-800 px-4 py-3 shadow-md">
+  {/* 🌟 [1단 영역] 로고 및 우측 주요 액션 버튼 그룹 (크기 및 정렬 통일) */}
+  <div className="flex flex-col lg:flex-row justify-between items-center gap-3">
+    
+    {/* 좌측 로고 및 브랜드 */}
+    <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
+      <div className="flex items-center gap-2">
+        <span className="text-white font-black text-base tracking-tight flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          조색 Pro
+        </span>
       </div>
-      <span className="bg-emerald-800 px-2.5 py-0.5 rounded text-[11px] text-emerald-200 flex-shrink-0 ml-3">실시간 연동 완료</span>
     </div>
-  )}
-        <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x items-center">
-            <button onClick={() => { setIsUsersModalOpen(true); setSelectedUserInfo(null); }} className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white border border-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-              <button onClick={() => { setIsChatOpen(true); setUnreadChatCount(0); }} className="relative flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                <MessageSquare size={14} /> 현장 톡방
-                {unreadChatCount > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full shadow-sm">{unreadChatCount}</span>}
-            </button>  
-              <Users size={14} /> 승인된 작업자 <span className="bg-indigo-900 px-1.5 py-0.5 rounded text-[10px]">{authorizedUsers.length}명</span>
-            </button>
-            <div className="w-px h-6 bg-slate-700 mx-1 hidden sm:block"></div>
 
-            <button onClick={() => { setIsCloudModalOpen(true); setCopied(false); }} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                ☁️ 기기 간 초고속 연동
-            </button>
-            <button onClick={() => setIsGlossaryModalOpen(true)} className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                📖 도장/조색 용어 사전
-            </button>
-            <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                <RefreshCw size={14} /> 업데이트
-            </button>
-            <button onClick={() => setIsBoardOpen(true)} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-900/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                <Layers size={14} /> 시편 게시판
-            </button>
-        </div>
-      </header>
+    {/* 우측 주요 버튼들 (모바일/PC 반응형 줄바꿈 및 크기 통일) */}
+    <div className="flex items-center flex-wrap gap-2 w-full lg:w-auto justify-end">
+      <button onClick={() => setIsChatOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
+        💬 현장 톡방 <span className="bg-white/20 px-1.5 py-0.5 rounded-full text-[10px]">7</span>
+      </button>
+      <button onClick={() => setIsApprovalModalOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 shadow transition-colors">
+        👥 승인된 작업자 <span className="bg-indigo-500 px-1.5 py-0.5 rounded-full text-[10px]">{authorizedUsers.length}명</span>
+      </button>
+      <button onClick={() => setIsSyncModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
+        ⚡ 기기 간 초고속 연동
+      </button>
+      <button onClick={() => setIsDictionaryOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
+        📖 도장/조색 용어 사전
+      </button>
+      <button onClick={() => window.location.reload()} className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors">
+        🔄 업데이트
+      </button>
+    </div>
+  </div>
+
+  {/* 🌟 [2단 영역] 패치 버전 정보 및 접속 유지 상태바 상하 분리 배치 */}
+  <div className="mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
+    {/* Last Patch 정보 */}
+    <div className="text-slate-400 font-medium flex items-center gap-2">
+      <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono text-[10px]">Last Patch</span>
+      <span>2026.11.04 (V2.7 세션 타이머 & 패치 히스토리 패치)</span>
+    </div>
+
+    {/* 접속 유지 상태 표시바 */}
+    <div className="bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2 shadow-inner">
+      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+      <span>[{authForm.location || '지점 미입력'}] {authForm.name || '사용자'}님 접속 유지 중</span>
+      <span className="text-emerald-400 font-mono">⏱️ {formatTimer(connectionTimer)}</span>
+      <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded font-black">실시간 연동 완료</span>
+    </div>
+  </div>
+</header>
 
       <div className="flex-1 p-3 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         <div className="lg:col-span-7 flex flex-col bg-white border border-slate-300 rounded-xl shadow-xl overflow-hidden">
