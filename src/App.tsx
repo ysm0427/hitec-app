@@ -444,7 +444,37 @@ export default function App() {
     });
     return () => unsubscribe();
   }, [isChatOpen]);
+// ⚡ [실시간 감시] 서버의 작업자 명단(active_users) 실시간 동기화 및 카운팅
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
+      const liveUsers = snapshot.docs.map((docItem) => {
+        const d = docItem.data();
+        return {
+          id: docItem.id,
+          brand: d.brand || d.company || '미입력',
+          branch: d.branch || d.location || '미입력',
+          name: d.name || '이름없음',
+          age: d.age || '미입력',
+          role: d.role || '사원',
+          date: d.date || (d.connectedAt ? new Date(d.connectedAt).toLocaleString('ko-KR') : '기록없음'),
+          device: d.device || 'PC',
+          connectedAt: String(d.connectedAt || '')
+        };
+      });
 
+      if (liveUsers.length === 0 && isAuthorized) {
+        alert("🚨 [시스템 안내] 관리자에 의해 전체 작업자 명단이 리셋되었습니다!\n다시 접속하여 정보를 입력해 주세요.");
+        setIsAuthorized(false);
+        localStorage.removeItem('hitec_auth_data');
+        localStorage.removeItem('hitec_device_id');
+      }
+
+      liveUsers.sort((a, b) => String(b.connectedAt).localeCompare(String(b.connectedAt)));
+      setAuthorizedUsers(liveUsers);
+    });
+
+    return () => unsubscribe();
+  }, [isAuthorized]);
 // 📋 현장 공유 게시판 실시간 동기화 (타입 에러 방어 코드 적용)
 useEffect(() => {
   const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
