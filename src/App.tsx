@@ -373,7 +373,30 @@ export default function App() {
     }
     return false;
   });
+// ⏱️ 실시간 접속 타이머 및 상태
+  const [sessionSeconds, setSessionSeconds] = useState(0);
 
+  useEffect(() => {
+    let timer: any = null;
+    if (isAuthorized) {
+      timer = setInterval(() => {
+        setSessionSeconds(prev => prev + 1);
+      }, 1000);
+    } else {
+      setSessionSeconds(0);
+    }
+    return () => clearInterval(timer);
+  }, [isAuthorized]);
+
+  const formatTimer = (totalSec: number) => {
+    const hrs = Math.floor(totalSec / 3600);
+    const mins = Math.floor((totalSec % 3600) / 60);
+    const secs = totalSec % 60;
+    if (hrs > 0) {
+      return `${hrs}시간 ${mins}분 ${secs}초`;
+    }
+    return `${String(mins).padStart(2, '0')}분 ${String(secs).padStart(2, '0')}초`;
+  };
   const isAuthFormValid = authForm.company.trim() !== '' && authForm.location.trim() !== '' && authForm.name.trim() !== '' && String(authForm.age).trim() !== '';
   
   const [isApproving, setIsApproving] = useState(false);
@@ -444,8 +467,65 @@ export default function App() {
     });
     return () => unsubscribe();
   }, [isChatOpen]);
-// ⚡ [실시간 감시] 서버의 작업자 명단(active_users) 실시간 동기화 및 카운팅
+// 🚀 [자동 로그인 체크] 로컬 저장소에 프로필이 있으면 자동 승인 및 서버 등록
   useEffect(() => {
+    const savedAuth = localStorage.getItem('hitec_saved_auth_profile');
+    const savedDeviceId = localStorage.getItem('hitec_device_id');
+    
+    if (savedAuth && savedDeviceId && !isAuthorized) {
+      try {
+        const parsed = JSON.parse(savedAuth);
+        setAuthForm(parsed);
+        setIsAuthorized(true);
+      } catch (e) {
+        console.error("자동 로그인 파싱 에러:", e);
+      }
+    }
+  }, []);
+
+  // ⚡ [실시간 감시 및 자동 퇴장 처리] active_users 동기화
+  useEffect(() => {
+    if (!isAuthorized) return;
+
+    let deviceId = localStorage.getItem('hitec_device_id');
+    if (!deviceId) {
+      deviceId = 'dev_' + Math.random().toString(36).substring(2, 9);
+      localStorage.setItem('hitec_device_id', deviceId);
+    }
+
+    let myDocRef: any = null;
+
+    const registerAndListen = async () => {
+      const deviceType = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC';
+      const nowKor = new Date().toLocaleString('ko-KR');
+
+      myDocRef = doc(db, "active_users", deviceId!);
+      await setDoc(myDocRef, {
+        company: authForm.company?.trim() || '미입력',
+        location: authForm.location?.trim() || '미입력',
+        name: authForm.name?.trim() || '현장작업자',
+        age: authForm.age || '미입력',
+        role: authForm.role || '사원',
+        date: nowKor,
+        device: deviceType,
+        connectedAt: Date.now()
+      });
+    };
+
+    registerAndListen();
+
+    // 🔴 브라우저를 닫거나 탭을 종료할 때 active_users에서 즉시 삭제 (카운팅 실시간 제외)
+    const handleBeforeUnload = async () => {
+      if (myDocRef) {
+        try {
+          await deleteDoc(myDocRef);
+        } catch (e) {
+          console.error("퇴장 처리 에러:", e);
+        }
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
       const liveUsers = snapshot.docs.map((docItem) => {
         const d = docItem.data();
@@ -456,22 +536,21 @@ export default function App() {
           name: d.name || '이름없음',
           age: d.age || '미입력',
           role: d.role || '사원',
-          date: d.date || (d.connectedAt ? new Date(d.connectedAt).toLocaleString('ko-KR') : '기록없음'),
+          date: d.date || '기록없음',
           device: d.device || 'PC',
-          connectedAt: String(d.connectedAt || '')
+          connectedAt: Number(d.connectedAt || 0)
         };
       });
 
-      if (liveUsers.length === 0 && isAuthorized) {
-        alert("🚨 [시스템 안내] 관리자에 의해 전체 작업자 명단이 리셋되었습니다!\n다시 접속하여 정보를 입력해 주세요.");
-        setIsAuthorized(false);
-        localStorage.removeItem('hitec_auth_data');
-        localStorage.removeItem('hitec_device_id');
-      }
-
-      liveUsers.sort((a, b) => String(b.connectedAt).localeCompare(String(b.connectedAt)));
+      liveUsers.sort((a, b) => b.connectedAt - a.connectedAt);
       setAuthorizedUsers(liveUsers);
     });
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      unsubscribe();
+    };
+  }, [isAuthorized]);
 
     return () => unsubscribe();
   }, [isAuthorized]);
@@ -1234,7 +1313,19 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
           </div>
           <span onClick={() => alert("📋 [조색 Pro 개발 및 패치 히스토리]\n\n" + PATCH_HISTORY.map(p => `▪ ${p.version} (${p.date}) - ${p.title}\n   └ ${p.details}`).join("\n\n"))} className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2.5 py-1 rounded-full border border-slate-700 hidden md:inline-block shrink-0 cursor-pointer transition-colors" title="클릭하여 패치 내역 보기">Last Patch: {LAST_PATCH_DATE} 🔍</span>
         </div>
-
+{/* 🟢 실시간 접속 타이머 및 상태 바 */}
+  {isAuthorized && (
+    <div className="bg-emerald-900/90 text-emerald-100 px-4 py-1.5 rounded-lg flex items-center justify-between text-xs font-bold shadow-md my-2 border border-emerald-600">
+      <div className="flex items-center gap-2">
+        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>[{authForm.location || '현장'} 지점] {authForm.name || '작업자'}님 접속 유지 중</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <span>⏱️ 접속 타이머: <strong className="text-yellow-300 font-mono text-sm">{formatTimer(sessionSeconds)}</strong></span>
+        <span className="bg-emerald-800 px-2 py-0.5 rounded text-[11px] text-emerald-200">실시간 연동 완료</span>
+      </div>
+    </div>
+  )}
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x items-center">
             <button onClick={() => { setIsUsersModalOpen(true); setSelectedUserInfo(null); }} className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white border border-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
               <button onClick={() => { setIsChatOpen(true); setUnreadChatCount(0); }} className="relative flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
