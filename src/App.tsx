@@ -396,98 +396,7 @@ export default function App() {
   const [newPostContent, setNewPostContent] = useState("");
   const [newPostTitle, setNewPostTitle] = useState("");
 
-  // ⚡ [실시간 감시] 서버의 작업자 명단이 비워졌는지(리셋되었는지) 실시간 감지하여 강제 초기화
-  useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
-      const liveUsers = snapshot.docs.map((docItem) => {
-        const d = docItem.data();
-        return {
-          id: docItem.id,
-          brand: d.brand || d.company || '미입력',
-          branch: d.branch || d.location || '미입력',
-          name: d.name || '이름없음',
-          age: d.age || '미입력',
-          role: d.role || '사원',
-          date: d.date || (d.connectedAt ? new Date(d.connectedAt).toLocaleString('ko-KR') : '기록없음'),
-          device: d.device || 'PC',
-          connectedAt: String(d.connectedAt || '')
-        };
-      });
-
-      // 🚨 관리자에 의해 서버 명단이 완전히 리셋(0명)되었고, 현재 로그인된 상태라면?
-      if (liveUsers.length === 0 && isAuthorized) {
-        alert("🚨 [시스템 안내] 관리자에 의해 전체 작업자 명단이 리셋되었습니다!\n다시 접속하여 정보를 입력해 주세요.");
-        setIsAuthorized(false);
-        localStorage.removeItem('hitec_auth_data');
-        localStorage.removeItem('hitec_device_id');
-      }
-
-      liveUsers.sort((a, b) => String(b.connectedAt).localeCompare(String(a.connectedAt)));
-      setAuthorizedUsers(liveUsers);
-    });
-    // 💬 실시간 채팅 메시지 동기화 및 안 읽은 뱃지 계산
-  useEffect(() => {
-    const q = query(collection(db, "chat_messages"), orderBy("createdAt", "asc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setChatMessages(msgs);
-      
-      if (!isChatOpen && msgs.length > chatMessages.length) {
-        setUnreadChatCount(prev => prev + (msgs.length - chatMessages.length));
-      }
-    });
-    return () => unsubscribe();
-  }, [isChatOpen, chatMessages.length]);
-
-  // 📋 현장 공유 게시판 실시간 동기화
-  useEffect(() => {
-    const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setCommunityPosts(posts);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  // 메시지 전송 함수
-  const handleSendChatMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInput.trim()) return;
-    try {
-      await addDoc(collection(db, "chat_messages"), {
-        sender: `${authForm.location || '지점'} ${authForm.name || '작업자'}`,
-        role: authForm.role || '사원',
-        text: chatInput.trim(),
-        createdAt: Date.now()
-      });
-      setChatInput("");
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // 게시글 등록 함수
-  const handleCreatePost = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPostTitle.trim() || !newPostContent.trim()) return;
-    try {
-      await addDoc(collection(db, "community_posts"), {
-        author: `${authForm.location || '지점'} ${authForm.name || '작업자'}`,
-        title: newPostTitle.trim(),
-        content: newPostContent.trim(),
-        colorCode: targetColorCode || '일반',
-        createdAt: Date.now()
-      });
-      setNewPostTitle("");
-      setNewPostContent("");
-      alert("✅ 현장 노하우 및 시편 데이터가 공유 게시판에 등록되었습니다!");
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-    return () => unsubscribe();
-  }, [isAuthorized]);
+}, [isAuthorized]);
 
   const handleFakeApproval = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1246,7 +1155,11 @@ const handleCreatePost = async (e: React.FormEvent) => {
 
         <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide snap-x items-center">
             <button onClick={() => { setIsUsersModalOpen(true); setSelectedUserInfo(null); }} className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white border border-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
-                <Users size={14} /> 승인된 작업자 <span className="bg-indigo-900 px-1.5 py-0.5 rounded text-[10px]">{authorizedUsers.length}명</span>
+              <button onClick={() => { setIsChatOpen(true); setUnreadChatCount(0); }} className="relative flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+                <MessageSquare size={14} /> 현장 톡방
+                {unreadChatCount > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full shadow-sm">{unreadChatCount}</span>}
+            </button>  
+              <Users size={14} /> 승인된 작업자 <span className="bg-indigo-900 px-1.5 py-0.5 rounded text-[10px]">{authorizedUsers.length}명</span>
             </button>
             <div className="w-px h-6 bg-slate-700 mx-1 hidden sm:block"></div>
 
@@ -3291,53 +3204,55 @@ const handleCreatePost = async (e: React.FormEvent) => {
                                     <button onClick={() => setPaletteDrops({ red: 0, blue: 0, yellow: 0, green: 0, white: 0, black: 0 })} className="mt-6 z-10 text-xs text-slate-500 hover:text-white border border-slate-600 px-4 py-2 rounded-full transition-colors"><RefreshCw size={14} className="inline mr-1"/> 방울 수 초기화</button>
                                 </div>
                             </div>
-                           );
-               })()}
+                        );
+                    })()}
+                 </div>
+             </div>
+          </main>
         </div>
-      </div>
-    </main>
-  </div>
+      )}
 
-  {/* 🚨 실시간 현장 톡방 채팅 UI 모달 추가 🚨 */}
-  {isChatOpen && (
-      <div className="fixed inset-0 bg-slate-900/80 z-[4000] flex justify-end animate-in fade-in">
+      {/* 🚨 실시간 현장 톡방 채팅 UI 모달 🚨 */}
+      {isChatOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[4000] flex justify-end animate-in fade-in">
           <div className="bg-white w-full sm:w-[400px] h-full shadow-2xl flex flex-col slide-in-from-right-full duration-300">
-              <div className="p-4 bg-blue-600 flex justify-between items-center text-white shrink-0">
-                  <h3 className="font-bold flex items-center gap-2"><MessageSquare size={18}/> 현장 실시간 톡방</h3>
-                  <button onClick={() => setIsChatOpen(false)} className="hover:bg-blue-700 p-1.5 rounded-full transition-colors"><X size={16}/></button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4 bg-slate-50 flex flex-col gap-3 custom-scrollbar">
-                  {chatMessages.length === 0 && (
-                      <div className="flex items-center justify-center h-full text-slate-400 font-bold text-sm">
-                          아직 전송된 메시지가 없습니다.<br/>첫 메시지를 남겨보세요!
-                      </div>
-                  )}
-                  {chatMessages.map(msg => {
-                      const isMe = msg.sender.includes(authForm.name);
-                      return (
-                          <div key={msg.id} className={`flex flex-col max-w-[85%] ${isMe ? 'self-end items-end' : 'self-start items-start'}`}>
-                              <span className="text-[10px] text-slate-500 mb-1 font-bold">{msg.sender} ({msg.role})</span>
-                              <div className={`p-3 rounded-xl shadow-sm text-sm font-bold ${isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}>
-                                  {msg.text}
-                              </div>
-                          </div>
-                      );
-                  })}
-              </div>
-              <form onSubmit={handleSendChatMessage} className="p-3 bg-white border-t border-slate-200 flex gap-2 shrink-0 pb-[env(safe-area-inset-bottom)]">
-                  <input 
-                      type="text" 
-                      value={chatInput} 
-                      onChange={e => setChatInput(e.target.value)} 
-                      placeholder="메시지를 입력하세요..." 
-                      className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none focus:border-blue-500 shadow-sm" 
-                  />
-                  <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors shadow-sm"><Send size={18}/></button>
-              </form>
+            <div className="p-4 bg-blue-600 flex justify-between items-center text-white shrink-0">
+              <h3 className="font-bold flex items-center gap-2"><MessageSquare size={18}/> 현장 실시간 톡방</h3>
+              <button onClick={() => setIsChatOpen(false)} className="hover:bg-blue-700 p-1.5 rounded-full transition-colors"><X size={16}/></button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 bg-slate-50 flex flex-col gap-3 custom-scrollbar">
+              {chatMessages.length === 0 && (
+                <div className="flex items-center justify-center h-full text-slate-400 font-bold text-sm text-center">
+                  아직 전송된 메시지가 없습니다.<br/>첫 메시지를 남겨보세요!
+                </div>
+              )}
+              {chatMessages.map(msg => {
+                const isMe = msg.sender?.includes(authForm.name);
+                return (
+                  <div key={msg.id} className={`flex flex-col max-w-[85%] ${isMe ? 'self-end items-end' : 'self-start items-start'}`}>
+                    <span className="text-[10px] text-slate-500 mb-1 font-bold">{msg.sender} ({msg.role})</span>
+                    <div className={`p-3 rounded-xl shadow-sm text-sm font-bold ${isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}>
+                      {msg.text}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <form onSubmit={handleSendChatMessage} className="p-3 bg-white border-t border-slate-200 flex gap-2 shrink-0 pb-[env(safe-area-inset-bottom)]">
+              <input 
+                type="text" 
+                value={chatInput} 
+                onChange={e => setChatInput(e.target.value)} 
+                placeholder="메시지를 입력하세요..." 
+                className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none focus:border-blue-500 shadow-sm" 
+              />
+              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors shadow-sm"><Send size={18}/></button>
+            </form>
           </div>
-      </div>
-  )}
+        </div>
+      )}
 
+    </div>
   );
 }
 
