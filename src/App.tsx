@@ -482,7 +482,97 @@ export default function App() {
       }
     }
   }, []);
-  
+// ⚡ [실시간 감시 및 세션/중복 방지 통합 로직 - 프로필 보존형]
+  useEffect(() => {
+    if (!isAuthorized) return;
+
+    let deviceId = localStorage.getItem('hitec_device_id');
+    if (!deviceId) {
+      deviceId = 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+      localStorage.setItem('hitec_device_id', deviceId);
+    }
+
+    let myDocRef: any = null;
+    let isRegistered = false;
+
+    const registerAndListen = async () => {
+      const deviceType = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC';
+      const nowKor = new Date().toLocaleString('ko-KR');
+
+      myDocRef = doc(db, "active_users", deviceId!);
+      await setDoc(myDocRef, {
+        company: authForm.company?.trim() || '미입력',
+        location: authForm.location?.trim() || '미입력',
+        name: authForm.name?.trim() || '현장작업자',
+        age: authForm.age || '미입력',
+        role: authForm.role || '사원',
+        date: nowKor,
+        device: deviceType,
+        connectedAt: Date.now()
+      });
+      isRegistered = true;
+    };
+
+    registerAndListen();
+
+    const handleBeforeUnload = async () => {
+      if (myDocRef && isRegistered) {
+        try {
+          await deleteDoc(myDocRef);
+        } catch (e) {
+          console.error("퇴장 처리 에러:", e);
+        }
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
+      const liveUsers = snapshot.docs.map((docItem) => {
+        const d = docItem.data();
+        return {
+          id: docItem.id,
+          brand: d.brand || d.company || '미입력',
+          branch: d.branch || d.location || '미입력',
+          name: d.name || '이름없음',
+          age: d.age || '미입력',
+          role: d.role || '사원',
+          date: d.date || '기록없음',
+          device: d.device || 'PC',
+          connectedAt: Number(d.connectedAt || 0)
+        };
+      });
+
+      // 🚨 [방어선 1] 관리자가 전체 리셋을 눌러 서버 명단이 0명이 되었을 때
+      if (liveUsers.length === 0 && isAuthorized) {
+        alert("🚨 [시스템 안내] 관리자에 의해 전체 작업자 명단이 리셋되었습니다!\n소속 정보는 그대로 유지되니 간편하게 재입장해 주세요.");
+        setIsAuthorized(false);
+        // 💡 중요: 'hitec_saved_auth_profile'(입력했던 소속 정보)은 지우지 않고 보존합니다!
+        localStorage.removeItem('hitec_auth_data');
+        localStorage.removeItem('hitec_device_id');
+        window.location.reload();
+        return;
+      }
+
+      // 🚨 [방어선 2] 내 기기 문서(deviceId)가 서버에서 지워졌을 때
+      const myExists = snapshot.docs.some(docItem => docItem.id === deviceId);
+      if (!myExists && isAuthorized && isRegistered) {
+        alert("🚨 [시스템 안내] 세션이 종료되었거나 관리자에 의해 퇴장되었습니다.");
+        setIsAuthorized(false);
+        localStorage.removeItem('hitec_auth_data');
+        localStorage.removeItem('hitec_device_id');
+        window.location.reload();
+        return;
+      }
+
+      liveUsers.sort((a, b) => b.connectedAt - a.connectedAt);
+      setAuthorizedUsers(liveUsers);
+    });
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      unsubscribe();
+    };
+  }, [isAuthorized]);  
 // 📋 현장 공유 게시판 실시간 동기화 (타입 에러 방어 코드 적용)
 useEffect(() => {
   const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
