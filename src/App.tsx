@@ -563,26 +563,7 @@ await setDoc(myDocRef, {
 
       // 👑 [관리자 보호 로직] 내가 '관리자' 권한이거나 현장 총괄인 경우 리셋 감지되어도 안 튕김!
       const isAdminUser = authForm.role === '관리자' || authForm.name?.includes('관리자') || localStorage.getItem('hitec_is_admin') === 'true';
-
-      // 🚨 전체 리셋 감지 시 (일반 작업자만 튕김, 관리자는 유지)
-      if (rawUsers.length === 0 && isAuthorized && !isAdminUser) {
-        alert("🚨 [시스템 안내] 관리자에 의해 전체 작업자 명단이 리셋되었습니다!\n소속 정보는 그대로 유지되니 간편하게 재입장해 주세요.");
-        setIsAuthorized(false);
-        localStorage.removeItem('hitec_auth_data');
-        localStorage.removeItem('hitec_device_id');
-        window.location.reload();
-        return;
-      }
-
-      // 🚨 개별 튕김 감지 시 (일반 작업자만 해당)
-      const myExists = snapshot.docs.some(docItem => docItem.id === deviceId);
-      if (!myExists && isAuthorized && isRegistered && !isAdminUser) {
-        alert("🚨 [시스템 안내] 세션이 종료되었거나 관리자에 의해 퇴장되었습니다.");
-        setIsAuthorized(false);
-        localStorage.removeItem('hitec_auth_data');
-        localStorage.removeItem('hitec_device_id');
-        window.location.reload();
-        return;
+      
       }
 
       liveUsers.sort((a, b) => b.connectedAt - a.connectedAt);
@@ -2057,26 +2038,53 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
                     <p className="text-xs text-indigo-800 font-bold mb-1">🔐 실시간 접속 보안 패널 (Admin Only)</p>
                     <p className="text-[11px] text-indigo-600 leading-relaxed break-keep">이 시스템은 승인된 사용자의 기기 목록을 보여줍니다. 실제 배포 시 Firebase DB와 연동되어 원격 차단 등 실시간 통계가 제공될 예정입니다.</p>
                   </div>
-                  <div className="space-y-3">
-                    {authorizedUsers.length === 0 ? (
-                      <div className="text-center py-8 text-slate-400 text-sm font-bold">승인된 사용자가 없습니다.</div>
-                    ) : (
-                      authorizedUsers.map((user, idx) => (
-                        <button key={idx} onClick={() => setSelectedUserInfo(user)} className="w-full bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex justify-between items-center hover:border-indigo-300 hover:shadow-md transition-all text-left group">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                              {user.device === 'Mobile' ? <Smartphone size={16}/> : <Monitor size={16}/>}
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="font-black text-slate-800 text-sm">[{user.branch}] {user.name}</span>
-                              <span className="text-[10px] text-slate-400 font-bold mt-0.5">{user.brand}</span>
-                            </div>
-                          </div>
-                          <span className="bg-slate-100 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-700 text-[10px] font-black px-2 py-1 rounded transition-colors">상세 보기</span>
-                        </button>
-                      ))
-                    )}
-                  </div>
+{authorizedUsers.length === 0 ? (
+    <div className="text-center py-8 text-slate-400 text-sm font-bold">승인된 사용자가 없습니다.</div>
+) : (
+    authorizedUsers.map((user, idx) => {
+        // 🌟 [추가] 현재 로컬에 저장된 내 프로필 이름과 비교하여 '나 자신'인지 판별
+        const savedProfile = localStorage.getItem('hitec_saved_auth_profile');
+        let isMe = false;
+        if (savedProfile) {
+            try {
+                const p = JSON.parse(savedProfile);
+                isMe = (p.name?.trim() === user.name?.trim() && p.location?.trim() === user.branch?.trim());
+            } catch (e) {}
+        }
+
+        return (
+            <button 
+                key={idx} 
+                onClick={() => setSelectedUserInfo(user)} 
+                className={`w-full p-4 rounded-xl shadow-sm flex justify-between items-center transition-all text-left group ${
+                    isMe 
+                        ? 'bg-emerald-50/80 border-2 border-emerald-500 shadow-emerald-100' 
+                        : 'bg-white border border-slate-200 hover:border-indigo-300 hover:shadow-md'
+                }`}
+            >
+                <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border transition-colors ${
+                        isMe 
+                            ? 'bg-emerald-500 text-white border-emerald-600 shadow-sm' 
+                            : 'bg-indigo-50 border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white text-indigo-500'
+                    }`}>
+                        {user.device === 'Mobile' ? <Smartphone size={16}/> : <Monitor size={16}/>}
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="font-black text-slate-800 text-sm flex items-center gap-2">
+                            [{user.branch}] {user.name}
+                            {isMe && <span className="bg-emerald-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold shadow-sm">나 (Me)</span>}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-bold mt-0.5">{user.brand}</span>
+                    </div>
+                </div>
+                <span className={`text-[10px] font-black px-2 py-1 rounded transition-colors ${
+                    isMe ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-100 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-700'
+                }`}>상세 보기</span>
+            </button>
+        );
+    })
+)}
                 </>
               ) : (
                 <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4">
