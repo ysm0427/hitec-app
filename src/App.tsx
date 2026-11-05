@@ -417,6 +417,18 @@ export default function App() {
 
   const [authorizedUsers, setAuthorizedUsers] = useState<any[]>([]);
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
+  // 🌙 화면 눈 보호 모드 상태 (true = ON: 현재 밝은 화면 / false = OFF: 검정 배경 반전 화면)
+  const [isLightOn, setIsLightOn] = useState<boolean>(() => {
+    return localStorage.getItem('hitec_light_mode') !== 'false';
+  });
+
+  const toggleLightMode = () => {
+    setIsLightOn(prev => {
+      const next = !prev;
+      localStorage.setItem('hitec_light_mode', String(next));
+      return next;
+    });
+  };
   const [selectedUserInfo, setSelectedUserInfo] = useState<any>(null);
 
   // 💬 실시간 톡방 관련 상태 (최상단으로 이동)
