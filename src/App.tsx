@@ -445,12 +445,12 @@ export default function App() {
     return () => unsubscribe();
   }, [isChatOpen]);
 
-  // 📋 현장 공유 게시판 실시간 동기화
+// 📋 현장 공유 게시판 실시간 동기화 (기기 간 공유 연동)
   useEffect(() => {
     const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const posts = snapshot.docs.map(docItem => ({ id: docItem.id, ...docItem.data() }));
-      setCommunityPosts(posts);
+      setBoardPosts(posts);
     });
     return () => unsubscribe();
   }, []);
@@ -1038,15 +1038,70 @@ const handleCreatePost = async (e: React.FormEvent) => {
       if (viewingPost && viewingPost.id === postId) { const newDeleted = [...viewingPost.deletedImages]; newDeleted.splice(delIdx, 1); setViewingPost({ ...viewingPost, deletedImages: newDeleted }); }
   };
 
-  const saveToBoard = () => {
-      if(!targetColorCode) { alert("⚠️ 컬러코드를 입력해야 합니다!"); return; }
-      const now = new Date(); const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-      const newPost: BoardPost = { id: Date.now() + Math.random(), brand: carModel || '미지정', code: targetColorCode, date: timeFormatted, likes: 0, views: 0, author: '내 데이터', spec: specialNotes || '특이사항 없음', baseFormula: [...toners], pearlFormula: [...pearlToners], isThreeCoat: isThreeCoatMode, images: [...attachedImages], deletedImages: [], isCandyCoat: isCandyCoatMode, candyCode, candyAdditive, candyClear, candyHardener, candyThinner, isClearCoat: isClearCoatMode, clearCode, clearWeight, hardenerCode, hardenerWeight, thinnerCode, thinnerWeight };
-      setBoardPosts([newPost, ...boardPosts]); setAttachedImages([]); alert("🎉 시편 사진들과 함께 게시판에 등록되었습니다!");
+// 🚀 파이어베이스 서버에 시편 등록하여 모든 기기에 즉시 공유
+  const saveToBoard = async () => {
+      if(!targetColorCode) { 
+          alert("⚠️ 컬러코드를 입력해야 합니다!"); 
+          return; 
+      }
+      try {
+          const now = new Date(); 
+          const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+          
+          const authorName = (typeof authForm !== 'undefined' && authForm?.name) ? authForm.name : '현장 작업자';
+          const authorLocation = (typeof authForm !== 'undefined' && authForm?.location) ? authForm.location : '지점';
+
+          const newPost = { 
+              brand: carModel || '미지정', 
+              code: targetColorCode, 
+              date: timeFormatted, 
+              likes: 0, 
+              views: 0, 
+              author: `${authorLocation} ${authorName}`, 
+              spec: specialNotes || '특이사항 없음', 
+              baseFormula: JSON.parse(JSON.stringify(toners)), 
+              pearlFormula: JSON.parse(JSON.stringify(pearlToners)), 
+              isThreeCoat: isThreeCoatMode, 
+              images: [...attachedImages], 
+              deletedImages: [], 
+              isCandyCoat: isCandyCoatMode, 
+              candyCode, 
+              candyAdditive, 
+              candyClear, 
+              candyHardener, 
+              candyThinner, 
+              isClearCoat: isClearCoatMode, 
+              clearCode, 
+              clearWeight, 
+              hardenerCode, 
+              hardenerWeight, 
+              thinnerCode, 
+              thinnerWeight,
+              createdAt: Date.now()
+          };
+
+          await addDoc(collection(db, "community_posts"), newPost);
+          setAttachedImages([]); 
+          alert("🎉 시편 데이터가 파이어베이스 서버에 등록되어 모든 작업자에게 실시간 공유되었습니다!");
+      } catch (err) {
+          console.error("시편 등록 에러:", err);
+          alert("시편 등록 중 오류가 발생했습니다.");
+      }
   };
 
-  const deleteBoardPost = (id: number, e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm("이 시편 데이터를 완전히 삭제하시겠습니까?")) setBoardPosts(prev => prev.filter(post => post.id !== id)); };
-  
+// 🗑️ 파이어베이스 서버에서 시편 삭제
+  const deleteBoardPost = async (id: any, e: React.MouseEvent) => { 
+      e.stopPropagation(); 
+      if (window.confirm("이 시편 데이터를 완전히 삭제하시겠습니까?")) {
+          try {
+              await deleteDoc(doc(db, "community_posts"), String(id));
+              alert("시편이 삭제되었습니다.");
+          } catch (err) {
+              console.error("시편 삭제 에러:", err);
+              setBoardPosts(prev => prev.filter((post: any) => post.id !== id));
+          }
+      }
+  };
   const handleSaveSnapshot = () => { const newSnapshot = { id: Date.now(), timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }), dateStr: new Date().toLocaleDateString('ko-KR'), base: JSON.parse(JSON.stringify(toners)), pearl: JSON.parse(JSON.stringify(pearlToners)), isThreeCoat: isThreeCoatMode, totalFinal: totalFinalWeight, isCandyCoat: isCandyCoatMode, candyCode, candyAdditive, candyClear, candyHardener, candyThinner, isClearCoat: isClearCoatMode, clearCode, clearWeight, hardenerCode, hardenerWeight, thinnerCode, thinnerWeight, isClearAutoCalc, clearRatioPreset }; setSnapshots(prev => [newSnapshot, ...prev]); alert(`[${newSnapshot.timestamp}] 데이터가 확정 저장되었습니다.`); };
   const restoreSnapshot = (snapshot: any) => { if (window.confirm("복원하시겠습니까?")) { setToners(JSON.parse(JSON.stringify(snapshot.base))); setPearlToners(JSON.parse(JSON.stringify(snapshot.pearl))); setIsThreeCoatMode(snapshot.isThreeCoat || false); setIsCandyCoatMode(snapshot.isCandyCoat || false); setCandyCode(snapshot.candyCode || ""); setCandyAdditive(snapshot.candyAdditive || "2.0"); setCandyClear(snapshot.candyClear || "100.0"); setCandyHardener(snapshot.candyHardener || "36.0"); setCandyThinner(snapshot.candyThinner || "6.0"); setIsClearCoatMode(snapshot.isClearCoat || false); setClearCode(snapshot.clearCode || "8055"); setClearWeight(snapshot.clearWeight || "100.0"); setHardenerCode(snapshot.hardenerCode || "3225"); setHardenerWeight(snapshot.hardenerWeight || "33.3"); setThinnerCode(snapshot.thinnerCode || "9034"); setThinnerWeight(snapshot.thinnerWeight || "13.3"); setIsClearAutoCalc(snapshot.isClearAutoCalc !== undefined ? snapshot.isClearAutoCalc : true); setClearRatioPreset(snapshot.clearRatioPreset || "3:1+10%"); setSelectedSnapshot(null); setIsSnapshotModalOpen(false); } };
   
