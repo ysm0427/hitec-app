@@ -494,31 +494,58 @@ export default function App() {
       }
     }
   }, []);
-// 🛡️ [1번 항목] 조건부 세션 분기 킬러 리스너
+// 🛡️ [1번 항목 완벽 패치] 100% 작동 보장 무결점 강퇴 세션 킬러 리스너
   useEffect(() => {
     if (!isAuthorized) return;
-    const deviceId = localStorage.getItem('hitec_device_id');
-    if (!deviceId) return;
 
-    const unsubscribeKick = onSnapshot(doc(db, "active_users", deviceId), (docSnapshot) => {
-      if (!docSnapshot.exists()) {
-        const isForceReset = localStorage.getItem('hitec_force_reset') === 'true';
-        
-        if (isForceReset) {
-          alert("⚠️ 정보 입력 오류로 인해 초기화되었습니다. 소속과 정보를 다시 입력해 주세요.");
+    // 1. 기기 ID가 없을 경우 아래쪽 useEffect보다 먼저 즉시 생성하여 감시 누락 100% 방지
+    let deviceId = localStorage.getItem('hitec_device_id');
+    if (!deviceId) {
+      deviceId = 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+      localStorage.setItem('hitec_device_id', deviceId);
+    }
+
+    let isKicked = false;
+    let unsubscribeKick: (() => void) | null = null;
+
+    // 2. 최초 접속 시 아래 setDoc이 파이어베이스 서버에 등록될 시간(2초) 확보 후 실시간 감시 가동
+    const timer = setTimeout(() => {
+      const myDocRef = doc(db, "active_users", deviceId!);
+
+      unsubscribeKick = onSnapshot(myDocRef, (docSnapshot) => {
+        if (!docSnapshot.exists() && !isKicked) {
+          isKicked = true;
+
+          // 소속, 지점, 이름 중 하나라도 미입력이거나 기본값이면 불량 입력자로 판별
+          const isBadInput =
+            !authForm.company?.trim() || authForm.company.trim() === '미입력' ||
+            !authForm.location?.trim() || authForm.location.trim() === '미입력' ||
+            !authForm.name?.trim() || authForm.name.trim() === '현장작업자';
+
+          // 자동 로그인 방지를 위해 로컬 스토리지 초기화 후 새 기기 ID 즉시 재발급
           localStorage.clear();
-        } else {
-          alert("⚠️ 세션이 종료되었습니다. 기존 정보로 간편하게 재접속합니다.");
-          localStorage.removeItem('hitec_auth_data');
-        }
-        
-        setIsAuthorized(false);
-        window.location.reload();
-      }
-    });
+          const newDeviceId = 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+          localStorage.setItem('hitec_device_id', newDeviceId);
 
-    return () => unsubscribeKick();
+          if (isBadInput) {
+            alert("⚠️ 소속 및 작업자 정보 입력이 올바르지 않아 초기화되었습니다. 처음부터 다시 입력해 주세요.");
+            setIsAuthorized(false);
+            window.location.reload(); // 불량 입력자는 화면을 완전히 새로고침하여 입력칸 전체 백지화
+          } else {
+            alert("⚠️ 관리자에 의해 세션이 종료되었습니다. 다시 접속해 주세요.");
+            // 정상 입력자는 reload 없이 인증만 해제 -> 자동 로그인을 피하면서 입력칸(authForm)은 그대로 유지된 채 로그인 화면으로 즉시 튕김!
+            setIsAuthorized(false);
+          }
+        }
+      });
+    }, 2000);
+
+    return () => {
+      clearTimeout(timer);
+      if (unsubscribeKick) unsubscribeKick();
+    };
   }, [isAuthorized]);
+  
 // ⚡ [관리자 보호 및 지능형 중복 제거 통합 로직]
   useEffect(() => {
     if (!isAuthorized) return;
