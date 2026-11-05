@@ -561,12 +561,8 @@ await setDoc(myDocRef, {
       });
       const liveUsers = Array.from(userMap.values());
 
-      // 👑 [관리자 보호 로직] 내가 '관리자' 권한이거나 현장 총괄인 경우 리셋 감지되어도 안 튕김!
-      const isAdminUser = authForm.role === '관리자' || authForm.name?.includes('관리자') || localStorage.getItem('hitec_is_admin') === 'true';
-      
-      }
-
-      liveUsers.sort((a, b) => b.connectedAt - a.connectedAt);
+// 🛡️ [관리자 보호 로직]
+  const isAdminUser = authForm.role === '관리자' || authForm.name?.includes('관리자') || localStorage.getItem('hitec_is_admin') === 'true';      liveUsers.sort((a, b) => b.connectedAt - a.connectedAt);
       setAuthorizedUsers(liveUsers);
     });
 
