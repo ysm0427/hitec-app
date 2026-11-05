@@ -1224,7 +1224,7 @@ const handleCreatePost = async (e: React.FormEvent) => {
       if (viewingPost && viewingPost.id === postId) { const newDeleted = [...viewingPost.deletedImages]; newDeleted.splice(delIdx, 1); setViewingPost({ ...viewingPost, deletedImages: newDeleted }); }
   };
 
-// 🚀 파이어베이스 서버에 시편 등록하여 모든 기기에 즉시 공유
+// 🚀 파이어베이스 서버에 시편 등록 (작성자 고유 기기 ID 및 이름 박제)
   const saveToBoard = async () => {
       if(!targetColorCode) { 
           alert("⚠️ 컬러코드를 입력해야 합니다!"); 
@@ -1234,8 +1234,15 @@ const handleCreatePost = async (e: React.FormEvent) => {
           const now = new Date(); 
           const timeFormatted = `${registrationDate} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
           
-          const authorName = (typeof authForm !== 'undefined' && authForm?.name) ? authForm.name : '현장 작업자';
-          const authorLocation = (typeof authForm !== 'undefined' && authForm?.location) ? authForm.location : '지점';
+          const authorName = (typeof authForm !== 'undefined' && authForm?.name?.trim()) ? authForm.name.trim() : '현장 작업자';
+          const authorLocation = (typeof authForm !== 'undefined' && authForm?.location?.trim()) ? authForm.location.trim() : '지점';
+          const authorCompany = (typeof authForm !== 'undefined' && authForm?.company?.trim()) ? authForm.company.trim() : '소속';
+          
+          let myDeviceId = localStorage.getItem('hitec_device_id');
+          if (!myDeviceId) {
+              myDeviceId = 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+              localStorage.setItem('hitec_device_id', myDeviceId);
+          }
 
           const newPost = { 
               brand: carModel || '미지정', 
@@ -1244,6 +1251,10 @@ const handleCreatePost = async (e: React.FormEvent) => {
               likes: 0, 
               views: 0, 
               author: `${authorLocation} ${authorName}`, 
+              authorName: authorName,
+              authorLocation: authorLocation,
+              authorCompany: authorCompany,
+              authorDeviceId: myDeviceId,
               spec: specialNotes || '특이사항 없음', 
               baseFormula: JSON.parse(JSON.stringify(toners)), 
               pearlFormula: JSON.parse(JSON.stringify(pearlToners)), 
@@ -1268,27 +1279,56 @@ const handleCreatePost = async (e: React.FormEvent) => {
 
           await addDoc(collection(db, "community_posts"), newPost);
           setAttachedImages([]); 
-          alert("🎉 시편 데이터가 파이어베이스 서버에 등록되어 모든 작업자에게 실시간 공유되었습니다!");
+          alert("🎉 시편 데이터가 등록되었습니다! (본인 및 관리자만 삭제 가능)");
       } catch (err) {
           console.error("시편 등록 에러:", err);
           alert("시편 등록 중 오류가 발생했습니다.");
       }
   };
 
-// 🗑️ 파이어베이스 서버에서 시편 삭제
-const deleteBoardPost = async (id: any, e: React.MouseEvent) => { 
-    e.stopPropagation(); 
-    if (window.confirm("이 시편 데이터를 완전히 삭제하시겠습니까?")) {
-        try {
-            const postDocRef = doc(db, "community_posts", String(id));
-            await deleteDoc(postDocRef);
-            alert("시편이 삭제되었습니다.");
-        } catch (err) {
-            console.error("시편 삭제 에러:", err);
-            setBoardPosts(prev => prev.filter((post: any) => post.id !== id));
-        }
-    }
-};
+  // 🔒 [보안 잠금] 본인 또는 마스터 관리자(7777) 외 시편 삭제 원천 차단
+  const deleteBoardPost = async (id: any, e: React.MouseEvent) => { 
+      e.stopPropagation(); 
+      
+      const targetPost = boardPosts.find((post: any) => String(post.id) === String(id));
+      const myDeviceId = localStorage.getItem('hitec_device_id');
+      const myName = authForm?.name?.trim() || '';
+      const myLocation = authForm?.location?.trim() || '';
+      const myFullAuthor = `${myLocation} ${myName}`.trim();
+
+      const isMyPost = targetPost && (
+          (targetPost.authorDeviceId && targetPost.authorDeviceId === myDeviceId) ||
+          (!targetPost.authorDeviceId && myName && myName !== '현장작업자' && targetPost.author === myFullAuthor)
+      );
+
+      if (!isMyPost) {
+          const adminPw = prompt(
+              `⛔ [삭제 권한 제한]\n이 시편은 [${targetPost?.author || '다른 작업자'}] 님이 등록한 데이터입니다.\n\n본인이 등록한 게시물이 아니므로 삭제할 수 없습니다.\n(※ 최고 관리자이실 경우 마스터 비밀번호를 입력하세요)`
+          );
+          if (adminPw !== "7777") {
+              if (adminPw !== null) {
+                  alert("🚫 권한이 없거나 관리자 비밀번호가 일치하지 않아 삭제가 차단되었습니다.");
+              }
+              return;
+          }
+      } else {
+          if (!window.confirm("내가 등록한 시편 데이터를 완전히 삭제하시겠습니까?")) {
+              return;
+          }
+      }
+
+      try {
+          await deleteDoc(doc(db, "community_posts", String(id)));
+          setBoardPosts(prev => prev.filter((post: any) => String(post.id) !== String(id)));
+          if (viewingPost && String(viewingPost.id) === String(id)) {
+              setViewingPost(null);
+          }
+          alert("✅ 시편 데이터가 정상적으로 삭제되었습니다.");
+      } catch (err) {
+          console.error("시편 삭제 에러:", err);
+          alert("삭제 중 오류가 발생했습니다.");
+      }
+  };
   const handleSaveSnapshot = () => { const newSnapshot = { id: Date.now(), timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }), dateStr: new Date().toLocaleDateString('ko-KR'), base: JSON.parse(JSON.stringify(toners)), pearl: JSON.parse(JSON.stringify(pearlToners)), isThreeCoat: isThreeCoatMode, totalFinal: totalFinalWeight, isCandyCoat: isCandyCoatMode, candyCode, candyAdditive, candyClear, candyHardener, candyThinner, isClearCoat: isClearCoatMode, clearCode, clearWeight, hardenerCode, hardenerWeight, thinnerCode, thinnerWeight, isClearAutoCalc, clearRatioPreset }; setSnapshots(prev => [newSnapshot, ...prev]); alert(`[${newSnapshot.timestamp}] 데이터가 확정 저장되었습니다.`); };
   const restoreSnapshot = (snapshot: any) => { if (window.confirm("복원하시겠습니까?")) { setToners(JSON.parse(JSON.stringify(snapshot.base))); setPearlToners(JSON.parse(JSON.stringify(snapshot.pearl))); setIsThreeCoatMode(snapshot.isThreeCoat || false); setIsCandyCoatMode(snapshot.isCandyCoat || false); setCandyCode(snapshot.candyCode || ""); setCandyAdditive(snapshot.candyAdditive || "2.0"); setCandyClear(snapshot.candyClear || "100.0"); setCandyHardener(snapshot.candyHardener || "36.0"); setCandyThinner(snapshot.candyThinner || "6.0"); setIsClearCoatMode(snapshot.isClearCoat || false); setClearCode(snapshot.clearCode || "8055"); setClearWeight(snapshot.clearWeight || "100.0"); setHardenerCode(snapshot.hardenerCode || "3225"); setHardenerWeight(snapshot.hardenerWeight || "33.3"); setThinnerCode(snapshot.thinnerCode || "9034"); setThinnerWeight(snapshot.thinnerWeight || "13.3"); setIsClearAutoCalc(snapshot.isClearAutoCalc !== undefined ? snapshot.isClearAutoCalc : true); setClearRatioPreset(snapshot.clearRatioPreset || "3:1+10%"); setSelectedSnapshot(null); setIsSnapshotModalOpen(false); } };
   
