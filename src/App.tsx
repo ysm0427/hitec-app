@@ -483,7 +483,7 @@ export default function App() {
     }
   }, []);
 
-  // ⚡ [실시간 감시 및 자동 퇴장 처리] active_users 동기화
+// ⚡ [실시간 감시 및 자동 퇴장/리셋 동기화] active_users 감시
   useEffect(() => {
     if (!isAuthorized) return;
 
@@ -514,7 +514,7 @@ export default function App() {
 
     registerAndListen();
 
-    // 🔴 브라우저를 닫거나 탭을 종료할 때 active_users에서 즉시 삭제 (카운팅 실시간 제외)
+    // 🔴 브라우저를 닫거나 탭을 종료할 때 active_users에서 즉시 삭제
     const handleBeforeUnload = async () => {
       if (myDocRef) {
         try {
@@ -526,6 +526,7 @@ export default function App() {
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
 
+    // ⚡ 실시간 작업자 목록 수신 및 [전체 리셋 감지 시 강제 로그아웃]
     const unsubscribe = onSnapshot(collection(db, "active_users"), (snapshot) => {
       const liveUsers = snapshot.docs.map((docItem) => {
         const d = docItem.data();
@@ -541,6 +542,16 @@ export default function App() {
           connectedAt: Number(d.connectedAt || 0)
         };
       });
+
+      // 🚨 [핵심 방어선] 관리자가 명단을 전체 리셋(0명)시켰고, 내가 로그인된 상태라면? -> 즉시 튕겨냄!
+      if (liveUsers.length === 0 && isAuthorized) {
+        alert("🚨 [시스템 안내] 관리자에 의해 전체 작업자 명단이 리셋되었습니다!\n다시 접속하여 정보를 입력해 주세요.");
+        setIsAuthorized(false);
+        localStorage.removeItem('hitec_saved_auth_profile');
+        localStorage.removeItem('hitec_auth_data');
+        localStorage.removeItem('hitec_device_id');
+        window.location.reload(); // 새로고침하여 소속 입력창으로 강제 복귀
+      }
 
       liveUsers.sort((a, b) => b.connectedAt - a.connectedAt);
       setAuthorizedUsers(liveUsers);
