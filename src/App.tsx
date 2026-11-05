@@ -482,8 +482,6 @@ export default function App() {
       }
     }
   }, []);
-
-실시간 감시
   
 // 📋 현장 공유 게시판 실시간 동기화 (타입 에러 방어 코드 적용)
 useEffect(() => {
