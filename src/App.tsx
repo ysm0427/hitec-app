@@ -3292,7 +3292,6 @@ const handleCreatePost = async (e: React.FormEvent) => {
                             </div>
                             );
                })()}
-})()}
         </div>
       </div>
     </main>
