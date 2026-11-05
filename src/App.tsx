@@ -1370,8 +1370,8 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
       </div>
       {/* 브랜드 간 전환 게이트 (모바일/PC 공용) */}
       <div className="flex items-center gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700">
-        <button onClick={() => window.location.href = '#spieshecker'} className="bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow">🦅 헥커</button>
-        <button onClick={() => window.location.href = '#glasurit'} className="bg-emerald-600 text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow">🦜 글라슈리트</button>
+        <button onClick={() => window.location.href = 'https://hitec-1nalfnooo-ysm0427-1929s-projects.vercel.app'} className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow transition-colors">🦅 헥커</button>
+<button onClick={() => window.location.href = 'https://glasurit-pro-v2-2va8x70wv-ysm0427-1929s-projects.vercel.app'} className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow transition-colors">🦜 글라슈리트</button>
       </div>
     </div>
 
