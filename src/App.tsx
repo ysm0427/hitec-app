@@ -396,8 +396,6 @@ export default function App() {
   const [newPostContent, setNewPostContent] = useState("");
   const [newPostTitle, setNewPostTitle] = useState("");
 
-}, [isAuthorized]);
-
   const handleFakeApproval = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthFormValid) return; 
