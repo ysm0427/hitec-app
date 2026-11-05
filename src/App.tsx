@@ -545,6 +545,7 @@ await setDoc(myDocRef, {
           name: d.name || '이름없음',
           age: d.age || '미입력',
           role: d.role || '사원',
+          photo: d.photo || '',
           date: d.date || '기록없음',
           device: d.device || 'PC',
           connectedAt: Number(d.connectedAt || 0)
@@ -1307,6 +1308,24 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
     <option value="팀장">팀장</option>
 </select>
                       </div>
+                    <div className="mt-3">
+  <label className="text-xs font-bold text-slate-600 mb-1 block">프로필/현장 사진 첨부 (선택)</label>
+  <input 
+    type="file" 
+    accept="image/*" 
+    onChange={(e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setAuthForm(prev => ({ ...prev, photo: reader.result as string }));
+        };
+        reader.readAsDataURL(file);
+      }
+    }}
+    className="w-full border border-slate-300 p-2 rounded-lg text-xs text-slate-700 bg-white file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+  />
+</div>
                       {isApproving && (
                           <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex flex-col items-center justify-center gap-2">
                               <Loader2 className="animate-spin text-blue-600" size={24}/>
@@ -2065,11 +2084,40 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
                     <ChevronDown className="rotate-90"/> 목록으로 돌아가기
                   </button>
                   <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4 border-2 border-indigo-200 shadow-sm">
-                      <Users size={32}/>
-                    </div>
-                    <h4 className="text-xl font-black text-slate-800 mb-1">[{selectedUserInfo.branch}] {selectedUserInfo.name}</h4>
-                    <span className="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full mb-6 shadow-sm">{selectedUserInfo.role}</span>
+                    {/* 🌟 [추가/수정] 작업자 프로필 사진 표시 (사진이 있으면 사진, 없으면 기본 아이콘) */}
+  {selectedUserInfo.photo ? (
+    <img src={selectedUserInfo.photo} alt="프로필" className="w-20 h-20 rounded-full object-cover mb-4 border-2 border-indigo-500 shadow-md" />
+  ) : (
+    <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4 border-2 border-indigo-200 shadow-sm">
+      <Users size={32}/>
+    </div>
+  )}
+  <h4 className="text-xl font-black text-slate-800 mb-1">[{selectedUserInfo.branch}] {selectedUserInfo.name}</h4>
+  <span className="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full mb-3 shadow-sm">{selectedUserInfo.role}</span>
+
+  {/* 🚨 [추가/수정] 관리자 비밀번호(7777) 입력 시 해당 작업자만 즉시 개별 강퇴하는 버튼 */}
+  <button
+    onClick={async () => {
+      const pw = prompt(`[${selectedUserInfo.name}] 작업자를 강제 퇴장시키려면 관리자 비밀번호(7777)를 입력하세요:`);
+      if (pw === "7777") {
+        try {
+          if (selectedUserInfo.id) {
+            await deleteDoc(doc(db, "active_users", selectedUserInfo.id));
+          }
+          setAuthorizedUsers(prev => prev.filter(u => u.id !== selectedUserInfo.id));
+          setSelectedUserInfo(null);
+          alert("해당 작업자를 강제 퇴장(초기화) 처리했습니다.");
+        } catch (err) {
+          console.error("강퇴 오류:", err);
+        }
+      } else if (pw !== null) {
+        alert("비밀번호가 일치하지 않습니다.");
+      }
+    }}
+    className="mb-6 bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow transition-colors flex items-center gap-1.5"
+  >
+    🚨 이 작업자 강제 퇴장 (재입력 요구)
+  </button>
                     <div className="w-full flex flex-col gap-3 text-left">
                       <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
                         <span className="text-xs font-bold text-slate-500">소속 브랜드</span>
