@@ -483,6 +483,24 @@ export default function App() {
       }
     }
   }, []);
+  // 🛡️ [1번 항목] 관리자에 의해 강퇴(개별 삭제)당했을 때 본인 화면을 즉시 튕겨내는 세션 킬러 리스너
+  useEffect(() => {
+    if (!isAuthorized) return;
+    const deviceId = localStorage.getItem('hitec_device_id');
+    if (!deviceId) return;
+
+    // 파이어베이스 실시간 active_users 컬렉션을 감시하다가 내 기기 ID 문서가 사라지면 즉시 튕김
+    const unsubscribeKick = onSnapshot(doc(db, "active_users", deviceId), (docSnapshot) => {
+      if (!docSnapshot.exists()) {
+        alert("⚠️ 관리자에 의해 세션이 종료되었거나 강퇴되었습니다. 다시 인증해 주세요.");
+        localStorage.clear();
+        setIsAuthorized(false);
+        window.location.reload();
+      }
+    });
+
+    return () => unsubscribeKick();
+  }, [isAuthorized]);
 // ⚡ [관리자 보호 및 지능형 중복 제거 통합 로직]
   useEffect(() => {
     if (!isAuthorized) return;
