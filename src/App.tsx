@@ -1365,6 +1365,9 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
       <button onClick={() => setIsGlossaryModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-colors">
         📖 도장/조색 용어 사전
       </button>
+<button onClick={() => setIsBoardOpen(true)} className="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors">
+  🗂️ 시편 게시판
+</button>      
       <button onClick={() => window.location.reload()} className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors">
         🔄 업데이트
       </button>
@@ -1376,7 +1379,16 @@ const deleteBoardPost = async (id: any, e: React.MouseEvent) => {
     {/* Last Patch 정보 */}
     <div className="text-slate-400 font-medium flex items-center gap-2">
       <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono text-[10px]">Last Patch</span>
-      <span>2026.11.04 (V2.7 세션 타이머 & 패치 히스토리 패치)</span>
+     <span 
+  onClick={() => {
+    const historyText = PATCH_HISTORY.map(p => `[${p.version}] ${p.date}\n- ${p.title}\n: ${p.details}`).join('\n\n');
+    alert(`📜 [조색 Pro 패치 히스토리 전체 내역]\n\n${historyText}`);
+  }} 
+  className="cursor-pointer hover:text-white hover:underline transition-colors"
+  title="클릭하여 전체 패치 내역 보기"
+>
+  2026.11.04 (V2.7 세션 타이머 & 패치 히스토리 패치)
+</span>
     </div>
 
     {/* 접속 유지 상태 표시바 */}
