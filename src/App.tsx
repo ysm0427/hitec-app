@@ -482,7 +482,7 @@ export default function App() {
       }
     }
   }, []);
-// ⚡ [실시간 감시 및 세션/중복 방지 통합 로직 - 지능형 중복 제거형]
+// ⚡ [관리자 보호 및 지능형 중복 제거 통합 로직]
   useEffect(() => {
     if (!isAuthorized) return;
 
@@ -526,7 +526,6 @@ export default function App() {
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
 
-    // 📱 모바일 화면 전환/복귀 시 실시간 동기화 강제 깨우기
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && myDocRef) {
         registerAndListen();
@@ -550,7 +549,6 @@ export default function App() {
         };
       });
 
-      // 💡 [지능형 중복 제거 핵심 로직] 같은 지점 + 같은 이름이면 가장 최신 접속 시간 기록 1개만 인정!
       const userMap = new Map();
       rawUsers.forEach(u => {
         const key = `${u.branch}_${u.name}`;
@@ -560,8 +558,11 @@ export default function App() {
       });
       const liveUsers = Array.from(userMap.values());
 
-      // 🚨 전체 리셋 감지 시
-      if (rawUsers.length === 0 && isAuthorized) {
+      // 👑 [관리자 보호 로직] 내가 '관리자' 권한이거나 현장 총괄인 경우 리셋 감지되어도 안 튕김!
+      const isAdminUser = authForm.role === '관리자' || authForm.name?.includes('관리자') || localStorage.getItem('hitec_is_admin') === 'true';
+
+      // 🚨 전체 리셋 감지 시 (일반 작업자만 튕김, 관리자는 유지)
+      if (rawUsers.length === 0 && isAuthorized && !isAdminUser) {
         alert("🚨 [시스템 안내] 관리자에 의해 전체 작업자 명단이 리셋되었습니다!\n소속 정보는 그대로 유지되니 간편하게 재입장해 주세요.");
         setIsAuthorized(false);
         localStorage.removeItem('hitec_auth_data');
@@ -570,9 +571,9 @@ export default function App() {
         return;
       }
 
-      // 🚨 개별 튕김 감지 시
+      // 🚨 개별 튕김 감지 시 (일반 작업자만 해당)
       const myExists = snapshot.docs.some(docItem => docItem.id === deviceId);
-      if (!myExists && isAuthorized && isRegistered) {
+      if (!myExists && isAuthorized && isRegistered && !isAdminUser) {
         alert("🚨 [시스템 안내] 세션이 종료되었거나 관리자에 의해 퇴장되었습니다.");
         setIsAuthorized(false);
         localStorage.removeItem('hitec_auth_data');
@@ -590,7 +591,7 @@ export default function App() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       unsubscribe();
     };
-  }, [isAuthorized]);
+  }, [isAuthorized, authForm.role, authForm.name]);
 // 📋 현장 공유 게시판 실시간 동기화 (타입 에러 방어 코드 적용)
 useEffect(() => {
   const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
