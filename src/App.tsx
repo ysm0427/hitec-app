@@ -1286,11 +1286,11 @@ const handleCreatePost = async (e: React.FormEvent) => {
       }
   };
 
-  // 🔒 [보안 잠금] 본인 또는 마스터 관리자(7777) 외 시편 삭제 원천 차단
+// 🔒 [보안 잠금] 본인 또는 마스터 관리자 외 시편 삭제 원천 차단
   const deleteBoardPost = async (id: any, e: React.MouseEvent) => { 
       e.stopPropagation(); 
       
-      const targetPost = boardPosts.find((post: any) => String(post.id) === String(id));
+      const targetPost: any = boardPosts.find((post: any) => String(post.id) === String(id));
       const myDeviceId = localStorage.getItem('hitec_device_id');
       const myName = authForm?.name?.trim() || '';
       const myLocation = authForm?.location?.trim() || '';
@@ -1303,11 +1303,11 @@ const handleCreatePost = async (e: React.FormEvent) => {
 
       if (!isMyPost) {
           const adminPw = prompt(
-              `⛔ [삭제 권한 제한]\n이 시편은 [${targetPost?.author || '다른 작업자'}] 님이 등록한 데이터입니다.\n\n본인이 등록한 게시물이 아니므로 삭제할 수 없습니다.\n(※ 최고 관리자이실 경우 마스터 비밀번호를 입력하세요)`
+              `⛔ [삭제 권한 제한]\n이 시편은 [${targetPost?.author || '다른 작업자'}] 님이 등록한 데이터입니다.\n\n본인이 등록한 게시물이 아니므로 삭제할 수 없습니다.\n(※ 최고 관리자이실 경우 마스터 코드 입력)`
           );
           if (adminPw !== "7777") {
               if (adminPw !== null) {
-                  alert("🚫 권한이 없거나 관리자 비밀번호가 일치하지 않아 삭제가 차단되었습니다.");
+                  alert("🚫 권한이 없거나 마스터 코드가 일치하지 않아 삭제가 차단되었습니다.");
               }
               return;
           }
