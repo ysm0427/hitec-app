@@ -1090,18 +1090,19 @@ const handleCreatePost = async (e: React.FormEvent) => {
   };
 
 // 🗑️ 파이어베이스 서버에서 시편 삭제
-  const deleteBoardPost = async (id: any, e: React.MouseEvent) => { 
-      e.stopPropagation(); 
-      if (window.confirm("이 시편 데이터를 완전히 삭제하시겠습니까?")) {
-          try {
-              await deleteDoc(doc(db, "community_posts"), String(id));
-              alert("시편이 삭제되었습니다.");
-          } catch (err) {
-              console.error("시편 삭제 에러:", err);
-              setBoardPosts(prev => prev.filter((post: any) => post.id !== id));
-          }
-      }
-  };
+const deleteBoardPost = async (id: any, e: React.MouseEvent) => { 
+    e.stopPropagation(); 
+    if (window.confirm("이 시편 데이터를 완전히 삭제하시겠습니까?")) {
+        try {
+            const postDocRef = doc(db, "community_posts", String(id));
+            await deleteDoc(postDocRef);
+            alert("시편이 삭제되었습니다.");
+        } catch (err) {
+            console.error("시편 삭제 에러:", err);
+            setBoardPosts(prev => prev.filter((post: any) => post.id !== id));
+        }
+    }
+};
   const handleSaveSnapshot = () => { const newSnapshot = { id: Date.now(), timestamp: new Date().toLocaleTimeString('ko-KR', { hour12: false }), dateStr: new Date().toLocaleDateString('ko-KR'), base: JSON.parse(JSON.stringify(toners)), pearl: JSON.parse(JSON.stringify(pearlToners)), isThreeCoat: isThreeCoatMode, totalFinal: totalFinalWeight, isCandyCoat: isCandyCoatMode, candyCode, candyAdditive, candyClear, candyHardener, candyThinner, isClearCoat: isClearCoatMode, clearCode, clearWeight, hardenerCode, hardenerWeight, thinnerCode, thinnerWeight, isClearAutoCalc, clearRatioPreset }; setSnapshots(prev => [newSnapshot, ...prev]); alert(`[${newSnapshot.timestamp}] 데이터가 확정 저장되었습니다.`); };
   const restoreSnapshot = (snapshot: any) => { if (window.confirm("복원하시겠습니까?")) { setToners(JSON.parse(JSON.stringify(snapshot.base))); setPearlToners(JSON.parse(JSON.stringify(snapshot.pearl))); setIsThreeCoatMode(snapshot.isThreeCoat || false); setIsCandyCoatMode(snapshot.isCandyCoat || false); setCandyCode(snapshot.candyCode || ""); setCandyAdditive(snapshot.candyAdditive || "2.0"); setCandyClear(snapshot.candyClear || "100.0"); setCandyHardener(snapshot.candyHardener || "36.0"); setCandyThinner(snapshot.candyThinner || "6.0"); setIsClearCoatMode(snapshot.isClearCoat || false); setClearCode(snapshot.clearCode || "8055"); setClearWeight(snapshot.clearWeight || "100.0"); setHardenerCode(snapshot.hardenerCode || "3225"); setHardenerWeight(snapshot.hardenerWeight || "33.3"); setThinnerCode(snapshot.thinnerCode || "9034"); setThinnerWeight(snapshot.thinnerWeight || "13.3"); setIsClearAutoCalc(snapshot.isClearAutoCalc !== undefined ? snapshot.isClearAutoCalc : true); setClearRatioPreset(snapshot.clearRatioPreset || "3:1+10%"); setSelectedSnapshot(null); setIsSnapshotModalOpen(false); } };
   
