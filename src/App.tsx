@@ -3652,7 +3652,7 @@ const handleCreatePost = async (e: React.FormEvent) => {
                   아직 전송된 메시지가 없습니다.<br/>첫 메시지를 남겨보세요!
                 </div>
               )}
-{/* 실시간 현장 톡방 모달 창 전체 (완벽 무결점 격리 버전) */}
+{/* 실시간 현장 톡방 모달 창 전체 (최종 무결점 안전 버전) */}
 {isChatOpen && (
   <div className="fixed inset-0 bg-slate-900/80 z-[4000] flex justify-end animate-in fade-in">
     <div className="bg-white w-full sm:w-[400px] h-full shadow-2xl flex flex-col slide-in-from-right-full duration-300">
@@ -3669,18 +3669,24 @@ const handleCreatePost = async (e: React.FormEvent) => {
           chatMessages.map((msg: any) => {
             const isMe = msg.sender?.includes(authForm.name);
             
-            // 🕒 연-월-일 시:분:초 정밀 타임스탬프
+            // 🕒 백틱 충돌 없는 안전한 연-월-일 시:분:초 포맷팅
             const d = new Date(msg.createdAt || msg.timestamp || Date.now());
-            const timeString = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const h = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            const s = String(d.getSeconds()).padStart(2, '0');
+            const timeString = y + "-" + m + "-" + day + " " + h + ":" + min + ":" + s;
 
             return (
-              <div key={msg.id} className={`flex flex-col max-w-[85%] ${isMe ? 'self-end items-end' : 'self-start items-start'} group mb-2`}>
+              <div key={msg.id} className="flex flex-col max-w-[85%] mb-2" style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <span className="text-[10px] text-slate-500 font-bold">{msg.role}</span>
                   <span className="text-[9px] text-slate-400">{timeString}</span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <div className={`p-3 rounded-xl shadow-sm text-sm font-bold ${isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}>
+                <div className="flex items-center gap-1.5 group">
+                  <div className="p-3 rounded-xl shadow-sm text-sm font-bold" style={{ backgroundColor: isMe ? '#2563eb' : '#ffffff', color: isMe ? '#ffffff': '#1e293b', border: isMe ? 'none' : '1px solid #cbd5e1', borderTopRightRadius: isMe ? '0px' : '0.75rem', borderTopLeftRadius: isMe ? '0.75rem' : '0px' }}>
                     {msg.text}
                   </div>
                   
@@ -3701,7 +3707,7 @@ const handleCreatePost = async (e: React.FormEvent) => {
                       }
 
                       try {
-                        const updatedMessages = chatMessages.filter((m: any) => m.id !== msg.id);
+                        const updatedMessages = chatMessages.filter((item: any) => item.id !== msg.id);
                         await setDoc(doc(db, "chats", "main_room"), { messages: updatedMessages }, { merge: true });
                         setChatMessages(updatedMessages);
                       } catch (err) {
