@@ -1539,89 +1539,23 @@ const handleCreatePost = async (e: React.FormEvent) => {
         </div>
 
 {/* 💡 [2단 영역] 패치 히스토리 클릭 시 전체 내역 확인 영역 */}
-<div className="text-slate-400 font-medium flex items-center gap-2">
-            <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono text-[10px]">Last Patch</span>
-            <span
-              onClick={() => {
-                const existing = document.getElementById("custom-patch-modal");
-                if (existing) existing.remove();
-
-                const overlay = document.createElement("div");
-                overlay.id = "custom-patch-modal";
-                overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;";
-                overlay.onclick = function(e) {
-                  if (e.target === overlay) overlay.remove();
-                };
-
-                const modal = document.createElement("div");
-                modal.style.cssText = "background:#0f172a;color:#f8fafc;border:1px solid #334155;border-radius:16px;width:100%;max-width:960px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,0.8);overflow:hidden;font-family:sans-serif;";
-
-                const header = document.createElement("div");
-                header.style.cssText = "padding:14px 20px;background:#1e293b;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center;gap:12px;";
-
-                const titleBox = document.createElement("div");
-                titleBox.style.cssText = "display:flex;align-items:center;gap:8px;flex-wrap:wrap;";
-
-                const badge = document.createElement("span");
-                badge.style.cssText = "background:#0f172a;color:#cbd5e1;padding:3px 8px;border-radius:6px;font-family:monospace;font-size:11px;font-weight:bold;border:1px solid #475569;";
-                badge.textContent = "Last Patch";
-
-                const titleText = document.createElement("span");
-                titleText.style.cssText = "color:#ffffff;font-weight:800;font-size:14px;";
-                titleText.textContent = LAST_PATCH_DATE;
-
-                titleBox.appendChild(badge);
-                titleBox.appendChild(titleText);
-
-                const closeTopBtn = document.createElement("button");
-                closeTopBtn.textContent = "✕";
-                closeTopBtn.style.cssText = "background:transparent;border:none;color:#94a3b8;font-size:18px;font-weight:bold;cursor:pointer;padding:4px 8px;";
-                closeTopBtn.onclick = function() { overlay.remove(); };
-
-                header.appendChild(titleBox);
-                header.appendChild(closeTopBtn);
-
-                const body = document.createElement("div");
-                body.style.cssText = "padding:16px 20px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:10px;";
-
-                PATCH_HISTORY.forEach(function(p) {
-                  const item = document.createElement("div");
-                  item.style.cssText = "background:#1e293b;border:1px solid #334155;border-radius:10px;padding:10px 14px;";
-
-                  const itemTitle = document.createElement("div");
-                  itemTitle.style.cssText = "font-weight:bold;color:#34d399;margin-bottom:4px;font-size:13px;";
-                  itemTitle.textContent = "[" + p.version + "] " + p.date + " - " + p.title;
-
-                  const itemDetails = document.createElement("div");
-                  itemDetails.style.cssText = "color:#cbd5e1;white-space:pre-wrap;font-size:12px;line-height:1.45;";
-                  itemDetails.textContent = p.details;
-
-                  item.appendChild(itemTitle);
-                  item.appendChild(itemDetails);
-                  body.appendChild(item);
-                });
-
-                const footer = document.createElement("div");
-                footer.style.cssText = "padding:12px 20px;background:#1e293b;border-top:1px solid #334155;display:flex;justify-content:flex-end;";
-
-                const confirmBtn = document.createElement("button");
-                confirmBtn.textContent = "확인";
-                confirmBtn.style.cssText = "background:#10b981;color:#ffffff;border:none;border-radius:8px;padding:8px 24px;font-weight:bold;font-size:13px;cursor:pointer;";
-                confirmBtn.onclick = function() { overlay.remove(); };
-
-                footer.appendChild(confirmBtn);
-                modal.appendChild(header);
-                modal.appendChild(body);
-                modal.appendChild(footer);
-                overlay.appendChild(modal);
-                document.body.appendChild(overlay);
-              }}
-              className="cursor-pointer hover:text-white hover:underline transition-colors font-bold text-slate-300 text-xs"
-              title="클릭하여 전체 패치 내역 보기"
-            >
-              {LAST_PATCH_DATE}
-            </span>
-          </div>
+<div className="mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
+  <div className="text-slate-400 font-medium flex items-center gap-2">
+    <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono text-[10px]">Last Patch</span>
+    <span
+      onClick={() => {
+        const allText = PATCH_HISTORY.map(function(p) {
+          return "[" + p.version + "] " + p.date + " - " + p.title + "\n" + p.details;
+        }).join("\n\n====================\n\n");
+        
+        window.confirm("📜 [yun sung man Guide 전체 패치 히스토리]\n\n" + allText + "\n\n[확인]을 누르면 창을 닫습니다.");
+      }}
+      className="cursor-pointer hover:text-white hover:underline transition-colors font-bold text-slate-300 text-xs"
+      title="클릭하여 전체 패치 내역 보기"
+    >
+      {LAST_PATCH_DATE}
+    </span>
+  </div>
 
     {/* 접속 유지 상태 표시바 */}
     <div className="bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2 shadow-inner">
