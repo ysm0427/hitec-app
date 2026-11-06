@@ -3652,7 +3652,7 @@ const handleCreatePost = async (e: React.FormEvent) => {
                   아직 전송된 메시지가 없습니다.<br/>첫 메시지를 남겨보세요!
                 </div>
               )}
-{/* 실시간 현장 톡방 모달 창 전체 (최종 무결점 안전 버전) */}
+{/* 실시간 현장 톡방 모달 창 전체 (인라인 함수 제거 및 완벽 분리 버전) */}
 {isChatOpen && (
   <div className="fixed inset-0 bg-slate-900/80 z-[4000] flex justify-end animate-in fade-in">
     <div className="bg-white w-full sm:w-[400px] h-full shadow-2xl flex flex-col slide-in-from-right-full duration-300">
@@ -3669,7 +3669,7 @@ const handleCreatePost = async (e: React.FormEvent) => {
           chatMessages.map((msg: any) => {
             const isMe = msg.sender?.includes(authForm.name);
             
-            // 🕒 백틱 충돌 없는 안전한 연-월-일 시:분:초 포맷팅
+            // 🕒 연-월-일 시:분:초 포맷팅
             const d = new Date(msg.createdAt || msg.timestamp || Date.now());
             const y = d.getFullYear();
             const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -3678,6 +3678,31 @@ const handleCreatePost = async (e: React.FormEvent) => {
             const min = String(d.getMinutes()).padStart(2, '0');
             const s = String(d.getSeconds()).padStart(2, '0');
             const timeString = y + "-" + m + "-" + day + " " + h + ":" + min + ":" + s;
+
+            // 🗑️ 독립된 메시지 삭제 핸들러 함수
+            const handleMsgDelete = async () => {
+              const myDeviceId = localStorage.getItem('hitec_device_id');
+              const isMyMsg = msg.senderDeviceId === myDeviceId || (authForm?.name && msg.sender?.includes(authForm.name));
+              
+              if (!isMyMsg) {
+                const pw = prompt("⛔ [관리자 권한 요청]\n다른 작업자의 메시지입니다. 삭제하려면 관리자 코드를 입력하세요:");
+                if (pw !== "7777") {
+                  if (pw !== null) alert("🚫 관리자 코드가 일치하지 않습니다.");
+                  return;
+                }
+              } else {
+                if (!window.confirm("이 메시지를 삭제하시겠습니까?")) return;
+              }
+
+              try {
+                const updatedMessages = chatMessages.filter((item: any) => item.id !== msg.id);
+                await setDoc(doc(db, "chats", "main_room"), { messages: updatedMessages }, { merge: true });
+                setChatMessages(updatedMessages);
+              } catch (err) {
+                console.error("메시지 삭제 에러:", err);
+                alert("삭제 중 오류가 발생했습니다.");
+              }
+            };
 
             return (
               <div key={msg.id} className="flex flex-col max-w-[85%] mb-2" style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
@@ -3690,32 +3715,11 @@ const handleCreatePost = async (e: React.FormEvent) => {
                     {msg.text}
                   </div>
                   
-                  {/* 🗑️ 삭제 버튼 (본인: 바로 삭제 / 남의 글: 관리자 7777 프롬프트) */}
+                  {/* 🗑️ 독립 함수를 호출하는 깔끔한 삭제 버튼 */}
                   <button 
-                    onClick={async () => {
-                      const myDeviceId = localStorage.getItem('hitec_device_id');
-                      const isMyMsg = msg.senderDeviceId === myDeviceId || (authForm?.name && msg.sender?.includes(authForm.name));
-                      
-                      if (!isMyMsg) {
-                        const pw = prompt("⛔ [관리자 권한 요청]\n다른 작업자의 메시지입니다. 삭제하려면 관리자 코드를 입력하세요:");
-                        if (pw !== "7777") {
-                          if (pw !== null) alert("🚫 관리자 코드가 일치하지 않습니다.");
-                          return;
-                        }
-                      } else {
-                        if (!window.confirm("이 메시지를 삭제하시겠습니까?")) return;
-                      }
-
-                      try {
-                        const updatedMessages = chatMessages.filter((item: any) => item.id !== msg.id);
-                        await setDoc(doc(db, "chats", "main_room"), { messages: updatedMessages }, { merge: true });
-                        setChatMessages(updatedMessages);
-                      } catch (err) {
-                        console.error("메시지 삭제 에러:", err);
-                        alert("삭제 중 오류가 발생했습니다.");
-                      }
-                    }} 
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-500 text-xs px-1"
+                    type="button"
+                    onClick={handleMsgDelete} 
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-500 text-xs px-1 cursor-pointer"
                     title="메시지 삭제"
                   >
                     🗑️
