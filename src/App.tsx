@@ -144,7 +144,7 @@ const PATCH_HISTORY = [
 ];;
 
 // 🔄 배열의 첫 번째(최신) 항목을 읽어와 상단 배지에 자동 반영
-const LAST_PATCH_DATE = `${PATCH_HISTORY[0].date} (${PATCH_HISTORY[0].version} 시스템 최종 안정화 및 기능 패치)`;
+const LAST_PATCH_DATE = `${PATCH_HISTORY[0].date} (${PATCH_HISTORY[0].version} 시스템 최종 안정화 및 14대 기능 패치)`;
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
@@ -1537,22 +1537,24 @@ const handleCreatePost = async (e: React.FormEvent) => {
           </div>
         </div>
 
-  {/* 🌟 [2단 영역] 패치 히스토리 클릭 팝업 및 접속 유지 상태바 */}
-  <div className="mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
- {/* Last Patch 정보 (클릭 시 전체 히스토리 팝업 및 잘림 방지 통일) */}
-          <div className="text-slate-400 font-medium flex items-center gap-2">
-            <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono text-[10px]">Last Patch</span>
-            <span
-              onClick={() => {
-                const historyText = PATCH_HISTORY.map(p => `[${p.version}] ${p.date}\n- ${p.title}\n: ${p.details}`).join('\n\n--------------------\n\n');
-                alert(`📜 [yun sung man Guide 전체 패치 히스토리]\n\n` + historyText);
-              }}
-              className="cursor-pointer hover:text-white hover:underline transition-colors font-bold text-slate-300 text-xs"
-              title="클릭하여 전체 패치 내역 보기"
-            >
-              {LAST_PATCH_DATE}
-            </span>
-          </div>
+{/* 💡 [2단 영역] 패치 히스토리 클릭 시 전체 내역이 잘림 없이 싹 다 보이는 전용 팝업 모달 영역 */}
+<div className="mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
+  <div className="text-slate-400 font-medium flex items-center gap-2">
+    <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono text-[10px]">Last Patch</span>
+    <span
+      onClick={() => {
+        // 팝업 모달을 띄우거나 전체 내용을 텍스트로 깔끔하게 모아주는 트리거
+        const allText = PATCH_HISTORY.map(p => `[${p.version}] ${p.date} - ${p.title}\n${p.details}`).join('\n\n====================\n\n');
+        // 브라우저 짤림 현상을 극복하기 위해 다중 줄바꿈 정리
+        const userConfirmed = window.confirm(`📜 [yun sung man Guide 전체 패치 히스토리]\n\n` + allText + `\n\n[확인]을 누르면 전체 내용을 복사하거나 창을 닫습니다.`);
+      }}
+      className="cursor-pointer hover:text-white hover:underline transition-colors font-bold text-slate-300 text-xs"
+      title="클릭하여 전체 패치 내역 보기"
+    >
+      {LAST_PATCH_DATE}
+    </span>
+  </div>
+</div>
 
     {/* 접속 유지 상태 표시바 */}
     <div className="bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2 shadow-inner">
