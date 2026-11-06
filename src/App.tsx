@@ -1539,20 +1539,20 @@ const handleCreatePost = async (e: React.FormEvent) => {
 
   {/* 🌟 [2단 영역] 패치 히스토리 클릭 팝업 및 접속 유지 상태바 */}
   <div className="mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
-    {/* Last Patch 정보 (클릭 시 전체 히스토리 팝업) */}
-    <div className="text-slate-400 font-medium flex items-center gap-2">
-      <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono text-[10px]">Last Patch</span>
-      <span 
-        onClick={() => {
-          const historyText = PATCH_HISTORY.map(p => `[${p.version}] ${p.date}\n- ${p.title}\n: ${p.details}`).join('\n\n');
-          alert(`📜 [yun sung man Guide 패치 히스토리]\n\n${historyText}`);
-        }} 
-        className="cursor-pointer hover:text-white hover:underline transition-colors font-bold text-slate-300"
-        title="클릭하여 전체 패치 내역 보기"
-      >
-        2026.11.04 (V2.7 세션 타이머 & 패치 히스토리 패치)
-      </span>
-    </div>
+ {/* Last Patch 정보 (클릭 시 전체 히스토리 팝업 및 잘림 방지 통일) */}
+          <div className="text-slate-400 font-medium flex items-center gap-2">
+            <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono text-[10px]">Last Patch</span>
+            <span
+              onClick={() => {
+                const historyText = PATCH_HISTORY.map(p => `[${p.version}] ${p.date}\n- ${p.title}\n: ${p.details}`).join('\n\n--------------------\n\n');
+                alert(`📜 [yun sung man Guide 전체 패치 히스토리]\n\n` + historyText);
+              }}
+              className="cursor-pointer hover:text-white hover:underline transition-colors font-bold text-slate-300 text-xs"
+              title="클릭하여 전체 패치 내역 보기"
+            >
+              {LAST_PATCH_DATE}
+            </span>
+          </div>
 
     {/* 접속 유지 상태 표시바 */}
     <div className="bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2 shadow-inner">
