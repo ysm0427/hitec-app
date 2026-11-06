@@ -141,10 +141,11 @@ const PATCH_HISTORY = [
     title: "조색 Pro 통합 시스템 초기 구축",
     details: "멀티 브랜드 조색 데이터베이스 구축 및 실시간 현장 연동 기반 마련"
   }
-];;
+];
 
 // 🔄 배열의 첫 번째(최신) 항목을 읽어와 상단 배지에 자동 반영
-const LAST_PATCH_DATE = `${PATCH_HISTORY[0].date} (${PATCH_HISTORY[0].version} 시스템 최종 안정화 및 14대 기능 패치)`;
+
+const LAST_PATCH_DATE = "2026.11.06 (V2.9 시스템 최종 안정화 및 14대 기능 패치)";
 
 const GUIDE_IMAGES: Record<string, any[]> = {
   theory: [
