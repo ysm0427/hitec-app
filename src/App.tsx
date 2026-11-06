@@ -1315,7 +1315,7 @@ const handleCreatePost = async (e: React.FormEvent) => {
 
       if (!isMyPost) {
           const adminPw = prompt(
-              `⛔ [삭제 권한 제한]\n이 시편은 [${targetPost?.author || '다른 작업자'}] 님이 등록한 데이터입니다.\n\n본인이 등록한 게시물이 아니므로 삭제할 수 없습니다.\n(※ 최고 관리자이실 경우 마스터 코드 입력)`
+              `⛔ [삭제 권한 제한]\n본 시편은 [${targetPost?.author || '다른 작업자'}] 님이 등록한 데이터입니다.\n\n본인이 등록한 게시물이 아니므로 삭제할 수 없습니다.\n(※ 최고 관리자일 경우 마스터 코드 입력)`
           );
           if (adminPw !== "7777") {
               if (adminPw !== null) {
@@ -3316,7 +3316,6 @@ const handleCreatePost = async (e: React.FormEvent) => {
                     </div>
                     <div className="mt-8 flex justify-end pt-4 border-t border-slate-200">
 <button onClick={(e) => { deleteBoardPost(viewingPost.id, e); setViewingPost(null); }} className="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold border border-red-200 hover:bg-red-100 flex items-center gap-1.5 transition-colors shadow-sm">🗑️ 삭제하기</button>
-```[cite: 15]
                     </div>
                 </div>
            </div>
