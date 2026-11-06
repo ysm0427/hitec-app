@@ -1468,7 +1468,6 @@ const handleCreatePost = async (e: React.FormEvent) => {
             </div>
             {/* 브랜드 간 전환 게이트 및 나이트 모드 버튼 (모바일/PC 공용) */}
             <div className="flex items-center gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700">
-              <button onClick={() => window.location.href = 'https://hitec-1nalfnooo-ysm0427-1929s-projects.vercel.app'} className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow transition-colors">🦅 헥커</button>
               <button onClick={() => window.location.href = 'https://glasurit-pro-v2-2va8x70wv-ysm0427-1929s-projects.vercel.app'} className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow transition-colors">🦜 글라슈리트</button>
               <button
                 onClick={toggleLightMode}
@@ -3653,8 +3652,9 @@ const handleCreatePost = async (e: React.FormEvent) => {
                   아직 전송된 메시지가 없습니다.<br/>첫 메시지를 남겨보세요!
                 </div>
               )}
-{chat.messages && chat.messages.map((msg: any) => {
+{chatMessages && chatMessages.map((msg: any) => {
     const isMe = msg.sender?.includes(authForm.name);
+    
     // 🕒 년-월-일 시:분:초 정밀 포맷 변환 함수
     const formatMsgTime = (timestamp: any) => {
         if (!timestamp) return '';
@@ -3684,7 +3684,6 @@ const handleCreatePost = async (e: React.FormEvent) => {
         }
 
         try {
-            // 파이어베이스 톡방 메시지 배열에서 해당 메시지 제거 로직
             const updatedMessages = chatMessages.filter((m: any) => m.id !== msgId);
             await setDoc(doc(db, "chats", "main_room"), { messages: updatedMessages }, { merge: true });
             setChatMessages(updatedMessages);
@@ -3704,7 +3703,6 @@ const handleCreatePost = async (e: React.FormEvent) => {
                 <div className={`p-3 rounded-xl shadow-sm text-sm font-bold ${isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}>
                     {msg.text}
                 </div>
-                {/* 🗑️ 본인 또는 관리자만 보이는 개별 삭제 버튼 */}
                 <button 
                     onClick={() => handleDeleteMessage(msg.id)} 
                     className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-500 text-xs px-1"
@@ -3716,7 +3714,6 @@ const handleCreatePost = async (e: React.FormEvent) => {
         </div>
     );
 })}
-```[cite: 15]
 
 이렇게 적용하시고 우측 상단 **`Commit changes`**를 누르시면, 톡방 메시지마다 **정밀한 시분초 시간**이 붙고 마우스 오버 시 나타나는 **삭제 버튼(`🗑️`)**을 통해 본인 글은 자유롭게, 남의 글은 관리자 코드(`7777`)를 통해 완벽하게 통제할 수 있게 됩니다[cite: 15]! 적용해 보시고 확인해 주세요 대표님!
             <form onSubmit={handleSendChatMessage} className="p-3 bg-white border-t border-slate-200 flex gap-2 shrink-0 pb-[env(safe-area-inset-bottom)]">
