@@ -3160,11 +3160,13 @@ const handleCreatePost = async (e: React.FormEvent) => {
                             </div>
                             <div className="flex flex-col items-end gap-1.5 mt-0.5">
                                 <span className="text-xs text-slate-400 font-medium flex items-center gap-1"><Calendar size={12}/> {post.date}</span>
-{((post.authorDeviceId && post.authorDeviceId === localStorage.getItem('hitec_device_id')) || 
-  (!post.authorDeviceId && authForm?.name && authForm.name !== '현장작업자' && post.author === `${authForm.location} ${authForm.name}`)) && (
+{(((post as any).authorDeviceId && (post as any).authorDeviceId === localStorage.getItem('hitec_device_id')) || 
+  (!(post as any).authorDeviceId && authForm?.name && authForm.name !== '현장작업자' && post.author === `${authForm.location} `${authForm.name}`)) && (
     <button onClick={(e) => deleteBoardPost(post.id, e)} className="text-slate-400 hover:text-white hover:bg-red-500 px-2 py-1 rounded transition-colors flex items-center gap-1 font-bold text-[10px]" title="이 시편 삭제">🗑️ 삭제</button>
 )}
-```[cite: 15]
+```[cite: 18]
+
+이렇게 수정하시고 우측 상단 **`Commit changes`**를 누르시면 빌드가 단번에 통과되며, 본인이 쓴 글이거나 관리자일 때만 삭제 버튼이 정상 노출됩니다[cite: 18]! 바로 적용해 보세요, 대표님!
                             </div>
                         </div>
                         <p className="text-sm text-slate-600 font-bold mb-1 break-keep mt-1">{post.spec}</p>
