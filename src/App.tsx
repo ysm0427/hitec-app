@@ -644,11 +644,11 @@ await setDoc(myDocRef, {
     };
   }, [isAuthorized, authForm.role, authForm.name]);
 // 📋 현장 공유 게시판 실시간 동기화 (타입 에러 방어 코드 적용)
-useEffect(() => {
-  const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
-  const unsubscribe = onSnapshot(q, (snapshot) => {
-    const posts = snapshot.docs.map(docItem => ({ id: docItem.id, ...docItem.data() }));
-    setBoardPosts(posts as any);
+  useEffect(() => {
+    const q = collection(db, "community_posts");
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const posts = snapshot.docs.map(docItem => ({ id: docItem.id, ...docItem.data() })).sort((a: any, b: any) => Number(b.createdAt || b.timestamp || 0) - Number(a.createdAt || a.timestamp || 0));
+      setBoardPosts(posts as any);
   });
   return () => unsubscribe();
 }, []);
