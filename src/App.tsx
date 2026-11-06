@@ -480,9 +480,9 @@ export default function App() {
   };
 // 💬 실시간 채팅 메시지 동기화 (무한 루프 방지 최적화)
   useEffect(() => {
-    const q = query(collection(db, "chat_messages"), orderBy("createdAt", "asc"));
+    const q = collection(db, "chat_messages");
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const msgs = snapshot.docs.map(docItem => ({ id: docItem.id, ...docItem.data() }));
+      const msgs = snapshot.docs.map(docItem => ({ id: docItem.id, ...docItem.data() })).sort((a: any, b: any) => Number(a.createdAt || a.timestamp || 0) - Number(b.createdAt || b.timestamp || 0));
       setChatMessages(prev => {
         if (!isChatOpen && msgs.length > prev.length) {
           setUnreadChatCount(c => c + (msgs.length - prev.length));
