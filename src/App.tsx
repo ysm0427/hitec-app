@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { TONER_DB, shortcuts, PEARL_LEVELS, OEM_COLORS } from './tonerDB';
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, onSnapshot, getDoc } from "firebase/firestore";
 import ClearMixer from './components/ClearMixer';
 import ClearGuide from './components/ClearGuide';
 // Firebase 설정 및 초기화
@@ -3667,7 +3667,8 @@ const handleCreatePost = async (e: React.FormEvent) => {
       <div className="flex-1 overflow-y-auto p-4 bg-slate-50 flex flex-col gap-3 custom-scrollbar">
         {chatMessages && chatMessages.length > 0 ? (
           chatMessages.map((msg: any) => {
-            const isMe = msg.sender?.includes(authForm.name);
+                        const myId = getDeviceId();
+            const isMe = msg.senderDeviceId ? msg.senderDeviceId === myId : (!!authForm.name && !!msg.sender?.includes(authForm.name));
             
             // 🕒 연-월-일 시:분:초 포맷팅
             const d = new Date(msg.createdAt || msg.timestamp || Date.now());
@@ -3681,8 +3682,7 @@ const handleCreatePost = async (e: React.FormEvent) => {
 
             // 🗑️ 독립된 메시지 삭제 핸들러 함수
             const handleMsgDelete = async () => {
-              const myDeviceId = localStorage.getItem('hitec_device_id');
-              const isMyMsg = msg.senderDeviceId === myDeviceId || (authForm?.name && msg.sender?.includes(authForm.name));
+                          const isMyMsg = isMe;
               
               if (!isMyMsg) {
                 const pw = prompt("⛔ [관리자 권한 요청]\n다른 작업자의 메시지입니다. 삭제하려면 관리자 코드를 입력하세요:");
@@ -3695,8 +3695,11 @@ const handleCreatePost = async (e: React.FormEvent) => {
               }
 
               try {
-                const updatedMessages = chatMessages.filter((item: any) => item.id !== msg.id);
-                await setDoc(doc(db, "chats", "main_room"), { messages: updatedMessages }, { merge: true });
+                                const roomRef = doc(db, "chats", "main_room");
+                const snap = await getDoc(roomRef);
+                const latest: any[] = (snap.data() as any)?.messages || [];
+                const updatedMessages = latest.filter((item: any) => item.id !== msg.id);
+                await setDoc(roomRef, { messages: updatedMessages }, { merge: true });
                 setChatMessages(updatedMessages);
               } catch (err) {
                 console.error("메시지 삭제 에러:", err);
@@ -3719,7 +3722,7 @@ const handleCreatePost = async (e: React.FormEvent) => {
                   <button 
                     type="button"
                     onClick={handleMsgDelete} 
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-500 text-xs px-1 cursor-pointer"
+                                        className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-500 text-xs px-1 cursor-pointer"
                     title="메시지 삭제"
                   >
                     🗑️
