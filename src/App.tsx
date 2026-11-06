@@ -1556,7 +1556,6 @@ const handleCreatePost = async (e: React.FormEvent) => {
       {LAST_PATCH_DATE}
     </span>
   </div>
-</div>
 
     {/* 접속 유지 상태 표시바 */}
     <div className="bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2 shadow-inner">
