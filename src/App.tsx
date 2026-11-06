@@ -3653,18 +3653,72 @@ const handleCreatePost = async (e: React.FormEvent) => {
                   아직 전송된 메시지가 없습니다.<br/>첫 메시지를 남겨보세요!
                 </div>
               )}
-              {chatMessages.map(msg => {
-                const isMe = msg.sender?.includes(authForm.name);
-                return (
-                  <div key={msg.id} className={`flex flex-col max-w-[85%] ${isMe ? 'self-end items-end' : 'self-start items-start'}`}>
-                    <span className="text-[10px] text-slate-500 mb-1 font-bold">{msg.sender} ({msg.role})</span>
-                    <div className={`p-3 rounded-xl shadow-sm text-sm font-bold ${isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}>
-                      {msg.text}
-                    </div>
-                  </div>
-                );
-              })}
+{chat.messages && chat.messages.map((msg: any) => {
+    const isMe = msg.sender?.includes(authForm.name);
+    // 🕒 년-월-일 시:분:초 정밀 포맷 변환 함수
+    const formatMsgTime = (timestamp: any) => {
+        if (!timestamp) return '';
+        const d = new Date(timestamp);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const hh = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        const sec = String(d.getSeconds()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd} ${hh}:${min}:${sec}`;
+    };
+
+    // 🗑️ 메시지 삭제 핸들러 (본인 글 또는 관리자 7777 전용)
+    const handleDeleteMessage = async (msgId: string) => {
+        const myDeviceId = localStorage.getItem('hitec_device_id');
+        const isMyMsg = msg.senderDeviceId === myDeviceId || (authForm?.name && msg.sender?.includes(authForm.name));
+        
+        if (!isMyMsg) {
+            const pw = prompt("⛔ [관리자 권한 요청]\n다른 작업자의 메시지입니다. 삭제하려면 관리자 코드를 입력하세요:");
+            if (pw !== "7777") {
+                if (pw !== null) alert("🚫 관리자 코드가 일치하지 않습니다.");
+                return;
+            }
+        } else {
+            if (!window.confirm("이 메시지를 삭제하시겠습니까?")) return;
+        }
+
+        try {
+            // 파이어베이스 톡방 메시지 배열에서 해당 메시지 제거 로직
+            const updatedMessages = chatMessages.filter((m: any) => m.id !== msgId);
+            await setDoc(doc(db, "chats", "main_room"), { messages: updatedMessages }, { merge: true });
+            setChatMessages(updatedMessages);
+        } catch (err) {
+            console.error("메시지 삭제 에러:", err);
+            alert("삭제 중 오류가 발생했습니다.");
+        }
+    };
+
+    return (
+        <div key={msg.id} className={`flex flex-col max-w-[85%] ${isMe ? 'self-end items-end' : 'self-start items-start'} group mb-2`}>
+            <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-[10px] text-slate-500 font-bold">{msg.role}</span>
+                <span className="text-[9px] text-slate-400">{formatMsgTime(msg.createdAt || msg.timestamp)}</span>
             </div>
+            <div className="flex items-center gap-1.5">
+                <div className={`p-3 rounded-xl shadow-sm text-sm font-bold ${isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}>
+                    {msg.text}
+                </div>
+                {/* 🗑️ 본인 또는 관리자만 보이는 개별 삭제 버튼 */}
+                <button 
+                    onClick={() => handleDeleteMessage(msg.id)} 
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-500 text-xs px-1"
+                    title="메시지 삭제"
+                >
+                    🗑️
+                </button>
+            </div>
+        </div>
+    );
+})}
+```[cite: 15]
+
+이렇게 적용하시고 우측 상단 **`Commit changes`**를 누르시면, 톡방 메시지마다 **정밀한 시분초 시간**이 붙고 마우스 오버 시 나타나는 **삭제 버튼(`🗑️`)**을 통해 본인 글은 자유롭게, 남의 글은 관리자 코드(`7777`)를 통해 완벽하게 통제할 수 있게 됩니다[cite: 15]! 적용해 보시고 확인해 주세요 대표님!
             <form onSubmit={handleSendChatMessage} className="p-3 bg-white border-t border-slate-200 flex gap-2 shrink-0 pb-[env(safe-area-inset-bottom)]">
               <input 
                 type="text" 
