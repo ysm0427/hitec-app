@@ -3315,12 +3315,8 @@ const handleCreatePost = async (e: React.FormEvent) => {
                         )}
                     </div>
                     <div className="mt-8 flex justify-end pt-4 border-t border-slate-200">
-{(((viewingPost as any).authorDeviceId && (viewingPost as any).authorDeviceId === localStorage.getItem('hitec_device_id')) || 
-  (!(viewingPost as any).authorDeviceId && authForm?.name && authForm.name !== '현장작업자' && viewingPost.author === (authForm.location + ' ' + authForm.name))) && (
-    <button onClick={(e) => { deleteBoardPost(viewingPost.id, e); setViewingPost(null); }} className="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold border border-red-200 hover:bg-red-100 flex items-center gap-1.5 transition-colors shadow-sm">🗑️ 삭제하기</button>
-)}
-⛔ [삭제 권한 제한]※ 최고 관리자 마스터 코드 입력
-);
+<button onClick={(e) => { deleteBoardPost(viewingPost.id, e); setViewingPost(null); }} className="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold border border-red-200 hover:bg-red-100 flex items-center gap-1.5 transition-colors shadow-sm">🗑️ 삭제하기</button>
+```[cite: 15]
                     </div>
                 </div>
            </div>
