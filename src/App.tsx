@@ -3319,8 +3319,8 @@ const handleCreatePost = async (e: React.FormEvent) => {
   (!(viewingPost as any).authorDeviceId && authForm?.name && authForm.name !== '현장작업자' && viewingPost.author === (authForm.location + ' ' + authForm.name))) && (
     <button onClick={(e) => { deleteBoardPost(viewingPost.id, e); setViewingPost(null); }} className="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold border border-red-200 hover:bg-red-100 flex items-center gap-1.5 transition-colors shadow-sm">🗑️ 삭제하기</button>
 )}
-```[cite: 16]]
-
+`⛔ [삭제 권한 제한]\n본인 또는 관리자 외에는 삭제할 수 없습니다!\n(※ 최고 관리자 마스터 코드 입력)`
+);
                     </div>
                 </div>
            </div>
