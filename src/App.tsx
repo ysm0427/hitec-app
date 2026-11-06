@@ -3160,7 +3160,11 @@ const handleCreatePost = async (e: React.FormEvent) => {
                             </div>
                             <div className="flex flex-col items-end gap-1.5 mt-0.5">
                                 <span className="text-xs text-slate-400 font-medium flex items-center gap-1"><Calendar size={12}/> {post.date}</span>
-                                <button onClick={(e) => deleteBoardPost(post.id, e)} className="text-slate-400 hover:text-white hover:bg-red-500 px-2 py-1 rounded transition-colors flex items-center gap-1 font-bold text-[10px]" title="이 시편 삭제하기"><Trash2 size={12} /> 전체 삭제</button>
+{((post.authorDeviceId && post.authorDeviceId === localStorage.getItem('hitec_device_id')) || 
+  (!post.authorDeviceId && authForm?.name && authForm.name !== '현장작업자' && post.author === `${authForm.location} ${authForm.name}`)) && (
+    <button onClick={(e) => deleteBoardPost(post.id, e)} className="text-slate-400 hover:text-white hover:bg-red-500 px-2 py-1 rounded transition-colors flex items-center gap-1 font-bold text-[10px]" title="이 시편 삭제">🗑️ 삭제</button>
+)}
+```[cite: 15]
                             </div>
                         </div>
                         <p className="text-sm text-slate-600 font-bold mb-1 break-keep mt-1">{post.spec}</p>
