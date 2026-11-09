@@ -1558,11 +1558,7 @@ const handleCreatePost = async (e: React.FormEvent) => {
 <div className="mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
  <div className="text-slate-400 font-medium flex items-center gap-2">
             <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono text-[10px]">Last Patch</span>
-            <span
-              onClick={() => setIsProcessOpen(true)}
-              className="cursor-pointer hover:text-white hover:underline transition-colors font-bold text-slate-300 text-xs"
-              title="클릭하여 제작 과정 및 전체 패치 내역 보기"
-            >
+            <span className="font-bold text-slate-300 text-xs">
               {LAST_PATCH_DATE}
             </span>
           </div>
