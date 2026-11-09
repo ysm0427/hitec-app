@@ -3075,6 +3075,13 @@ if (masterKey === "7777") {
       )}
             
             <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-[#0f172a]">
+                    {isSnapshotModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#1e293b] rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-700">
+            <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-slate-900 shrink-0">
+              <h3 className="text-white font-bold flex items-center gap-2"><History size={18} className="text-blue-400" /> 현재 페이지 데이터 수정 내역 보기</h3>
+              <button onClick={() => setIsSnapshotModalOpen(false)} className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"><X size={16} /></button>
+            </div>
                 <div className={`w-full md:w-1/3 border-b md:border-b-0 md:border-r border-slate-700/50 overflow-y-auto bg-slate-900/50 flex-col custom-scrollbar ${selectedSnapshot ? 'hidden md:flex' : 'flex'}`}>
                     {snapshots.length === 0 ? ( <div className="p-6 text-center text-slate-500 text-sm">확정된 기록이 없습니다.</div> ) : (
                         snapshots.map((snap, idx) => (
@@ -3193,6 +3200,9 @@ if (masterKey === "7777") {
         <History size={64} className="mb-4"/>
         <p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p>
     </div> 
+             </div>
+          </div>
+        </div>
 
 )}
       {isBoardOpen && (
