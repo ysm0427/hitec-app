@@ -3199,7 +3199,7 @@ if (masterKey === "7777") {
     <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
         <History size={64} className="mb-4"/>
         <p className="font-bold">왼쪽에서 확인하실 수정 내역을 선택해주세요.</p>
-    </div> 
+
              </div>
           </div>
         </div>
