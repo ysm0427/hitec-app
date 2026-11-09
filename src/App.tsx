@@ -3198,7 +3198,7 @@ if (masterKey === "7777") {
         </div>
       </div>
     </div>
-  )}
+
       {isBoardOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-slate-100 rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-300">
