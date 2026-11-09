@@ -1540,22 +1540,16 @@ const handleCreatePost = async (e: React.FormEvent) => {
 
 {/* 💡 [2단 영역] 패치 히스토리 클릭 시 전체 내역 확인 영역 */}
 <div className="mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
-  <div className="text-slate-400 font-medium flex items-center gap-2">
-    <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono text-[10px]">Last Patch</span>
-    <span
-      onClick={() => {
-        const allText = PATCH_HISTORY.map(function(p) {
-          return "[" + p.version + "] " + p.date + " - " + p.title + "\n" + p.details;
-        }).join("\n\n====================\n\n");
-        
-        window.confirm("📜 [yun sung man Guide 전체 패치 히스토리]\n\n" + allText + "\n\n[확인]을 누르면 창을 닫습니다.");
-      }}
-      className="cursor-pointer hover:text-white hover:underline transition-colors font-bold text-slate-300 text-xs"
-      title="클릭하여 전체 패치 내역 보기"
-    >
-      {LAST_PATCH_DATE}
-    </span>
-  </div>
+ <div className="text-slate-400 font-medium flex items-center gap-2">
+            <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono text-[10px]">Last Patch</span>
+            <span
+              onClick={() => setIsProcessOpen(true)}
+              className="cursor-pointer hover:text-white hover:underline transition-colors font-bold text-slate-300 text-xs"
+              title="클릭하여 제작 과정 및 전체 패치 내역 보기"
+            >
+              {LAST_PATCH_DATE}
+            </span>
+          </div>
 
     {/* 접속 유지 상태 표시바 */}
     <div className="bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2 shadow-inner">
@@ -2174,25 +2168,42 @@ const handleCreatePost = async (e: React.FormEvent) => {
                       onClick={async () => {
                         const masterKey = prompt("마스터 관리자 비밀번호를 입력하세요:\n(※ 비밀번호를 잊으셨다면 'help'를 입력하세요)");
                         
-                        if (masterKey === "7777") {
-                          if (window.confirm("🚨 [주의] 정말 서버의 모든 작업자 명단을 영구 삭제하시겠습니까?\n\n- 접속 중인 모든 모바일/PC 기기에 리셋 안내가 전송됩니다.\n- 기존 조색 데이터는 안전하게 보존됩니다.")) {
-                            try {
-                              // 1. 파이어베이스 서버(active_users)에 등록된 작업자 명단을 통째로 삭제
-                              const snapshot = await getDocs(collection(db, "active_users"));
-                              const deletePromises = snapshot.docs.map((docItem) => deleteDoc(doc(db, "active_users", docItem.id)));
-                              await Promise.all(deletePromises);
+if (masterKey === "7777") {
+                  if (window.confirm("🚨 [주의] 정말 본인을 제외한 모든 작업자 명단을 초기화하시겠습니까?\n\n- 접속 중인 다른 모든 모바일/PC 기기에 리셋 안내가 전송됩니다.\n- 기존 조색 데이터는 안전하게 보존됩니다.")) {
+                    try {
+                      const myDeviceId = localStorage.getItem('hitec_device_id');
+                      const myName = authForm.name?.trim();
+                      const myLocation = authForm.location?.trim();
 
-                              // 2. 내 기기의 로컬 저장소 및 상태 비우기
-                              localStorage.removeItem('hitec_auth_users');
-                              setAuthorizedUsers([]);
-                              
-                              alert("파이어베이스 서버와 모든 기기의 작업자 명단이 완벽하게 리셋되었습니다!");
-                            } catch (error) {
-                              console.error("서버 리셋 중 오류 발생:", error);
-                              alert("리셋 중 오류가 발생했습니다. 다시 시도해 주세요.");
-                            }
-                          }
-                        } 
+                      // 1. 파이어베이스 서버(active_users)에서 '리셋을 실행한 나 자신'만 제외하고 삭제
+                      const snapshot = await getDocs(collection(db, "active_users"));
+                      const targetDocs = snapshot.docs.filter((docItem) => {
+                        const data = docItem.data();
+                        const isMeById = myDeviceId && docItem.id === myDeviceId;
+                        const isMeByProfile = myName && data.name?.trim() === myName && (data.location?.trim() === myLocation || data.branch?.trim() === myLocation);
+                        return !(isMeById || isMeByProfile);
+                      });
+                      const deletePromises = targetDocs.map((docItem) => deleteDoc(doc(db, "active_users", docItem.id)));
+                      await Promise.all(deletePromises);
+
+                      // 2. 로컬 명단 상태에서도 '나 자신'만 남기고 나머지 비우기
+                      setAuthorizedUsers((prev) => {
+                        const onlyMe = prev.filter((u) => {
+                          const isMeById = myDeviceId && u.id === myDeviceId;
+                          const isMeByProfile = myName && u.name?.trim() === myName && (u.branch?.trim() === myLocation || u.location?.trim() === myLocation);
+                          return isMeById || isMeByProfile;
+                        });
+                        localStorage.setItem('hitec_auth_users', JSON.stringify(onlyMe));
+                        return onlyMe;
+                      });
+
+                      alert("리셋을 실행한 본인을 제외한 모든 기기의 작업자 명단이 완벽하게 리셋되었습니다!");
+                    } catch (error) {
+                      console.error("서버 리셋 중 오류 발생:", error);
+                      alert("리셋 중 오류가 발생했습니다. 다시 시도해 주세요.");
+                    }
+                  }
+                }
                         else if (masterKey === "help") {
                           const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=ysm0427@gmail.com&su=[조색Pro] 마스터 비밀번호 찾기 요청&body=마스터 비밀번호를 분실하여 임시 키 발송을 요청합니다. 접속 기기 및 관리자 확인을 부탁드립니다.`;
                           window.open(gmailUrl, '_blank');
@@ -2997,39 +3008,55 @@ const handleCreatePost = async (e: React.FormEvent) => {
         </div>
       )}
 
-      {isProcessOpen && (
-    <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white rounded-2xl w-[600px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[85vh]">
-        <div className="p-4 bg-slate-800 flex justify-between items-center text-white shrink-0">
-          <h3 className="font-bold flex items-center gap-2"><Code size={18} /> Glasurit & Spies Hecker Pro 제작 과정</h3>
-          <button onClick={() => setIsProcessOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
-        </div>
-        
-        <div className="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4 bg-slate-50">
-           {/* 🚨 제작 배경 및 법적 면책 고지 */}
-           <div className="bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm mb-4">
-               <h4 className="font-black text-red-700 text-sm mb-2">⚠️ 시스템 제작 배경 및 면책 고지</h4>
-               <p className="text-xs text-red-800 leading-relaxed font-bold break-keep">
-                   본 웹 어플리케이션(Pro)은 <strong>현장 도장 작업자들의 조색(Color Matching) 편의성과 데이터 관리에 도움을 주기 위한 순수 목적</strong>으로 개발되었습니다. <br/><br/>
-                   안료 특성 및 배합 데이터는 현장 실무와 제조사 가이드를 기반으로 작성되었으나, 실제 적용 시 환경에 따라 차이가 발생할 수 있습니다. <span className="underline">작업 전 반드시 공식 홈페이지 또는 기술지원팀에 문의하여 재확인</span>하시기 바라며, 본 시스템의 정보를 맹목적으로 활용하여 발생한 어떠한 결과 및 피해에 대해서도 <strong>개발자는 법적인 책임을 지지 않음</strong>을 명시합니다.
-               </p>
-           </div>
-           
-           <div className="overflow-y-auto space-y-6 text-slate-300 font-sans text-xs sm:text-[13px] leading-relaxed break-keep pr-2 custom-scrollbar">
-              <h4 className="text-slate-800 font-bold">1. Spies Hecker DB Architecture (진행 상황)</h4>
-              <p className="text-slate-600">현재 조색 관련 주요 알고리즘 및 데이터베이스 연동 작업이 순조롭게 진행 중입니다. 지속적인 업데이트를 통해 정확도를 높여가고 있습니다.</p>
-           </div>
-        </div>
-      </div>
-    </div>
-  )}
-{isSnapshotModalOpen && (
-        <div className="fixed inset-0 bg-slate-950/80 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1e293b] rounded-2xl w-[800px] max-w-full h-[85vh] shadow-2xl flex flex-col overflow-hidden border border-slate-700">
-            <div className="p-4 flex justify-between items-center border-b border-slate-700/50 bg-slate-900 shrink-0">
-              <h3 className="text-white font-bold flex items-center gap-2"><History size={18} className="text-blue-400" /> 현재 페이지 데이터 수정 내역 보기</h3>
-              <button onClick={() => setIsSnapshotModalOpen(false)} className="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full transition-colors"><X size={16} /></button>
+     {isProcessOpen && (
+        <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-[720px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[88vh]">
+            <div className="p-4 bg-slate-800 flex justify-between items-center text-white shrink-0">
+              <h3 className="font-bold flex items-center gap-2"><Code size={18} /> Glasurit & Spies Hecker Pro 제작 과정 및 패치 내역</h3>
+              <button onClick={() => setIsProcessOpen(false)} className="hover:text-red-200 transition-colors bg-slate-700 p-1.5 rounded-full"><X size={16} /></button>
             </div>
+            
+            <div className="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4 bg-slate-50">
+              {/* 🚨 제작 배경 및 법적 면책 고지 (기존 내용 100% 유지) */}
+              <div className="bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm mb-4">
+                <h4 className="font-black text-red-700 text-sm mb-2">⚠️ 시스템 제작 배경 및 면책 고지</h4>
+                <p className="text-xs text-red-800 leading-relaxed font-bold break-keep">
+                  본 웹 어플리케이션(Pro)은 <strong>현장 도장 작업자들의 조색(Color Matching) 편의성과 데이터 관리에 도움을 주기 위한 순수 목적</strong>으로 개발되었습니다. <br/><br/>
+                  안료 특성 및 배합 데이터는 현장 실무와 제조사 가이드를 기반으로 작성되었으나, 실제 적용 시 환경에 따라 차이가 발생할 수 있습니다. <span className="underline">작업 전 반드시 공식 홈페이지 또는 기술지원팀에 문의하여 재확인</span>하시기 바라며, 본 시스템의 정보를 맹목적으로 활용하여 발생한 어떠한 결과 및 피해에 대해서도 <strong>개발자는 법적인 책임을 지지 않음</strong>을 명시합니다.
+                </p>
+              </div>
+              
+              {/* 1. 기존 DB Architecture 안내 유지 */}
+              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2 text-xs sm:text-[13px] leading-relaxed break-keep">
+                <h4 className="text-slate-800 font-bold">1. Spies Hecker DB Architecture (진행 상황)</h4>
+                <p className="text-slate-600">현재 조색 관련 주요 알고리즘 및 데이터베이스 연동 작업이 순조롭게 진행 중입니다. 지속적인 업데이트를 통해 정확도를 높여가고 있습니다.</p>
+              </div>
+
+              {/* 2. 패치 히스토리 전체 내역 추가 (14개 이상 전체 표시) */}
+              <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-sm space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 pb-2.5">
+                  <h4 className="text-emerald-400 font-black text-sm">2. 시스템 패치 업데이트 히스토리</h4>
+                  <span className="bg-slate-800 text-slate-200 px-2.5 py-1 rounded font-mono text-[11px] font-bold border border-slate-600">
+                    {LAST_PATCH_DATE}
+                  </span>
+                </div>
+                <div className="space-y-2.5">
+                  {PATCH_HISTORY.map((p, idx) => (
+                    <div key={idx} className="bg-slate-800/90 border border-slate-700 rounded-lg p-3">
+                      <div className="font-bold text-emerald-300 text-xs sm:text-[13px] mb-1">
+                        [{p.version}] {p.date} - {p.title}
+                      </div>
+                      <div className="text-slate-300 text-xs leading-relaxed whitespace-pre-wrap break-keep">
+                        {p.details}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
             
             <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-[#0f172a]">
                 <div className={`w-full md:w-1/3 border-b md:border-b-0 md:border-r border-slate-700/50 overflow-y-auto bg-slate-900/50 flex-col custom-scrollbar ${selectedSnapshot ? 'hidden md:flex' : 'flex'}`}>
