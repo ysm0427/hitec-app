@@ -540,7 +540,7 @@ export default function App() {
       }
     }
   }, []);
-// 🛡️ [1번 항목 완벽 패치] 100% 작동 보장 무결점 강퇴 세션 킬러 리스너
+// 🛡️ [1번 항목 완벽 패치] 새로고침(업데이트) 시 튕김 방지 및 강퇴 시에만 작동하는 세션 킬러
   useEffect(() => {
     if (!isAuthorized) return;
 
@@ -551,29 +551,45 @@ export default function App() {
     }
 
     let isKicked = false;
+    let hasConfirmedOnServer = false; // 서버에 내 문서가 정상 등록된 것을 먼저 확인한 뒤에만 강퇴 감시
     let unsubscribeKick: (() => void) | null = null;
 
     const timer = setTimeout(() => {
       const myDocRef = doc(db, "active_users", deviceId!);
 
       unsubscribeKick = onSnapshot(myDocRef, (docSnapshot) => {
-        if (!docSnapshot.exists() && !isKicked) {
+        if (docSnapshot.exists()) {
+          hasConfirmedOnServer = true;
+          return;
+        }
+
+        // 서버에 등록된 적이 있는데 이후 관리자에 의해 삭제된 경우에만 튕김 처리 (새로고침 시 오작동 차단)
+        if (hasConfirmedOnServer && !docSnapshot.exists() && !isKicked) {
           isKicked = true;
 
-          const isBadInput =
-            !authForm.company?.trim() || authForm.company.trim() === '미입력' ||
-            !authForm.location?.trim() || authForm.location.trim() === '미입력' ||
-            !authForm.name?.trim() || authForm.name.trim() === '현장작업자';
+          const savedProfileStr = localStorage.getItem('hitec_saved_auth_profile');
+          let profileData = authForm;
+          if (savedProfileStr) {
+            try { profileData = JSON.parse(savedProfileStr); } catch (e) {}
+          }
 
-          localStorage.clear();
+          const isBadInput =
+            !profileData.company?.trim() || profileData.company.trim() === '미입력' ||
+            !profileData.location?.trim() || profileData.location.trim() === '미입력' ||
+            !profileData.name?.trim() || profileData.name.trim() === '현장작업자';
+
           const newDeviceId = 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
-          localStorage.setItem('hitec_device_id', newDeviceId);
 
           if (isBadInput) {
+            localStorage.clear();
+            localStorage.setItem('hitec_device_id', newDeviceId);
             alert("⚠️ 소속 및 작업자 정보 입력이 올바르지 않아 초기화되었습니다. 처음부터 다시 입력해 주세요.");
             setIsAuthorized(false);
             window.location.reload();
           } else {
+            // 정상 입력자는 프로필(hitec_saved_auth_profile)을 보존하여 재접속 시 입력칸 유지
+            localStorage.removeItem('hitec_auth_data');
+            localStorage.setItem('hitec_device_id', newDeviceId);
             alert("⚠️ 관리자에 의해 세션이 종료되었습니다. 다시 접속해 주세요.");
             setIsAuthorized(false);
           }
@@ -586,8 +602,8 @@ export default function App() {
       if (unsubscribeKick) unsubscribeKick();
     };
   }, [isAuthorized]);
-  
-// ⚡ [관리자 보호 및 지능형 중복 제거 통합 로직]
+
+  // ⚡ [관리자 보호 및 지능형 중복 제거 통합 로직]
   useEffect(() => {
     if (!isAuthorized) return;
 
@@ -604,32 +620,32 @@ export default function App() {
       const deviceType = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'PC';
       const nowKor = new Date().toLocaleString('ko-KR');
 
-myDocRef = doc(db, "active_users", deviceId!);
-await setDoc(myDocRef, {
-  company: authForm.company?.trim() || '미입력',
-  location: authForm.location?.trim() || '미입력',
-  name: authForm.name?.trim() || '현장작업자',
-  age: authForm.age || '미입력',
-  role: authForm.role || '사원',
-  photo: authForm.photo || '', // 👈 [추가] 프로필 사진 데이터 전송
-  date: nowKor,
-  device: deviceType,
-  connectedAt: Date.now()
-});
+      // 새로고침 직후 authForm이 비어있을 때 로컬 저장소 프로필을 우선 참조
+      let currentProfile = authForm;
+      const savedProfileStr = localStorage.getItem('hitec_saved_auth_profile');
+      if ((!currentProfile.name || !currentProfile.company) && savedProfileStr) {
+        try { currentProfile = JSON.parse(savedProfileStr); } catch (e) {}
+      }
+
+      myDocRef = doc(db, "active_users", deviceId!);
+      await setDoc(myDocRef, {
+        company: currentProfile.company?.trim() || '미입력',
+        location: currentProfile.location?.trim() || '미입력',
+        name: currentProfile.name?.trim() || '현장작업자',
+        age: currentProfile.age || '미입력',
+        role: currentProfile.role || '사원',
+        photo: currentProfile.photo || '',
+        date: nowKor,
+        device: deviceType,
+        connectedAt: Date.now()
+      });
       isRegistered = true;
     };
 
     registerAndListen();
 
-    const handleBeforeUnload = async () => {
-      if (myDocRef && isRegistered) {
-        try {
-          await deleteDoc(myDocRef);
-        } catch (e) {
-          console.error("퇴장 처리 에러:", e);
-        }
-      }
-    };
+    // 💡 업데이트(새로고침) 시 내 세션 문서가 삭제되어 튕기는 현상을 막기 위해 자동 삭제 비활성화
+    const handleBeforeUnload = () => {};
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     const handleVisibilityChange = () => {
