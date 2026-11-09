@@ -557,7 +557,7 @@ export default function App() {
     const timer = setTimeout(() => {
       const myDocRef = doc(db, "active_users", deviceId!);
 
-      unsubscribeKick = onSnapshot(myDocRef, (docSnapshot) => {
+unsubscribeKick = onSnapshot(myDocRef, (docSnapshot: any) => {
         if (docSnapshot.exists()) {
           hasConfirmedOnServer = true;
           return;
