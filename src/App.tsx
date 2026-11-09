@@ -3024,7 +3024,7 @@ if (masterKey === "7777") {
         </div>
       )}
 
-     {isProcessOpen && (
+{isProcessOpen && (
         <div className="fixed inset-0 bg-slate-900/80 z-[3000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl w-[720px] max-w-full shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[88vh]">
             <div className="p-4 bg-slate-800 flex justify-between items-center text-white shrink-0">
@@ -3033,7 +3033,7 @@ if (masterKey === "7777") {
             </div>
             
             <div className="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4 bg-slate-50">
-              {/* 🚨 제작 배경 및 법적 면책 고지 (기존 내용 100% 유지) */}
+              {/* 🚨 제작 배경 및 법적 면책 고지 */}
               <div className="bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm mb-4">
                 <h4 className="font-black text-red-700 text-sm mb-2">⚠️ 시스템 제작 배경 및 면책 고지</h4>
                 <p className="text-xs text-red-800 leading-relaxed font-bold break-keep">
@@ -3042,13 +3042,13 @@ if (masterKey === "7777") {
                 </p>
               </div>
               
-              {/* 1. 기존 DB Architecture 안내 유지 */}
+              {/* 1. DB Architecture 안내 */}
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2 text-xs sm:text-[13px] leading-relaxed break-keep">
                 <h4 className="text-slate-800 font-bold">1. Spies Hecker DB Architecture (진행 상황)</h4>
                 <p className="text-slate-600">현재 조색 관련 주요 알고리즘 및 데이터베이스 연동 작업이 순조롭게 진행 중입니다. 지속적인 업데이트를 통해 정확도를 높여가고 있습니다.</p>
               </div>
 
-              {/* 2. 패치 히스토리 전체 내역 추가 (14개 이상 전체 표시) */}
+              {/* 2. 패치 히스토리 전체 내역 추가 */}
               <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-sm space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 pb-2.5">
                   <h4 className="text-emerald-400 font-black text-sm">2. 시스템 패치 업데이트 히스토리</h4>
